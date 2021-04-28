@@ -3,6 +3,7 @@
 This is the first of the two repos that comprise the Animating Children's Sketches project. This repo contains the code necessary to detect humanoid characters within a drawing, segment them from the background, predict joint locations onto the character, and combine the results into a rigged character that can be animated by sketch_animate.
 
 # Setup 
+  
 
 ### Get Detectron2 and Alphapose weights
 Download the finetuned Detectron2 weights from Drive: https://drive.google.com/file/d/1tyhVUXbWf5CeYAoHHbrOVtm72CBUNF37/view?usp=sharing
@@ -53,12 +54,18 @@ This is how I installed it on the FAIR cluster
     python3 setup.py build develop --user
 
 Once installed, add the following to your .bashrc
+    
     ALPHAPOSE_PATH=<absolute path of the AlphaPose directory>
   
 Reload ~/.bashrc
     
     source ~/.bashrc
 
+Download this repo if you haven't already
+
+    git clone git@github.com:fairinternal/sketch_rig.git
+    cd sketch_rig
+  
 There are a couple of files that need patching in alphapose. Run the following commands to do so:
 
     cp alphapose_patch_files/demo_inference.py ${ALPHAPOSE_PATH}/scripts/demo_inference.py
