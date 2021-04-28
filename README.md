@@ -54,6 +54,7 @@ This is how I installed it on the FAIR cluster
     python3 setup.py build develop --user
 
 Once installed, add the following to your .bashrc
+    
     ALPHAPOSE_PATH=<absolute path of the AlphaPose directory>
   
 Reload ~/.bashrc
