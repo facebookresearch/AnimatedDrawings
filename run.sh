@@ -30,8 +30,8 @@ python scripts/demo_inference.py --cfg ${CURDIR}/configs/pose_detection.yaml \
 				 --detfile ${CURDIR}/${OUTPUT_DIR}/sketch-DET.json
 cd -
 mv ${ALPHAPOSE_PATH}/examples/res ${ALPHAPOSE_PREDICTIONS_DIR}
-rmdir ${ALPHAPOSE_PATH}/examples/res 
-rmdir ${ALPHAPOSE_PATH}/examples 
+if [ -d "${ALPHAPOSE_PATH}/examples/res" ]; then rm -Rf ${ALPHAPOSE_PATH}/examples/res; fi
+if [ -d "${ALPHAPOSE_PATH}/examples" ]; then rm -Rf ${ALPHAPOSE_PATH}/examples; fi
 
 AP_RESULTS_FN=${ALPHAPOSE_PREDICTIONS_DIR}/alphapose-results.json
 AP_OUT_DIR=${ALPHAPOSE_PREDICTIONS_DIR}/imgs
