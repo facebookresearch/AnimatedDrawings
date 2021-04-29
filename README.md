@@ -75,7 +75,7 @@ There are a couple of files that need patching in alphapose. Run the following c
 
 # Run
 
-After setup has been completed, you can create a rigged character:
+After setup has been completed, you can create a rigged character from images. There are some example images included in ./input, but you can specify other locations as well:
 
     ./run.sh ${INPUT_DIR} ${OUTPUT_DIR}  # INPUT_DIR a directory containg png image(s) with a drawn humanoid. OUTPUT_DIR is where the results will be saved
 
