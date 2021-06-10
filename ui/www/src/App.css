@@ -28,6 +28,25 @@
   color: #61dafb;
 }
 
+/* video {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+} */
+
+.carousel {
+  position: relative;
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
