@@ -16,6 +16,7 @@ import {
 function App() {
   const [show, setShow] = useState(false);
   const [file, setFile] = useState<File>();
+  const [imgData, setImgData] = useState<string>();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -63,21 +64,37 @@ function App() {
         </Modal.Header>
         <Modal.Body>
           Alright! Let's get started by uploading an image of drawing!
+          {imgData && (
+            <img src={imgData} alt="Preview" className="img-fluid"></img>
+          )}
           <Form className="mt-3">
             <Form.File
               id="custom-file"
-              label="Take a picture of your hand drawn figure"
+              label={
+                file?.name
+                  ? file.name
+                  : "Take a picture of your hand drawn figure"
+              }
               custom
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                // doSomethingWithFiles(e.target.files)
-                // useDrawingApi(e.target.files[0]);
-                if (e.target.files !== null) {
-                  setFile(e.target.files[0]);
+                if (e.target.files !== null && e.target.files.length > 0) {
+                  const file = e.target.files[0];
+                  setFile(file);
+                  var reader = new FileReader();
+                  reader.onload = (e) => {
+                    const dataUrl = e.target?.result;
+                    if (dataUrl && typeof dataUrl === "string") {
+                      console.log(dataUrl);
+
+                      setImgData(dataUrl);
+                    }
+                  };
+
+                  reader.readAsDataURL(file);
                 }
               }}
             />
           </Form>
-          {/* <img src={file?.stream} alt="..."></img> */}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
