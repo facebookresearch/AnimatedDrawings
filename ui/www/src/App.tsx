@@ -11,39 +11,78 @@ import {
   Form,
   Modal,
   Row,
+  Spinner,
 } from "react-bootstrap";
 
 function App() {
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState<File>();
   const [imgData, setImgData] = useState<string>();
+  const [responseData, setResponseData] = useState<string>();
+  const [videoData, setVideoData] = useState<string>();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  function loadVideoBlob(data: string) {
+    var reader = new FileReader();
+
+    if (data !== null && data !== undefined) {
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result;
+        if (dataUrl && typeof dataUrl === "string") {
+          console.log(dataUrl);
+
+          const videoPlayer = document.getElementById("videoPlayer");
+
+          if (videoPlayer && videoPlayer instanceof HTMLVideoElement) {
+            videoPlayer.onerror = (e) => {
+              debugger;
+              console.log("Error in Video Player", e, videoPlayer.error);
+              // TODO Show Error.
+              throw e;
+            };
+            videoPlayer.src = dataUrl;
+            videoPlayer.loop = true;
+            videoPlayer.load();
+            videoPlayer.onloadeddata = function () {
+              videoPlayer.play();
+              setIsLoading(false);
+              handleClose();
+            };
+          }
+        }
+      };
+
+      var blob = new Blob([data], { type: "video/mp4" });
+      reader.readAsDataURL(blob);
+    }
+  }
+
   return (
     <>
-      <Carousel fade>
-        <Carousel.Item interval={7000}>
-          <video playsInline autoPlay muted loop id="" className="min-vh-100">
-            <source src="demo1.mp4" type="video/mp4" />
-          </video>
-          <Carousel.Caption>
-            <h3>First slide label</h3>
-            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item interval={7000}>
-          <video autoPlay muted loop id="" className="min-vh-100">
-            <source src="demo2.mp4" type="video/mp4" />
-          </video>
+      {!videoData && (
+        <Carousel fade>
+          <Carousel.Item interval={7000}>
+            <video playsInline autoPlay muted loop id="" className="min-vh-100">
+              <source src="demo1.mp4" type="video/mp4" />
+            </video>
+          </Carousel.Item>
+          <Carousel.Item interval={7000}>
+            <video playsInline autoPlay muted loop id="" className="min-vh-100">
+              <source src="demo2.mp4" type="video/mp4" />
+            </video>
+          </Carousel.Item>
+        </Carousel>
+      )}
 
-          <Carousel.Caption>
-            <h3>Second slide label</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-      </Carousel>
+      <div>
+        <video
+          id="videoPlayer"
+          className="min-vh-100 position-absolute"
+        ></video>
+      </div>
       <Container fluid>
         <Row noGutters={true} className="vh-100">
           <Col className="d-flex flex-column justify-content-end vh-100">
@@ -78,6 +117,7 @@ function App() {
               custom
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 if (e.target.files !== null && e.target.files.length > 0) {
+                  setIsLoading(true);
                   const file = e.target.files[0];
                   setFile(file);
                   var reader = new FileReader();
@@ -87,6 +127,7 @@ function App() {
                       console.log(dataUrl);
 
                       setImgData(dataUrl);
+                      setIsLoading(false);
                     }
                   };
 
@@ -102,8 +143,10 @@ function App() {
           </Button>
           <Button
             variant="primary"
+            disabled={isLoading}
             onClick={async (e) => {
               try {
+                setIsLoading(true);
                 const form = new FormData();
                 if (file !== null) {
                   form.append("file", file);
@@ -113,12 +156,16 @@ function App() {
                   "http://localhost:5000/upload",
                   form,
                   {
-                    timeout: 30000,
+                    responseType: "arraybuffer",
+                    timeout: 60000,
                     headers: {
                       "Content-Type": "multipart/form-data",
                     }, // 30s timeout
                   }
                 );
+
+                setResponseData(result.data);
+                loadVideoBlob(result.data);
 
                 // TODO handle uploaded image
                 console.log(result);
@@ -130,7 +177,16 @@ function App() {
               }
             }}
           >
-            Submit
+            {!isLoading && "Submit"}
+            {isLoading && (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
