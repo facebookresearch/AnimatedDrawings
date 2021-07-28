@@ -14,7 +14,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import UploadImage from "./components/UploadImage";
-import PoseModal from "./PoseModal";
+import PoseModal from "./components/PoseModal";
 
 function App() {
   const [show, setShow] = useState(false);
@@ -127,7 +127,7 @@ function App() {
                   "http://localhost:5000/upload_image",
                   form,
                   {
-                    responseType: "arraybuffer",
+                    // responseType: "arraybuffer",
                     timeout: 60000,
                     headers: {
                       "Content-Type": "multipart/form-data",
