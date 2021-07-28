@@ -13,14 +13,16 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
+import UploadImage from "./components/UploadImage";
+import PoseModal from "./PoseModal";
 
 function App() {
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState<File>();
-  const [imgData, setImgData] = useState<string>();
-  const [responseData, setResponseData] = useState<string>();
+  // const [responseData, setResponseData] = useState<string>();
   const [videoData, setVideoData] = useState<string>();
+  const [uuid, setUuid] = useState<string>();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -102,40 +104,8 @@ function App() {
           <Modal.Title>Create your own animation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Alright! Let's get started by uploading an image of drawing!
-          {imgData && (
-            <img src={imgData} alt="Preview" className="img-fluid"></img>
-          )}
-          <Form className="mt-3">
-            <Form.File
-              id="custom-file"
-              label={
-                file?.name
-                  ? file.name
-                  : "Take a picture of your hand drawn figure"
-              }
-              custom
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                if (e.target.files !== null && e.target.files.length > 0) {
-                  setIsLoading(true);
-                  const file = e.target.files[0];
-                  setFile(file);
-                  var reader = new FileReader();
-                  reader.onload = (e) => {
-                    const dataUrl = e.target?.result;
-                    if (dataUrl && typeof dataUrl === "string") {
-                      console.log(dataUrl);
-
-                      setImgData(dataUrl);
-                      setIsLoading(false);
-                    }
-                  };
-
-                  reader.readAsDataURL(file);
-                }
-              }}
-            />
-          </Form>
+          {!uuid && <UploadImage file={file} setFile={setFile} />}
+          {uuid && <PoseModal uuid={uuid} />}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
@@ -153,7 +123,8 @@ function App() {
                 }
 
                 const result = await axios.post(
-                  "http://localhost:5000/upload",
+                  // "http://localhost:5000/upload",
+                  "http://localhost:5000/upload_image",
                   form,
                   {
                     responseType: "arraybuffer",
@@ -163,9 +134,10 @@ function App() {
                     }, // 30s timeout
                   }
                 );
+                setUuid(result.data);
 
-                setResponseData(result.data);
-                loadVideoBlob(result.data);
+                // setResponseData(result.data);
+                // loadVideoBlob(result.data);
 
                 // TODO handle uploaded image
                 console.log(result);
