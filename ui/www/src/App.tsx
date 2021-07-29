@@ -15,14 +15,17 @@ import {
 } from "react-bootstrap";
 import UploadImage from "./components/UploadImage";
 import PoseModal from "./components/PoseModal";
+import { useDrawingApi } from "./hooks/useDrawingApi";
 
 function App() {
   const [show, setShow] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState<File>();
   // const [responseData, setResponseData] = useState<string>();
   const [videoData, setVideoData] = useState<string>();
   const [uuid, setUuid] = useState<string>();
+
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -50,7 +53,7 @@ function App() {
             videoPlayer.load();
             videoPlayer.onloadeddata = function () {
               videoPlayer.play();
-              setIsLoading(false);
+              // setIsLoading(false);
               handleClose();
             };
           }
@@ -113,39 +116,10 @@ function App() {
           </Button>
           <Button
             variant="primary"
-            disabled={isLoading}
+            // disabled={isLoading}
             onClick={async (e) => {
-              try {
-                setIsLoading(true);
-                const form = new FormData();
-                if (file !== null) {
-                  form.append("file", file);
-                }
-
-                const result = await axios.post(
-                  // "http://localhost:5000/upload",
-                  "http://localhost:5000/upload_image",
-                  form,
-                  {
-                    // responseType: "arraybuffer",
-                    timeout: 60000,
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                    }, // 30s timeout
-                  }
-                );
-                setUuid(result.data);
-
-                // setResponseData(result.data);
-                // loadVideoBlob(result.data);
-
-                // TODO handle uploaded image
-                console.log(result);
-              } catch (error) {
-                console.log(error);
-                // onError(error);
-              } finally {
-                // setIsLoading(false);
+              if (file !== null && file !== undefined) {
+                await uploadImage(file, (data) => setUuid(data as string));
               }
             }}
           >
