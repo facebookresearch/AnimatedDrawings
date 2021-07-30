@@ -1,14 +1,16 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Spinner } from "react-bootstrap";
+import { useHistory } from "react-router-dom";
 import PoseEditor, { Pose, Position } from "./PoseEditor";
 
 export interface Props {
   uuid: string | undefined;
 }
 
-export const PoseStep = ({ uuid }: Props) => {
+const PoseStep = ({ uuid }: Props) => {
   // const { isLoading, uploadImage } = useDrawingApi((err) => {});
+  let history = useHistory();
 
   return (
     <Card className="border-0">
@@ -18,7 +20,14 @@ export const PoseStep = ({ uuid }: Props) => {
         <PoseModal uuid={uuid} />
       </Card.Body>
       <Card.Footer className="text-muted">
-        <Button variant="secondary">Done</Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            history.push(`/result/${uuid}`);
+          }}
+        >
+          Done
+        </Button>
       </Card.Footer>
     </Card>
   );
@@ -177,4 +186,4 @@ const PoseModal = ({ uuid }: Props) => {
   );
 };
 
-export default PoseModal;
+export default PoseStep;
