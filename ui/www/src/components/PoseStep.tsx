@@ -1,12 +1,28 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
-import { idText } from "typescript";
+import { Button, Card, Spinner } from "react-bootstrap";
 import PoseEditor, { Pose, Position } from "./PoseEditor";
 
 export interface Props {
-  uuid: string;
+  uuid: string | undefined;
 }
+
+export const PoseStep = ({ uuid }: Props) => {
+  // const { isLoading, uploadImage } = useDrawingApi((err) => {});
+
+  return (
+    <Card className="border-0">
+      <Card.Body>
+        <Card.Title>Strike a pose</Card.Title>
+        <Card.Text>Now let's adjust the pose!</Card.Text>
+        <PoseModal uuid={uuid} />
+      </Card.Body>
+      <Card.Footer className="text-muted">
+        <Button variant="secondary">Done</Button>
+      </Card.Footer>
+    </Card>
+  );
+};
 
 const PoseModal = ({ uuid }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +35,9 @@ const PoseModal = ({ uuid }: Props) => {
 
       try {
         const form = new FormData();
-        form.set("uuid", uuid);
+        if (uuid) {
+          form.set("uuid", uuid);
+        }
 
         const result = await axios.post(
           "http://localhost:5000/get_joint_locations_json",
@@ -150,18 +168,10 @@ const PoseModal = ({ uuid }: Props) => {
         ],
       }
     : null;
-  // nodes: Object.entries(pose).map( (name, entry) => { id : name, label: name, position: } )
-
-  // pose &&
-  //   console.log(
-  //     Object.entries(pose).map((arr) => {
-  //       return { id: arr[0], label: arr[0], position: arr[1] };
-  //     })
-  //   );
 
   return (
     <>
-      <Spinner animation="border" />
+      {isLoading && <Spinner animation="border" />}
       {startPose && <PoseEditor imageUrl={imageUrl} startPose={startPose} />}
     </>
   );

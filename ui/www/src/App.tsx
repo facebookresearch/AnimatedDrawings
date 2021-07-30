@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 import logo from "./logo.svg";
 import FormData from "form-data";
 import axios from "axios";
@@ -13,20 +13,27 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import UploadImage from "./components/UploadImage";
-import PoseModal from "./components/PoseModal";
+import UploadImageBody, { UploadImageStep } from "./components/UploadImageStep";
 import { useDrawingApi } from "./hooks/useDrawingApi";
+import { ModalStep } from "./types/ModalStep";
+import PoseStep from "./components/PoseStep";
+
+enum CreateAnimationStep {
+  Upload = "upload",
+  Pose = "pose",
+}
 
 function App() {
   const [show, setShow] = useState(false);
   // const [isLoading, setIsLoading] = useState(false);
-  const [file, setFile] = useState<File>();
+
   // const [responseData, setResponseData] = useState<string>();
   const [videoData, setVideoData] = useState<string>();
   const [uuid, setUuid] = useState<string>();
 
-  const { isLoading, uploadImage } = useDrawingApi((err) => {});
-
+  const [step, setStep] = useState<CreateAnimationStep>(
+    CreateAnimationStep.Upload
+  );
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -106,35 +113,18 @@ function App() {
         <Modal.Header closeButton>
           <Modal.Title>Create your own animation</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {!uuid && <UploadImage file={file} setFile={setFile} />}
-          {uuid && <PoseModal uuid={uuid} />}
+        <Modal.Body className="p-0">
+          {step === CreateAnimationStep.Upload && (
+            <UploadImageStep
+              onClose={handleClose}
+              onImageUploadSuccess={(data) => {
+                setUuid(data as string);
+                setStep(CreateAnimationStep.Pose);
+              }}
+            />
+          )}
+          {step === CreateAnimationStep.Pose && <PoseStep uuid={uuid} />}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button
-            variant="primary"
-            // disabled={isLoading}
-            onClick={async (e) => {
-              if (file !== null && file !== undefined) {
-                await uploadImage(file, (data) => setUuid(data as string));
-              }
-            }}
-          >
-            {!isLoading && "Submit"}
-            {isLoading && (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            )}
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
   );

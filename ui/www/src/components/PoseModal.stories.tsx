@@ -3,7 +3,7 @@
 import React from "react";
 
 import { Meta, Story } from "@storybook/react";
-import PoseModal, { Props } from "./PoseModal";
+import PoseModal, { Props } from "./PoseStep";
 
 export default {
   title: "Components/PoseModal",
