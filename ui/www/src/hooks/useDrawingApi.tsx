@@ -105,12 +105,13 @@ export function useDrawingApi(onError: (error: Error) => void) {
   // Get Final Animation Video
   const getAnimation = async function (
     uuid: string,
+    animation: string = "wave",
     onResult: (result: any) => void
   ) {
     // try {
 
     const form = new FormData();
-    form.set("animation", "wave");
+    form.set("animation", animation);
     if (uuid) {
       form.set("uuid", uuid);
     }

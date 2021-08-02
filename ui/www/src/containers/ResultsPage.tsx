@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Col, Container, Dropdown, Row, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { useDrawingApi } from "../hooks/useDrawingApi";
 
@@ -6,9 +7,17 @@ interface Props {
   // uuid?: string;
 }
 
+enum AnimationType {
+  RunJump = "run_jump",
+  Wave = "wave",
+  Dance = "dance",
+}
+
 const ResultsPage = (params: Props) => {
   const { uuid } = useParams<{ uuid: string }>();
-  const [videoData, setVideoData] = useState<string>();
+  const [animationType, setAnimationType] = useState<AnimationType>(
+    AnimationType.RunJump
+  );
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
   });
@@ -48,14 +57,17 @@ const ResultsPage = (params: Props) => {
   }
 
   useEffect(() => {
-    getAnimation(uuid, (data) => {
+    getAnimation(uuid, animationType, (data) => {
       loadVideoBlob(data as string);
     });
     return () => {};
-  }, [uuid]);
+  }, [uuid, animationType]);
 
   return (
     <div>
+      {isLoading && (
+        <Spinner animation="border" role="status" aria-hidden="true" />
+      )}
       <video
         id="videoPlayer"
         autoPlay
@@ -63,6 +75,35 @@ const ResultsPage = (params: Props) => {
         loop
         className="min-vh-100 position-absolute"
       ></video>
+      <Container fluid>
+        <Row noGutters={true} className="vh-100">
+          <Col className="d-flex flex-column justify-content-end vh-100">
+            <Dropdown>
+              <Dropdown.Toggle variant="success" id="dropdown-basic">
+                Animation
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu onSelect={(key, e) => console.log(key, e)}>
+                <Dropdown.Item
+                  onSelect={() => setAnimationType(AnimationType.RunJump)}
+                >
+                  Run Jump
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onSelect={() => setAnimationType(AnimationType.Wave)}
+                >
+                  Wave
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onSelect={() => setAnimationType(AnimationType.Dance)}
+                >
+                  Dance
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };
