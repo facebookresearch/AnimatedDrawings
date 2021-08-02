@@ -65,9 +65,6 @@ const ResultsPage = (params: Props) => {
 
   return (
     <div>
-      {isLoading && (
-        <Spinner animation="border" role="status" aria-hidden="true" />
-      )}
       <video
         id="videoPlayer"
         autoPlay
@@ -77,8 +74,16 @@ const ResultsPage = (params: Props) => {
       ></video>
       <Container fluid>
         <Row noGutters={true} className="vh-100">
-          <Col className="d-flex flex-column justify-content-end vh-100">
-            <Dropdown>
+          {isLoading && (
+            <Spinner
+              animation="border"
+              role="status"
+              aria-hidden="true"
+              className=" position-fixed align-middle"
+            />
+          )}
+          <Col className="d-flex flex-row justify-content-end vh-100">
+            <Dropdown className="m-3">
               <Dropdown.Toggle variant="success" id="dropdown-basic">
                 Animation
               </Dropdown.Toggle>
