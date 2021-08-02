@@ -25,7 +25,8 @@ interface Props {
   //   imageHeight: number;
   //   imageWidth: number;
   imageUrl: any;
-  startPose: Pose;
+  pose: Pose;
+  setPose: (pose: Pose) => void;
 }
 
 interface LineProps extends React.SVGProps<SVGLineElement> {}
@@ -125,11 +126,9 @@ const Circle = ({
   );
 };
 
-const PoseEditor = ({ imageUrl, startPose }: Props) => {
+const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
   const [hoveredJoint, setHoveredJoint] = React.useState<string>();
   const [isMoving, setIsMoving] = React.useState(false);
-
-  const [pose, setPose] = React.useState(startPose);
 
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
