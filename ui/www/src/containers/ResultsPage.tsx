@@ -9,7 +9,9 @@ interface Props {
 const ResultsPage = (params: Props) => {
   const { uuid } = useParams<{ uuid: string }>();
   const [videoData, setVideoData] = useState<string>();
-  const { isLoading, getAnimation } = useDrawingApi((err) => {});
+  const { isLoading, getAnimation } = useDrawingApi((err) => {
+    console.log(err);
+  });
 
   function loadVideoBlob(data: string) {
     var reader = new FileReader();

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 // import fs from "fs";
 
@@ -8,22 +8,28 @@ export function useDrawingApi(onError: (error: Error) => void) {
   const apiHost = process.env.REACT_APP_API_HOST;
   console.log(process.env);
 
-  const uploadImage = async function (
-    file: File,
-    onResult: (result: any) => void
+  enum ApiPath {
+    UploadImage = "upload_image",
+    GetAnimation = "get_animation",
+  }
+
+  const DEFAULT_CONFIG = {
+    timeout: 60000,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  async function invokePost(
+    path: string,
+    data: any,
+    onResult: (result: any) => void,
+    config: AxiosRequestConfig = DEFAULT_CONFIG
   ) {
     try {
       setIsLoading(true);
-      const form = new FormData();
-      if (file !== null) {
-        form.append("file", file);
-      }
-      const result = await axios.post(`${apiHost}/upload_image`, form, {
-        timeout: 60000,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+
+      const result = await axios.post(`${apiHost}/${path}`, data, config);
       onResult(result.data);
     } catch (error) {
       console.log(error);
@@ -31,35 +37,34 @@ export function useDrawingApi(onError: (error: Error) => void) {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  const uploadImage = async function (
+    file: File,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (file !== null) {
+      form.append("file", file);
+    }
+    await invokePost(ApiPath.UploadImage, form, onResult);
   };
 
   const getAnimation = async function (
     uuid: string,
     onResult: (result: any) => void
   ) {
-    try {
-      setIsLoading(true);
-      const form = new FormData();
-      form.set("animation", "wave");
-      if (uuid) {
-        form.set("uuid", uuid);
-      }
+    // try {
 
-      const result = await axios.post(`${apiHost}/get_animation`, form, {
-        responseType: "arraybuffer",
-        timeout: 60000,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        }, // 30s timeout
-      });
-
-      onResult(result.data);
-    } catch (error) {
-      console.log(error);
-      onError(error);
-    } finally {
-      setIsLoading(false);
+    const form = new FormData();
+    form.set("animation", "wave");
+    if (uuid) {
+      form.set("uuid", uuid);
     }
+    await invokePost(ApiPath.GetAnimation, form, onResult, {
+      ...DEFAULT_CONFIG,
+      responseType: "arraybuffer",
+    });
   };
 
   return {
