@@ -4,11 +4,10 @@ This is the second repo associated with the Animating Children's Sketches projec
 
 ## Setup
 
-	conda create --name sketch_animate python=3.7
+	conda env create --file conda-env.txt
 	conda activate sketch_animate
 	git clone git@github.com:fairinternal/sketch_animate.git
 	cd sketch_animate
-	pip install -r requirements.txt
 	
 To ensure setup worked, try running the following example:
 
