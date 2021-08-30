@@ -1,0 +1,10 @@
+motion: ../Data/BVH/mixamo/Floating_mixamo.com.bvh
+character_config: ../Data/Texture/nick_cat.yaml
+DRAW_FLOOR: True
+DRAW_BVH: False
+SHOW_ORIGINAL_POSE_ONLY: False
+CALCULATE_RENDER_ORDER: False
+RENDER_MODE: INTERACT
+RENDER_FPS: 18
+
+# ./main.sh mixamo_floating.yaml cameras_fss.yaml

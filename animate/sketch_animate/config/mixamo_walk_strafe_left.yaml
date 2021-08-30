@@ -1,0 +1,12 @@
+motion: ../Data/BVH/mixamo/Walk_Strafe_Left_mixamo.com.bvh
+character_config: ../Data/Texture/nick_cat.yaml
+DRAW_FLOOR: True
+DRAW_BVH: False
+SHOW_ORIGINAL_POSE_ONLY: False
+CALCULATE_RENDER_ORDER: True
+RENDER_MODE: INTERACT
+RENDER_FPS: 18
+
+ROOT_POSITION_UPDATE_TYPE: velocity
+
+# fff

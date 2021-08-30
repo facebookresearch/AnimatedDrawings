@@ -1,0 +1,34 @@
+#motion: Null
+MOTION_CONFIG: Null  # path to a motion.yaml file
+character_config: Null  # path to a character.yaml file
+
+SHOW_ORIGINAL_POSE_ONLY: False
+CALCULATE_RENDER_ORDER: True
+DRAW_CAMERA_WIDGETS: False
+DRAW_BVH: True
+DRAW_CAMERA_NAMES: True
+DRAW_PRINCIPAL_COMPONENTS: False
+DRAW_BVH_PCS: False
+DRAW_FLOOR: False
+BACKGROUND_DRAWING: Null  # Null or path to a background image to render behind character
+SHOW_MULTI_CAMERAS: True  # whether to show all windows or not
+
+DRAW_INFO_OVERLAY: True
+
+DRAW_SKETCH_BONE_COLORS: True
+SHOW_SKETCH_MESH: False
+
+CENTER_BVH_AT_ORIGIN: False
+REPOSITION_BVH: Null # Null or [X,Y,Z] indicating global offset to BVH's root
+
+USE_DEPTH_TEST: False  # Use OpenGL Depth Test
+CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
+
+ROOT_POSITION_UPDATE_TYPE: position  # either 'position' or 'velocity'
+
+DRAW_TRANSFERER_SSS: False  # used for dev/debug. don't use screenspacesquares
+
+RENDER_MODE: INTERACT  # either 'INTERACT' or 'RENDER' for generating output images
+RENDER_FPS: Null # either Null or int with fps at which to render images. Ignored in interactive mode.
+OUTPUT_PATH: output  # path for images to be rendered to if RENDER mode is used
+
