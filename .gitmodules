@@ -1,0 +1,3 @@
+[submodule "AlphaPose"]
+	path = AlphaPose
+	url = git@github.com:s0mya/AlphaPose.git
