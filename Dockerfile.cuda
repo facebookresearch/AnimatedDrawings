@@ -1,0 +1,159 @@
+# syntax = docker/dockerfile:1.2
+
+ARG BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+ARG PYTHON_VERSION=3.8
+
+FROM ${BASE_IMAGE} as dev-base
+
+ENV PYTHONUNBUFFERED TRUE
+
+# https://github.com/deepmind/dm_control#rendering
+
+# --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    ca-certificates \
+    curl \
+    python3 \
+    python3-dev \
+    git \ 
+    zsh \
+    gcc \ 
+    g++ \
+    python3-opengl \
+    libglfw3 \ 
+    libglfw3-dev \
+    libglew2.0 \
+    libgl1-mesa-glx \
+    libosmesa6 \
+    libglib2.0-0 \
+    ffmpeg 
+
+RUN rm -rf /var/lib/apt/lists/* 
+RUN cd /tmp \
+    && curl -O https://bootstrap.pypa.io/get-pip.py \
+    && python3 get-pip.py
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+
+
+# Add Conda to path:
+ENV PATH /home/model-server/conda/bin:$PATH
+ENV PATH /home/model-server/conda/envs/env/bin:$PATH
+
+FROM dev-base as conda
+RUN useradd -m model-server 
+USER model-server
+WORKDIR /home/model-server
+
+RUN curl -fsSL -v -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
+    chmod +x ~/miniconda.sh && \
+    ~/miniconda.sh -b -p /home/model-server/conda && \
+    rm ~/miniconda.sh && \
+    /home/model-server/conda/bin/conda install -y python=${PYTHON_VERSION} conda-build pyyaml numpy ipython&& \
+    /home/model-server/conda/bin/conda clean -ya
+
+
+
+FROM conda as sketch_animate
+
+RUN mkdir -p /home/model-server/tmp \ 
+    && mkdir -p /home/model-server/rig \
+    && mkdir -p /home/model-server/rig/server \
+    && mkdir -p /home/model-server/rig/server/in \
+    && mkdir -p /home/model-server/rig/server/out \
+    && mkdir -p /home/model-server/animate \
+    && mkdir -p /home/model-server/animate/output \
+    && mkdir -p /home/model-server/animate/sketch_animate/output 
+
+
+COPY --chown=model-server:model-server animate/conda-env.txt animate/conda-env.txt
+WORKDIR /home/model-server/animate
+RUN conda create --name sketch_animate --file conda-env.txt
+SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
+WORKDIR /home/model-server
+COPY --chown=model-server:model-server animate animate/
+
+
+# "glfw", "egl", or "osmesa" from https://github.com/deepmind/dm_control#rendering
+ENV MUJOCO_GL="osmesa"
+
+
+ENV TEMP=/home/model-server/tmp
+
+#  TODO Clean up
+
+FROM sketch_animate as sketch_rig
+
+
+ENV DETECTRON2_WEIGHTS_LOC=/home/model-server/detectron2_weights.pth
+ENV ALPHAPOSE_WEIGHTS_LOC=/home/model-server/alphapose_weights.pth
+ENV D2_VIRTUAL_ENV_NAME=detectron2
+ENV AP_VIRTUAL_ENV_NAME=alphapose
+
+RUN conda create --name detectron2 python=3.7.9
+
+
+# && python -m pip install 'git+https://github.com/facebookresearch/detectron2.git' \
+
+SHELL ["conda", "run", "-n", "detectron2", "/bin/bash", "-c"]
+
+RUN  conda install opencv \
+    && conda install pytorch==1.5.1 torchvision==0.6.1 cudatoolkit=10.1 -c pytorch \
+    && pip install detectron2 -f \
+    https://dl.fbaipublicfiles.com/detectron2/wheels/cu101/torch1.5/index.html \
+    && conda install scikit-image \
+    && conda install scikit-learn \ 
+    && conda install natsort 
+
+COPY --chown=model-server:model-server detectron2_weights.pth alphapose_weights.pth /home/model-server/
+COPY --chown=model-server:model-server rig rig/
+
+
+# sketch_rig
+RUN conda create  --name alphapose python=3.6 -y
+# Activate new shell with conda env
+SHELL ["conda", "run", "-n", "alphapose", "/bin/bash", "-c"]
+
+COPY --chown=model-server:model-server AlphaPose AlphaPose/
+
+# The following is from here: https://github.com/MVIG-SJTU/AlphaPose/blob/master/docs/INSTALL.md \
+RUN  conda install pytorch torchvision cudatoolkit \
+    # && git clone https://github.com/MVIG-SJTU/AlphaPose.git \
+    && cd AlphaPose \
+    && export PATH=/usr/local/cuda/bin/:$PATH \
+    && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
+    && pip install cython pycocotools \
+    && conda install matplotlib 
+# && conda install -c conda-forge  pycocotools\
+ENV CUDA_HOME=/usr/local/cuda
+ENV ALPHAPOSE_PATH=/home/model-server/AlphaPose
+# Compile alphapose
+RUN cd AlphaPose \
+    && python3 setup.py build develop --user 
+
+
+# RUN cp /home/model-server/rig/server/input/0004.png /home/model-server/rig/server/in 
+
+SHELL ["/bin/bash","-c"]
+RUN conda init
+
+FROM sketch_rig as sketch_flask
+
+RUN conda create  --name flask python=3.7 -y
+# Activate new shell with "flask" conda env
+SHELL ["conda", "run", "-n", "flask", "/bin/bash", "-c"]
+RUN pip install flask flask_cors gunicorn
+
+WORKDIR /home/model-server/rig/server/flask 
+EXPOSE 5000
+
+
+# Define the default command.
+CMD [ "./run.sh" ]
+
+
+# CMD [ "sleep", "infinity" ]
+
