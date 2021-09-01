@@ -5,7 +5,7 @@ set -x
 
 UUID=${1}
 ANIMATION_TYPE=${2}
-OUTPUT_PARENT_DIR='/private/home/hjessmith/flask/output_predictions/'${UUID}
+OUTPUT_PARENT_DIR='output_predictions/'${UUID}
 
 source ~/.bashrc
 

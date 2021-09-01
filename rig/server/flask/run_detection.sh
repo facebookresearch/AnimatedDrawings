@@ -4,13 +4,13 @@ set -e
 set -x
 
 UUID=${1}
-OUTPUT_PARENT_DIR='/private/home/hjessmith/flask/output_predictions/'${UUID}
+OUTPUT_PARENT_DIR='output_predictions/'${UUID}
 
-source ~/.bashrc
+# source ~/.bashrc
 
 ########### Run Detectron2 Humanoid Prediction ##########
-conda activate detectron2-2
+# conda activate detectron2-2
 
-python scripts/detect-humanoids.py ${OUTPUT_PARENT_DIR}
+conda run -v -n detectron2 python ../scripts/detect-humanoids.py ${OUTPUT_PARENT_DIR} 
 
-conda deactivate
+# conda deactivate
