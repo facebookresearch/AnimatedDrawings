@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '/private/home/hjessmith/utils_j')
+sys.path.insert(0, '/home/model-server/rig/server/utils')
 import coco_utils as cu
 from functools import reduce
 from PIL import Image, ImageDraw, ImageFont
@@ -85,7 +85,7 @@ for idx, result in enumerate(results):
 
         draw.line((x1, y1, x2, y2), fill=(redval, 0, 0), width=2)
 
-    font = ImageFont.truetype("/private/home/hjessmith/font/Arial Unicode.ttf", 12)
+    font = ImageFont.truetype("/home/model-server/rig/server/fonts/VeraMono.ttf", 12)
 
 
     # write confidence values for image

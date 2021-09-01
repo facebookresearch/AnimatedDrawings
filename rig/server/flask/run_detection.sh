@@ -11,6 +11,6 @@ OUTPUT_PARENT_DIR='output_predictions/'${UUID}
 ########### Run Detectron2 Humanoid Prediction ##########
 # conda activate detectron2-2
 
-conda run -v -n detectron2 python ../scripts/detect-humanoids.py ${OUTPUT_PARENT_DIR} 
+conda run -v -n detectron2 python scripts/detect-humanoids.py ${OUTPUT_PARENT_DIR} 
 
 # conda deactivate

@@ -68,9 +68,12 @@ RUN mkdir -p /home/model-server/tmp \
 
 
 COPY --chown=model-server:model-server animate/conda-env.txt animate/conda-env.txt
+COPY --chown=model-server:model-server animate/requirements.txt animate/requirements.txt
 WORKDIR /home/model-server/animate
 RUN conda create --name sketch_animate --file conda-env.txt
 SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
+
+RUN pip install -r requirements.txt
 
 WORKDIR /home/model-server
 COPY --chown=model-server:model-server animate animate/

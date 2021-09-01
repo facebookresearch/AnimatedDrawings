@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 import shutil
-sys.path.insert(0, '/private/home/hjessmith/utils_j')
+sys.path.insert(0, '/home/model-server/rig/server/utils')
 import d2prediction_utils as d2p
 
 import detectron2
@@ -34,7 +34,10 @@ if __name__ == '__main__':
     #Path(output_dir).mkdir(exist_ok=True, parents=True)
 
     cfg = get_cfg()
-    cfg.merge_from_file("/private/home/hjessmith/scripts/04-19-2021/humanoid_detection.yaml")
+    cfg.merge_from_file(model_zoo.get_config_file("Base-RCNN-FPN.yaml"))
+    cfg.merge_from_file('/home/model-server/rig/server/configs/humanoid_detection.yaml')
+    cfg.MODEL.WEIGHTS=('/home/model-server/detectron2_weights.pth')
+    cfg.MODEL.DEVICE = 'cpu'
     predictor = DefaultPredictor(cfg)
 
     prediction_img, instances = detect(input_img)

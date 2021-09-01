@@ -5,7 +5,8 @@ set -x
 
 UUID=${1}
 ANIMATION_TYPE=${2}
-OUTPUT_PARENT_DIR='output_predictions/'${UUID}
+OUTPUT_PARENT_DIR=/home/model-server/rig/server/flask/output_predictions/${UUID}
+CHARACTER_CONFIG=${OUTPUT_PARENT_DIR}/animation/cropped_image.yaml
 
 source ~/.bashrc
 
@@ -14,25 +15,33 @@ source ~/.bashrc
 rm -rf ${OUTPUT_PARENT_DIR}/animation/output_images
 mkdir ${OUTPUT_PARENT_DIR}/animation/output_images
 
-conda activate opengl
+#conda activate opengl
  
-cd sketch_animate
 
 if [ "$ANIMATION_TYPE" = "run_jump" ]; then
-	DISPLAY=:100 ./main.sh ${OUTPUT_PARENT_DIR}/animation/render_run_jump.yaml cameras_ssf.yaml
-	/usr/bin/ffmpeg -y -r 30 -s 1500x800 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/_out1.mp4
+	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/running_jump.yaml
+	MIRROR_CONCAT=1
+elif [ "$ANIMATION_TYPE" = "dance" ]; then
+	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/hip_hop_dancing.yaml
+	MIRROR_CONCAT=0
+elif [ "$ANIMATION_TYPE" = "wave" ]; then
+	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/wave_hello_3.yaml
+	MIRROR_CONCAT=0
+fi
+
+cd ~/animate/sketch_animate
+
+rm -rf ${OUTPUT_PARENT_DIR}/animation/output_images
+mkdir -p ${OUTPUT_PARENT_DIR}/animation/output_images
+
+conda run -v -n sketch_animate python main.py ${MOTION_CONFIG} ${CHARACTER_CONFIG} ${OUTPUT_PARENT_DIR}/animation/output_images
+
+if [ ${MIRROR_CONCAT} -eq 1 ]; then
+	/usr/bin/ffmpeg -y -r 18 -s 1920x1080 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/_out1.mp4
 	/usr/bin/ffmpeg -y -i ${OUTPUT_PARENT_DIR}/animation/_out1.mp4 -vf hflip -c:a copy ${OUTPUT_PARENT_DIR}/animation/_out2.mp4
 	ffmpeg -y -f concat -safe 0 -i <(printf "file '${OUTPUT_PARENT_DIR}/animation/_out1.mp4'\nfile '${OUTPUT_PARENT_DIR}/animation/_out2.mp4'\n") -c copy ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4
 	rm -rf ${OUTPUT_PARENT_DIR}/animation/_out1.mp4
 	rm -rf ${OUTPUT_PARENT_DIR}/animation/_out2.mp4
-
-elif [ "$ANIMATION_TYPE" = "dance" ]; then
-	DISPLAY=:100 ./main.sh ${OUTPUT_PARENT_DIR}/animation/render_dance.yaml cameras_fff.yaml
-	/usr/bin/ffmpeg -y -r 30 -s 1500x800 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4
-
-elif [ "$ANIMATION_TYPE" = "wave" ]; then
-	DISPLAY=:100 ./main.sh ${OUTPUT_PARENT_DIR}/animation/render_wave.yaml cameras_fsf.yaml
-	/usr/bin/ffmpeg -y -r 30 -s 1500x800 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4
+else
+	/usr/bin/ffmpeg -y -r 18 -s 1500x800 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4
 fi
-
-conda deactivate

@@ -88,32 +88,32 @@ def main(input_parent_dir):
         draw.ellipse((x-3, y-3, x+3, y+3), fill=(255, 0, 0), outline=(255, 255, 255))
     mask.save(os.path.join(outdir, f'{img_loc.stem}_mask_joints.png'))
 
-    # create the run_jump yaml file
-    with open('./sketch_animate/sketch_animate/config/example_Running_Jump_4x_mixamo_render.yaml', 'r') as f:
-        y = yaml.load(f)
-    y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
-    y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
+    # # create the run_jump yaml file
+    # with open('./sketch_animate/sketch_animate/config/example_Running_Jump_4x_mixamo_render.yaml', 'r') as f:
+    #     y = yaml.load(f)
+    # y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
+    # y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
 
-    with open(os.path.join(outdir, f'render_run_jump.yaml'), 'w') as f:
-        yaml.dump(y, f)
+    # with open(os.path.join(outdir, f'render_run_jump.yaml'), 'w') as f:
+    #     yaml.dump(y, f)
 
-    # create the dance yaml file
-    with open('./sketch_animate/sketch_animate/config/example_mixamo_hip_hop_dancing.yaml', 'r') as f:
-        y = yaml.load(f)
-    y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
-    y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
+    # # create the dance yaml file
+    # with open('./sketch_animate/sketch_animate/config/example_mixamo_hip_hop_dancing.yaml', 'r') as f:
+    #     y = yaml.load(f)
+    # y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
+    # y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
 
-    with open(os.path.join(outdir, f'render_dance.yaml'), 'w') as f:
-        yaml.dump(y, f)
+    # with open(os.path.join(outdir, f'render_dance.yaml'), 'w') as f:
+    #     yaml.dump(y, f)
 
-    # create the wave yaml file
-    with open('./sketch_animate/sketch_animate/config/example_render_wave.yaml', 'r') as f:
-        y = yaml.load(f)
-    y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
-    y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
+    # # create the wave yaml file
+    # with open('./sketch_animate/sketch_animate/config/example_render_wave.yaml', 'r') as f:
+    #     y = yaml.load(f)
+    # y['character_config'] = f'{str(outdir)}/{img_loc.stem}.yaml'
+    # y['OUTPUT_PATH'] = f'{str(outdir)}/output_images'
 
-    with open(os.path.join(outdir, f'render_wave.yaml'), 'w') as f:
-        yaml.dump(y, f)
+    # with open(os.path.join(outdir, f'render_wave.yaml'), 'w') as f:
+    #     yaml.dump(y, f)
 
 # keypoint_names= [
 #     "head",

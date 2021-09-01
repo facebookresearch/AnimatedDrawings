@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 import sys
-sys.path.insert(0, '/private/home/hjessmith/utils_j')
+sys.path.insert(0, '/home/model-server/rig/server/utils')
 import coco_utils
 import image_utils
 import numpy as np

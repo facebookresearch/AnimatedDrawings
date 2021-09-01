@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '/private/home/hjessmith/utils_j')
+sys.path.insert(0, '/home/model-server/rig/server/utils')
 import os
 import json
 import detectron2
@@ -41,7 +41,7 @@ det = [{
         'category_id':1,
         'score':0.9,
         'bbox': (cx, cy, w, h),
-        'image_id': gray_blur_img_out_loc,
+        'image_id': f'/home/model-server/rig/server/flask/{gray_blur_img_out_loc}',
 }]
 with open(sketch_DET_loc, 'w') as f:
         json.dump(det, f)
