@@ -37,7 +37,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
       onResult(result.data);
     } catch (error) {
       console.log(error);
-      onError(error);
+      onError(error as Error);
     } finally {
       setIsLoading(false);
     }
