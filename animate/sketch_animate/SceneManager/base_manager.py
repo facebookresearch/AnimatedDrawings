@@ -114,7 +114,7 @@ class BaseManager:
 
     def _initialize_characters(self):
         # Load font  and check it is monotype
-        filename = os.path.join(os.getcwd(), 'fonts', 'VeraMono.ttf')
+        filename = os.path.join(os.getcwd(), '..', 'fonts', 'VeraMono.ttf')
         size = 20
         face = ft.Face(filename)
         face.set_char_size(size * 64)
