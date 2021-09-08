@@ -151,6 +151,20 @@ RUN mkdir uploads && mkdir output_predictions
 
 EXPOSE 5000
 
+# Build the Web App
+
+FROM node:16.8.0 as build-deps-yarn
+WORKDIR /usr/src/app
+COPY ui/www/package.json ui/www/yarn.lock ./
+RUN yarn
+COPY ui/www ./
+RUN yarn build
+
+# Copy the webapp
+
+FROM sketch_flask
+COPY --from=build-deps-yarn --chown=model-server:model-server /usr/src/app/build /home/model-server/rig/server/flask/static
+
 
 # Define the default command.
 CMD [ "./run.sh" ]
