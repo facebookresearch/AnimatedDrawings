@@ -779,10 +779,16 @@ class ARAP_Sketch(BaseSketch):
 
     def set_render_order(self, proj_cam, bvh, time):
         """ For each bone in the BVH, get it's midpoint and find the distance to the camera, sort be increasing"""
-        # TODO - Implement grouping, so all torso triangles are rendered at the same time
-        # TODO: Figure out how to account for multiple projection cams
         cam_pos = proj_cam.get_global_position()
-        distances = {}
+
+        distances = {
+            'right_arm': [],
+            'left_arm': [],
+            'right_leg': [],
+            'left_leg': [],
+            'torso': []
+        }
+
         for b_idx, bone in enumerate(self.bones):
             # distal joint
             d_bvh_jnt_name = bvh.jnt_map[bone.djoint.name]
@@ -801,10 +807,31 @@ class ARAP_Sketch(BaseSketch):
             bone_mid_pos = (p_joint_pos + d_joint_pos) / 2 # midpoint
 
             distance = np.linalg.norm(bone_mid_pos[[0, 2]] - cam_pos[[0, 2]])
-            distances[b_idx] = distance
 
-        distances = [[x[0], x[1]] for x in distances.items()]
-        self.render_order = sorted(distances, key=lambda item: item[1], reverse=True)  # used in segments
+            if bone.djoint.name in ['right_elbow', 'right_hand']:
+                distances['right_arm'].append([b_idx, distance, bone.djoint.name])
+            elif bone.djoint.name in ['left_elbow', 'left_hand']:
+                distances['left_arm'].append([b_idx, distance, bone.djoint.name])
+            elif bone.djoint.name in ['right_knee', 'right_foot']:
+                distances['right_leg'].append([b_idx, distance, bone.djoint.name])
+            elif bone.djoint.name in ['left_knee', 'left_foot']:
+                distances['left_leg'].append([b_idx, distance, bone.djoint.name])
+            else:
+                distances['torso'].append([b_idx, distance, bone.djoint.name])
+
+        for key, val in distances.items():
+            distances[key] = sorted(val, key=lambda item: item[1], reverse=True)  # used in segments
+
+        render_order = []
+        while distances:
+            max_, max_key = -np.inf, None
+            for key, val in distances.items():
+                if val[0][1] > max_:
+                    max_, max_key = val[0][1], key
+            render_order += distances[max_key]
+            del(distances[max_key])
+        self.render_order = render_order
+
 
     def draw(self, **kwargs):
 
@@ -837,7 +864,7 @@ class ARAP_Sketch(BaseSketch):
             GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.model.T)
 
             if self.render_order is not None:
-                for bone_idx, _ in self.render_order:
+                for bone_idx, _, _ in self.render_order:
                     if bone_idx not in self.indices_info.keys():
                         continue
                     start, length = self.indices_info[bone_idx]
@@ -854,7 +881,7 @@ class ARAP_Sketch(BaseSketch):
             color_black_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "color_black")
 
             if self.render_order is not None:
-                for bone_idx, _ in self.render_order:
+                for bone_idx, _, _ in self.render_order:
                     if bone_idx not in self.indices_info.keys():
                         continue
                     start, length = self.indices_info[bone_idx]
