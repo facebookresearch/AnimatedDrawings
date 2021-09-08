@@ -7,7 +7,7 @@ from SceneManager.base_manager import BaseManager
 
 class RenderManager(BaseManager):
 
-    def __init__(self, cfg=None, width=1920, height=1080):
+    def __init__(self, cfg=None, width=1080, height=1080):
         assert cfg is not None
         self.cfg = cfg
         self.width = width
