@@ -12,10 +12,17 @@
 
 4. Launch the docker Container
 
-`docker run -p 5000:5000 --name sketch_server --rm -a STDOUT sketch:dev`
+```
+docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
+-e REACT_APP_API_HOST=http://localhost:5000 \
+sketch:dev
+```
 
 OR to build and run in one step
 
-`docker build --file Dockerfile -t sketch:dev . && docker run -p 5000:5000 --name sketch_server --rm -a STDOUT sketch:dev`
-
-
+```
+docker build --file Dockerfile -t sketch:dev . \
+&& docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
+-e REACT_APP_API_HOST=http://localhost:5000 \
+sketch:dev
+```
