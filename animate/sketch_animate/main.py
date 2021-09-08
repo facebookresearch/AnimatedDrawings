@@ -90,7 +90,7 @@ if __name__ == '__main__':
         assert False, 'Cannot find sketch_config: {}'.format(sys.argv[2])
 
     if not os.path.exists(sys.argv[3]):
-        assert False, 'Output directory does not exist: {}'.format(sys.argv[2])
+        assert False, 'Output directory does not exist: {}'.format(sys.argv[3])
 
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
     cfg = build_cfg()
