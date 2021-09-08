@@ -133,11 +133,11 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
 
-  const [debug, setDebug] = useState(true);
+  //const [debug, setDebug] = useState(true);
 
-  const padding = 20;
-  const yStep = (imageHeight - padding) / 7;
-  const xStep = (imageWidth - padding) / 8;
+  //const padding = 20;
+  //const yStep = (imageHeight - padding) / 7;
+  //const xStep = (imageWidth - padding) / 8;
   const mapX = (unit: number) => unit; // * xStep + imageWidth / 2;
   const mapY = (unit: number) => unit; // * yStep + padding;
   const unmapX = (coord: number) => coord; //(coord - imageWidth / 2) / xStep;
@@ -163,9 +163,10 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
   }, [imageUrl]);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="custom-loader">
       <svg
-        style={{ width: imageWidth, height: imageHeight }}
+        width="100%" 
+        height="100%"
         viewBox={`0 0 ${imageWidth} ${imageHeight}`}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -234,7 +235,14 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
           ))}
         </g>
       </svg>
-      {hoveredJoint ? (
+    </div>
+  );
+};
+
+export default PoseEditor;
+
+/**
+ *  {hoveredJoint ? (
         <div className="tooltip">
           {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")}
         </div>
@@ -252,8 +260,4 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
           ))}
         </div>
       )}
-    </div>
-  );
-};
-
-export default PoseEditor;
+ */
