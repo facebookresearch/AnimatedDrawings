@@ -70,8 +70,7 @@ for idx, result in enumerate(results):
 
         draw.line((x1, y1, x2, y2), fill=(redval, 0, 0), width=2)
 
-    font = ImageFont.truetype("/private/home/hjessmith/font/Arial Unicode.ttf", 16)
-    #font = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 20)
+    font = ImageFont.truetype("/home/model-server/rig/server/fonts/VeraMono.ttf", 16)
     draw.text((0, 0), "Weighted Confidence: {:.2f}".format(np.sum(np.array(cs)/kp_weight_sum)), (255, 0, 255), font=font)
 
     f.write('{} {}\n'.format(result['image_id'], np.sum(np.array(cs)/kp_weight_sum)))

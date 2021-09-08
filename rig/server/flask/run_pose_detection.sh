@@ -4,7 +4,7 @@ set -e
 set -x
 
 UUID=${1}
-OUTPUT_PARENT_DIR='/private/home/hjessmith/flask/output_predictions/'${UUID}
+OUTPUT_PARENT_DIR='output_predictions/'${UUID}
 
 # ########### Run Alphapose ##########
 ./scripts/run_alphapose.sh ${OUTPUT_PARENT_DIR}

@@ -4,7 +4,7 @@ set -e
 set -x
 
 UUID=${1}
-OUTPUT_PARENT_DIR='/private/home/hjessmith/flask/output_predictions/'${UUID}
+OUTPUT_PARENT_DIR='/home/model-server/rig/server/flask/output_predictions/'${UUID}
 
 source ~/.bashrc
 
@@ -14,8 +14,8 @@ rm -rf ${OUTPUT_PARENT_DIR}/animation/dance.mp4
 rm -rf ${OUTPUT_PARENT_DIR}/animation/run_jump.mp4
 
 ########## Prep Animation Files ##########
-conda activate detectron2-2
+# conda activate detectron2-2
 
-python scripts/prep_animation_files.py ${OUTPUT_PARENT_DIR}
+conda run -n detectron2 python scripts/prep_animation_files.py ${OUTPUT_PARENT_DIR}
 
-conda deactivate
+# conda deactivate

@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
+import {} from "../EnvConfig";
 // import fs from "fs";
 
-const apiHost = process.env.REACT_APP_API_HOST;
+const apiHost = window._env_.REACT_APP_API_HOST;
 
 export function useDrawingApi(onError: (error: Error) => void) {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
       onResult(result.data);
     } catch (error) {
       console.log(error);
-      onError(error);
+      onError(error as Error);
     } finally {
       setIsLoading(false);
     }

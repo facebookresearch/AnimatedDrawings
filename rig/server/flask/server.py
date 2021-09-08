@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 from flask import Flask, send_file, send_from_directory, flash, request, redirect, url_for, make_response
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
@@ -336,3 +337,28 @@ def upload_file():
 def return_results(name):
     return send_from_directory('opengl_dev', 'out.mp4')
     #return send_from_directory(f'input_parent_dir/cropped_detections/composite_mask/', name)
+
+
+##############################################
+# Static web content
+##############################################
+resource_dir: Path = (Path(__file__).parent / "static").absolute()
+
+@app.route("/")
+def index_resource():
+    return send_file(resource_dir / "index.html")
+
+
+@app.route("/<path>")
+def root_resource(path: str):
+    return send_file(resource_dir / path)
+
+
+@app.route("/static/css/<path>")
+def css_resource(path: str):
+    return send_file(resource_dir / "static/css/" / path)
+
+
+@app.route("/static/js/<path>")
+def js_resource(path: str):
+    return send_file(resource_dir / "static/js/" / path)

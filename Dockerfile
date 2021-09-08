@@ -7,7 +7,7 @@ FROM ${BASE_IMAGE} as dev-base
 
 ENV PYTHONUNBUFFERED TRUE
 
-# https://github.com/deepmind/dm_control#rendering
+# --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -68,12 +68,13 @@ RUN mkdir -p /home/model-server/tmp \
 
 
 COPY --chown=model-server:model-server animate/conda-env.txt animate/conda-env.txt
+COPY --chown=model-server:model-server animate/requirements.txt animate/requirements.txt
 WORKDIR /home/model-server/animate
 RUN conda create --name sketch_animate --file conda-env.txt
 SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
-# RUN conda activate sketch_animate \
-# RUN pip install -r requirements.txt \
-#     && pip install opencv-python
+
+RUN pip install -r requirements.txt
+
 WORKDIR /home/model-server
 COPY --chown=model-server:model-server animate animate/
 
@@ -81,16 +82,11 @@ COPY --chown=model-server:model-server animate animate/
 # "glfw", "egl", or "osmesa" from https://github.com/deepmind/dm_control#rendering
 ENV MUJOCO_GL="osmesa"
 
-
-
-
 ENV TEMP=/home/model-server/tmp
 
 #  TODO Clean up
 
 FROM sketch_animate as sketch_rig
-
-
 
 
 ENV DETECTRON2_WEIGHTS_LOC=/home/model-server/detectron2_weights.pth
@@ -100,37 +96,25 @@ ENV AP_VIRTUAL_ENV_NAME=alphapose
 
 RUN conda create --name detectron2 python=3.7.9
 
-
 # && python -m pip install 'git+https://github.com/facebookresearch/detectron2.git' \
 
 SHELL ["conda", "run", "-n", "detectron2", "/bin/bash", "-c"]
-# pip3 install torch==1.9.0+cpu torchvision==0.10.0+cpu torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
-# && conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch \
-# && python -m pip install detectron2 -f \
-# https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html \
 
 RUN  conda install opencv \
-    && pip3 install torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html \
-    && python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.5/index.html \
+    && conda install pytorch==1.5.1 torchvision==0.6.1 cpuonly -c pytorch \
+    && pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.5/index.html \
     && conda install scikit-image \
     && conda install scikit-learn \ 
     && conda install natsort 
-# && conda deactivate
-COPY --chown=model-server:model-server detectron2_weights.pth alphapose_weights.pth /home/model-server/
-COPY --chown=model-server:model-server rig rig/
-
 
 # sketch_rig
 RUN conda create  --name alphapose python=3.6 -y
 # Activate new shell with conda env
 SHELL ["conda", "run", "-n", "alphapose", "/bin/bash", "-c"]
 
-COPY --chown=model-server:model-server AlphaPose AlphaPose/
-
 # The following is from here: https://github.com/MVIG-SJTU/AlphaPose/blob/master/docs/INSTALL.md \
-RUN  conda install pytorch torchvision cudatoolkit \
+RUN  conda install pytorch-cpu==1.1.0 torchvision-cpu==0.3.0 cpuonly -c pytorch \
     # && git clone https://github.com/MVIG-SJTU/AlphaPose.git \
-    && cd AlphaPose \
     && export PATH=/usr/local/cuda/bin/:$PATH \
     && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
     && pip install cython pycocotools \
@@ -138,6 +122,8 @@ RUN  conda install pytorch torchvision cudatoolkit \
 # && conda install -c conda-forge  pycocotools\
 ENV CUDA_HOME=/usr/local/cuda
 ENV ALPHAPOSE_PATH=/home/model-server/AlphaPose
+COPY --chown=model-server:model-server AlphaPose AlphaPose/
+
 # Compile alphapose
 RUN cd AlphaPose \
     && python3 setup.py build develop --user 
@@ -155,8 +141,33 @@ RUN conda create  --name flask python=3.7 -y
 SHELL ["conda", "run", "-n", "flask", "/bin/bash", "-c"]
 RUN pip install flask flask_cors gunicorn
 
+
+
+COPY --chown=model-server:model-server detectron2_weights.pth alphapose_weights.pth /home/model-server/
+COPY --chown=model-server:model-server rig rig/
+
 WORKDIR /home/model-server/rig/server/flask 
+RUN mkdir uploads && mkdir output_predictions
+
 EXPOSE 5000
+
+# Build the Web App
+
+FROM node:16.8.0 as build-deps-yarn
+WORKDIR /usr/src/app
+COPY ui/www/package.json ui/www/yarn.lock ./
+RUN yarn
+COPY ui/www ./
+RUN yarn build
+
+
+# Copy the webapp
+
+FROM sketch_flask
+COPY --chown=model-server:model-server ui/www/.env .
+COPY --chown=model-server:model-server ui/www/env.sh .
+RUN chmod +x env.sh
+COPY --from=build-deps-yarn --chown=model-server:model-server /usr/src/app/build /home/model-server/rig/server/flask/static
 
 
 # Define the default command.

@@ -1,2 +1,4 @@
 detectron2_weights.pth
 alphapose_weights.pth
+
+**/.DS_Store

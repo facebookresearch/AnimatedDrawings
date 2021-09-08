@@ -26,6 +26,8 @@ def main(cfg):
             logging.critical('Error initializing osmesa. Aborting')
         logging.info('osmesa successfully initialized')
 
+        cfg['OUTPUT_PATH'] = sys.argv[3]
+
         import SceneManager.render_manager as render_manager
         scene_manager = render_manager.RenderManager(cfg=cfg)
     elif cfg['RENDER_MODE'] == 'INTERACT':
@@ -86,6 +88,9 @@ if __name__ == '__main__':
 
     if not os.path.exists(sys.argv[2]):
         assert False, 'Cannot find sketch_config: {}'.format(sys.argv[2])
+
+    if not os.path.exists(sys.argv[3]):
+        assert False, 'Output directory does not exist: {}'.format(sys.argv[2])
 
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
     cfg = build_cfg()

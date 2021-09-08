@@ -1,1 +1,4 @@
 **/.git
+**/node_modules
+ui/www/build
+ui/www/build/.env
