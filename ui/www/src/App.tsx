@@ -1,7 +1,8 @@
 import React from "react";
-import HomePage from "./containers/HomePage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import "./assets/scss/root.scss";
 import ResultsPage from "./containers/ResultsPage";
+import MainPage from "./containers/MainPage";
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
           <ResultsPage />
         </Route>
         <Route path="/">
-          <HomePage />
+          <MainPage />
         </Route>
       </Switch>
     </Router>

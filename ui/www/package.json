@@ -12,6 +12,8 @@
     "@types/react-dom": "^17.0.0",
     "axios": "^0.21.1",
     "bootstrap": "4.6.0",
+    "bootstrap-icons": "^1.5.0",
+    "browser-image-compression": "^1.0.15",
     "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
     "react": "^17.0.2",
@@ -19,8 +21,11 @@
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-share": "^4.4.0",
+    "sass": "^1.39.0",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "zustand": "^3.5.10"
   },
   "scripts": {
     "start": "chmod +x ./env.sh && ./env.sh && cp env-config.js ./public/ && react-scripts start",

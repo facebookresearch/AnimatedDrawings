@@ -1,0 +1,165 @@
+$white: #fff !default;
+$gray-100: #f6f9fc !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #adb5bd !default;
+$gray-600: #8898aa !default;
+$gray-700: #525f7f !default;
+$gray-800: #32325d !default;
+$gray-900: #212529 !default;
+$black: #000 !default;
+
+$grays: () !default;
+$grays: map-merge(
+  (
+    "100": $gray-100,
+    "200": $gray-200,
+    "300": $gray-300,
+    "400": $gray-400,
+    "500": $gray-500,
+    "600": $gray-600,
+    "700": $gray-700,
+    "800": $gray-800,
+    "900": $gray-900,
+  ),
+  $grays
+);
+
+$blue: #3a6a88 !default;
+$indigo: #2d303d !default;
+$purple: #8965e0 !default;
+$pink: #f3a4b5 !default;
+$red: #f5365c !default;
+$orange: #f25c05 !default;
+$yellow: #efcb87 !default;
+$green: #2dce89 !default;
+$teal: #80cbd7 !default;
+$cyan: #87bfa1 !default;
+$blue2: #5ca5b2 !default;
+
+$default: #172b4d !default;
+$primary: $orange !default;
+$secondary: #ffefe1 !default;
+$success: $green !default;
+$info: $teal !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-500 !default;
+$dark: #282c34 !default;
+$darker: darken($gray-900, 15%) !default;
+
+// Content
+
+$main-content-padding-y: 100px !default;
+$main-content-padding-x: 15px !default;
+
+// Fonts
+
+$font-family-sans-serif: "Nunito", sans-serif !default;
+$font-family-base: $font-family-sans-serif !default;
+
+$font-size-base: 1rem !default; // Assumes the browser default, typically `16px`
+$font-size-xl: ($font-size-base * 1.5);
+$font-size-lg: ($font-size-base * 1.25);
+$font-size-sm: ($font-size-base * 0.875);
+$font-size-xs: ($font-size-base * 0.75);
+
+$font-weight-light: 300 !default;
+$font-weight-normal: 400 !default;
+$font-weight-bold: 500 !default;
+$font-weight-extra-bold: 800 !default;
+
+$h1-font-size: $font-size-base * 1.625 !default;
+$h2-font-size: $font-size-base * 1.25 !default;
+$h3-font-size: $font-size-base * 1.0625 !default;
+$h4-font-size: $font-size-base * 0.9375 !default;
+$h5-font-size: $font-size-base * 0.8125 !default;
+$h6-font-size: $font-size-base * 0.625 !default;
+
+// Navbar
+
+$navbar-nav-link-font-size: 0.5rem !default;
+$navbar-nav-link-font-weight: 500 !default;
+$navbar-nav-link-text-transform: normal !default;
+$navbar-nav-link-letter-spacing: 0 !default;
+
+// Border
+
+$border-width: 2px !default;
+$border-color: $black !default;
+
+$border-radius: 0.375rem !default;
+$border-radius-xl: 0.5rem !default;
+$border-radius-lg: 0.4375rem !default;
+$border-radius-sm: 0.25rem !default;
+
+$box-shadow-sm: 0 0 0.5rem rgba($gray-600, 0.075) !default;
+$box-shadow: 0 0 2rem 0 rgba($gray-600, 0.15) !default;
+$box-shadow-lg: 0 0 3rem rgba($gray-600, 0.175) !default;
+
+// Buttons + Forms
+
+$input-btn-font-size-sm: 0.75rem !default;
+$input-btn-font-size: 0.8rem !default;
+$input-btn-font-size-lg: 0.85rem !default;
+
+$input-btn-border-width: $border-width !default;
+
+// Dropdown
+
+$dropdown-bg: $white !default;
+$dropdown-border-width: 0 !default;
+$dropdown-border-color: rgba($black, 0.15) !default;
+$dropdown-font-size: 0.75rem !default;
+
+// Custom forms
+
+$input-bg: $white !default;
+$input-disabled-bg: $gray-200 !default;
+
+$component-active-color: $white !default;
+$component-active-bg: $success !default;
+$component-active-border-color: $success !default;
+
+$custom-control-indicator-bg: $input-bg !default;
+$custom-control-indicator-border-width: 1px !default;
+$custom-control-indicator-border-color: $gray-300 !default;
+$custom-control-indicator-box-shadow: 0 3px 2px rgba($gray-200, 0.05) !default;
+
+$component-hover-color: $gray-300 !default;
+$component-hover-bg: $gray-300 !default;
+$component-hover-border-color: $gray-300 !default;
+
+$custom-control-indicator-checked-color: $component-active-color !default;
+$custom-control-indicator-checked-bg: $component-active-bg !default;
+$custom-control-indicator-checked-border-color: $component-active-border-color !default;
+$custom-control-indicator-checked-box-shadow: $custom-control-indicator-box-shadow !default;
+$custom-control-indicator-checked-disabled-bg: theme-color("primary") !default;
+
+
+// Modals
+
+$modal-inner-padding:               1.5rem !default;
+
+$modal-lg:                          800px !default;
+$modal-md:                          500px !default;
+$modal-sm:                          380px !default;
+
+$modal-title-font-size:             $h3-font-size !default;
+$modal-title-line-height:           1.1 !default;
+
+$modal-content-bg:                  $white !default;
+$modal-content-border-color:        rgba($black, .2) !default;
+$modal-content-border-width:        0 !default;
+$modal-content-border-radius:       $border-radius-lg !default;
+$modal-content-box-shadow-xs:       0 15px 35px rgba(50,50,93,.2), 0 5px 15px rgba(0,0,0,.17) !default;
+$modal-content-box-shadow-sm-up:    0 15px 35px rgba(50,50,93,.2), 0 5px 15px rgba(0,0,0,.17) !default;
+
+$modal-backdrop-bg:                 $black !default;
+$modal-backdrop-opacity:            .16 !default;
+$modal-header-border-color:         $gray-200 !default;
+$modal-footer-border-color:         $modal-header-border-color !default;
+$modal-header-border-width:         $modal-content-border-width !default;
+$modal-footer-border-width:         $modal-header-border-width !default;
+$modal-header-padding:              1.25rem !default;

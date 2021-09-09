@@ -160,9 +160,13 @@ RUN yarn
 COPY ui/www ./
 RUN yarn build
 
+
 # Copy the webapp
 
 FROM sketch_flask
+COPY --chown=model-server:model-server ui/www/.env .
+COPY --chown=model-server:model-server ui/www/env.sh .
+RUN chmod +x env.sh
 COPY --from=build-deps-yarn --chown=model-server:model-server /usr/src/app/build /home/model-server/rig/server/flask/static
 
 

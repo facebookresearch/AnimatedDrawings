@@ -61,7 +61,7 @@ const ResultsPage = (params: Props) => {
       loadVideoBlob(data as string);
     });
     return () => {};
-  }, [uuid, animationType]);
+  }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>

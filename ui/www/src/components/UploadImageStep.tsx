@@ -72,7 +72,6 @@ const UploadImageBody = ({ file, setFile }: Props) => {
               reader.onload = (e) => {
                 const dataUrl = e.target?.result;
                 if (dataUrl && typeof dataUrl === "string") {
-                  console.log(dataUrl);
 
                   setImgData(dataUrl);
                 }
