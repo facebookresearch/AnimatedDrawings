@@ -1,7 +1,7 @@
 BVH_PATH: ../Data/BVH/mixamo/Shooting_Gun_mixamo.com.bvh
-LOOP_REPEAT_UPPER_LIMIT: 3  # rendered animation will loop bvh clip maximum of this many times
+LOOP_REPEAT_UPPER_LIMIT: 1  # rendered animation will loop bvh clip maximum of this many times
 RENDERED_FRAME_UPPER_LIMIT: 250 # rendered animation will be a maximum of this many frames
-X_POSITION_UPPER_LIMIT: 5 # rendered animation will terminate when character moves to this absolute position along x axis
+X_POSITION_UPPER_LIMIT: 3 # rendered animation will terminate when character moves to this absolute position along x axis
 ROOT_POSITION_UPDATE_TYPE: velocity  # position or velocity. If translation is important, use velocity.
 RENDER_FPS: 15
 
@@ -15,7 +15,7 @@ CLEAR_COLOR: [1.0, 1.0, 1.0, 1.0]
 Cameras:
   - name: Free Cam
     type: free
-    cam_pos: [0.0, 0.0, 3.2]
+    cam_pos: [0.0, 0.0, 2.2]
     cam_up:  [0.0, 0.1, 0.0]
     yaw: -90.0
 

@@ -1,5 +1,5 @@
 BVH_PATH: ../Data/BVH/mixamo/Waving_Gesture_mixamo.com.bvh
-LOOP_REPEAT_UPPER_LIMIT: 3  # rendered animation will loop bvh clip maximum of this many times
+LOOP_REPEAT_UPPER_LIMIT: 1  # rendered animation will loop bvh clip maximum of this many times
 RENDERED_FRAME_UPPER_LIMIT: 200 # rendered animation will be a maximum of this many frames
 X_POSITION_UPPER_LIMIT: 5 # rendered animation will terminate when character moves to this absolute position along x axis
 ROOT_POSITION_UPDATE_TYPE: velocity  # position or velocity. If translation is important, use velocity.
