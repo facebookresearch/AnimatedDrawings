@@ -111,7 +111,13 @@ $input-btn-border-width: $border-width !default;
 $dropdown-bg: $white !default;
 $dropdown-border-width: 0 !default;
 $dropdown-border-color: rgba($black, 0.15) !default;
-$dropdown-font-size: 0.75rem !default;
+$dropdown-font-size: 0.9rem !default;
+
+$dropdown-link-hover-color:      darken($gray-900, 5%) !default;
+$dropdown-link-hover-bg:         $gray-100 !default;
+
+$dropdown-link-active-color:     $dropdown-link-hover-color !default;
+$dropdown-link-active-bg:        $primary !default;
 
 // Custom forms
 

@@ -42,3 +42,10 @@
     align-items: flex-start;
   }
 }
+
+.share-page {
+  min-height: 82vh; /* height of the browser viewport */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -8,6 +8,7 @@ type DrawingState = {
   pose: Pose;
   videoDownload: string;
   animationType: AnimationType;
+  imageUrlPose?: string;
   animationFiles: File[];
   setDrawing: (imported: any) => void;
   setNewCompressedDrawing: (file: File) => void;
@@ -15,6 +16,7 @@ type DrawingState = {
   setPose: (n_pose: Pose) => void;
   setVideoDownload: (url: string) => void;
   setAnimationType: (ani_type: any) => void;
+  setImageUrlPose: (url: string | any) => void;
   setAnimationFiles: (files: File[]) => void;
 };
 
@@ -31,6 +33,7 @@ const useDrawingStore = create<DrawingState>((set) => ({
   pose: { nodes: [], edges: [] },
   videoDownload: "",
   animationType: AnimationType.RunJump,
+  imageUrlPose: undefined,
   animationFiles: [],
   setDrawing: (imported) => set(() => ({ drawing: imported })),
   setNewCompressedDrawing: (file) =>
@@ -39,6 +42,7 @@ const useDrawingStore = create<DrawingState>((set) => ({
   setPose: (n_pose) => set(() => ({ pose: n_pose })),
   setVideoDownload: (url) => set(() => ({ videoDownload: url })),
   setAnimationType: (ani_type) => set(() => ({ animationType: ani_type })),
+  setImageUrlPose: (url) => set(() => ({imageUrlPose: url})),
   setAnimationFiles: (files) => set(() =>({animationFiles : files}))
 }));
 

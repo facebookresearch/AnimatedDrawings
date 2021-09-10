@@ -78,7 +78,7 @@ const Step3 = () => {
               aria-hidden="true"
             />
           ) : (
-            "Preview"
+            "Next"
           )}
         </Button>
       </div>

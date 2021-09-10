@@ -1,8 +1,4 @@
 import React from "react";
-import example3 from "../assets/drawings_examples/example3.png";
-import example4 from "../assets/drawings_examples/example4.jpg";
-import example5 from "../assets/drawings_examples/example5.jpg";
-import example6 from "../assets/drawings_examples/example6.jpg";
 
 const ExamplesCarousel = () => {
   return (
@@ -11,22 +7,22 @@ const ExamplesCarousel = () => {
       <ul className="hs full">
         <li className="item">
           <div className="drawing-example-wrapper">
-            <img alt="example 3" src={example3} />
+            <img alt="example 3" src="/assets/example3.png"/>
           </div>
         </li>
         <li className="item">
           <div className="drawing-example-wrapper">
-            <img alt="example 4" src={example4} />
+            <img alt="example 4" src="/assets/example4.jpg" />
           </div>
         </li>
         <li className="item">
           <div className="drawing-example-wrapper">
-            <img alt="example 5" src={example5} />
+            <img alt="example 5" src="/assets/example5.jpg" />
           </div>
         </li>
         <li className="item">
           <div className="drawing-example-wrapper">
-            <img alt="example 6" src={example6} />
+            <img alt="example 6" src="/assets/example6.jpg" />
           </div>
         </li>
       </ul>
