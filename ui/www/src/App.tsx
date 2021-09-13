@@ -4,6 +4,7 @@ import "./assets/scss/root.scss";
 import ResultsPage from "./containers/ResultsPage";
 import MainPage from "./containers/MainPage";
 import SharingPage from "./containers/SharingPage";
+import HomePage from "./containers/HomePage";
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
         </Route>
         <Route exact path="/share/:uuid/:type">
           <SharingPage />
+        </Route>
+        <Route exact path="/home">
+          <HomePage />
         </Route>
       </Switch>
     </Router>

@@ -19,6 +19,55 @@
   }
 }
 
+.home-page {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  h1 {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 64px;
+  }
+  h3 {
+    font-size: 18px;
+    line-height: 24px;
+    color: #641E14;
+  }
+}
+
+.home-footer {
+  position: absolute;
+  bottom: 0%;
+  color: #641E14;
+  cursor: pointer;
+  h4 {
+    font-size: 18px;
+    font-weight: 400;
+  }
+}
+
+.home-img-wrapper {
+  position: absolute;
+  width: 685px;
+  height: 685px;
+  bottom: 0;
+  right: 0;
+  img {
+    margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .home-img-wrapper {
+    width: 200px;
+    height: 200px;
+  }
+}
+
 .reg-title {
   font-size: 36px;
 }
