@@ -6,9 +6,9 @@
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
-3. Build the Docker Image
+3. Build the Docker Image using buildx
 
-`docker build --file Dockerfile -t sketch:dev .`
+`docker buildx build --file Dockerfile -t sketch:dev .`
 
 4. Launch the docker Container
 
@@ -32,7 +32,7 @@ where
 OR to build and run in one step
 
 ```
-docker build --file Dockerfile -t sketch:dev . \
+docker buildx build --file Dockerfile -t sketch:dev . \
 && docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
 -e REACT_APP_API_HOST=http://localhost:5000 \
 --mount type=bind,src="$(pwd)"/videos,dst=/app/out/public/videos \
