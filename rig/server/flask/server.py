@@ -10,6 +10,7 @@ import json
 import uuid
 
 UPLOAD_FOLDER='./uploads/'
+VIDEO_SHARE_ROOT='/app/out/public/videos'
 ALLOWED_EXTENSIONS= {'png'}
 
 app = Flask(__name__)
@@ -72,12 +73,12 @@ def upload_image():
             unique_id = uuid.uuid4().hex
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             
-            subprocess.run(['./upload_image.sh', filename, unique_id], check=True)
-            subprocess.run(['./run_detection.sh', unique_id], check=True)
-            subprocess.run(['./run_crop.sh', unique_id], check=True)
-            subprocess.run(['./run_segment.sh', unique_id], check=True)
-            subprocess.run(['./run_pose_detection.sh', unique_id], check=True)
-            subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True)
+            subprocess.run(['./upload_image.sh', filename, unique_id], check=True, capture_output=True)
+            subprocess.run(['./run_detection.sh', unique_id], check=True, capture_output=True)
+            subprocess.run(['./run_crop.sh', unique_id], check=True, capture_output=True)
+            subprocess.run(['./run_segment.sh', unique_id], check=True, capture_output=True)
+            subprocess.run(['./run_pose_detection.sh', unique_id], check=True, capture_output=True)
+            subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
             return make_response(unique_id, 200)
     return '''
@@ -137,10 +138,10 @@ def set_bounding_box_coordinates():
     with open(bb_path, 'w') as f:
         json.dump(json.loads(request.form['bounding_box_coordinates']), f)
 
-    subprocess.run(['./run_crop.sh', unique_id], check=True)
-    subprocess.run(['./run_segment.sh', unique_id], check=True)
-    subprocess.run(['./run_pose_detection.sh', unique_id], check=True)
-    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True)
+    subprocess.run(['./run_crop.sh', unique_id], check=True, capture_output=True)
+    subprocess.run(['./run_segment.sh', unique_id], check=True, capture_output=True)
+    subprocess.run(['./run_pose_detection.sh', unique_id], check=True, capture_output=True)
+    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -187,7 +188,7 @@ def set_mask():
         filename = secure_filename(file.filename)
         file.save(os.path.join(output_prediction_parent_dir, unique_id, 'mask.png'))
 
-        subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True)
+        subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
     return send_from_directory(os.path.join(output_prediction_parent_dir,  unique_id), 'mask.png')
 ##############################################
@@ -229,7 +230,7 @@ def set_joint_locations():
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)
 
-    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True)
+    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
     return send_from_directory(os.path.join(output_prediction_parent_dir,  unique_id), 'joint_locations.json')
 ##############################################
@@ -282,7 +283,7 @@ def get_animation():
 
     animation_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'animation', f'{animation_type}.mp4')
     if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', unique_id, animation_type], check=True)
+        subprocess.run(['./run_animate.sh', unique_id, animation_type, VIDEO_SHARE_ROOT], check=True, capture_output=True)
 
     return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid'], 'animation'), f'{animation_type}.mp4', as_attachment=True)
 
@@ -313,7 +314,7 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            subprocess.run(['./old_mvp_run_pipeline.sh', filename])
+            subprocess.run(['./old_mvp_run_pipeline.sh', filename], capture_output=True)
             return redirect(f'/result/{filename}')
 
     return '''

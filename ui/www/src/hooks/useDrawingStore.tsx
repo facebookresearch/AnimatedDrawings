@@ -24,6 +24,11 @@ enum AnimationType {
   RunJump = "run_jump",
   Wave = "wave",
   Dance = "dance",
+  BoxJump = "box_jump",
+  Boxing = "boxing",
+  CatWalk = "catwalk_walk",
+  DabDance = "dab_dance",
+  Dance001 = "dance_001"
 }
 
 const useDrawingStore = create<DrawingState>((set) => ({
