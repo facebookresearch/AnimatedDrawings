@@ -5,8 +5,10 @@ set -x
 
 UUID=${1}
 ANIMATION_TYPE=${2}
+VIDEO_SHARE_ROOT=${3}
 OUTPUT_PARENT_DIR=/home/model-server/rig/server/flask/output_predictions/${UUID}
 CHARACTER_CONFIG=${OUTPUT_PARENT_DIR}/animation/cropped_image.yaml
+VIDEO_SHARE_DIR=${VIDEO_SHARE_ROOT}/${UUID}
 
 source ~/.bashrc
 
@@ -45,3 +47,6 @@ if [ ${MIRROR_CONCAT} -eq 1 ]; then
 else
 	/usr/bin/ffmpeg -y -r 18 -s 1500x800 -i ${OUTPUT_PARENT_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4
 fi
+# Copy files to output dir
+mkdir -p ${VIDEO_SHARE_DIR}
+cp ${OUTPUT_PARENT_DIR}/animation/${ANIMATION_TYPE}.mp4 ${VIDEO_SHARE_DIR}/${ANIMATION_TYPE}.mp4

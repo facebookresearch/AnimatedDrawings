@@ -2,3 +2,6 @@
 **/node_modules
 ui/www/build
 ui/www/build/.env
+
+# App Output dir
+videos
