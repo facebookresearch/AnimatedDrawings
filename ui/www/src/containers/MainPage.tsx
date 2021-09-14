@@ -1,8 +1,8 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbars/Navbar";
 import Canvas from "../components/Canvas/Canvas";
-import ActionsContainer from "../components/Stepper/ActionsContainer";
+import StepsContainer from "../components/Stepper/StepsContainer";
 
 const MainPage = () => {
   return (
@@ -15,7 +15,7 @@ const MainPage = () => {
               <Canvas />
             </Col>
             <Col lg={4} md={12} sm={12} className="mt-sm-6 align-self-start px-2">
-              <ActionsContainer />
+              <StepsContainer />
             </Col>
           </Row>
         </Container>

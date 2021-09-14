@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
@@ -97,8 +97,10 @@ const CanvasUpload = () => {
     drawing,
     newCompressedDrawing,
     uuid,
-    setUuid,
     pose,
+    imageUrlPose,
+    setUuid,
+    setImageUrlPose,
     setPose,
   } = useDrawingStore();
 
@@ -108,8 +110,6 @@ const CanvasUpload = () => {
     getJointLocations,
     getCroppedImage,
   } = useDrawingApi((err) => {});
-
-  const [imageUrl, setImageUrl] = useState<any>();
 
   /**
    * Here there are two scenarios/side effects when the CanvasDetecting component mounts
@@ -136,7 +136,7 @@ const CanvasUpload = () => {
           reader.readAsDataURL(data);
           reader.onload = function () {
             let imageDataUrl = reader.result;
-            setImageUrl(imageDataUrl);
+            setImageUrlPose(imageDataUrl);
           };
         });
 
@@ -163,7 +163,11 @@ const CanvasUpload = () => {
         ) : (
           <>
             {pose && (
-              <PoseEditor imageUrl={imageUrl} pose={pose} setPose={setPose} />
+              <PoseEditor
+                imageUrl={imageUrlPose}
+                pose={pose}
+                setPose={setPose}
+              />
             )}
           </>
         )}

@@ -58,7 +58,7 @@ const CanvasUpload = () => {
       {currentStep === 1 ? (
         <div className="mt-3">
           <button className="large-button border border-dark" onClick={upload}>
-            <i className="bi bi-camera-fill mr-1" /> Camera
+            <i className="bi bi-camera-fill mr-2" /> Camera
           </button>
           <input
             type="file"

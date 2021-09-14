@@ -2,7 +2,7 @@ import React from "react";
 import useStepperStore from "../../hooks/useStepperStore";
 import CanvasUpload from "./CanvasUpload";
 import CanvasDetecting from "./CanvasDetecting";
-//import CanvasPose from "./CanvasPose";
+import CanvasPose from "./CanvasPose";
 import CanvasAnimation from "./CanvasAnimation";
 
 const Canvas = () => {
@@ -17,6 +17,8 @@ const Canvas = () => {
       case 3:
         return <CanvasDetecting />;
       case 4:
+        return <CanvasPose />;
+      case 5:
         return <CanvasAnimation />;
       default:
         return [];

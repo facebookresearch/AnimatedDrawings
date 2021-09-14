@@ -3,6 +3,7 @@ import { useLocation } from "react-router";
 import { Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
+import PoseEditor from "../PoseEditor";
 import ShareModal from "../Modals/ShareModal";
 
 const CanvasAnimation = () => {
@@ -11,8 +12,11 @@ const CanvasAnimation = () => {
     videoDownload,
     animationType,
     animationFiles,
+    imageUrlPose,
+    pose,
     setVideoDownload,
     setAnimationFiles,
+    setPose,
   } = useDrawingStore();
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
@@ -99,16 +103,25 @@ const CanvasAnimation = () => {
   };
 
   const getShareLink = () => {
-    let shareLink = `${window.location.href}${location.search}`;
+    let shareLink = `${window.location.href}share/${uuid}/${animationType}`;
     return shareLink;
   };
 
   return (
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
-        <div className="video_box">
-          <video id="videoPlayer" autoPlay muted loop></video>
-        </div>
+        {isLoading ? (
+          <PoseEditor
+            imageUrl={imageUrlPose}
+            pose={pose}
+            setPose={setPose}
+            isLoading={isLoading}
+          />
+        ) : (
+          <div className="video_box">
+            <video id="videoPlayer" autoPlay muted loop></video>
+          </div>
+        )}
       </div>
 
       <div className="mt-3 text-center">
@@ -118,7 +131,10 @@ const CanvasAnimation = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <button className="md-button-2 border border-dark" disabled={isLoading}>
+          <button
+            className="md-button-2 border border-dark"
+            disabled={isLoading}
+          >
             {isLoading ? (
               <Spinner
                 as="span"
@@ -129,26 +145,18 @@ const CanvasAnimation = () => {
               />
             ) : (
               <>
-                <i className="bi bi-download" /> Download
+                <i className="bi bi-download mr-2" /> Download
               </>
             )}
           </button>
         </a>
 
-        <button className="md-button border border-dark" disabled={isLoading} onClick={handleShare}>
-          {isLoading ? (
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-            />
-          ) : (
-            <>
-              <i className="bi bi-share-fill" /> Share
-            </>
-          )}
+        <button
+          className="md-button border border-dark"
+          disabled={isLoading}
+          onClick={handleShare}
+        >
+          <i className="bi bi-share-fill mr-2" /> Share
         </button>
       </div>
       <ShareModal

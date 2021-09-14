@@ -1,0 +1,51 @@
+const AnimationTypes = [
+  { name: "run_jump", gif: "assets/motion_examples/running_jump.gif" },
+  { name: "wave", gif: "assets/motion_examples/wave_hello_3.gif" },
+  { name: "dance", gif: "assets/motion_examples/hip_hop_dancing.gif" },
+  { name: "box_jump", gif: "assets/motion_examples/box_jump.gif" },
+  { name: "boxing", gif: "assets/motion_examples/boxing.gif" },
+  { name: "catwalk_walk", gif: "assets/motion_examples/catwalk_walk.gif" },
+  { name: "dab_dance", gif: "assets/motion_examples/dab_dance.gif" },
+  { name: "dance", gif: "assets/motion_examples/dance.gif" },
+  { name: "dance001", gif: "assets/motion_examples/dance001.gif" },
+  { name: "dance002", gif: "assets/motion_examples/dance002.gif" },
+  { name: "floating", gif: "assets/motion_examples/floating.gif" },
+  { name: "flying_kick", gif: "assets/motion_examples/flying_kick.gif" },
+  { name: "happy_idle", gif: "assets/motion_examples/happy_idle.gif" },
+  {
+    name: "hip_hop_dancing2",
+    gif: "assets/motion_examples/hip_hop_dancing2.gif",
+  },
+  {
+    name: "hip_hop_dancing3",
+    gif: "assets/motion_examples/hip_hop_dancing3.gif",
+  },
+  { name: "jab_cross", gif: "assets/motion_examples/jab_cross.gif" },
+  { name: "joyful_jump_l", gif: "assets/motion_examples/joyful_jump_l.gif" },
+  { name: "jump", gif: "assets/motion_examples/jump.gif" },
+  { name: "jump_attack", gif: "assets/motion_examples/jump_attack.gif" },
+  { name: "jump_rope", gif: "assets/motion_examples/jump_rope.gif" },
+  { name: "punching_bag", gif: "assets/motion_examples/punching_bag.gif" },
+  { name: "run", gif: "assets/motion_examples/run.gif" },
+  {
+    name: "run_walk_jump_walk",
+    gif: "assets/motion_examples/run_walk_jump_walk.gif",
+  },
+  { name: "shoot_gun", gif: "assets/motion_examples/shoot_gun.gif" },
+  { name: "shuffle_dance", gif: "assets/motion_examples/shuffle_dance.gif" },
+  { name: "skipping", gif: "assets/motion_examples/skipping.gif" },
+  { name: "standard_walk", gif: "assets/motion_examples/standard_walk.gif" },
+  {
+    name: "walk_punch_kick_jump_walk",
+    gif: "assets/motion_examples/walk_punch_kick_jump_walk.gif",
+  },
+  { name: "walk_sway", gif: "assets/motion_examples/walk_sway.gif" },
+  {
+    name: "walk_swing_arms",
+    gif: "assets/motion_examples/walk_swing_arms.gif",
+  },
+  { name: "waving_gesture", gif: "assets/motion_examples/waving_gesture.gif" },
+  { name: "zombie_walk", gif: "assets/motion_examples/zombie_walk.gif" },
+];
+
+export default AnimationTypes;

@@ -26,6 +26,7 @@ interface Props {
   //   imageWidth: number;
   imageUrl: any;
   pose: Pose;
+  isLoading? : boolean;
   setPose: (pose: Pose) => void;
 }
 
@@ -126,7 +127,7 @@ const Circle = ({
   );
 };
 
-const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
+const PoseEditor = ({ imageUrl, pose, setPose, isLoading }: Props) => {
   const [hoveredJoint, setHoveredJoint] = React.useState<string>();
   const [isMoving, setIsMoving] = React.useState(false);
 
@@ -152,7 +153,6 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
     const tempImage = new Image();
 
     tempImage.onload = function (e) {
-      console.log(tempImage.naturalWidth, tempImage.naturalHeight);
       setImageHeight(tempImage.naturalHeight);
       setImageWidth(tempImage.naturalWidth);
     };
@@ -235,6 +235,19 @@ const PoseEditor = ({ imageUrl, pose, setPose }: Props) => {
           ))}
         </g>
       </svg>
+      {isLoading &&
+        <svg width="100%" height="100%" viewBox="0 0 200 200">
+          <rect x="0" y="0" width="100%" height="5" fill="#f25c05">
+            <animate
+              attributeName="y"
+              from="0"
+              to="200"
+              dur="1.5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+        </svg>
+        }
     </div>
   );
 };
