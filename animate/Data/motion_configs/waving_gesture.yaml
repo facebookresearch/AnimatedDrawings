@@ -15,7 +15,7 @@ CLEAR_COLOR: [1.0, 1.0, 1.0, 1.0]
 Cameras:
   - name: Free Cam
     type: free
-    cam_pos: [0.0, 0.0, 3.2]
+    cam_pos: [0.0, 0.0, 2.2]
     cam_up:  [0.0, 0.1, 0.0]
     yaw: -90.0
 
