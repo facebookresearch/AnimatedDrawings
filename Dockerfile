@@ -28,6 +28,7 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
     libosmesa6 \
     libglib2.0-0 \
     ffmpeg \
+    openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/* 
 RUN cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
@@ -99,19 +100,24 @@ ENV D2_VIRTUAL_ENV_NAME=detectron2
 ENV AP_VIRTUAL_ENV_NAME=alphapose
 
 RUN --mount=type=cache,target=/opt/conda/pkgs \ 
-    conda create --name detectron2 python=3.7.9
+    conda create --name detectron2 python=3.8.11
 
 # && python -m pip install 'git+https://github.com/facebookresearch/detectron2.git' \
 
 SHELL ["conda", "run", "-n", "detectron2", "/bin/bash", "-c"]
 
 RUN  --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-    conda install opencv \
-    && conda install pytorch==1.5.1 torchvision==0.6.1 cpuonly -c pytorch \
-    && pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.5/index.html \
-    && conda install scikit-image \
-    && conda install scikit-learn \ 
-    && conda install natsort 
+    conda install pytorch==1.9.0 torchvision==0.10.0 cpuonly -c pytorch \
+    && pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.9/index.html \
+    && conda install torchserve==0.4.0 -c pytorch \
+    && pip install opencv-python==4.5.3.56
+# conda install opencv==4.5.3 -c conda-forge \
+# && conda install scikit-image \
+# && conda install scikit-learn \ 
+# && conda install natsort \
+
+RUN mkdir -p /home/model-server/torchserve_d2
+COPY --chown=model-server:model-server torchserve_d2/ /home/model-server/torchserve_d2
 
 # sketch_rig
 RUN conda create  --name alphapose python=3.6 -y
@@ -183,7 +189,6 @@ COPY --from=build-deps-yarn --chown=model-server:model-server /usr/src/app/build
 
 # Define the default command.
 CMD [ "./run.sh" ]
-
 
 # CMD [ "sleep", "infinity" ]
 
