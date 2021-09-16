@@ -39,7 +39,11 @@ const Step4 = () => {
         <h4>Step 4/4</h4>
         <h1 className="reg-title">Animate</h1>
         <p>
-          Select the type of animation you would like to see on your drawing.
+          If anything looks off you can use the ‘fix’ button below to adjust the
+          boundinb box, segmentation mask, and joint positions.
+          <br />
+          Otherwise, choose one of the motions below to see your character
+          perform it!
         </p>
 
         <div className="grid-container">{animationTypes}</div>
