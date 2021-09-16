@@ -51,7 +51,8 @@ const Step3 = () => {
         <h4>Step 3/4</h4>
         <h1 className="reg-title">Detecting</h1>
         <p>
-          [Insert a description of what’s happening in this step of the process]
+          We’re currently scanning the figure to identify the human figure
+          within it.
         </p>
       </div>
       <div className="mt-2 text-right">
