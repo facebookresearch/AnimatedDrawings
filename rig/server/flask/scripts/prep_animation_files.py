@@ -46,7 +46,7 @@ def main(input_parent_dir):
     sketch = deepcopy(exemplar_sketch)
 
     sketch['img_name'] = img_loc.name
-    sketch['image_loc'] = str(square_img_loc)
+    sketch['image_loc'] = str(square_img_loc.resolve())
     sketch['sketch_dim'] = square_img.size[0]
 
     with open(keypoint_json_loc, 'r') as f:

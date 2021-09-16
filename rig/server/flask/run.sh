@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# start torchserve for detectron2 model in background
+/home/model-server/torchserve_d2/torchserve_start.sh &
+
 # setup runtime env vars for react app
 ./env.sh
 cp env-config.js static/
