@@ -3,9 +3,6 @@ import json
 import cv2, imutils
 
 def crop_from_bb(work_dir):
-        gray_blur_img_out_loc = os.path.join(work_dir, 'gray_blur.png')
-        sketch_DET_loc = os.path.join(work_dir, 'sketch-DET.json')
-
         # Create cropped image
         input_img = cv2.imread(os.path.join(work_dir, 'image.png'))
 

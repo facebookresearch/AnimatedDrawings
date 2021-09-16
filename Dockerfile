@@ -154,7 +154,8 @@ RUN conda create  --name flask python=3.7 -y
 # Activate new shell with "flask" conda env
 SHELL ["conda", "run", "-n", "flask", "/bin/bash", "-c"]
 RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-    pip install flask flask_cors gunicorn
+    pip install flask flask_cors gunicorn opencv-python==4.5.3.56 imutils==0.5.4 \
+    && conda install scikit-image==0.18.1
 
 
 
