@@ -6,10 +6,8 @@ set -u
 
 PARENT_INDIR=${1}  
 
-#CONFIG=/private/home/hjessmith/05-07-21-bicyclegantest/condition4/05-07-21-bgtest-condition4.yaml 
-#CHECKPOINT=/private/home/hjessmith/05-07-21-bicyclegantest/condition4/exp_05-07-21-bgtest-condition4-05-07-21-bgtest-condition4.yaml/model_299.pth
 CONFIG=/home/model-server/rig/server/configs/pose_detection.yaml
-CHECKPOINT=/home/model-server/alphapose_weights.pth
+CHECKPOINT=/home/model-server/models/alphapose_weights.pth
 
 cd /home/model-server/AlphaPose
 

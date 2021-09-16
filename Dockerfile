@@ -157,9 +157,10 @@ RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.c
     pip install flask flask_cors gunicorn opencv-python==4.5.3.56 imutils==0.5.4 \
     && conda install scikit-image==0.18.1
 
+RUN mkdir -p /home/model-server/models/model_store
+COPY --chown=model-server:model-server torchserve_d2/model_store  /home/model-server/models/model_store
+COPY --chown=model-server:model-server  alphapose_weights.pth /home/model-server/models
 
-
-COPY --chown=model-server:model-server detectron2_weights.pth alphapose_weights.pth /home/model-server/
 COPY --chown=model-server:model-server rig rig/
 
 WORKDIR /home/model-server/rig/server/flask 
