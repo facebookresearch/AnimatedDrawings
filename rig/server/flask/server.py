@@ -293,11 +293,12 @@ def get_animation():
     animation_type = request.form['animation']
     assert animation_type in ['run_jump', 'wave', 'dance']
 
-    animation_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'animation', f'{animation_type}.mp4')
+    animation_path = os.path.join(VIDEO_SHARE_ROOT, request.form['uuid'], f'{animation_type}.mp4')
+
     if not os.path.exists(animation_path):
         subprocess.run(['./run_animate.sh', os.path.abspath(os.path.join(UPLOAD_FOLDER, unique_id)), animation_type, os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
 
-    return send_from_directory(os.path.join(UPLOAD_FOLDER,  request.form['uuid'], 'animation'), f'{animation_type}.mp4', as_attachment=True)
+    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
 
 def allowed_file(filename):

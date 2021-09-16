@@ -43,6 +43,10 @@ if [ ${MIRROR_CONCAT} -eq 1 ]; then
 else
 	/usr/bin/ffmpeg -y -r 18 -s 1500x800 -i ${WORK_DIR}/animation/output_images/%04d.png -vcodec libx264 -pix_fmt yuv420p ${WORK_DIR}/animation/${ANIMATION_TYPE}.mp4
 fi
+
 # Copy files to output dir
 mkdir -p ${VIDEO_SHARE_DIR}
-cp ${WORK_DIR}/animation/${ANIMATION_TYPE}.mp4 ${VIDEO_SHARE_DIR}/${ANIMATION_TYPE}.mp4
+mv ${WORK_DIR}/animation/${ANIMATION_TYPE}.mp4 ${VIDEO_SHARE_DIR}/${ANIMATION_TYPE}.mp4
+
+# Clean up
+rm ${WORK_DIR}/animation/output_images/*.png

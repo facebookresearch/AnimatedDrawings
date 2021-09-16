@@ -111,10 +111,6 @@ RUN  --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.
     && pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.9/index.html \
     && conda install torchserve==0.4.0 -c pytorch \
     && pip install opencv-python==4.5.3.56
-# conda install opencv==4.5.3 -c conda-forge \
-# && conda install scikit-image \
-# && conda install scikit-learn \ 
-# && conda install natsort \
 
 RUN mkdir -p /home/model-server/torchserve_d2
 COPY --chown=model-server:model-server torchserve_d2/ /home/model-server/torchserve_d2
@@ -132,7 +128,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.c
     && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
     && pip install cython pycocotools \
     && conda install matplotlib 
-# && conda install -c conda-forge  pycocotools\
+
 ENV CUDA_HOME=/usr/local/cuda
 ENV ALPHAPOSE_PATH=/home/model-server/AlphaPose
 COPY --chown=model-server:model-server AlphaPose AlphaPose/
