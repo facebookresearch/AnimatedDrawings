@@ -282,7 +282,7 @@ def get_cropped_image():
 @cross_origin()
 def get_animation():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']), as well as an a string specifying the motion within the animation (request.form['animation']).
-    Currently, should be 'run_jump', 'wave', 'dance', but others may be added later. Returns the mp4 video of that character doing the requested motion"""
+    Currently, supports 32 types of animations, but others may be added later. Returns the mp4 video of that character doing the requested motion"""
     if request.method != 'POST':
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
@@ -291,12 +291,58 @@ def get_animation():
         return redirect(request.url)
 
     animation_type = request.form['animation']
-    assert animation_type in ['run_jump', 'wave', 'dance']
+
+    assert animation_type in [
+        'box_jump',
+        'boxing',
+        'catwalk_walk',
+        'dab_dance',
+        'dance',
+        'dance001',
+        'dance002',
+        'floating',
+        'flying_kick',
+        'happy_idle',
+        'hip_hop_dancing',
+        'hip_hop_dancing2',
+        'hip_hop_dancing3',
+        'jab_cross',
+        'joyful_jump_l',
+        'jump',
+        'jump_attack',
+        'jump_rope',
+        'punching_bag',
+        'run',
+        'run_walk_jump_walk',
+        'running_jump',
+        'shoot_gun',
+        'shuffle_dance',
+        'skipping',
+        'standard_walk',
+        'walk_punch_kick_jump_walk',
+        'walk_sway',
+        'walk_swing_arms',
+        'wave_hello_3',
+        'waving_gesture',
+        'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
+
+    mirror_concat = animation_type in [
+        'catwalk_walk',
+        'run',
+        'run_walk_jump_walk',
+        'running_jump',
+        'skipping',
+        'standard_walk',
+        'walk_punch_kick_jump_walk',
+        'walk_sway',
+        'walk_swing_arms',
+        'zombie_walk']
+
 
     animation_path = os.path.join(VIDEO_SHARE_ROOT, request.form['uuid'], f'{animation_type}.mp4')
 
     if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', os.path.abspath(os.path.join(UPLOAD_FOLDER, unique_id)), animation_type, os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
+        subprocess.run(['./run_animate.sh', os.path.abspath(os.path.join(UPLOAD_FOLDER, unique_id)), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
 
     return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
