@@ -16,9 +16,9 @@ const MaskImage = ({ editMode, urlImg, height, width }: imgProps) => {
   return (
     <Image
       image={image}
-      width={(height - 20) / 1.5 || 0}
-      height={height - 20 || 0}
-      x={width / 2 - (height - 20) / 1.5 / 2 || 0}
+      width={width || 0}
+      height={height || 0}
+      x={0}
       y={0}
       opacity={editMode ? 0.5 : 1}
     />
@@ -30,9 +30,9 @@ const DrawingImage = ({ editMode, urlImg, height, width }: imgProps) => {
   return (
     <Image
       image={image}
-      width={(height - 20) / 1.5 || 0}
-      height={height - 20 || 0}
-      x={width / 2 - (height - 20) / 1.5 / 2 || 0}
+      width={width || 0}
+      height={height || 0}
+      x={0}
       y={0}
       visible={editMode}
     />
@@ -74,10 +74,10 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
   };
 
   return (
-    <div>
+    <div className="bg-black">
       <Stage
         width={canvasWidth}
-        height={canvasHeight}
+        height={canvasHeight - 20 || 0}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
         onMousemove={handleMouseMove}
@@ -89,7 +89,7 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
           <DrawingImage
             editMode={true}
             urlImg={imageUrlPose}
-            height={canvasHeight}
+            height={canvasHeight - 20}
             width={canvasWidth}
           />
         </Layer>
@@ -98,7 +98,7 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
           <MaskImage
             editMode={true}
             urlImg={imageUrlMask}
-            height={canvasHeight}
+            height={canvasHeight - 20}
             width={canvasWidth}
           />
           {lines.map((line: any, i: number) => (

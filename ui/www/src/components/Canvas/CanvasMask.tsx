@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import classnames from "classnames";
 import { Row, Col } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -9,7 +9,7 @@ import MaskStage from "./MaskStage";
 
 const CanvasMask = () => {
   const canvasWindow = useRef<HTMLInputElement>(null);
-  const { drawing, uuid, setImageUrlMask } = useDrawingStore();
+  const { drawing, uuid, imageUrlPose, setImageUrlMask } = useDrawingStore();
   const {
     tool,
     penSize,
@@ -19,11 +19,11 @@ const CanvasMask = () => {
     setLines,
   } = useMaskingStore();
   const { isLoading, getMask } = useDrawingApi((err) => {});
+  const [canvasWidth, setCanvasWidth] = useState(0)
 
   /**
-   * Here there are two scenarios/side effects when the CanvasDetecting component mounts
-   * 1. Invokes API to get cropped image when uuid is detected from the user.
-   * 2. When an cropped image is recieved, invoke API to fetch a mask.
+   * Here there is one scenarios/side effect when the CanvasMask component mounts
+   * this hook invokes API to fetch a mask given uuid as parameter.
    * The component will only rerender when the uuid dependency changes.
    * exhaustive-deps eslint warning was diable as no more dependencies are really necesary as side effects.
    * Contrary to this, including other function dependencies will trigger infinite loop rendereing.
@@ -48,6 +48,27 @@ const CanvasMask = () => {
 
     return () => {};
   }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /**
+   * This hook calculates the canvas width based on the ratio (width/height) 
+   * of the cropped image returning from the server.
+   */
+  useEffect(() => {
+    const tempImage = new Image();
+    tempImage.onload = (e) => {
+      if (canvasWindow.current) {
+        setCanvasWidth(
+          canvasWindow.current?.clientHeight *
+            (tempImage.naturalWidth / tempImage.naturalHeight)
+        );
+      }
+    };
+
+    if (imageUrlPose !== null && imageUrlPose !== undefined)
+      tempImage.src = imageUrlPose;
+
+    return () => {};
+  }, [imageUrlPose]);
 
   const handleUndo = () => {
     if (!lines.length) {
@@ -135,7 +156,7 @@ const CanvasMask = () => {
         ) : (
           <div className="mask-wrapper">
             <MaskStage
-              canvasWidth={canvasWindow.current?.clientWidth}
+              canvasWidth={canvasWidth}
               canvasHeight={canvasWindow.current?.clientHeight}
             />
           </div>
