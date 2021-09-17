@@ -5,7 +5,8 @@ set -x
 
 WORK_DIR=${1}
 ANIMATION_TYPE=${2}
-VIDEO_SHARE_DIR=${3}
+MIRROR_CONCAT=${3}
+VIDEO_SHARE_DIR=${4}
 
 CHARACTER_CONFIG=${WORK_DIR}/animation/cropped_image.yaml
 
@@ -16,16 +17,7 @@ source ~/.bashrc
 rm -rf ${WORK_DIR}/animation/output_images
 mkdir ${WORK_DIR}/animation/output_images
 
-if [ "$ANIMATION_TYPE" = "run_jump" ]; then
-	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/running_jump.yaml
-	MIRROR_CONCAT=1
-elif [ "$ANIMATION_TYPE" = "dance" ]; then
-	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/hip_hop_dancing.yaml
-	MIRROR_CONCAT=0
-elif [ "$ANIMATION_TYPE" = "wave" ]; then
-	MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/wave_hello_3.yaml
-	MIRROR_CONCAT=0
-fi
+MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/${ANIMATION_TYPE}.yaml
 
 cd ~/animate/sketch_animate
 
