@@ -16,7 +16,7 @@ type MaskingState = {
   setPenSize: (penSize: any) => void;
   setLines: (lines: Line[] ) => void;
   setEditMode : (mode: boolean) => void;
-  setMaskBase64 : (data: string) => void;
+  setMaskBase64 : (data: string | any) => void;
 };
 
 const useMaskingStore = create<MaskingState>((set) => ({

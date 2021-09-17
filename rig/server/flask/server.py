@@ -199,8 +199,8 @@ def set_mask():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png'))
-
-        subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
+        
+        subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
     return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'mask.png')
 ##############################################

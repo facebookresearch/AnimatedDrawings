@@ -35,7 +35,7 @@ const CanvasMask = () => {
           let reader = new window.FileReader();
           reader.readAsDataURL(data);
           reader.onload = function () {
-            let imageDataUrl = reader.result;
+            let imageDataUrl = reader.result;  // base64
             setImageUrlMask(imageDataUrl);
           };
         });

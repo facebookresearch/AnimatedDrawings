@@ -46,10 +46,10 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
   const { tool, penSize, lines, setLines, setMaskBase64 } = useMaskingStore();
 
   useEffect(() => {
-    const uri = layerRef.current.toDataURL({ pixelRatio: 2 });
-    setMaskBase64(uri)
+    const uri = layerRef.current?.toDataURL({ pixelRatio: 2 });
+    setMaskBase64(uri)  // base64
     return () => {}
-  }, [lines, setMaskBase64])
+  }, [lines, tool, setMaskBase64 ])
 
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
