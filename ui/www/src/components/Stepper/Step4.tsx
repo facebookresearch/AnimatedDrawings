@@ -40,7 +40,7 @@ const Step4 = () => {
         <h1 className="reg-title">Animate</h1>
         <p>
           If anything looks off you can use the ‘fix’ button below to adjust the
-          boundinb box, segmentation mask, and joint positions.
+          bounding box, segmentation mask, and joint positions.
           <br />
           Otherwise, choose one of the motions below to see your character
           perform it!

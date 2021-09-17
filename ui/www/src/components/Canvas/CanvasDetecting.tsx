@@ -92,7 +92,7 @@ const mapJointsToPose = (joints: object) => {
   };
 };
 
-const CanvasUpload = () => {
+const CanvasDetecting = () => {
   const {
     drawing,
     newCompressedDrawing,
@@ -192,4 +192,4 @@ const CanvasUpload = () => {
   );
 };
 
-export default CanvasUpload;
+export default CanvasDetecting;

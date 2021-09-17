@@ -6,6 +6,7 @@ import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
 import Step5 from "./Step5";
+import Step3A from "./Step3A";
 
 const stepsArray = ["1", "2", "3", "4"];
 
@@ -21,8 +22,10 @@ const StepsContainer = () => {
       case 3:
         return <Step3 />;
       case 4:
-        return <Step4 />;
+        return <Step3A />;
       case 5:
+        return <Step4 />;
+      case 6:
         return <Step5 />;
       default:
         return [];

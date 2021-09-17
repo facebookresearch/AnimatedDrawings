@@ -72,6 +72,7 @@
 }
 
 /*** Custom Buttons ***/
+
 .large-button {
   display: block;
   width: 100%;
@@ -145,6 +146,45 @@
   opacity: 0.8
 }
 
+.md-button-reset {
+  display: inline-block;
+  width: 126px;
+  height: 48px;
+  border: 1px solid;
+  border-radius: 10px;
+  background-color: $white;
+  color: $dark;
+  margin: 0 2px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.sm-button-icon {
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+  font-size: 16px;
+  background-color: $white;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 10px;
+}
+
+/* Mobile */
+@media screen and (max-width: 576px) {
+  .md-button-reset {
+    height: 30px;
+    width: 70px;
+    font-size: 10px;
+  }
+  .sm-button-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+}
+
 /**** Custom Loader/Spinner ****/
 .custom-loader {
   position: relative;
@@ -155,7 +195,6 @@
 }
 
 .custom-loader img { 
-   //display: block;
    max-width: 100%;
    max-height: 100%;
 }
@@ -171,4 +210,14 @@
 .video_box video {
   width: 100%;
   display: block;
+}
+
+/*** Canvas Mask ***/
+.mask-wrapper {
+  display: flex;
+  height: 100%;
+}
+.mask-wrapper img { 
+  flex-grow: 1;
+  object-fit: cover;
 }

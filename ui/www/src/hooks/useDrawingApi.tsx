@@ -15,6 +15,8 @@ export function useDrawingApi(onError: (error: Error) => void) {
     SetJointLocations = "set_joint_locations_json",
     GetCroppedImage = "get_cropped_image",
     GetAnimation = "get_animation",
+    GetMask = "get_mask",
+    SetMask = "set_mask",
   }
 
   const DEFAULT_CONFIG = {
@@ -55,7 +57,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
     await invokePost(ApiPath.UploadImage, form, onResult);
   };
 
-  // Get Joing\t Locations
+  // Get Joint Locations
   const getJointLocations = async function (
     uuid: string,
     onResult: (result: any) => void
@@ -69,7 +71,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
     await invokePost(ApiPath.GetJointLocations, form, onResult);
   };
 
-  // Get JointLocations
+  // Set JointLocations
   const setJointLocations = async function (
     uuid: string,
     data: any,
@@ -84,6 +86,40 @@ export function useDrawingApi(onError: (error: Error) => void) {
 
     form.set("joint_location_json", JSON.stringify(data));
     await invokePost(ApiPath.SetJointLocations, form, onResult);
+  };
+
+  // Get Mask
+  const getMask = async function (
+    uuid: string,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (uuid) {
+      form.set("uuid", uuid);
+    }
+    await invokePost(ApiPath.GetMask, form, onResult, {
+      ...DEFAULT_CONFIG,
+      responseType: "blob",
+    });
+  };
+
+  // Set Mask
+  const setMask = async function (
+    uuid: string,
+    file: File,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (uuid) {
+      form.set("uuid", uuid);
+    }
+    if (file !== null) {
+      form.set("file", file);
+    }
+    await invokePost(ApiPath.SetMask, form, onResult, {
+      ...DEFAULT_CONFIG,
+      responseType: "blob",
+    });
   };
 
   // Get Cropped Image
@@ -106,7 +142,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
   // Get Final Animation Video
   const getAnimation = async function (
     uuid: string,
-    animation: string = "wave",
+    animation: string = "wave_hello_3",
     onResult: (result: any) => void
   ) {
     // try {
@@ -129,5 +165,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
     setJointLocations,
     getCroppedImage,
     getAnimation,
+    getMask,
+    setMask,
   };
 }
