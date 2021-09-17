@@ -2,13 +2,14 @@ import create from "zustand";
 import { Pose } from "../components/PoseEditor";
 
 type DrawingState = {
-  drawing: string; //base64
+  drawing: string; // Base64
   newCompressedDrawing: File | any;
   uuid: string;
   pose: Pose;
   videoDownload: string;
   animationType: AnimationType;
-  imageUrlPose?: string;
+  imageUrlPose?: string;  // Cropped Image
+  imageUrlMask?: string;  // Mask Image
   animationFiles: File[];
   setDrawing: (imported: any) => void;
   setNewCompressedDrawing: (file: File) => void;
@@ -17,6 +18,7 @@ type DrawingState = {
   setVideoDownload: (url: string) => void;
   setAnimationType: (ani_type: any) => void;
   setImageUrlPose: (url: string | any) => void;
+  setImageUrlMask: (url: string | any) => void;
   setAnimationFiles: (files: File[]) => void;
 };
 
@@ -39,6 +41,7 @@ const useDrawingStore = create<DrawingState>((set) => ({
   videoDownload: "",
   animationType: AnimationType.RunJump,
   imageUrlPose: undefined,
+  imageUrlMask: undefined,
   animationFiles: [],
   setDrawing: (imported) => set(() => ({ drawing: imported })),
   setNewCompressedDrawing: (file) =>
@@ -48,6 +51,7 @@ const useDrawingStore = create<DrawingState>((set) => ({
   setVideoDownload: (url) => set(() => ({ videoDownload: url })),
   setAnimationType: (ani_type) => set(() => ({ animationType: ani_type })),
   setImageUrlPose: (url) => set(() => ({imageUrlPose: url})),
+  setImageUrlMask: (url) => set(() => ({imageUrlMask: url})),
   setAnimationFiles: (files) => set(() =>({animationFiles : files}))
 }));
 
