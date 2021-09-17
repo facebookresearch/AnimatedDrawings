@@ -3,19 +3,18 @@
 set -e
 set -x
 
-UUID=${1}
-OUTPUT_PARENT_DIR='/home/model-server/rig/server/flask/output_predictions/'${UUID}
+WORK_DIR=${1}
 
-source ~/.bashrc
+#source ~/.bashrc
 
 ########## Delete existing videos ##########
-rm -rf ${OUTPUT_PARENT_DIR}/animation/wave.mp4
-rm -rf ${OUTPUT_PARENT_DIR}/animation/dance.mp4
-rm -rf ${OUTPUT_PARENT_DIR}/animation/run_jump.mp4
+rm -rf ${WORK_DIR}/animation/wave.mp4
+rm -rf ${WORK_DIR}/animation/dance.mp4
+rm -rf ${WORK_DIR}/animation/run_jump.mp4
 
 ########## Prep Animation Files ##########
 # conda activate detectron2-2
 
-conda run -n detectron2 python scripts/prep_animation_files.py ${OUTPUT_PARENT_DIR}
+conda run -n detectron2 python scripts/prep_animation_files.py ${WORK_DIR}
 
 # conda deactivate

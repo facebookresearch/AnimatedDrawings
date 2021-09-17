@@ -22,8 +22,22 @@ const Step1 = () => {
           Upload a<br className="d-none d-lg-block" /> drawing
         </h1>
         <p>
-          Insert description of spc #1 <br />
-          Insert description of spc #2
+          - Upload a drawing of a single human-like character where the arms and
+          legs don’t overlap the body (see examples below). <br />
+        </p>
+        <p>
+          - Don’t include any identifiable information, offensive content (see
+          our community standards), or drawings that infringe on the copyrights
+          of others.
+        </p>
+        <p>For Best Results:</p>
+        <p>
+          - Make sure the character is drawn on a white piece of paper without
+          lines, wrinkles, or tears.
+        </p>
+        <p>
+          - Make sure the drawing is well lit. To minimize shadows, hold the
+          camera further away and zoom in on the drawing.
         </p>
         <ExamplesCarousel />
       </div>
