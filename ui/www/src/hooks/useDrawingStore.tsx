@@ -23,9 +23,9 @@ type DrawingState = {
 };
 
 enum AnimationType {
-  RunJump = "run_jump",
-  Wave = "wave",
-  Dance = "dance",
+  RunJump = "running_jump",
+  Wave = "wave_hello_3",
+  Dance = "hip_hop_dancing",
   BoxJump = "box_jump",
   Boxing = "boxing",
   CatWalk = "catwalk_walk",

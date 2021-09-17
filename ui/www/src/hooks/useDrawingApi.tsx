@@ -142,7 +142,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
   // Get Final Animation Video
   const getAnimation = async function (
     uuid: string,
-    animation: string = "wave",
+    animation: string = "wave_hello_3",
     onResult: (result: any) => void
   ) {
     // try {

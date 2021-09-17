@@ -1,7 +1,7 @@
 const AnimationTypes = [
-  { name: "run_jump", gif: "assets/motion_examples/running_jump.gif" },
-  { name: "wave", gif: "assets/motion_examples/wave_hello_3.gif" },
-  { name: "dance", gif: "assets/motion_examples/hip_hop_dancing.gif" },
+  { name: "running_jump", gif: "assets/motion_examples/running_jump.gif" },
+  { name: "wave_hello_3", gif: "assets/motion_examples/wave_hello_3.gif" },
+  { name: "hip_hop_dancing", gif: "assets/motion_examples/hip_hop_dancing.gif" },
   { name: "box_jump", gif: "assets/motion_examples/box_jump.gif" },
   { name: "boxing", gif: "assets/motion_examples/boxing.gif" },
   { name: "catwalk_walk", gif: "assets/motion_examples/catwalk_walk.gif" },
