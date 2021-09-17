@@ -3,23 +3,13 @@ import { Button, Spinner } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
+import useMaskingStore from "../../hooks/useMaskingStore";
 
-import { Pose } from "../PoseEditor";
-
-const mapPoseToJoints = (pose: Pose) => {
-  const entries = pose.nodes.reduce((agg, node) => {
-    agg.push([node.label, node.position]);
-    return agg;
-  }, new Array<[string, any]>());
-  console.log(entries);
-
-  return Object.fromEntries(entries);
-};
-
-const Step3 = () => {
-  const { uuid, pose } = useDrawingStore();
-  const { currentStep, setCurrentStep } = useStepperStore();  
-  const { isLoading, setJointLocations } = useDrawingApi((err) => {
+const Step3A = () => {
+  const { uuid } = useDrawingStore();
+  const { currentStep, setCurrentStep } = useStepperStore();
+  const { maskBase64 } = useMaskingStore();
+  const { isLoading, setMask } = useDrawingApi((err) => {
     console.log(err);
   });
 
@@ -30,10 +20,14 @@ const Step3 = () => {
       }
 
       if (clickType === "next" && uuid) {
-        const joints = mapPoseToJoints(pose);
-        console.log(joints);
-        setJointLocations(uuid!, joints, () => {
-          //history.push(`/result/${uuid}`);
+        const response = await fetch(maskBase64);
+        const blob = await response.blob();
+        const file = new File([blob], "mask.png", {
+          type: "image/png",
+          lastModified: Date.now()
+        })
+        await setMask(uuid!, file, () => {
+          console.log("ok")
           setCurrentStep(currentStep + 1);
         });
       }
@@ -49,11 +43,12 @@ const Step3 = () => {
     <>
       <div className="step-actions-container">
         <h4>Step 3/4</h4>
-        <h1 className="reg-title">Detecting</h1>
+        <h1 className="reg-title">Segmenting</h1>
         <p>
-          We’re currently scanning the figure to identify the human figure
-          within it.
+          Using the box, we’re now extracting a segmentation mask to separate
+          the character from the background.
         </p>
+      
       </div>
       <div className="mt-2 text-right">
         <Button
@@ -87,4 +82,4 @@ const Step3 = () => {
   );
 };
 
-export default Step3;
+export default Step3A;

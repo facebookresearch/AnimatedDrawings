@@ -1,16 +1,19 @@
-from enum import Enum
 from pathlib import Path
 from flask import Flask, send_file, send_from_directory, flash, request, redirect, url_for, make_response
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
-from markupsafe import escape
 import os
 import subprocess
 import json
 import uuid
 
+import detect_humanoids
+import crop_from_bb
+import segment_mask
+
 UPLOAD_FOLDER='./uploads/'
-VIDEO_SHARE_ROOT='/app/out/public/videos'
+#VIDEO_SHARE_ROOT='/app/out/public/videos'
+VIDEO_SHARE_ROOT='./videos/'
 ALLOWED_EXTENSIONS= {'png'}
 
 app = Flask(__name__)
@@ -68,19 +71,24 @@ def upload_image():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            unique_id = uuid.uuid4().hex
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            
-            subprocess.run(['./upload_image.sh', filename, unique_id], check=True, capture_output=True)
-            subprocess.run(['./run_detection.sh', unique_id], check=True, capture_output=True)
-            subprocess.run(['./run_crop.sh', unique_id], check=True, capture_output=True)
-            subprocess.run(['./run_segment.sh', unique_id], check=True, capture_output=True)
-            subprocess.run(['./run_pose_detection.sh', unique_id], check=True, capture_output=True)
-            subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
-            return make_response(unique_id, 200)
+        unique_id = uuid.uuid4().hex
+        work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+        os.makedirs(work_dir, exist_ok=False)
+
+        file.save(os.path.join(work_dir, 'image.png'))
+
+        detect_humanoids.detect_humanoids(work_dir)
+
+        crop_from_bb.crop_from_bb(work_dir)
+
+        segment_mask.segment_mask(work_dir)
+
+        subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+
+        subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
+
+        return make_response(unique_id, 200)
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -109,7 +117,7 @@ def get_bounding_box_coordinates():
     if request.method != 'POST':
         return  resource_request_form.format(resource_type='Bounding Box Coordinates')
 
-    bb_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'bb.json')
+    bb_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'bb.json')
     if not os.path.exists(bb_path):
         return redirect(request.url)
 
@@ -131,15 +139,19 @@ def set_bounding_box_coordinates():
                 )
 
     unique_id = request.form['uuid']
-    bb_path = os.path.join(output_prediction_parent_dir, unique_id, 'bb.json')
+    bb_path = os.path.join(UPLOAD_FOLDER, unique_id, 'bb.json')
     if not os.path.exists(bb_path):  # uuid is invalid
         return redirect(request.url)
 
     with open(bb_path, 'w') as f:
         json.dump(json.loads(request.form['bounding_box_coordinates']), f)
 
-    subprocess.run(['./run_crop.sh', unique_id], check=True, capture_output=True)
-    subprocess.run(['./run_segment.sh', unique_id], check=True, capture_output=True)
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+
+    crop_from_bb.crop_from_bb(work_dir)
+
+    segment_mask.segment_mask(work_dir)
+
     subprocess.run(['./run_pose_detection.sh', unique_id], check=True, capture_output=True)
     subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
 
@@ -158,11 +170,11 @@ def get_mask():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']). Returns the segmentation mask as a RBG png"""
     if request.method != 'POST':
         return resource_request_form.format(resource_type='Mask')
-    mask_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'mask.png')
+    mask_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'mask.png')
     if not os.path.exists(mask_path):
         return redirect(request.url)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid']), 'mask.png')
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  request.form['uuid']), 'mask.png')
 
 @app.route('/set_mask', methods=['GET', 'POST'])
 @cross_origin()
@@ -176,7 +188,7 @@ def set_mask():
                 resource_name='file'
                 )
     unique_id = request.form['uuid']
-    mask_path = os.path.join(output_prediction_parent_dir, unique_id, 'mask.png')
+    mask_path = os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png')
     if not os.path.exists(mask_path):
         return redirect(request.url)
 
@@ -186,11 +198,11 @@ def set_mask():
         return redirect(request.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(output_prediction_parent_dir, unique_id, 'mask.png'))
+        file.save(os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png'))
+        
+        subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
-        subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
-
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  unique_id), 'mask.png')
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'mask.png')
 ##############################################
 
 
@@ -204,11 +216,11 @@ def get_joint_locations():
     if request.method != 'POST':
         return resource_request_form.format(resource_type='Joint Locations JSON')
 
-    joint_locations_json_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'joint_locations.json')
+    joint_locations_json_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'joint_locations.json')
     if not os.path.exists(joint_locations_json_path):
         return redirect(request.url)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid']), 'joint_locations.json')
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  request.form['uuid']), 'joint_locations.json')
 
 @app.route('/set_joint_locations_json', methods=['GET', 'POST'])
 @cross_origin()
@@ -223,16 +235,16 @@ def set_joint_locations():
                 )
 
     unique_id = request.form['uuid']
-    joint_locations_json_path = os.path.join(output_prediction_parent_dir, unique_id, 'joint_locations.json')
+    joint_locations_json_path = os.path.join(UPLOAD_FOLDER, unique_id, 'joint_locations.json')
     if not os.path.exists(joint_locations_json_path):  # uuid is invalid
         return redirect(request.url)
 
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)
 
-    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
+    subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  unique_id), 'joint_locations.json')
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'joint_locations.json')
 ##############################################
 
 
@@ -245,11 +257,11 @@ def get_image():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']). Returns the original, full size image associated with that uuid"""
     if request.method != 'POST':
         return resource_request_form.format('Full Image')
-    image_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'image.png')
+    image_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'image.png')
     if not os.path.exists(image_path):
         return redirect(request.url)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid']), 'image.png') 
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  request.form['uuid']), 'image.png')
 
 
 @app.route('/get_cropped_image', methods=['GET', 'POST'])
@@ -259,33 +271,80 @@ def get_cropped_image():
     if request.method != 'POST':
         return  resource_request_form.format(resource_type='Cropped Image')
 
-    cropped_image_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'cropped_image.png')
+    cropped_image_path = os.path.join(UPLOAD_FOLDER, request.form['uuid'], 'cropped_image.png')
     if not os.path.exists(cropped_image_path):
         return redirect(request.url)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid']), 'cropped_image.png')
+    return send_from_directory(os.path.join(UPLOAD_FOLDER,  request.form['uuid']), 'cropped_image.png')
 
 
 @app.route('/get_animation', methods=['GET', 'POST'])
 @cross_origin()
 def get_animation():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']), as well as an a string specifying the motion within the animation (request.form['animation']).
-    Currently, should be 'run_jump', 'wave', 'dance', but others may be added later. Returns the mp4 video of that character doing the requested motion"""
+    Currently, supports 32 types of animations, but others may be added later. Returns the mp4 video of that character doing the requested motion"""
     if request.method != 'POST':
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
     unique_id = request.form['uuid']
-    if not os.path.exists(os.path.join(output_prediction_parent_dir, request.form['uuid'])):  # invalid uuid
+    if not os.path.exists(os.path.join(UPLOAD_FOLDER, request.form['uuid'])):  # invalid uuid
         return redirect(request.url)
 
     animation_type = request.form['animation']
-    assert animation_type in ['run_jump', 'wave', 'dance']
 
-    animation_path = os.path.join(output_prediction_parent_dir, request.form['uuid'], 'animation', f'{animation_type}.mp4')
+    assert animation_type in [
+        'box_jump',
+        'boxing',
+        'catwalk_walk',
+        'dab_dance',
+        'dance',
+        'dance001',
+        'dance002',
+        'floating',
+        'flying_kick',
+        'happy_idle',
+        'hip_hop_dancing',
+        'hip_hop_dancing2',
+        'hip_hop_dancing3',
+        'jab_cross',
+        'joyful_jump_l',
+        'jump',
+        'jump_attack',
+        'jump_rope',
+        'punching_bag',
+        'run',
+        'run_walk_jump_walk',
+        'running_jump',
+        'shoot_gun',
+        'shuffle_dance',
+        'skipping',
+        'standard_walk',
+        'walk_punch_kick_jump_walk',
+        'walk_sway',
+        'walk_swing_arms',
+        'wave_hello_3',
+        'waving_gesture',
+        'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
+
+    mirror_concat = animation_type in [
+        'catwalk_walk',
+        'run',
+        'run_walk_jump_walk',
+        'running_jump',
+        'skipping',
+        'standard_walk',
+        'walk_punch_kick_jump_walk',
+        'walk_sway',
+        'walk_swing_arms',
+        'zombie_walk']
+
+
+    animation_path = os.path.join(VIDEO_SHARE_ROOT, request.form['uuid'], f'{animation_type}.mp4')
+
     if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', unique_id, animation_type, VIDEO_SHARE_ROOT], check=True, capture_output=True)
+        subprocess.run(['./run_animate.sh', os.path.abspath(os.path.join(UPLOAD_FOLDER, unique_id)), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
 
-    return send_from_directory(os.path.join(output_prediction_parent_dir,  request.form['uuid'], 'animation'), f'{animation_type}.mp4', as_attachment=True)
+    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
 
 def allowed_file(filename):
