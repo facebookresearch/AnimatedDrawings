@@ -127,7 +127,8 @@ RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.c
     && export PATH=/usr/local/cuda/bin/:$PATH \
     && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
     && pip install cython pycocotools \
-    && conda install matplotlib 
+    && conda install matplotlib \
+    && conda install -c pytorch torchserve==0.4.0
 
 ENV CUDA_HOME=/usr/local/cuda
 ENV ALPHAPOSE_PATH=/home/model-server/AlphaPose
@@ -135,9 +136,11 @@ COPY --chown=model-server:model-server AlphaPose AlphaPose/
 
 # Compile alphapose
 RUN  --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-    cd AlphaPose \
-    && python3 setup.py build develop --user 
+   cd AlphaPose \
+   && python3 setup.py build develop --user
 
+COPY --chown=model-server:model-server convert_ap_to_mar convert_ap_to_mar/
+COPY --chown=model-server:model-server torchserve_ap torchserve_ap/
 
 # RUN cp /home/model-server/rig/server/input/0004.png /home/model-server/rig/server/in 
 
