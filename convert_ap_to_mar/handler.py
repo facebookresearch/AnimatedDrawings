@@ -79,7 +79,6 @@ class ModelHandler(BaseHandler):
         :param model_input: transformed model input data
         :return: list of inference output in NDArray
         """
-        #self.det_loader = FileDetectionLoader(input_source, self.cfg, self.args)
         self.det_loader = FileDetectionLoader(input_source, self.cfg, self.args)
         self.det_worker = self.det_loader.start()
 
@@ -91,28 +90,21 @@ class ModelHandler(BaseHandler):
             return (hm.numpy(), cropped_boxes)
 
 
-        # # Do some inference call to engine here and return output
-        # model_output = self.model.forward(model_input)
-        # return model_output
-
     def postprocess(self, inference_output):
         """
         Return inference result.
         :param inference_output: list of inference output
         :return: list of predict results
         """
-        # # Take output from network and post-process to desired format
-        postprocess_output = inference_output
 
-        self.eval_joints = EVAL_JOINTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        self.eval_joints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
         hm_size = self.cfg.DATA_PRESET.HEATMAP_SIZE
         norm_type = self.cfg.LOSS.get('NORM_TYPE', None)
 
         hm_data, cropped_boxes = inference_output
         self.heatmap_to_coord = get_func_heatmap_to_coord(self.cfg)
 
-        pose_coords = []
-        pose_scores = []
+        pose_coords, pose_scores = [], []
         for i in range(hm_data.shape[0]):
             bbox = cropped_boxes[i].tolist()
             pose_coord, pose_score = self.heatmap_to_coord(hm_data[i][self.eval_joints], bbox, hm_shape=hm_size, norm_type=norm_type)
@@ -121,15 +113,11 @@ class ModelHandler(BaseHandler):
         
         preds_img = torch.cat(pose_coords)
         preds_scores = torch.cat(pose_scores)
+        keypoints = torch.cat((preds_img, preds_scores), 2).numpy().flatten().tolist()
+
+        return [{'keypoints':keypoints}]
 
 
-        #self.writer.save(boxes, scores, ids, hm, cropped_boxes, orig_img, im_name)
-        #pose = self.writer.start().update()
-        ret = torch.cat((preds_img, preds_scores), 2)
-        return [{'keypoints':preds_img.numpy().tolist(), 'confidence':preds_scores.numpy().tolist()}] # -1 # pose
-
-
-        return postprocess_output
 
     def handle(self, data, context):
         """
@@ -146,4 +134,3 @@ class ModelHandler(BaseHandler):
         model_input = self.preprocess(data)
         model_output = self.inference(model_input)
         return self.postprocess(model_output)
-        #return model_output
