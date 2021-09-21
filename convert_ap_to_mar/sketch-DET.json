@@ -1,0 +1,8 @@
+[
+  {
+    "category_id": 1,
+    "score": 0.9,
+    "bbox": [130, 200, 261, 400],
+    "image_id": "/home/ap-server/convert_ap_to_mar/gray_blur.png"
+  }
+]
