@@ -1,7 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { useState } from "react";
 import {} from "../EnvConfig";
-// import fs from "fs";
 
 const apiHost = window._env_.REACT_APP_API_HOST;
 
@@ -11,6 +10,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
   enum ApiPath {
     UploadImage = "upload_image",
 
+    SetConsentAnswer = "set_consent_answer",
     GetBoundingBox = "get_bounding_box_coordinates",
     SetBoundingBox = "set_bounding_box_coordinates",
     GetJointLocations = "get_joint_locations_json",
@@ -57,6 +57,21 @@ export function useDrawingApi(onError: (error: Error) => void) {
       form.append("file", file);
     }
     await invokePost(ApiPath.UploadImage, form, onResult);
+  };
+
+  // Set Consent Answer
+  const setConsentAnswer = async function (
+    uuid: string,
+    data: any,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (uuid) {
+      form.set("uuid", uuid);
+    }
+
+    form.set("consent_response", data);
+    await invokePost(ApiPath.SetConsentAnswer, form, onResult);
   };
 
   // Get Bounding Box
@@ -191,6 +206,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
   return {
     isLoading,
     uploadImage,
+    setConsentAnswer,
     getBoundingBox,
     setBoundingBox,
     getJointLocations,
