@@ -1,16 +1,22 @@
 .stepper-container-horizontal {
   border-radius: 3px;
-  margin: 8px auto;
-  padding: 8px;
+  margin: 4px auto;
+  padding: 4px;
   width: 100%;
 }
 
 .step-actions-container {
   padding: 10px;
   width: 100%;
-  height: 485px;
+  height: 515px;
   overflow: auto;
   margin-bottom: 20px;
+}
+
+.d-list {
+  margin-left: 10px;
+  list-style-type: square;
+  display: list-item
 }
 
 .stepper-wrapper-horizontal {
@@ -130,4 +136,5 @@ ul {
     max-height: 100%;
   }
 }
+
 

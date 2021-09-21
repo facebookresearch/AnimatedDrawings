@@ -1,25 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import classnames from "classnames";
 import { Row, Col } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
+import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import MaskStage from "./MaskStage";
 
 const CanvasMask = () => {
   const canvasWindow = useRef<HTMLInputElement>(null);
-  const { drawing, uuid, imageUrlPose, setImageUrlMask } = useDrawingStore();
+  const layerRef = useRef<HTMLImageElement | any>(null);
+  const {
+    drawing,
+    uuid,
+    croppedImgDimensions,
+    setImageUrlMask,
+  } = useDrawingStore();
   const {
     tool,
     penSize,
     lines,
+    setMaskBase64,
     setTool,
     setPenSize,
     setLines,
   } = useMaskingStore();
-  const { isLoading, getMask } = useDrawingApi((err) => {});
-  const [canvasWidth, setCanvasWidth] = useState(0)
+  const { isLoading, getMask, setMask } = useDrawingApi((err) => {});
+  const { currentStep, setCurrentStep } = useStepperStore();
 
   /**
    * Here there is one scenarios/side effect when the CanvasMask component mounts
@@ -35,7 +43,7 @@ const CanvasMask = () => {
           let reader = new window.FileReader();
           reader.readAsDataURL(data);
           reader.onload = function () {
-            let imageDataUrl = reader.result;  // base64
+            let imageDataUrl = reader.result; // base64
             setImageUrlMask(imageDataUrl);
           };
         });
@@ -49,26 +57,30 @@ const CanvasMask = () => {
     return () => {};
   }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /**
-   * This hook calculates the canvas width based on the ratio (width/height) 
-   * of the cropped image returning from the server.
-   */
-  useEffect(() => {
-    const tempImage = new Image();
-    tempImage.onload = (e) => {
-      if (canvasWindow.current) {
-        setCanvasWidth(
-          canvasWindow.current?.clientHeight *
-            (tempImage.naturalWidth / tempImage.naturalHeight)
-        );
+  const handleClick = async (clickType: string) => {
+    try {
+      if (null === uuid && undefined === uuid) {
+        return;
       }
-    };
 
-    if (imageUrlPose !== null && imageUrlPose !== undefined)
-      tempImage.src = imageUrlPose;
-
-    return () => {};
-  }, [imageUrlPose]);
+      if (clickType === "next" && uuid) {
+        const uri = layerRef.current?.toDataURL();
+        setMaskBase64(uri); // base64
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const file = new File([blob], "mask.png", {
+          type: "image/png",
+          lastModified: Date.now(),
+        });
+        await setMask(uuid!, file, () => {
+          console.log("New mask loaded.");
+          setCurrentStep(currentStep + 1);
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleUndo = () => {
     if (!lines.length) {
@@ -105,9 +117,9 @@ const CanvasMask = () => {
                   <input
                     type="radio"
                     name="radio"
-                    value={4}
-                    checked={penSize === 4}
-                    onChange={() => setPenSize(4)}
+                    value={3}
+                    checked={penSize === 3}
+                    onChange={() => setPenSize(3)}
                   />
                   <span></span>
                 </label>
@@ -143,7 +155,7 @@ const CanvasMask = () => {
             >
               <i className="bi bi-arrow-90deg-left" />
             </button>
-            
+
             <button className="md-button-reset border border-dark">
               Reset mask
             </button>
@@ -154,13 +166,21 @@ const CanvasMask = () => {
         {isLoading ? (
           <Loader drawingURL={drawing} />
         ) : (
-          <div className="mask-wrapper">
-            <MaskStage
-              canvasWidth={canvasWidth}
-              canvasHeight={canvasWindow.current?.clientHeight}
-            />
-          </div>
+          <MaskStage
+            canvasWidth={croppedImgDimensions.width}
+            canvasHeight={croppedImgDimensions.height}
+            ref={layerRef}
+          />
         )}
+      </div>
+      <div className="mt-3">
+        <button
+          className="buttons large-button"
+          disabled={isLoading}
+          onClick={() => handleClick("next")}
+        >
+          Next <i className="bi bi-arrow-right ml-1" />
+        </button>
       </div>
     </div>
   );

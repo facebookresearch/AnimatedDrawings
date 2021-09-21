@@ -11,16 +11,16 @@ function App() {
     <Router>
       <Switch>
         <Route exact path="/">
+          <HomePage />
+        </Route>
+        <Route path="/canvas">
           <MainPage />
         </Route>
-        <Route exact path="/result/:uuid">
+        <Route path="/result/:uuid">
           <ResultsPage />
         </Route>
-        <Route exact path="/share/:uuid/:type">
+        <Route path="/share/:uuid/:type">
           <SharingPage />
-        </Route>
-        <Route exact path="/home">
-          <HomePage />
         </Route>
       </Switch>
     </Router>

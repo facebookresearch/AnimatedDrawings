@@ -26,7 +26,7 @@ interface Props {
   //   imageWidth: number;
   imageUrl: any;
   pose: Pose;
-  isLoading? : boolean;
+  isLoading?: boolean;
   setPose: (pose: Pose) => void;
 }
 
@@ -163,92 +163,79 @@ const PoseEditor = ({ imageUrl, pose, setPose, isLoading }: Props) => {
   }, [imageUrl]);
 
   return (
-    <div className="custom-loader">
-      <svg
-        width="100%" 
-        height="100%"
-        viewBox={`0 0 ${imageWidth} ${imageHeight}`}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <image href={imageUrl}></image>
-        <g>
-          {pose.edges.map(({ from, to }) => (
-            <>
-              <Line
-                key={`${from}-${to}-border`}
-                x1={mapX(nodeMap.get(from)!.position.x)}
-                y1={mapY(nodeMap.get(from)!.position.y)}
-                x2={mapX(nodeMap.get(to)!.position.x)}
-                y2={mapY(nodeMap.get(to)!.position.y)}
-                stroke={
-                  isMoving &&
-                  hoveredJoint &&
-                  [from, to].indexOf(hoveredJoint) >= 0
-                    ? "black"
-                    : "white"
-                }
-                strokeWidth="3"
-              />
-              <Line
-                key={`${from}-${to}`}
-                x1={mapX(nodeMap.get(from)!.position.x)}
-                y1={mapY(nodeMap.get(from)!.position.y)}
-                x2={mapX(nodeMap.get(to)!.position.x)}
-                y2={mapY(nodeMap.get(to)!.position.y)}
-                stroke={
-                  isMoving &&
-                  hoveredJoint &&
-                  [from, to].indexOf(hoveredJoint) >= 0
-                    ? "red"
-                    : "black"
-                }
-                strokeWidth="1"
-              />
-            </>
-          ))}
-          {pose.nodes.map((node) => (
-            <Circle
-              key={node.id}
-              cx={mapX(node.position.x)}
-              cy={mapY(node.position.y)}
-              strokeWidth="2"
-              stroke="white"
-              r="4"
-              onPositionUpdate={(pos) => {
-                const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
-
-                nodeMap.set(node.id, {
-                  ...node,
-                  position: newPos,
-                });
-
-                setPose({
-                  ...pose,
-                  nodes: Array.from(nodeMap.values()),
-                });
-                setIsMoving(pos.active);
-              }}
-              onHover={(enter) => {
-                setHoveredJoint(enter ? node.label : undefined);
-              }}
+    <svg
+      //width="100%"
+      //height="100%"
+      width={imageWidth}
+      height={imageHeight}
+      viewBox={`0 0 ${imageWidth} ${imageHeight}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <image href={imageUrl}></image>
+      <g>
+        {pose.edges.map(({ from, to }) => (
+          <>
+            <Line
+              key={`${from}-${to}-border`}
+              x1={mapX(nodeMap.get(from)!.position.x)}
+              y1={mapY(nodeMap.get(from)!.position.y)}
+              x2={mapX(nodeMap.get(to)!.position.x)}
+              y2={mapY(nodeMap.get(to)!.position.y)}
+              stroke={
+                isMoving &&
+                hoveredJoint &&
+                [from, to].indexOf(hoveredJoint) >= 0
+                  ? "black"
+                  : "white"
+              }
+              strokeWidth="3"
             />
-          ))}
-        </g>
-      </svg>
-      {isLoading &&
-        <svg width="100%" height="100%" viewBox="0 0 200 200">
-          <rect x="0" y="0" width="100%" height="5" fill="#f25c05">
-            <animate
-              attributeName="y"
-              from="0"
-              to="200"
-              dur="1.5s"
-              repeatCount="indefinite"
+            <Line
+              key={`${from}-${to}`}
+              x1={mapX(nodeMap.get(from)!.position.x)}
+              y1={mapY(nodeMap.get(from)!.position.y)}
+              x2={mapX(nodeMap.get(to)!.position.x)}
+              y2={mapY(nodeMap.get(to)!.position.y)}
+              stroke={
+                isMoving &&
+                hoveredJoint &&
+                [from, to].indexOf(hoveredJoint) >= 0
+                  ? "red"
+                  : "black"
+              }
+              strokeWidth="1"
             />
-          </rect>
-        </svg>
-        }
-    </div>
+          </>
+        ))}
+        {pose.nodes.map((node) => (
+          <Circle
+            key={node.id}
+            cx={mapX(node.position.x)}
+            cy={mapY(node.position.y)}
+            strokeWidth="2"
+            stroke="white"
+            r="4"
+            onPositionUpdate={(pos) => {
+              const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
+
+              nodeMap.set(node.id, {
+                ...node,
+                position: newPos,
+              });
+
+              setPose({
+                ...pose,
+                nodes: Array.from(nodeMap.values()),
+              });
+              setIsMoving(pos.active);
+            }}
+            onHover={(enter) => {
+              setHoveredJoint(enter ? node.label : undefined);
+            }}
+          />
+        ))}
+      </g>
+    </svg>
   );
 };
 

@@ -3,20 +3,18 @@ import { useLocation } from "react-router";
 import { Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import PoseEditor from "../PoseEditor";
+import Loader from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 
 const CanvasAnimation = () => {
   const {
     uuid,
+    drawing,
     videoDownload,
     animationType,
     animationFiles,
-    imageUrlPose,
-    pose,
     setVideoDownload,
     setAnimationFiles,
-    setPose,
   } = useDrawingStore();
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
@@ -111,12 +109,7 @@ const CanvasAnimation = () => {
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
         {isLoading ? (
-          <PoseEditor
-            imageUrl={imageUrlPose}
-            pose={pose}
-            setPose={setPose}
-            isLoading={isLoading}
-          />
+          <Loader drawingURL={drawing} />
         ) : (
           <div className="video_box">
             <video id="videoPlayer" autoPlay muted loop></video>
@@ -131,10 +124,7 @@ const CanvasAnimation = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <button
-            className="md-button-2 border border-dark"
-            disabled={isLoading}
-          >
+          <button className="buttons md-button mr-1" disabled={isLoading}>
             {isLoading ? (
               <Spinner
                 as="span"
@@ -152,7 +142,7 @@ const CanvasAnimation = () => {
         </a>
 
         <button
-          className="md-button border border-dark"
+          className="buttons md-button ml-1"
           disabled={isLoading}
           onClick={handleShare}
         >

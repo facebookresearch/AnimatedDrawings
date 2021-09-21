@@ -6,18 +6,17 @@
   color: $dark;
   -webkit-text-size-adjust: 100%;
 
-  // Navbar
-  .navbar-top {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
   // Container
   .container-fluid {
     padding-left: $main-content-padding-x;
     padding-right: $main-content-padding-x;
   }
+  button {
+    cursor: pointer;
+  }
 }
+
+/**** Home Page ****/
 
 .home-page {
   position: relative;
@@ -29,18 +28,20 @@
     font-size: 64px;
     font-weight: 700;
     line-height: 64px;
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-weight: normal;
+    color: $default;
   }
   h3 {
     font-size: 18px;
     line-height: 24px;
-    color: #641E14;
   }
 }
 
 .home-footer {
   position: absolute;
   bottom: 0%;
-  color: #641E14;
   cursor: pointer;
   h4 {
     font-size: 18px;
@@ -50,8 +51,7 @@
 
 .home-img-wrapper {
   position: absolute;
-  width: 685px;
-  height: 685px;
+  height: 780px;
   bottom: 0;
   right: 0;
   img {
@@ -61,29 +61,46 @@
   }
 }
 
-@media screen and (max-width: 576px) {
-  .home-img-wrapper {
-    width: 200px;
-    height: 200px;
-  }
-}
-
 .reg-title {
   font-size: 36px;
 }
 
 @media screen and (max-width: 576px) {
+  .home-img-wrapper {
+    height: 280px;
+  }
   .reg-title {
     font-size: 20px;
     font-weight: 600;
   }
 }
 
+
+/**** Main Page ****/
+
+.bg-main {
+  position: relative;
+  background-image: url('../background_layer.svg');
+  background-position: right;
+  background-repeat: no-repeat;
+  background-size: contain ;
+  background-color: $secondary;
+}
+
 .main-page {
-  min-height: 82vh; /* height of the browser viewport */
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  .step-title {
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-size: 56px;
+    text-transform: uppercase;
+  }
+  .bold {
+    font-weight: 700;
+  }
 }
 
 @media screen and (max-width: 576px) {
@@ -92,8 +109,74 @@
   }
 }
 
+.navbar-title {
+  position: absolute;
+  top: 5%;
+  left: 10%;
+  h3 {
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+    letter-spacing: 0.4px;
+    color: $default;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .navbar-title {
+    position: relative;
+    padding-top: 15px;
+    left: 0%;
+    text-align: center;
+  }
+}
+
+/**** Waiver Page / Modal ****/
+
+.waiver-step-container {
+  padding: 10px;
+  width: 100%;
+  height: 70vh;
+  max-width: 550px;
+  overflow: auto;
+  margin-bottom: 20px;
+  .step-title {
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-size: 56px;
+    text-transform: uppercase;
+  }
+  .bold {
+    font-weight: 700;
+  }
+}
+
+.waiver-step-container2 {
+  background-color: rgba(0,0,0,0.5);
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  right: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  .step-title {
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-size: 56px;
+    text-transform: uppercase;
+  }
+  .bold {
+    font-weight: 700;
+  }
+}
+
+/**** Share Page ****/
+
 .share-page {
-  min-height: 82vh; /* height of the browser viewport */
+  min-height: 100vh; /* height of the browser viewport */
   display: flex;
   justify-content: center;
   align-items: center;
