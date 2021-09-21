@@ -5,16 +5,16 @@ import Canvas from "../components/Canvas/Canvas";
 import StepsContainer from "../components/Stepper/StepsContainer";
 
 const MainPage = () => {
-  return (
-    <div className="main-content">
+  return (  
+    <div className="main-content bg-main">
       <Navbar />
       <div className="main-page">
-        <Container fluid="md" className="mt-3 align-content-center">
-          <Row className="align-items-center justify-content-center py-2 mt-1 px-lg-2">
-            <Col lg={6} md={12} sm={12} className="mb-2 mx-2 pl-lg-0">
+        <Container >
+          <Row className="align-items-center py-2 px-lg-2">
+            <Col lg={6} md={6} sm={12} className="ml-auto mb-2 order-sm-2" >
               <Canvas />
             </Col>
-            <Col lg={4} md={12} sm={12} className="mt-sm-6 align-self-start px-2">
+            <Col lg={4} md={4} sm={12} className="mt-sm-6 align-self-start px-2 order-sm-1">
               <StepsContainer />
             </Col>
           </Row>

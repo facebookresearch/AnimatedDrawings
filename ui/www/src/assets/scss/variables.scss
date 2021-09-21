@@ -29,17 +29,17 @@ $grays: map-merge(
 $blue: #3a6a88 !default;
 $indigo: #2d303d !default;
 $purple: #8965e0 !default;
-$pink: #f3a4b5 !default;
+$pink: #FEB1C8 !default;
 $red: #f5365c !default;
 $orange: #f25c05 !default;
 $yellow: #efcb87 !default;
 $green: #2dce89 !default;
-$teal: #80cbd7 !default;
+$teal: #00BCAD !default;
 $cyan: #87bfa1 !default;
 $blue2: #5ca5b2 !default;
 
-$default: #172b4d !default;
-$primary: $orange !default;
+$default: #00BCAD !default;
+$primary: $pink !default;
 $secondary: #ffefe1 !default;
 $success: $green !default;
 $info: $teal !default;
@@ -76,6 +76,8 @@ $h3-font-size: $font-size-base * 1.0625 !default;
 $h4-font-size: $font-size-base * 0.9375 !default;
 $h5-font-size: $font-size-base * 0.8125 !default;
 $h6-font-size: $font-size-base * 0.625 !default;
+
+$list-inline-padding:         .5rem !default;
 
 // Navbar
 

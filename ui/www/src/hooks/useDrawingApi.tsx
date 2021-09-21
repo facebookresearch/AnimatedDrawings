@@ -11,6 +11,8 @@ export function useDrawingApi(onError: (error: Error) => void) {
   enum ApiPath {
     UploadImage = "upload_image",
 
+    GetBoundingBox = "get_bounding_box_coordinates",
+    SetBoundingBox = "set_bounding_box_coordinates",
     GetJointLocations = "get_joint_locations_json",
     SetJointLocations = "set_joint_locations_json",
     GetCroppedImage = "get_cropped_image",
@@ -55,6 +57,34 @@ export function useDrawingApi(onError: (error: Error) => void) {
       form.append("file", file);
     }
     await invokePost(ApiPath.UploadImage, form, onResult);
+  };
+
+  // Get Bounding Box
+  const getBoundingBox = async function (
+    uuid: string,
+    onResult: (result: any) => void
+  ) {
+
+    const form = new FormData();
+    if (uuid) {
+      form.set("uuid", uuid);
+    }
+    await invokePost(ApiPath.GetBoundingBox, form, onResult);
+  };
+
+  // Set Bounding Box
+  const setBoundingBox = async function (
+    uuid: string,
+    data: any,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (uuid) {
+      form.set("uuid", uuid);
+    }
+
+    form.set("bounding_box_coordinates", JSON.stringify(data));
+    await invokePost(ApiPath.SetBoundingBox, form, onResult);
   };
 
   // Get Joint Locations
@@ -161,6 +191,8 @@ export function useDrawingApi(onError: (error: Error) => void) {
   return {
     isLoading,
     uploadImage,
+    getBoundingBox,
+    setBoundingBox,
     getJointLocations,
     setJointLocations,
     getCroppedImage,

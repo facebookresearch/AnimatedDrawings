@@ -1,42 +1,37 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
-import useDrawingStore from "../../hooks/useDrawingStore";
 
 const Step5 = () => {
-  const { uuid } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
-
-  const handleClick = async (clickType: string) => {
-    try {
-      if (null === uuid && undefined === uuid) {
-        return;
-      }
-      if (clickType === "previous") {
-        setCurrentStep(currentStep - 1);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   return (
     <>
       <div className="step-actions-container">
-        <h1 className="reg-title">Your Drawings</h1>
+        <h1 className="step-title">Segmenting</h1>
         <p>
-          [Insert a description of what’s happening in this step of the process]
+          Using the box, we extracted a segmentation mask to separate the
+          character from the background.
+        </p>
+        <p>Does the mask cover the entire character?</p>
+        <p>Are the arms and legs separated from each other in the mask?</p>
+        <p>
+          Does the mask exclude everything that isn’t part of the character?
+        </p>
+        <p>
+          If not, you can correct this by using the drawing tools. If everything
+          looks fine, simply hit next.
         </p>
       </div>
       <div className="mt-2 text-right">
         <Button
           variant="outline-dark"
           size="sm"
-          className="px-4"
-          onClick={() => handleClick("previous")}
+          disabled={false}
+          onClick={() => setCurrentStep(currentStep - 1)}
         >
-          Fix
-        </Button>{" "}
+          Previous
+        </Button>
       </div>
     </>
   );

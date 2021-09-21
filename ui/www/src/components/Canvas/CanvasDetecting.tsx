@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
+import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 
-import PoseEditor, { Position } from "../PoseEditor";
+import { Position } from "../PoseEditor";
 import Loader from "../Loader";
 
 const mapJointsToPose = (joints: object) => {
@@ -97,7 +98,6 @@ const CanvasDetecting = () => {
     drawing,
     newCompressedDrawing,
     uuid,
-    pose,
     imageUrlPose,
     setUuid,
     setImageUrlPose,
@@ -110,6 +110,7 @@ const CanvasDetecting = () => {
     getJointLocations,
     getCroppedImage,
   } = useDrawingApi((err) => {});
+  const { setCurrentStep } = useStepperStore();
 
   /**
    * Here there are two scenarios/side effects when the CanvasDetecting component mounts
@@ -129,7 +130,7 @@ const CanvasDetecting = () => {
         console.log(error);
       }
     };
-    const fetchPose = async () => {
+    const fetchCroppedImage = async () => {
       try {
         await getCroppedImage(uuid!, (data) => {
           let reader = new window.FileReader();
@@ -150,7 +151,7 @@ const CanvasDetecting = () => {
     };
 
     if (uuid === "") fetchUuid();
-    if (uuid !== "") fetchPose();
+    if (uuid !== "") fetchCroppedImage();
 
     return () => {};
   }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -161,21 +162,13 @@ const CanvasDetecting = () => {
         {isLoading ? (
           <Loader drawingURL={drawing} />
         ) : (
-          <>
-            {pose && (
-              <PoseEditor
-                imageUrl={imageUrlPose}
-                pose={pose}
-                setPose={setPose}
-              />
-            )}
-          </>
+          <img src={imageUrlPose} alt="Drawing Detected"></img>
         )}
       </div>
 
-      <div className="mt-3">
-        <button className="large-button border border-dark">
-          {isLoading ? (
+      {isLoading ? (
+        <div className="mt-3">
+          <button className="buttons large-button">
             <Spinner
               as="span"
               animation="border"
@@ -183,11 +176,19 @@ const CanvasDetecting = () => {
               role="status"
               aria-hidden="true"
             />
-          ) : (
-            "Detected"
-          )}
-        </button>
-      </div>
+          </button>
+        </div>
+      ) : (
+        <div className="mt-3 text-center">
+          <button className="buttons sm-button mr-1">Detected</button>
+          <button
+            className="buttons md-button-right ml-1"
+            onClick={() => setCurrentStep(4)}
+          >
+            Next <i className="bi bi-arrow-right px-2" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { Stage, Layer, Line, Image } from "react-konva";
 import useImage from "use-image";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -39,17 +39,10 @@ const DrawingImage = ({ editMode, urlImg, height, width }: imgProps) => {
   );
 };
 
-const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
-  const layerRef = useRef<any>(null);
+const MaskStage = React.forwardRef(({ canvasWidth, canvasHeight }: any, ref : any) => {
   const isDrawing = useRef(false);
   const { imageUrlPose, imageUrlMask } = useDrawingStore();
-  const { tool, penSize, lines, setLines, setMaskBase64 } = useMaskingStore();
-
-  useEffect(() => {
-    const uri = layerRef.current?.toDataURL({ pixelRatio: 2 });
-    setMaskBase64(uri)  // base64
-    return () => {}
-  }, [lines, tool, setMaskBase64 ])
+  const { tool, penSize, lines, setLines } = useMaskingStore();
 
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
@@ -74,10 +67,10 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
   };
 
   return (
-    <div className="bg-black">
+    <div>
       <Stage
         width={canvasWidth}
-        height={canvasHeight - 20 || 0}
+        height={canvasHeight || 0}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
         onMousemove={handleMouseMove}
@@ -89,16 +82,16 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
           <DrawingImage
             editMode={true}
             urlImg={imageUrlPose}
-            height={canvasHeight - 20}
+            height={canvasHeight}
             width={canvasWidth}
           />
         </Layer>
 
-        <Layer ref={layerRef}>
+        <Layer ref={ref}>
           <MaskImage
             editMode={true}
             urlImg={imageUrlMask}
-            height={canvasHeight - 20}
+            height={canvasHeight}
             width={canvasWidth}
           />
           {lines.map((line: any, i: number) => (
@@ -110,7 +103,6 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
               strokeWidth={line.penSize}
               tension={0.5}
               lineCap="round"
-              //opacity={editMode ? 0.8 : 1}
               globalCompositeOperation={
                 line.tool === "eraser" ? "destination-out" : "source-over"
               }
@@ -120,6 +112,6 @@ const MaskStage = ({ canvasWidth, canvasHeight }: any) => {
       </Stage>
     </div>
   );
-};
+});
 
 export default MaskStage;

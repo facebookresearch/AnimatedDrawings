@@ -152,8 +152,8 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(work_dir)
 
-    subprocess.run(['./run_pose_detection.sh', unique_id], check=True, capture_output=True)
-    subprocess.run(['./run_prep_animation_files.sh', unique_id], check=True, capture_output=True)
+    subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+    subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)

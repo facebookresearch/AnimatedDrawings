@@ -4,18 +4,22 @@ import "./assets/scss/root.scss";
 import ResultsPage from "./containers/ResultsPage";
 import MainPage from "./containers/MainPage";
 import SharingPage from "./containers/SharingPage";
+import HomePage from "./containers/HomePage";
 
 function App() {
   return (
     <Router>
       <Switch>
         <Route exact path="/">
+          <HomePage />
+        </Route>
+        <Route path="/canvas">
           <MainPage />
         </Route>
-        <Route exact path="/result/:uuid">
+        <Route path="/result/:uuid">
           <ResultsPage />
         </Route>
-        <Route exact path="/share/:uuid/:type">
+        <Route path="/share/:uuid/:type">
           <SharingPage />
         </Route>
       </Switch>

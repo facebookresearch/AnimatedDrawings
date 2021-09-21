@@ -18,7 +18,7 @@
   text-align: center;
   border: 1px solid;
   padding: 10px;
-  box-shadow: 7px 7px 7px #aaaaaa;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
   img {
     margin: 0;
     max-width: 100%;
@@ -72,66 +72,56 @@
 }
 
 /*** Custom Buttons ***/
+.buttons {
+  height: 48px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 10px;
+  border: transparent;
+  text-align: center;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+}
 
 .large-button {
   display: block;
   width: 100%;
-  border: 1px solid;
-  border-radius: 10px;
+  height: 48px;
   background-color: $primary;
-  color: $dark;
-  padding: 8px 28px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
 }
 
 .large-button:hover {
-  background-color: $primary;
+  background-color: pink;
   color: black;
-  opacity: 0.8
+  opacity: 1
 }
 
 .md-button {
   display: inline-block;
   width: 47%;
-  border: 1px solid;
-  border-radius: 10px;
   background-color: $primary;
   color: $dark;
-  padding: 8px 28px;
-  margin: 0 2px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
 }
 
 .md-button-2 {
   display: inline-block;
   width: 48%;
-  border: 1px solid;
   border-radius: 10px;
-  background-color: transparent;
+  background-color: $default;
   color: $dark;
-  padding: 8px 28px;
-  margin: 0 2px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
 }
 
 .md-button-success {
   display: inline-block;
   width: 48%;
-  border: 1px solid;
-  border-radius: 10px;
   background-color: $success;
   color: $dark;
-  padding: 8px 28px;
-  margin: 0 2px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
+}
+
+.md-button-disagree{
+  display: inline-block;
+  width: 48%;
+  background-color: $danger;
+  color: $dark;
 }
 
 .md-button:hover {
@@ -171,6 +161,20 @@
   border-radius: 10px;
 }
 
+.sm-button {
+  display: inline-block;
+  width: 18%; 
+  background-color: $white;
+  border-radius: 12px;
+}
+
+.md-button-right {
+  display: inline-block;
+  width: 79%;
+  background-color: $primary;
+  border-radius: 12px;
+}
+
 /* Mobile */
 @media screen and (max-width: 576px) {
   .md-button-reset {
@@ -182,6 +186,14 @@
     width: 30px;
     height: 30px;
     border-radius: 10px;
+  }
+  .sm-button {
+    height: 40px;
+    font-size: 14px;
+  }
+  .md-button-right {
+    height: 40px;
+    font-size: 14px;
   }
 }
 

@@ -1,14 +1,18 @@
-import React, { useRef } from "react";
-import classnames from "classnames";
+import React, { useRef, useState } from "react";
 import { Col, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import useDrawingStore from "../../hooks/useDrawingStore";
-import useStepperStore from "../../hooks/useStepperStore";
+import WaiverModal from "../Modals/WaiverModal";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
-  const { drawing, setDrawing, setNewCompressedDrawing } = useDrawingStore();
-  const { currentStep, agreeTerms, setAgreeTerms } = useStepperStore();
+  const {
+    drawing,
+    setDrawing,
+    setNewCompressedDrawing,
+    setOriginalDimensions,
+  } = useDrawingStore();
+  const [showWaiver, setShowWaiver] = useState(false);
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,6 +33,16 @@ const CanvasUpload = () => {
         type: "image/png",
         lastModified: new Date().getTime(),
       });
+
+      const tempImage = new Image();
+      if (imgUrl !== null && imgUrl !== undefined) tempImage.src = imgUrl;
+
+      tempImage.onload = function (e) {
+        setOriginalDimensions({
+          width: tempImage.naturalWidth,
+          height: tempImage.naturalHeight,
+        });
+      };
 
       setNewCompressedDrawing(newFile);
       setDrawing(imgUrl);
@@ -55,40 +69,36 @@ const CanvasUpload = () => {
         )}
       </div>
 
-      {currentStep === 1 ? (
+      <input
+        type="file"
+        name="file"
+        ref={inputFile}
+        style={{ display: "none" }}
+        multiple={false}
+        onChange={compress}
+      />
+
+      {drawing === "" ? (
         <div className="mt-3">
-          <button className="large-button border border-dark" onClick={upload}>
+          <button className="buttons large-button" onClick={upload}>
             <i className="bi bi-camera-fill mr-2" /> Camera
           </button>
-          <input
-            type="file"
-            name="file"
-            ref={inputFile}
-            style={{ display: "none" }}
-            multiple={false}
-            onChange={compress}
-          />
         </div>
       ) : (
         <div className="mt-3 text-center">
-          <button
-            className="md-button-2 border border-dark"
-            onClick={() => setAgreeTerms(false)}
-          >
-            Disagree
+          <button className="buttons sm-button mr-1" onClick={upload}>
+            Retake
           </button>
           <button
-            className={classnames(
-              "border border-dark",
-              { "md-button-success text-white": agreeTerms },
-              { "md-button-2": !agreeTerms }
-            )}
-            onClick={() => setAgreeTerms(true)}
+            className="buttons md-button-right ml-1"
+            onClick={() => setShowWaiver(true)}
           >
-            Agree
+            Next <i className="bi bi-arrow-right px-2" />
           </button>
         </div>
       )}
+
+      <WaiverModal showModal={showWaiver} setShowModal={setShowWaiver} />
     </div>
   );
 };
