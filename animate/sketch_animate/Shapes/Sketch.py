@@ -709,15 +709,20 @@ class ARAP_Sketch(BaseSketch):
 
         self.model = np.identity(4, np.float32)
 
-        root_loc = self.sketch['skeleton'][0]['loc']
-        root_offset_img_x = root_loc[0] / self.sketch['sketch_dim']
-        root_offset_img_y = root_loc[1] / self.sketch['sketch_dim']
+        # Below is useful only if we want to position the character somewhere other than origin
+        # root_loc = self.sketch['skeleton'][0]['loc']
+        # root_offset_img_x = root_loc[0] / self.sketch['sketch_dim']
+        # root_offset_img_y = root_loc[1] / self.sketch['sketch_dim']
 
-        root_offset_world_x = -0.5 + root_offset_img_x
-        root_offset_world_y = 0.5 - root_offset_img_y
+        # root_offset_world_x = -0.5 + root_offset_img_x
+        # root_offset_world_y = 0.5 - root_offset_img_y
 
-        self.model[0, -1] = root_offset_world_x
-        self.model[1, -1] = root_offset_world_y
+        # self.model[0, -1] = root_offset_world_x
+        # self.model[1, -1] = root_offset_world_y
+
+        # self.model[0, -1] = 0
+        # self.model[1, -1] = 0
+
 
     def _adjust_torso_rotation(self):
         """
@@ -824,9 +829,9 @@ class ARAP_Sketch(BaseSketch):
 
         render_order = []
         while distances:
-            max_, max_key = -np.inf, None
+            max_, max_key = -np.inf, list(distances.keys())[0]
             for key, val in distances.items():
-                if val[0][1] > max_:
+                if val and val[0][1] > max_:
                     max_, max_key = val[0][1], key
             render_order += distances[max_key]
             del(distances[max_key])
