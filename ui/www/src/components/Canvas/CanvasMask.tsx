@@ -21,10 +21,12 @@ const CanvasMask = () => {
     tool,
     penSize,
     lines,
+    blackLines,
     setMaskBase64,
     setTool,
     setPenSize,
     setLines,
+    setBlackLines,
   } = useMaskingStore();
   const { isLoading, getMask, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
@@ -82,12 +84,22 @@ const CanvasMask = () => {
     }
   };
 
+  const handleReset = () => {
+    if (!lines.length && !blackLines.length) {
+      return;
+    }
+    setLines([]);
+    setBlackLines([]);
+  };
+
   const handleUndo = () => {
-    if (!lines.length) {
+    if (!lines.length && !blackLines.length) {
       return;
     }
     let objectLines = lines.slice(0, -1);
+    let backgroundLines = blackLines.slice(0, -1);
     setLines(objectLines);
+    setBlackLines(backgroundLines);
   };
 
   return (
@@ -156,7 +168,10 @@ const CanvasMask = () => {
               <i className="bi bi-arrow-90deg-left" />
             </button>
 
-            <button className="md-button-reset border border-dark">
+            <button
+              className="md-button-reset border border-dark"
+              onClick={handleReset}
+            >
               Reset mask
             </button>
           </Row>
