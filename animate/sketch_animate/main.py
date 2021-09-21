@@ -2,6 +2,7 @@ import yaml
 import sys
 import os
 import logging
+from pathlib import Path
 
 
 def build_cfg():
@@ -55,7 +56,16 @@ def main(cfg):
     with open(sys.argv[2], 'r') as f:
         sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
-    scene_manager.add_sketch(ARAP_Sketch(sketch_cfg, cfg))
+      
+    ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
+    if os.path.exists(ARAP_pickle_loc):
+        print(f'pickled arap_sketch exists. Using it: {ARAP_pickle_loc}')
+        arap_sketch = ARAP_Sketch.load_from_pickle(ARAP_pickle_loc)
+    else:
+        print(f'pickled arap_sketch DNE. Creating it: {ARAP_pickle_loc}')
+        arap_sketch = ARAP_Sketch(sketch_cfg, cfg)
+
+    scene_manager.add_sketch(arap_sketch)
 
     # create root motion transferrer
     scene_manager.create_root_motion_transferrer()
