@@ -346,6 +346,26 @@ def get_animation():
 
     return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
+@app.route('/set_consent_answer', methods=['POST'])
+@cross_origin()
+def set_consent_answer():
+    """Expects a POST request wiht a pre-existing uuid in accompanying form (request.form['uuid]) and a valid 'consent_response' (request.form['consent_response']).
+        Contents of consent_response are:
+            request.form['consent_response']== 1 if consent IS given to use image in training data and open source dataset
+            request.form['consent_response']== 0 if consent IS NOT given to use image in training data and open source dataset
+
+    Contents of consent_response will be written into the images work_dir, and later scripts will reference it when deciding whether to include it in future training data/ datasets.
+    """
+
+    unique_id = request.form['uuid']
+    consent_response = request.form['consent_response']
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+
+    with open(os.path.join(work_dir, 'consent_response.txt'), 'w') as f:
+        f.write(f'{consent_response}')
+
+    return make_response()
+
 
 def allowed_file(filename):
     return '.' in filename and \
