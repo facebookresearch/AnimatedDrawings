@@ -107,8 +107,7 @@ COPY --chown=ap-server:ap-server torchserve_ap torchserve_ap/
 
 ENV PATH /venv/bin/:${PATH}
 # Define the default command.
-RUN ./torchserve_ap/torchserve_start2.sh
 
 
-CMD [ "sleep", "infinity" ]
+CMD [ "./torchserve_ap/torchserve_start2.sh" ]
 
