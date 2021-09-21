@@ -1,1 +1,1 @@
-curl -X POST http://localhost:5911/ping
+curl -X POST http://localhost:5912/ping

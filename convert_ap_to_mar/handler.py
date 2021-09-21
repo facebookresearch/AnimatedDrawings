@@ -34,8 +34,8 @@ class ModelHandler(BaseHandler):
 
         self.args = self.Struct(**{'qsize': 1024, 'cfg': None, 'vis_fast': False, 'outputpath': 'examples/res/', 'vis': False, 'video': '', 'pose_flow': False, 'save_video': False, 'detfile': '', 'checkpoint': None, 'inputpath': '', 'detector': 'yolo', 'profile': False, 'inputimg': '', 'format': None, 'inputlist': '', 'min_box_area': 0, 'eval': False, 'posebatch': 80, 'gpus': '-1', 'webcam': -1, 'sp': True, 'flip': False, 'save_img': False, 'showbox': False, 'debug': False, 'detbatch': 5, 'pose_track': False, 'device': 'cpu'})
 
-
-        cfg ='/home/model-server/rig/server/configs/pose_detection.yaml'
+        # TODO We shouldn't hard code the path. I did to get the demo working as a relative path wasn't working in my testing.
+        cfg ='/home/ap-server/torchserve_ap/configs/pose_detection.yaml'
         self.cfg = update_config(cfg)
 
         properties = context.system_properties
