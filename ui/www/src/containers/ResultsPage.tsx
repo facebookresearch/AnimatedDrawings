@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useDrawingApi } from "../hooks/useDrawingApi";
 
 interface Props {
-  // uuid?: string;
+  
 }
 
 enum AnimationType {

@@ -5,13 +5,12 @@ import useDrawingStore from "../../hooks/useDrawingStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
 
 interface imgProps {
-  editMode: boolean;
   urlImg: string | any;
   height: number;
-  width: number
+  width: number;
 }
 
-const MaskImage = ({ editMode, urlImg, height, width }: imgProps) => {
+const MaskImage = ({ urlImg, height, width }: imgProps) => {
   const [image] = useImage(urlImg, "anonymous");
   return (
     <Image
@@ -20,12 +19,12 @@ const MaskImage = ({ editMode, urlImg, height, width }: imgProps) => {
       height={height || 0}
       x={0}
       y={0}
-      opacity={editMode ? 0.5 : 1}
+      opacity={1}
     />
   );
 };
 
-const DrawingImage = ({ editMode, urlImg, height, width }: imgProps) => {
+const DrawingImage = ({ urlImg, height, width }: imgProps) => {
   const [image] = useImage(urlImg, "anonymous");
   return (
     <Image
@@ -34,40 +33,61 @@ const DrawingImage = ({ editMode, urlImg, height, width }: imgProps) => {
       height={height || 0}
       x={0}
       y={0}
-      visible={editMode}
+      opacity={0.5}
     />
   );
 };
 
-const MaskStage = React.forwardRef(({ canvasWidth, canvasHeight }: any, ref : any) => {
-  const isDrawing = useRef(false);
-  const { imageUrlPose, imageUrlMask } = useDrawingStore();
-  const { tool, penSize, lines, setLines } = useMaskingStore();
+/**
+ * Use forwardRef to send the layer ref to the parent component.
+ * this is the mask sent to the server.
+ */
+const MaskStage = React.forwardRef(
+  ({ canvasWidth, canvasHeight }: any, ref: any) => {
+    const isDrawing = useRef(false);
+    const { imageUrlPose, imageUrlMask } = useDrawingStore();
+    const {
+      tool,
+      penSize,
+      lines,
+      blackLines,
+      setLines,
+      setBlackLines,
+    } = useMaskingStore();
 
-  const handleMouseDown = (e: any) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool, penSize, points: [pos.x, pos.y] }]);
-  };
+    const handleMouseDown = (e: { target: Event | any }) => {
+      isDrawing.current = true;
+      const pos = e.target.getStage().getPointerPosition();
+      if (tool === "eraser") {
+        setLines([...lines, { tool, penSize, points: [pos.x, pos.y] }]);
+      }
+      setBlackLines([...blackLines, { tool, penSize, points: [pos.x, pos.y] }]);
+    };
 
-  const handleMouseMove = (e: any) => {
-    if (!isDrawing.current) {
-      return;
-    }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
-  };
+    const handleMouseMove = (e: { target: Event | any }) => {
+      if (!isDrawing.current) {
+        return;
+      }
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
+      if (tool === "eraser") {
+        let lastLine = lines[lines.length - 1];
+        lastLine.points = lastLine.points.concat([point.x, point.y]);
+        lines.splice(lines.length - 1, 1, lastLine);
+        setLines(lines.concat());
+      } else {
+        let lastLine = blackLines[blackLines.length - 1];
+        lastLine.points = lastLine.points.concat([point.x, point.y]);
+        blackLines.splice(blackLines.length - 1, 1, lastLine);
+        setBlackLines(blackLines.concat());
+      }
+    };
 
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-  };
+    const handleMouseUp = () => {
+      isDrawing.current = false;
+    };
 
-  return (
-    <div>
+    return (
       <Stage
         width={canvasWidth}
         height={canvasHeight || 0}
@@ -78,18 +98,8 @@ const MaskStage = React.forwardRef(({ canvasWidth, canvasHeight }: any, ref : an
         onMouseup={handleMouseUp}
         onTouchEnd={handleMouseUp}
       >
-        <Layer>
-          <DrawingImage
-            editMode={true}
-            urlImg={imageUrlPose}
-            height={canvasHeight}
-            width={canvasWidth}
-          />
-        </Layer>
-
         <Layer ref={ref}>
           <MaskImage
-            editMode={true}
             urlImg={imageUrlMask}
             height={canvasHeight}
             width={canvasWidth}
@@ -98,20 +108,33 @@ const MaskStage = React.forwardRef(({ canvasWidth, canvasHeight }: any, ref : an
             <Line
               key={i}
               points={line.points}
-              //stroke={editMode ? "grey" : "black"}
-              stroke={"grey"}
+              stroke={"white"}
               strokeWidth={line.penSize}
               tension={0.5}
               lineCap="round"
-              globalCompositeOperation={
-                line.tool === "eraser" ? "destination-out" : "source-over"
-              }
+            />
+          ))}
+          {blackLines.map((line: any, i: number) => (
+            <Line
+              key={i}
+              points={line.points}
+              stroke={"black"}
+              strokeWidth={line.penSize}
+              tension={0.5}
+              lineCap="round"
             />
           ))}
         </Layer>
+        <Layer>
+          <DrawingImage
+            urlImg={imageUrlPose}
+            height={canvasHeight}
+            width={canvasWidth}
+          />
+        </Layer>
       </Stage>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default MaskStage;

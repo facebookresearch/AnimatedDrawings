@@ -32,16 +32,12 @@ const HomePage = () => {
           <div className="home-img-wrapper">
             <img alt="example 5" src="/assets/landing_page_img.png" />
           </div>
-          <div
-            className="home-footer text-center"
-            onClick={() => window.location.replace("/#fair")}
-          >
+          <div className="home-footer text-center">
             <h4>Presented by Facebook AI Research</h4>
             <i className="bi bi-arrow-down-short" />
           </div>
         </div>
       </div>
-      <div className="main-content" id="fair"></div>
     </>
   );
 };
