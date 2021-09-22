@@ -104,6 +104,14 @@
 }
 
 @media screen and (max-width: 576px) {
+  .bg-main {
+    position: relative;
+    background-image: url('../background_layer.svg');
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: contain ;
+    background-color: $secondary;
+  }
   .main-page {
     align-items: flex-start;
   }
@@ -123,12 +131,38 @@
   }
 }
 
+.navbar-title-waiver {
+  position: absolute;
+  top: 5%;
+  left: 10%;
+  h3 {
+    font-family: 'Caveat Brush';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+    letter-spacing: 0.4px;
+    color: $default;
+  }
+}
+
 @media screen and (max-width: 576px) {
   .navbar-title {
     position: relative;
     padding-top: 15px;
     left: 0%;
     text-align: center;
+    h3 {
+      color: $white;
+    }
+  }
+  .navbar-title-waiver {
+    position: relative;
+    padding-top: 15px;
+    left: 0%;
+    text-align: center;
+    h3 {
+      color: $default;
+    }
   }
 }
 
@@ -152,7 +186,7 @@
   }
 }
 
-.waiver-step-container2 {
+.waiver-step-container-wrap {
   background-color: rgba(0,0,0,0.5);
   position: fixed;
   height: 100vh;
@@ -170,6 +204,15 @@
   }
   .bold {
     font-weight: 700;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .waiver-step-container-wrap {
+    height: 100vh;
+  }
+  .waiver-step-container{
+    height: 50vh;
   }
 }
 

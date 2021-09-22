@@ -177,6 +177,10 @@
 
 /* Mobile */
 @media screen and (max-width: 576px) {
+  .large-button {
+    width: 100%;
+    height: 40px;
+  }
   .md-button-reset {
     height: 30px;
     width: 70px;
@@ -188,12 +192,23 @@
     border-radius: 10px;
   }
   .sm-button {
+    width: 25%; 
     height: 40px;
     font-size: 14px;
   }
   .md-button-right {
+    width: 70%; 
     height: 40px;
     font-size: 14px;
+  }
+  .md-button-2 {
+    width: 40%;
+  }
+  .md-button-success {
+    width: 40%;
+  } 
+  .md-button-disagree{
+    width: 40%;
   }
 }
 
