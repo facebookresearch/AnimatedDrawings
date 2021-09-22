@@ -132,10 +132,10 @@ const CanvasBoundingBox = () => {
           ),
         };
         console.log("New Coordinates: ", coordinates);
-        setCurrentStep(currentStep + 1);
-        /*await setBoundingBox(uuid!, coordinates, () => {
+        //setCurrentStep(currentStep + 1);
+        await setBoundingBox(uuid!, coordinates, () => {
           setCurrentStep(currentStep + 1);
-        });*/
+        });
       }
     } catch (err) {
       console.log(err);
