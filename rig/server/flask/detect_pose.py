@@ -2,7 +2,10 @@ import os, sys
 import subprocess, json
 
 def detect_pose(work_dir):
-    cmd = f"curl -d det_file_loc={work_dir}/sketch-DET.json http://localhost:5911/predictions/alphapose"
+    uuid = work_dir.split('/')[-1]
+    img_pth = os.path.abspath(os.path.join(work_dir, 'gray_blur.png'))
+
+    cmd = f"curl -X POST -F uuid={uuid} -F image=@{img_pth} http://alphapose_server:5912/predictions/alphapose"
 
     response_json = json.loads(subprocess.check_output(cmd.split(' ')))
 
