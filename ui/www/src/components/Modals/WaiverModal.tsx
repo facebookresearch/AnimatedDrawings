@@ -17,18 +17,15 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
 
   const handleNext = async () => {
     let response = agreeTerms ? 1 : 0;
-    console.log(response)
-    setShowModal(!showModal);
-    setCurrentStep(3);
-    // After backend is running uncomment this out.
-    /*try {
+    console.log(response);
+    try {
       await setConsentAnswer(uuid, response, () => {
         setShowModal(!showModal);
         setCurrentStep(3);
       });
     } catch (error) {
       console.log(error);
-    }*/
+    }
   };
 
   return showModal
@@ -41,7 +38,7 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
             <div className="share-page">
               <Step2
                 showModal={showModal}
-                //isLoading={isLoading}
+                isLoading={isLoading}
                 setShowModal={setShowModal}
                 handleNext={handleNext}
               />
