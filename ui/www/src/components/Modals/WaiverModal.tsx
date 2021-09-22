@@ -20,6 +20,7 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
     console.log(response)
     setShowModal(!showModal);
     setCurrentStep(3);
+    // After backend is running uncomment this out.
     /*try {
       await setConsentAnswer(uuid, response, () => {
         setShowModal(!showModal);
