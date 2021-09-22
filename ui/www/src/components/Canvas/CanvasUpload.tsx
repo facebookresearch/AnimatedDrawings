@@ -2,16 +2,21 @@ import React, { useRef, useState } from "react";
 import { Col, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import useDrawingStore from "../../hooks/useDrawingStore";
+import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
   const {
     drawing,
+    newCompressedDrawing,
+    setUuid,
     setDrawing,
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
+
   const [showWaiver, setShowWaiver] = useState(false);
 
   const upload = (e: React.MouseEvent) => {
@@ -48,6 +53,18 @@ const CanvasUpload = () => {
       setDrawing(imgUrl);
     } catch (err) {
       console.log((err as Error)?.message);
+    }
+  };
+
+  const handleNext = async () => {
+    try {
+      // Upload Image here to get back UUID
+      /*await uploadImage(newCompressedDrawing, (data) =>
+        setUuid(data as string)
+      );*/
+      setShowWaiver(true);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -91,7 +108,7 @@ const CanvasUpload = () => {
           </button>
           <button
             className="buttons md-button-right ml-1"
-            onClick={() => setShowWaiver(true)}
+            onClick={handleNext}
           >
             Next <i className="bi bi-arrow-right px-2" />
           </button>
