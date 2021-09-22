@@ -15,7 +15,7 @@ const CanvasUpload = () => {
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
-  const { isLoading, uploadImage } = useDrawingApi((err) => {});
+  const { uploadImage } = useDrawingApi((err) => {});
 
   const [showWaiver, setShowWaiver] = useState(false);
 
@@ -56,13 +56,16 @@ const CanvasUpload = () => {
     }
   };
 
+  /**
+   * Upload image when user click on next
+   * thne open the waiver modal.
+   */
   const handleNext = async () => {
     try {
-      // Upload Image here to get back UUID
-      /*await uploadImage(newCompressedDrawing, (data) =>
-        setUuid(data as string)
-      );*/
-      setShowWaiver(true);
+      await uploadImage(newCompressedDrawing, (data) => {
+        setUuid(data as string);
+        setShowWaiver(true);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -106,10 +109,7 @@ const CanvasUpload = () => {
           <button className="buttons sm-button mr-1" onClick={upload}>
             Retake
           </button>
-          <button
-            className="buttons md-button-right ml-1"
-            onClick={handleNext}
-          >
+          <button className="buttons md-button-right ml-1" onClick={handleNext}>
             Next <i className="bi bi-arrow-right px-2" />
           </button>
         </div>

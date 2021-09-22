@@ -5,12 +5,12 @@ import useStepperStore from "../../hooks/useStepperStore";
 
 interface Props {
   showModal: boolean;
-  //isLoading: boolean;
+  isLoading: boolean;
   setShowModal: (show: boolean) => void;
   handleNext: () => void
 }
 
-const Step2 = ({ showModal, setShowModal, handleNext }: Props) => {
+const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
   const { agreeTerms, setAgreeTerms } = useStepperStore();
 
   return (
@@ -33,7 +33,7 @@ const Step2 = ({ showModal, setShowModal, handleNext }: Props) => {
               <Button
                 size="sm"
                 variant="outline-dark"
-                disabled={agreeTerms === null}
+                disabled={agreeTerms === null || isLoading}
                 onClick={handleNext}
               >
                 Next

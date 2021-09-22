@@ -96,40 +96,26 @@ const mapJointsToPose = (joints: object) => {
 const CanvasDetecting = () => {
   const {
     drawing,
-    newCompressedDrawing,
     uuid,
     imageUrlPose,
-    setUuid,
     setImageUrlPose,
     setPose,
   } = useDrawingStore();
 
   const {
     isLoading,
-    uploadImage,
     getJointLocations,
     getCroppedImage,
   } = useDrawingApi((err) => {});
   const { setCurrentStep } = useStepperStore();
 
   /**
-   * Here there are two scenarios/side effects when the CanvasDetecting component mounts
-   * 1. Invokes API to uploadImage when not uuid is detected from the user, and fetch a new uuid.
-   * 2. When an uuid is detected, invoke API to fetch a croppedImage with pose anotations.
+   * When an uuid is detected, invoke API to fetch a croppedImage with pose anotations.
    * The component will only rerender when the uuid dependency changes.
    * exhaustive-deps eslint warning was diable as no more dependencies are really necesary as side effects.
    * Contrary to this, including other function dependencies will trigger infinite loop rendereing.
    */
   useEffect(() => {
-    const fetchUuid = async () => {
-      try {
-        await uploadImage(newCompressedDrawing, (data) =>
-          setUuid(data as string)
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
     const fetchCroppedImage = async () => {
       try {
         await getCroppedImage(uuid!, (data) => {
@@ -150,7 +136,6 @@ const CanvasDetecting = () => {
       }
     };
 
-    if (uuid === "") fetchUuid();
     if (uuid !== "") fetchCroppedImage();
 
     return () => {};
