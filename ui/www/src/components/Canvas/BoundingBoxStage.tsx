@@ -28,7 +28,9 @@ const DrawingImage = ({ urlImg, height, width, canvasWidth, canvasHeight }: imgP
       width={width || 0}
       height={height || 0} 
       x={canvasWidth/2 - width/2 || 0} 
+      //x={0} 
       y={canvasHeight/2 - height/2 ||0} 
+      //y={0} 
     />
   );
 };
@@ -113,8 +115,8 @@ const Annotation = ({
   );
 };
 
-const BoundingBoxStage = ({ canvasWidth, canvasHeight }: any) => {
-  const { imageUrlPose, boundingBox, croppedImgDimensions, setBox } = useDrawingStore();
+const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }: any) => {
+  const { drawing, boundingBox, originalDimension ,croppedImgDimensions, setBox } = useDrawingStore();
 
   const handleMouseEnter = (event: MouseEvent | any) => {
     event.target.getStage().container().style.cursor = "crosshair";
@@ -137,13 +139,14 @@ const BoundingBoxStage = ({ canvasWidth, canvasHeight }: any) => {
       >
         <Layer>
           <DrawingImage
-            urlImg={imageUrlPose}
-            height={croppedImgDimensions.height}
-            width={croppedImgDimensions.width}
+            urlImg={drawing}
+            //height={528}  
+            //width={396}
+            width={imageWidth} //Original dimensions to fit in the square
+            height={imageHeight}
+
             canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
-            //height={canvasHeight}
-            //width={canvasWidth}
           />
           <Annotation
             shapeProps={boundingBox}

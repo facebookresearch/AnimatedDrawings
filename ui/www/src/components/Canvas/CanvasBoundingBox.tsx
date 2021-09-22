@@ -13,15 +13,31 @@ export interface BoundingBox {
   id: string;
 }
 
+const calculateRatio = (
+  canvasWidth: number,
+  canvasHeight: number,
+  oW: number,
+  oH: number
+) => {
+  if (oH >= oW && canvasHeight >= canvasWidth) {
+    return canvasHeight / oH < 1 ? canvasHeight / oH : 1;
+  } else if (oH < oW && canvasHeight >= canvasWidth) {
+    return canvasHeight / oW < 1 ? canvasHeight / oW : 1
+  } else if (oH >= oW && canvasHeight < canvasWidth) {
+    return canvasWidth / oH < 1 ? canvasWidth / oH : 1;
+  } else {
+    return canvasWidth / oW < 1 ? canvasWidth / oW : 1;
+  }
+};
+
 const CanvasBoundingBox = () => {
   const canvasWindow = useRef<HTMLDivElement | any>(null);
   const { currentStep, setCurrentStep } = useStepperStore();
   const {
     uuid,
-    imageUrlPose,
+    //drawing,
     originalDimension,
     boundingBox,
-    setCroppedImgDimensions,
     setBox,
   } = useDrawingStore();
   const {
@@ -30,8 +46,9 @@ const CanvasBoundingBox = () => {
     setBoundingBox,
   } = useDrawingApi((err) => {});
 
-  const [imgWidth, setImgWidth] = useState(0);
-  const [imgHeight, setImgHeight] = useState(0);
+  const [iWidth, setImageWidth] = useState(0);
+  const [iHeight, setImageHeight] = useState(0);
+  const [imgRatio, setImgRatio] = useState(0);
 
   /**
    * When the components mounts, invokes API to fetch json bounding box coordinates.
@@ -42,34 +59,32 @@ const CanvasBoundingBox = () => {
   useEffect(() => {
     const fetchBB = async () => {
       try {
-        const tempImage = new Image();
-        if (imageUrlPose !== null && imageUrlPose !== undefined)
-          tempImage.src = imageUrlPose; // cropped image base64
-
-        tempImage.onload = (e) => {
-          if (canvasWindow.current) {
-            setCroppedImgDimensions({
-              width: tempImage.naturalWidth,
-              height: tempImage.naturalHeight,
-            });
-            setImgWidth(tempImage.naturalWidth);
-            setImgHeight(tempImage.naturalHeight);
-          }
-        };
+        const ratio = calculateRatio(
+          canvasWindow.current?.offsetWidth,
+          canvasWindow.current?.offsetHeight,
+          originalDimension.width,
+          originalDimension.height
+        );
+        console.log(ratio);
+        //const calculatedWidth = ratio < 1 ? originalDimension.width * ratio : originalDimension.width;
+        //const calculatedHeight = ratio < 1 ? originalDimension.height * ratio : originalDimension.height;
+        const calculatedWidth = originalDimension.width * ratio;
+        const calculatedHeight = originalDimension.height * ratio;
+        setImageWidth(calculatedWidth);
+        setImageHeight(calculatedHeight);
+        setImgRatio(ratio);
 
         await getBoundingBox(uuid!, (data) => {
+          console.log("coordinates: ", data);
           setBox({
             x:
-              (data.x1 * tempImage.naturalWidth) / originalDimension.width +
-              (canvasWindow.current?.offsetWidth / 2 -
-                tempImage.naturalWidth / 2),
-            width: (data.x2 * tempImage.naturalWidth) / originalDimension.width,
+              data.x1 * ratio +
+              (canvasWindow.current?.offsetWidth / 2 - calculatedWidth / 2),
+            width: data.x2 * ratio - data.x1 * ratio,
             y:
-              (data.y1 * tempImage.naturalHeight) / originalDimension.height +
-              (canvasWindow.current?.offsetHeight / 2 -
-                tempImage.naturalHeight / 2),
-            height:
-              (data.y2 * tempImage.naturalHeight) / originalDimension.height,
+              data.y1 * ratio +
+              (canvasWindow.current?.offsetHeight / 2 - calculatedHeight / 2),
+            height: data.y2 * ratio - data.y1 * ratio,
             id: "1",
           });
         });
@@ -81,7 +96,9 @@ const CanvasBoundingBox = () => {
     if (uuid !== "") fetchBB();
 
     return () => {};
-  }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uuid, canvasWindow.current]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  //console.log(boundingBox)
 
   const handleClick = async (clickType: string) => {
     try {
@@ -90,34 +107,35 @@ const CanvasBoundingBox = () => {
       }
       //Send new bounding box attributes.
       if (clickType === "next") {
-        let xOffset = canvasWindow.current?.offsetWidth / 2 - imgWidth / 2;
-        let yOffset = canvasWindow.current?.offsetHeight / 2 - imgHeight / 2;
+        let xOffset = canvasWindow.current?.offsetWidth / 2 - iWidth / 2;
+        let yOffset = canvasWindow.current?.offsetHeight / 2 - iHeight / 2;
         const coordinates = {
           x1: Math.round(
-            (boundingBox.x - xOffset) * (originalDimension.width / imgWidth) >=
-              0
-              ? (boundingBox.x - xOffset) * (originalDimension.width / imgWidth)
+            (boundingBox.x - xOffset) / imgRatio >= 0
+              ? (boundingBox.x - xOffset) / imgRatio
               : 0
           ),
           x2: Math.round(
-            boundingBox.width * (originalDimension.width / imgWidth)
+            boundingBox.width / imgRatio +
+              boundingBox.x / imgRatio -
+              xOffset / imgRatio
           ),
           y1: Math.round(
-            (boundingBox.y - yOffset) *
-              (originalDimension.height / imgHeight) >=
-              0
-              ? (boundingBox.y - yOffset) *
-                  (originalDimension.height / imgHeight)
+            (boundingBox.y - yOffset) / imgRatio >= 0
+              ? (boundingBox.y - yOffset) / imgRatio
               : 0
           ),
           y2: Math.round(
-            boundingBox.height * (originalDimension.height / imgHeight)
+            boundingBox.height / imgRatio +
+              boundingBox.y / imgRatio -
+              yOffset / imgRatio
           ),
         };
         console.log("New Coordinates: ", coordinates);
-        await setBoundingBox(uuid!, coordinates, () => {
+        setCurrentStep(currentStep + 1);
+        /*await setBoundingBox(uuid!, coordinates, () => {
           setCurrentStep(currentStep + 1);
-        });
+        });*/
       }
     } catch (err) {
       console.log(err);
@@ -130,6 +148,8 @@ const CanvasBoundingBox = () => {
         <BoundingBoxStage
           canvasWidth={canvasWindow.current?.offsetWidth}
           canvasHeight={canvasWindow.current?.offsetHeight}
+          imageWidth={iWidth}
+          imageHeight={iHeight}
         />
       </div>
 
