@@ -15,7 +15,7 @@ const CanvasUpload = () => {
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
-  const { uploadImage } = useDrawingApi((err) => {});
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
 
   const [showWaiver, setShowWaiver] = useState(false);
 
@@ -109,8 +109,18 @@ const CanvasUpload = () => {
           <button className="buttons sm-button mr-1" onClick={upload}>
             Retake
           </button>
-          <button className="buttons md-button-right ml-1" onClick={handleNext}>
-            Next <i className="bi bi-arrow-right px-2" />
+          <button
+            className="buttons md-button-right ml-1"
+            disabled={isLoading}
+            onClick={() => handleNext()}
+          >
+            {isLoading ? (
+              "Loading ..."
+            ) : (
+              <>
+                Next <i className="bi bi-arrow-right px-2" />
+              </>
+            )}
           </button>
         </div>
       )}
