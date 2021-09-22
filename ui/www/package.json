@@ -20,7 +20,7 @@
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.0",
     "react-dom": "^17.0.2",
-    "react-konva": "*",
+    "react-konva": "^17.0.2-5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-share": "^4.4.0",
