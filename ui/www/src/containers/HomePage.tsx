@@ -1,6 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import landing_page_img from "../assets/landing_page_img.png";
 
 const HomePage = () => {
   const history = useHistory();
@@ -30,7 +31,7 @@ const HomePage = () => {
             </Row>
           </Container>
           <div className="home-img-wrapper">
-            <img alt="example 5" src="/assets/landing_page_img.png" />
+            <img alt="Landing" src={landing_page_img} />
           </div>
           <div className="home-footer text-center">
             <h4>Presented by Facebook AI Research</h4>
