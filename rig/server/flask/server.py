@@ -478,3 +478,7 @@ def css_resource(path: str):
 @app.route("/static/js/<path>")
 def js_resource(path: str):
     return send_file(resource_dir / "static/js/" / path)
+
+@app.route("/static/media/<path>")
+def media_resource(path: str):
+    return send_file(resource_dir / "static/media/" / path)
