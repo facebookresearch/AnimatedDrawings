@@ -8,8 +8,10 @@ import json
 import uuid
 
 import detect_humanoids
+import detect_pose
 import crop_from_bb
 import segment_mask
+import prep_animation_files
 
 UPLOAD_FOLDER='./uploads/'
 #VIDEO_SHARE_ROOT='/app/out/public/videos'
@@ -84,9 +86,11 @@ def upload_image():
 
         segment_mask.segment_mask(work_dir)
 
-        subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+        detect_pose.detect_pose(work_dir)
+        #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
-        subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
+        prep_animation_files.prep_animation_files(work_dir)
+        #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
         return make_response(unique_id, 200)
     return '''
@@ -152,8 +156,13 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(work_dir)
 
-    subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-    subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
+    detect_pose.detect_pose(work_dir)
+    # subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+
+    prep_animation_files.prep_animation_files(work_dir)
+
+    #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+    #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -187,8 +196,8 @@ def set_mask():
                 input_type='file',
                 resource_name='file'
                 )
-    unique_id = request.form['uuid']
-    mask_path = os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png')
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
+    mask_path = os.path.join(work_dir, 'mask.png')
     if not os.path.exists(mask_path):
         return redirect(request.url)
 
@@ -198,11 +207,13 @@ def set_mask():
         return redirect(request.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png'))
-        
-        subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+        file.save(os.path.join(work_dir, 'mask.png'))
 
-    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'mask.png')
+        prep_animation_files.prep_animation_files(work_dir)
+
+        #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+
+    return send_from_directory(work_dir, 'mask.png')
 ##############################################
 
 
@@ -234,17 +245,18 @@ def set_joint_locations():
                 resource_name='joint_location_json'
                 )
 
-    unique_id = request.form['uuid']
-    joint_locations_json_path = os.path.join(UPLOAD_FOLDER, unique_id, 'joint_locations.json')
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
+    joint_locations_json_path = os.path.join(work_dir, 'joint_locations.json')
     if not os.path.exists(joint_locations_json_path):  # uuid is invalid
         return redirect(request.url)
 
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)
 
-    subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+    prep_animation_files.prep_animation_files(work_dir)
+    #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
-    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'joint_locations.json')
+    return send_from_directory(work_dir, 'joint_locations.json')
 ##############################################
 
 
@@ -357,14 +369,17 @@ def set_consent_answer():
     Contents of consent_response will be written into the images work_dir, and later scripts will reference it when deciding whether to include it in future training data/ datasets.
     """
 
-    unique_id = request.form['uuid']
-    consent_response = request.form['consent_response']
-    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+    return make_response("", 200)
 
-    with open(os.path.join(work_dir, 'consent_response.txt'), 'w') as f:
-        f.write(f'{consent_response}')
+    # TODO uncomment this after calls to set_consent_answer and upload_image are reversed
+    # unique_id = request.form['uuid']
+    # consent_response = request.form['consent_response']
+    # work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
 
-    return make_response()
+    # with open(os.path.join(work_dir, 'consent_response.txt'), 'w') as f:
+    #     f.write(f'{consent_response}')
+
+    # return make_response(consent_response, 200)
 
 
 def allowed_file(filename):
