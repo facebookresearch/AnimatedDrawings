@@ -2,16 +2,22 @@ import React, { useRef, useState } from "react";
 import { Col, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import useDrawingStore from "../../hooks/useDrawingStore";
+import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
+import Loader from "../Loader";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
   const {
     drawing,
+    newCompressedDrawing,
+    setUuid,
     setDrawing,
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
+
   const [showWaiver, setShowWaiver] = useState(false);
 
   const upload = (e: React.MouseEvent) => {
@@ -51,11 +57,28 @@ const CanvasUpload = () => {
     }
   };
 
+  /**
+   * Upload image when user click on next
+   * thne open the waiver modal.
+   */
+  const handleNext = async () => {
+    try {
+      await uploadImage(newCompressedDrawing, (data) => {
+        setUuid(data as string);
+        setShowWaiver(true);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
         {drawing !== "" ? (
-          <img alt="drawing" src={drawing} />
+          <> {isLoading ? <Loader drawingURL={drawing} /> : <img alt="drawing" src={drawing} /> }
+          </>
+          
         ) : (
           <Col>
             <p>
@@ -91,9 +114,16 @@ const CanvasUpload = () => {
           </button>
           <button
             className="buttons md-button-right ml-1"
-            onClick={() => setShowWaiver(true)}
+            disabled={isLoading}
+            onClick={() => handleNext()}
           >
-            Next <i className="bi bi-arrow-right px-2" />
+            {isLoading ? (
+              "Loading ..."
+            ) : (
+              <>
+                Next <i className="bi bi-arrow-right px-2" />
+              </>
+            )}
           </button>
         </div>
       )}

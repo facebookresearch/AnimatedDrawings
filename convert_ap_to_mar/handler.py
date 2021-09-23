@@ -2,11 +2,15 @@ from ts.torch_handler.base_handler import BaseHandler
 
 from alphapose.utils.file_detector import FileDetectionLoader
 from alphapose.utils.transforms import get_func_heatmap_to_coord
-from alphapose.models import builder
 from alphapose.utils.config import update_config
 from alphapose.utils.writer import DataWriter
 
 import torch
+import numpy as np
+import io
+import cv2
+import json
+import shutil
 
 import os
 
@@ -34,13 +38,11 @@ class ModelHandler(BaseHandler):
 
         self.args = self.Struct(**{'qsize': 1024, 'cfg': None, 'vis_fast': False, 'outputpath': 'examples/res/', 'vis': False, 'video': '', 'pose_flow': False, 'save_video': False, 'detfile': '', 'checkpoint': None, 'inputpath': '', 'detector': 'yolo', 'profile': False, 'inputimg': '', 'format': None, 'inputlist': '', 'min_box_area': 0, 'eval': False, 'posebatch': 80, 'gpus': '-1', 'webcam': -1, 'sp': True, 'flip': False, 'save_img': False, 'showbox': False, 'debug': False, 'detbatch': 5, 'pose_track': False, 'device': 'cpu'})
 
-        # TODO We shouldn't hard code the path. I did to get the demo working as a relative path wasn't working in my testing.
-        cfg ='/home/ap-server/torchserve_ap/configs/pose_detection.yaml'
-        self.cfg = update_config(cfg)
-
         properties = context.system_properties
-        self.manifest = context.manifest
         model_dir = properties.get("model_dir")
+        self.cfg = update_config(os.path.join(model_dir, 'pose_detection.yaml'))
+
+        self.manifest = context.manifest
         serialized_file = self.manifest['model']['serializedFile']
         model_pt_path = os.path.join(model_dir, serialized_file)
         if not os.path.isfile(model_pt_path):
@@ -50,38 +52,40 @@ class ModelHandler(BaseHandler):
 
         self.writer = DataWriter(self.cfg, self.args, save_video=False, queueSize=self.args.qsize).start()
 
-
-        #self.pose_model = builder.build_sppe(cfg.MODEL, preset_cfg=cfg.DATA_PRESET)
-
-        #print(f'Loading pose model from {args.checkpoint}...')
-        #self.pose_model.load_state_dict(torch.load(args.checkpoint, map_location=args.device))
-
         self.initialized = True
-        #  load the model, refer 'custom handler class' above for details
 
-    def preprocess(self, data):
-        """
-        Transform raw input into model input data.
-        :param batch: list of raw requests, should match batch size
-        :return: list of preprocessed model input data
-        """
+    def preprocess(self, batch):
 
+        request_uuid = batch[0].get("uuid").decode("utf-8")
 
-        # # Take the input data and make it inference ready
-        preprocessed_data = data[0].get("det_file_loc").decode("utf-8")
+        request_image = batch[0].get("image")
+        image_bytes = io.BytesIO(request_image)
+        image = cv2.imdecode(np.fromstring(image_bytes.read(), np.uint8), 1)
 
-        return preprocessed_data
+        work_dir = os.path.join(os.getcwd(), request_uuid)
+        image_path = os.path.join(work_dir, 'cropped_img.png')
+        det_path = os.path.join(work_dir, 'sketch-DET.json')
+
+        os.mkdir(work_dir)
+
+        cv2.imwrite(image_path, image)
+
+        sketch_det = [{
+            "category_id": 1,
+            "score": 0.9,
+            "bbox": [int(image.shape[1]/2), int(image.shape[0]/2), image.shape[1], image.shape[0]],
+            "image_id": image_path
+        }]
+        with open(det_path, 'w') as f:
+            json.dump(sketch_det, f)
+
+        return det_path, work_dir
 
 
     def inference(self, input_source):
-        """
-        Internal inference methods
-        :param model_input: transformed model input data
-        :return: list of inference output in NDArray
-        """
+
         self.det_loader = FileDetectionLoader(input_source, self.cfg, self.args)
         self.det_worker = self.det_loader.start()
-
 
         with torch.no_grad():
             (inps, orig_img, im_name, boxes, scores, ids, cropped_boxes) = self.det_loader.read()
@@ -91,11 +95,6 @@ class ModelHandler(BaseHandler):
 
 
     def postprocess(self, inference_output):
-        """
-        Return inference result.
-        :param inference_output: list of inference output
-        :return: list of predict results
-        """
 
         self.eval_joints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
         hm_size = self.cfg.DATA_PRESET.HEATMAP_SIZE
@@ -115,6 +114,7 @@ class ModelHandler(BaseHandler):
         preds_scores = torch.cat(pose_scores)
         keypoints = torch.cat((preds_img, preds_scores), 2).numpy().flatten().tolist()
 
+
         return [{'keypoints':keypoints}]
 
 
@@ -131,6 +131,9 @@ class ModelHandler(BaseHandler):
         if not self.initialized:
             self.initialize()
 
-        model_input = self.preprocess(data)
+        model_input, work_dir = self.preprocess(data)
         model_output = self.inference(model_input)
+
+        shutil.rmtree(work_dir)
+
         return self.postprocess(model_output)

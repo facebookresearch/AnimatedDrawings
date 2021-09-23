@@ -163,7 +163,7 @@ COPY --chown=model-server:model-server  alphapose_weights.pth /home/model-server
 COPY --chown=model-server:model-server rig rig/
 
 WORKDIR /home/model-server/rig/server/flask 
-RUN mkdir uploads && mkdir output_predictions
+RUN mkdir uploads && mkdir output_predictions && mkdir consent_given_upload_copies
 
 EXPOSE 5000
 

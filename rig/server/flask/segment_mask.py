@@ -5,30 +5,22 @@ from skimage import measure
 from scipy import ndimage
 import cv2
 
-def segment_mask(work_dir):
-    orig_fn = os.path.join(work_dir, 'cropped_image.png')
 
-    c = cv2.imread(orig_fn, cv2.IMREAD_UNCHANGED)
-    r, g, b = c[:,:,0], c[:, :, 1], c[:, :, 2]
-    im_in = (np.min([r,g,b], axis=0))
-
-    img1 = cv2.imread(orig_fn)
+def threshold(im_in):
+    im_out_r = cv2.adaptiveThreshold(im_in,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,115,8)
+    im_out = cv2.bitwise_not(im_out_r)
+    return im_out
 
 
-    # threshold
-
-    th3 = cv2.adaptiveThreshold(im_in,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,115,8)
-    th3 = cv2.bitwise_not(th3)
-
+def morph_ops(im_in):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
-    opening = cv2.morphologyEx(th3, cv2.MORPH_CLOSE, kernel, iterations=1)
-    opening = cv2.morphologyEx(opening, cv2.MORPH_DILATE, kernel, iterations=1)
+    im_inter = cv2.morphologyEx(im_in, cv2.MORPH_CLOSE, kernel, iterations=1)
+    im_out = cv2.morphologyEx(im_inter, cv2.MORPH_DILATE, kernel, iterations=1)
+    return im_out
 
-
-    #  flood filling
-
-    im_floodfill = opening.copy()
-    h, w = opening.shape[:2]
+def flood_fill(im_in):
+    im_floodfill = im_in.copy()
+    h, w = im_in.shape[:2]
 
     im_floodfill[:,0] = 255
     im_floodfill[:,w-1] = 255
@@ -40,10 +32,10 @@ def segment_mask(work_dir):
     mask = np.zeros((h+2, w+2), np.uint8)
     mask.fill(0)
 
-    mask = np.zeros([opening.shape[0]+2, opening.shape[1]+2], np.uint8)
-    mask[1:-1,1:-1] = opening.copy()
+    mask = np.zeros([im_in.shape[0]+2, im_in.shape[1]+2], np.uint8)
+    mask[1:-1,1:-1] = im_in.copy()
 
-    im_floodfill = np.empty(opening.shape, np.uint8)
+    im_floodfill = np.empty(im_in.shape, np.uint8)
     im_floodfill.fill(255)
 
     for x in range(0, w-1, 10):
@@ -57,9 +49,9 @@ def segment_mask(work_dir):
     mask2[1:-1,1:-1] = im_floodfill.copy()
     mask2 = cv2.bitwise_not(mask2)
 
+    return mask2
 
-    # find contours in the image, and select the largest one
-
+def retain_largest_contour(mask2):
     mask_contour = None
     mask = None
     biggest = 0
@@ -77,11 +69,31 @@ def segment_mask(work_dir):
     mask = 255 * mask.astype(np.uint8)
     im_floodfill2 = mask.T[1:-1, 1:-1]
 
-    kernel = np.ones((5,5),np.uint8)
-    erosion = cv2.erode(im_floodfill2,kernel,iterations = 1)
-    _, dist_indices = ndimage.distance_transform_cdt(cv2.bitwise_not(erosion), return_indices=True)
+    return im_floodfill2
+    #kernel = np.ones((5,5),np.uint8)
+    #erosion = cv2.erode(im_floodfill2,kernel,iterations = 1)
+    #_, dist_indices = ndimage.distance_transform_cdt(cv2.bitwise_not(erosion), return_indices=True)
 
 
-    # save
+def get_img_from_work_dir(work_dir):
+    orig_fn = os.path.join(work_dir, 'cropped_image.png')
 
-    cv2.imwrite(os.path.join(work_dir, 'mask.png'), im_floodfill2)
+    c = cv2.imread(orig_fn, cv2.IMREAD_UNCHANGED)
+    r, g, b = c[:,:,0], c[:, :, 1], c[:, :, 2]
+    im_in = (np.min([r,g,b], axis=0))
+
+    return im_in
+
+
+def segment_mask(work_dir):
+    im_in = get_img_from_work_dir(work_dir)
+
+    th_img = threshold(im_in)
+
+    mo_img = morph_ops(th_img)
+
+    fl_img = flood_fill(mo_img)
+
+    mask = retain_largest_contour(fl_img)
+
+    cv2.imwrite(os.path.join(work_dir, 'mask.png'), mask)

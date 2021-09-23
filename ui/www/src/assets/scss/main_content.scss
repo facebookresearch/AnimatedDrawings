@@ -87,6 +87,15 @@
   background-color: $secondary;
 }
 
+.feedback-wrapper {
+  position: absolute;
+  top:0;
+  right:0;
+  padding: 1rem;
+  color: $white;
+  cursor: pointer
+}
+
 .main-page {
   min-height: 100vh;
   display: flex;
@@ -100,20 +109,6 @@
   }
   .bold {
     font-weight: 700;
-  }
-}
-
-@media screen and (max-width: 576px) {
-  .bg-main {
-    position: relative;
-    background-image: url('../background_layer.svg');
-    background-position: top;
-    background-repeat: no-repeat;
-    background-size: contain ;
-    background-color: $secondary;
-  }
-  .main-page {
-    align-items: flex-start;
   }
 }
 
@@ -146,6 +141,17 @@
 }
 
 @media screen and (max-width: 576px) {
+  .bg-main {
+    position: relative;
+    background-image: url('../background_layer.svg');
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: contain ;
+    background-color: $secondary;
+  }
+  .main-page {
+    align-items: flex-start;
+  }
   .navbar-title {
     position: relative;
     padding-top: 15px;

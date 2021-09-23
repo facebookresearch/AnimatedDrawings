@@ -11,7 +11,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(device)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Transform YOLO weights to ONNX.')
+    parser = argparse.ArgumentParser(description='Transform alphapose to torchscript.')
     parser.add_argument('--cfg', type=str, help='alphapose cfg file')
     parser.add_argument('--pth', type=str, help='alphapose weights file')
     args = parser.parse_args()

@@ -6,12 +6,16 @@ import os
 import subprocess
 import json
 import uuid
+import shutil
 
 import detect_humanoids
+import detect_pose
 import crop_from_bb
 import segment_mask
+import prep_animation_files
 
 UPLOAD_FOLDER='./uploads/'
+CONSENT_GIVEN_SAVE_DIR = './consent_given_upload_copies/'
 #VIDEO_SHARE_ROOT='/app/out/public/videos'
 VIDEO_SHARE_ROOT='./videos/'
 ALLOWED_EXTENSIONS= {'png'}
@@ -84,9 +88,11 @@ def upload_image():
 
         segment_mask.segment_mask(work_dir)
 
-        subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+        detect_pose.detect_pose(work_dir)
+        #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
-        subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
+        prep_animation_files.prep_animation_files(work_dir)
+        #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
         return make_response(unique_id, 200)
     return '''
@@ -129,7 +135,7 @@ def get_bounding_box_coordinates():
 @app.route('/set_bounding_box_coordinates', methods=['GET', 'POST'])
 @cross_origin()
 def set_bounding_box_coordinates():
-    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid bounding box json(request.form['bounding_box_coordinates']). 
+    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid bounding box json(request.form['bounding_box_coordinates']).
     Overwrites existing bounding box json and returns the new json"""
     if request.method != 'POST':
         return resource_set_form.format(
@@ -152,8 +158,13 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(work_dir)
 
-    subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-    subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
+    detect_pose.detect_pose(work_dir)
+    # subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+
+    prep_animation_files.prep_animation_files(work_dir)
+
+    #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
+    #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -179,7 +190,7 @@ def get_mask():
 @app.route('/set_mask', methods=['GET', 'POST'])
 @cross_origin()
 def set_mask():
-    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid segmentation mask(request.files['file']). 
+    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid segmentation mask(request.files['file']).
     Overwrites existing segmentation mask and returns the new mask"""
     if request.method != 'POST':
         return resource_set_form.format(
@@ -187,8 +198,8 @@ def set_mask():
                 input_type='file',
                 resource_name='file'
                 )
-    unique_id = request.form['uuid']
-    mask_path = os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png')
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
+    mask_path = os.path.join(work_dir, 'mask.png')
     if not os.path.exists(mask_path):
         return redirect(request.url)
 
@@ -198,16 +209,18 @@ def set_mask():
         return redirect(request.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_FOLDER, unique_id, 'mask.png'))
-        
-        subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+        file.save(os.path.join(work_dir, 'mask.png'))
 
-    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'mask.png')
+        prep_animation_files.prep_animation_files(work_dir)
+
+        #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+
+    return send_from_directory(work_dir, 'mask.png')
 ##############################################
 
 
 ##############################################
-# set and get joint locations 
+# set and get joint locations
 ##############################################
 @app.route('/get_joint_locations_json', methods=['GET', 'POST'])
 @cross_origin()
@@ -225,7 +238,7 @@ def get_joint_locations():
 @app.route('/set_joint_locations_json', methods=['GET', 'POST'])
 @cross_origin()
 def set_joint_locations():
-    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid json with updated joint locations (request.form['joint_location_json']). 
+    """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid json with updated joint locations (request.form['joint_location_json']).
     Overwrites existing joint_locations.json and returns the new json"""
     if request.method != 'POST':
         return resource_set_form.format(
@@ -234,17 +247,18 @@ def set_joint_locations():
                 resource_name='joint_location_json'
                 )
 
-    unique_id = request.form['uuid']
-    joint_locations_json_path = os.path.join(UPLOAD_FOLDER, unique_id, 'joint_locations.json')
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
+    joint_locations_json_path = os.path.join(work_dir, 'joint_locations.json')
     if not os.path.exists(joint_locations_json_path):  # uuid is invalid
         return redirect(request.url)
 
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)
 
-    subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
+    prep_animation_files.prep_animation_files(work_dir)
+    #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
-    return send_from_directory(os.path.join(UPLOAD_FOLDER,  unique_id), 'joint_locations.json')
+    return send_from_directory(work_dir, 'joint_locations.json')
 ##############################################
 
 
@@ -287,7 +301,8 @@ def get_animation():
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
     unique_id = request.form['uuid']
-    if not os.path.exists(os.path.join(UPLOAD_FOLDER, request.form['uuid'])):  # invalid uuid
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+    if not os.path.exists(work_dir):  # invalid uuid
         return redirect(request.url)
 
     animation_type = request.form['animation']
@@ -339,10 +354,25 @@ def get_animation():
         'zombie_walk']
 
 
-    animation_path = os.path.join(VIDEO_SHARE_ROOT, request.form['uuid'], f'{animation_type}.mp4')
+    animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
     if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', os.path.abspath(os.path.join(UPLOAD_FOLDER, unique_id)), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
+        subprocess.run(['./run_animate.sh', os.path.abspath(work_dir), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
+
+    with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
+        consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
+
+    # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
+    if consent_response:
+        src = work_dir
+        dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
+
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+
+        shutil.copytree(src, dst)
+
+
 
     return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
@@ -357,6 +387,8 @@ def set_consent_answer():
     Contents of consent_response will be written into the images work_dir, and later scripts will reference it when deciding whether to include it in future training data/ datasets.
     """
 
+
+    # TODO uncomment this after calls to set_consent_answer and upload_image are reversed
     unique_id = request.form['uuid']
     consent_response = request.form['consent_response']
     work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
@@ -364,7 +396,7 @@ def set_consent_answer():
     with open(os.path.join(work_dir, 'consent_response.txt'), 'w') as f:
         f.write(f'{consent_response}')
 
-    return make_response()
+    return make_response("", 200)
 
 
 def allowed_file(filename):
@@ -442,3 +474,7 @@ def css_resource(path: str):
 @app.route("/static/js/<path>")
 def js_resource(path: str):
     return send_file(resource_dir / "static/js/" / path)
+
+@app.route("/static/media/<path>")
+def media_resource(path: str):
+    return send_file(resource_dir / "static/media/" / path)
