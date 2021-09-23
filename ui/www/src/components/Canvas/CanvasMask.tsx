@@ -102,6 +102,8 @@ const CanvasMask = () => {
     drawing,
     uuid,
     croppedImgDimensions,
+    imageUrlPose,
+    setCroppedImgDimensions,
     setImageUrlPose,
     setImageUrlMask,
     setPose,
@@ -159,6 +161,22 @@ const CanvasMask = () => {
 
     return () => {};
   }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const tempImage = new Image();
+    if (imageUrlPose !== null && imageUrlPose !== undefined)
+      tempImage.src = imageUrlPose; // cropped image base64
+
+    tempImage.onload = (e) => {
+      if (canvasWindow.current) {
+        setCroppedImgDimensions({
+          width: tempImage.naturalWidth,
+          height: tempImage.naturalHeight,
+        });
+      }
+    };
+    return () => {};
+  }, [imageUrlPose]);
 
   const handleClick = async (clickType: string) => {
     try {
