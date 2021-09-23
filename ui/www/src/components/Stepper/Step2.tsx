@@ -7,11 +7,11 @@ interface Props {
   showModal: boolean;
   isLoading: boolean;
   setShowModal: (show: boolean) => void;
-  handleNext: () => void
+  handleNext: (res: boolean) => void
 }
 
 const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
-  const { agreeTerms, setAgreeTerms } = useStepperStore();
+  const { agreeTerms } = useStepperStore();
 
   return (
     <Container>
@@ -29,14 +29,6 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
                 onClick={() => setShowModal(!showModal)}
               >
                 Back
-              </Button>
-              <Button
-                size="sm"
-                variant="outline-dark"
-                disabled={agreeTerms === null || isLoading}
-                onClick={handleNext}
-              >
-                Next
               </Button>
             </Col>
           </Row>
@@ -118,7 +110,8 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
                 { "md-button-disagree text-white": agreeTerms === false },
                 { "md-button-2": agreeTerms === null || agreeTerms === true}
               )}
-              onClick={() => setAgreeTerms(false)}
+              //onClick={() => setAgreeTerms(false)}
+              onClick={() => handleNext(false)}
             >
               Disagree
             </button>
@@ -128,7 +121,8 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
                 { "md-button-success text-white": agreeTerms === true },
                 { "md-button-2": agreeTerms === null ||  agreeTerms === false}
               )}
-              onClick={() => setAgreeTerms(true)}
+              //onClick={() => setAgreeTerms(true)}
+              onClick={() => handleNext(true)}
             >
               Agree
             </button>

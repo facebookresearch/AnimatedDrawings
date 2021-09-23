@@ -10,15 +10,17 @@ interface modalProps {
 }
 
 const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
-  const { agreeTerms, setCurrentStep } = useStepperStore();
+  const { setAgreeTerms, setCurrentStep } = useStepperStore();
   const { uuid } = useDrawingStore();
   const { isLoading, setConsentAnswer } = useDrawingApi((err) => {});
 
-  const handleNext = async () => {
-    let response = agreeTerms ? 1 : 0;
+  const handleNext = async (res: boolean) => {
+    let response = res ? 1 : 0;
     try {
+      setAgreeTerms(res)
       await setConsentAnswer(uuid, response, () => {
         setShowModal(false);
+        console.log(response)
       });
       setCurrentStep(3);
     } catch (error) {

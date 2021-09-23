@@ -233,19 +233,19 @@ const CanvasMask = () => {
           <Row>
             <button
               className={classnames("sm-button-icon border border-dark mr-2", {
-                "bg-primary": tool === "pen",
-              })}
-              onClick={() => setTool("pen")}
-            >
-              <i className="bi bi-pencil-fill" />
-            </button>
-            <button
-              className={classnames("sm-button-icon border border-dark mr-2", {
                 "bg-primary": tool === "eraser",
               })}
               onClick={() => setTool("eraser")}
             >
               <i className="bi bi-eraser-fill" />
+            </button>
+            <button
+              className={classnames("sm-button-icon border border-dark mr-2", {
+                "bg-primary": tool === "pen",
+              })}
+              onClick={() => setTool("pen")}
+            >
+              <i className="bi bi-pencil-fill" />
             </button>
             <div className="pens-wrapper">
               <form className="pens">
