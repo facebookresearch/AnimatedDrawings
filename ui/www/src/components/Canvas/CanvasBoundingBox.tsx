@@ -35,10 +35,11 @@ const CanvasBoundingBox = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
   const {
     uuid,
-    //drawing,
+    imageUrlPose,
     originalDimension,
     boundingBox,
     setBox,
+    setCroppedImgDimensions
   } = useDrawingStore();
   const {
     isLoading,
@@ -59,15 +60,26 @@ const CanvasBoundingBox = () => {
   useEffect(() => {
     const fetchBB = async () => {
       try {
+        const tempImage = new Image();
+        if (imageUrlPose !== null && imageUrlPose !== undefined)
+          tempImage.src = imageUrlPose; // cropped image base64
+
+        tempImage.onload = (e) => {
+          if (canvasWindow.current) {
+            setCroppedImgDimensions({
+              width: tempImage.naturalWidth,
+              height: tempImage.naturalHeight,
+            });
+          }
+        };
+
         const ratio = calculateRatio(
           canvasWindow.current?.offsetWidth,
           canvasWindow.current?.offsetHeight,
           originalDimension.width,
           originalDimension.height
         );
-        console.log(ratio);
-        //const calculatedWidth = ratio < 1 ? originalDimension.width * ratio : originalDimension.width;
-        //const calculatedHeight = ratio < 1 ? originalDimension.height * ratio : originalDimension.height;
+        
         const calculatedWidth = originalDimension.width * ratio;
         const calculatedHeight = originalDimension.height * ratio;
         setImageWidth(calculatedWidth);
@@ -132,7 +144,6 @@ const CanvasBoundingBox = () => {
           ),
         };
         console.log("New Coordinates: ", coordinates);
-        //setCurrentStep(currentStep + 1);
         await setBoundingBox(uuid!, coordinates, () => {
           setCurrentStep(currentStep + 1);
         });

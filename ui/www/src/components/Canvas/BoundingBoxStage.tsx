@@ -116,7 +116,7 @@ const Annotation = ({
 };
 
 const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }: any) => {
-  const { drawing, boundingBox, originalDimension ,croppedImgDimensions, setBox } = useDrawingStore();
+  const { drawing, boundingBox, setBox } = useDrawingStore();
 
   const handleMouseEnter = (event: MouseEvent | any) => {
     event.target.getStage().container().style.cursor = "crosshair";

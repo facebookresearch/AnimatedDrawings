@@ -4,6 +4,7 @@ import imageCompression from "browser-image-compression";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
+import Loader from "../Loader";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -75,7 +76,9 @@ const CanvasUpload = () => {
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
         {drawing !== "" ? (
-          <img alt="drawing" src={drawing} />
+          <> {isLoading ? <Loader drawingURL={drawing} /> : <img alt="drawing" src={drawing} /> }
+          </>
+          
         ) : (
           <Col>
             <p>
