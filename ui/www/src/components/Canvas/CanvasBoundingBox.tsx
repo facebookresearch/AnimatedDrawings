@@ -143,10 +143,11 @@ const CanvasBoundingBox = () => {
               yOffset / imgRatio
           ),
         };
-        console.log("New Coordinates: ", coordinates);
+       
         await setBoundingBox(uuid!, coordinates, () => {
-          setCurrentStep(currentStep + 1);
+          console.log("New Coordinates: ", coordinates);
         });
+        setCurrentStep(currentStep + 1);
       }
     } catch (err) {
       console.log(err);
