@@ -359,12 +359,8 @@ def get_animation():
     if not os.path.exists(animation_path):
         subprocess.run(['./run_animate.sh', os.path.abspath(work_dir), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
 
-    # for dev purposes- remove if part later. this should always exist.
-    if os.path.exists(os.path.join(work_dir, 'consent_response.txt')):
-        consent_response = False
-    else:
-        with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
-            consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
+    with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
+        consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
 
     # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
     if consent_response:
