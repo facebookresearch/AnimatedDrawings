@@ -162,6 +162,11 @@ const CanvasMask = () => {
     return () => {};
   }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+  /**
+   * When cropped image is updated, recalculate the dimensions, 
+   * which are provided to the mask/segmentation canvas.
+   */
   useEffect(() => {
     const tempImage = new Image();
     if (imageUrlPose !== null && imageUrlPose !== undefined)
@@ -176,7 +181,7 @@ const CanvasMask = () => {
       }
     };
     return () => {};
-  }, [imageUrlPose]);
+  }, [imageUrlPose]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClick = async (clickType: string) => {
     try {
@@ -195,8 +200,8 @@ const CanvasMask = () => {
         });
         await setMask(uuid!, file, () => {
           console.log("New mask loaded.");
-          setCurrentStep(currentStep + 1);
         });
+        setCurrentStep(currentStep + 1);
       }
     } catch (err) {
       console.log(err);

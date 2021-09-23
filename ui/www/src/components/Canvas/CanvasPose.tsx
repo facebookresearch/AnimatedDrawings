@@ -29,9 +29,10 @@ const CanvasPose = () => {
       //send new joint locations
       if (clickType === "next" && uuid) {
         const joints = mapPoseToJoints(pose);
-        setJointLocations(uuid!, joints, () => {
-          setCurrentStep(currentStep + 1);
+        await setJointLocations(uuid!, joints, () => {
+          console.log("New joints location set.");
         });
+        setCurrentStep(currentStep + 1);
       }
     } catch (err) {
       console.log(err);

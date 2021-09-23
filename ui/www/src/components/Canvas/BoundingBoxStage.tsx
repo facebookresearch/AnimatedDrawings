@@ -140,11 +140,8 @@ const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }
         <Layer>
           <DrawingImage
             urlImg={drawing}
-            //height={528}  
-            //width={396}
             width={imageWidth} //Original dimensions to fit in the square
             height={imageHeight}
-
             canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
           />

@@ -104,21 +104,21 @@ const MaskStage = React.forwardRef(
             height={canvasHeight}
             width={canvasWidth}
           />
-          {lines.map((line: any, i: number) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={"white"}
-              strokeWidth={line.penSize}
-              tension={0.5}
-              lineCap="round"
-            />
-          ))}
           {blackLines.map((line: any, i: number) => (
             <Line
               key={i}
               points={line.points}
               stroke={"black"}
+              strokeWidth={line.penSize}
+              tension={0.5}
+              lineCap="round"
+            />
+          ))}
+          {lines.map((line: any, i: number) => (
+            <Line
+              key={i}
+              points={line.points}
+              stroke={"white"}
               strokeWidth={line.penSize}
               tension={0.5}
               lineCap="round"
