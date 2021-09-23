@@ -74,8 +74,8 @@ const CanvasBoundingBox = () => {
         };
 
         const ratio = calculateRatio(
-          canvasWindow.current?.offsetWidth,
-          canvasWindow.current?.offsetHeight,
+          canvasWindow.current?.offsetWidth -20,
+          canvasWindow.current?.offsetHeight -20,
           originalDimension.width,
           originalDimension.height
         );
