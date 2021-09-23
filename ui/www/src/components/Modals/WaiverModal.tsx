@@ -1,5 +1,4 @@
-import React from "react";
-import { createPortal } from "react-dom";
+import React, { Fragment } from "react";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import useStepperStore from "../../hooks/useStepperStore";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -17,19 +16,19 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
 
   const handleNext = async () => {
     let response = agreeTerms ? 1 : 0;
-    console.log(response);
     try {
       await setConsentAnswer(uuid, response, () => {
-        setShowModal(!showModal);
-        setCurrentStep(3);
+        setShowModal(false);
       });
+      setCurrentStep(3);
     } catch (error) {
       console.log(error);
     }
   };
 
-  return showModal
-    ? createPortal(
+  return (
+    <Fragment>
+      {showModal ? (
         <div className="waiver-step-container-wrap">
           <div className="main-content">
             <div className="navbar-title-waiver">
@@ -44,10 +43,10 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
               />
             </div>
           </div>
-        </div>,
-        document.body
-      )
-    : null;
+        </div>
+      ) : null}
+    </Fragment>
+  );
 };
 
 export default WaiverModal;
