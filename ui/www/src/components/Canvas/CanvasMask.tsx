@@ -15,6 +15,7 @@ const CanvasMask = () => {
     drawing,
     uuid,
     croppedImgDimensions,
+    setImageUrlPose,
     setImageUrlMask,
   } = useDrawingStore();
   const {
@@ -28,7 +29,7 @@ const CanvasMask = () => {
     setLines,
     setBlackLines,
   } = useMaskingStore();
-  const { isLoading, getMask, setMask } = useDrawingApi((err) => {});
+  const { isLoading, getMask, getCroppedImage, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
 
   /**
@@ -47,6 +48,14 @@ const CanvasMask = () => {
           reader.onload = function () {
             let imageDataUrl = reader.result; // base64
             setImageUrlMask(imageDataUrl);
+          };
+        });
+        await getCroppedImage(uuid!, (data) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(data);
+          reader.onload = function () {
+            let imageDataUrl = reader.result;
+            setImageUrlPose(imageDataUrl);
           };
         });
       } catch (error) {
