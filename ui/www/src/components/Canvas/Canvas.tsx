@@ -1,7 +1,6 @@
 import React from "react";
 import useStepperStore from "../../hooks/useStepperStore";
 import CanvasUpload from "./CanvasUpload";
-import CanvasDetecting from "./CanvasDetecting";
 import CanvasBoundingBox from "./CanvasBoundingBox";
 import CanvasMask from "./CanvasMask";
 import CanvasPose from "./CanvasPose";
@@ -15,14 +14,12 @@ const Canvas = () => {
       case 1:
         return <CanvasUpload />;
       case 3:
-        return <CanvasDetecting />;
-      case 4:
         return <CanvasBoundingBox />;
-      case 5:
+      case 4:
         return <CanvasMask />;
-      case 6:
+      case 5:
         return <CanvasPose />;
-      case 7:
+      case 6:
         return <CanvasAnimation />;
       default:
         return [];

@@ -104,7 +104,7 @@ const CanvasUpload = () => {
       {drawing === "" ? (
         <div className="mt-3">
           <button className="buttons large-button" onClick={upload}>
-            <i className="bi bi-camera-fill mr-2" /> Camera
+            <i className="bi bi-upload mr-2" /> Upload
           </button>
         </div>
       ) : (

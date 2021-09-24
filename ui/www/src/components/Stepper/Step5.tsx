@@ -2,25 +2,25 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
 
-const Step5 = () => {
+const Step6 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
 
   return (
     <>
       <div className="step-actions-container">
-        <h1 className="step-title">Segmenting</h1>
+        <h1 className="step-title">Detecting Joints</h1>
+        <p>Here are the joint locations we’ve predicted.</p>
         <p>
-          Using the box, we extracted a segmentation mask to separate the
-          character from the background.
-        </p>
-        <p>Does the mask cover the entire character?</p>
-        <p>Are the arms and legs separated from each other in the mask?</p>
-        <p>
-          Does the mask exclude everything that isn’t part of the character?
+          How do they look? They don’t need to be pixel-perfect, but they do
+          need to be in roughly the correct location.
         </p>
         <p>
-          If not, you can correct this by using the drawing tools. If everything
-          looks fine, simply hit next.
+          If they’re not, you can correct this by dragging the nodes. Or, you
+          can simply hit the ‘Next’ to continue.
+        </p>
+        <p>
+          In the next step, we’ll use the segmentation mask and these joints
+          locations to animate your character with motion capture data.
         </p>
       </div>
       <div className="mt-2 text-right">
@@ -31,10 +31,10 @@ const Step5 = () => {
           onClick={() => setCurrentStep(currentStep - 1)}
         >
           Previous
-        </Button>
+        </Button>{" "}
       </div>
     </>
   );
 };
 
-export default Step5;
+export default Step6;
