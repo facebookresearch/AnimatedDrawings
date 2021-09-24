@@ -9,11 +9,16 @@ services:
 
     command: ./run.sh
     ports:
-      - 5000:5000
+      - 5010:5000
     volumes:
-      - ./videos:/app/out/public/videos
+      - type: volume
+        source: dev-demo-sketch-out-animations
+        target: /home/model-server/rig/server/flask/videos
+        #  - type: volume
+        # source: dev-demo-sketch-out-consents
+        #target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
-      REACT_APP_API_HOST: http://localhost:5000
+      REACT_APP_API_HOST: http://13.59.214.59:5010
     networks:
       ap-net: {}
 
@@ -30,3 +35,8 @@ services:
 # Network created by default between services
 networks:
   ap-net:
+volumes:
+  dev-demo-sketch-out-animations:
+    external: true
+    #  dev-demo-sketch-out-consents:
+    #    driver: rexray/s3fs

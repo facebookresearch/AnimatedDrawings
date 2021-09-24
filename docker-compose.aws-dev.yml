@@ -9,16 +9,14 @@ services:
 
     command: ./run.sh
     ports:
-      - 5011:5000
+      - 5010:5000
     volumes:
       - type: volume
         source: dev-demo-sketch-out-animations
         target: /home/model-server/rig/server/flask/videos
-      - type: volume
-        source: dev-demo-sketch-out-consents
-        target: /home/model-server/rig/server/flask/consent_given_upload_copies
+      - /home/ec2-user/data/sketch:/home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
-      REACT_APP_API_HOST: http://13.59.214.59:5011
+      REACT_APP_API_HOST: http://13.59.214.59:5010
     networks:
       ap-net: {}
 
@@ -37,6 +35,4 @@ networks:
   ap-net:
 volumes:
   dev-demo-sketch-out-animations:
-    external: true
-  dev-demo-sketch-out-consents:
     external: true
