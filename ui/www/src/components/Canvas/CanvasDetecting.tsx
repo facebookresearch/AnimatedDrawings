@@ -165,9 +165,8 @@ const CanvasDetecting = () => {
         </div>
       ) : (
         <div className="mt-3 text-center">
-          <button className="buttons sm-button mr-1">Detected</button>
           <button
-            className="buttons md-button-right ml-1"
+            className="buttons large-button ml-1"
             onClick={() => setCurrentStep(4)}
           >
             Next <i className="bi bi-arrow-right px-2" />
