@@ -50,18 +50,14 @@ const MaskStage = React.forwardRef(
       tool,
       penSize,
       lines,
-      blackLines,
       setLines,
-      setBlackLines,
     } = useMaskingStore();
 
     const handleMouseDown = (e: { target: Event | any }) => {
       isDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
-      if (tool === "eraser") {
-        setLines([...lines, { tool, penSize, points: [pos.x, pos.y] }]);
-      }
-      setBlackLines([...blackLines, { tool, penSize, points: [pos.x, pos.y] }]);
+
+      setLines([...lines, { tool, penSize, points: [pos.x, pos.y] }]);
     };
 
     const handleMouseMove = (e: { target: Event | any }) => {
@@ -70,17 +66,10 @@ const MaskStage = React.forwardRef(
       }
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
-      if (tool === "eraser") {
-        let lastLine = lines[lines.length - 1];
+      let lastLine = lines[lines.length - 1];
         lastLine.points = lastLine.points.concat([point.x, point.y]);
         lines.splice(lines.length - 1, 1, lastLine);
         setLines(lines.concat());
-      } else {
-        let lastLine = blackLines[blackLines.length - 1];
-        lastLine.points = lastLine.points.concat([point.x, point.y]);
-        blackLines.splice(blackLines.length - 1, 1, lastLine);
-        setBlackLines(blackLines.concat());
-      }
     };
 
     const handleMouseUp = () => {
@@ -104,21 +93,11 @@ const MaskStage = React.forwardRef(
             height={canvasHeight}
             width={canvasWidth}
           />
-          {blackLines.map((line: any, i: number) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={"black"}
-              strokeWidth={line.penSize}
-              tension={0.5}
-              lineCap="round"
-            />
-          ))}
           {lines.map((line: any, i: number) => (
             <Line
               key={i}
               points={line.points}
-              stroke={"white"}
+              stroke={line.tool === "eraser" ? "white" : "black"}
               strokeWidth={line.penSize}
               tension={0.5}
               lineCap="round"

@@ -112,12 +112,10 @@ const CanvasMask = () => {
     tool,
     penSize,
     lines,
-    blackLines,
     setMaskBase64,
     setTool,
     setPenSize,
     setLines,
-    setBlackLines,
   } = useMaskingStore();
   const { isLoading, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
@@ -209,21 +207,18 @@ const CanvasMask = () => {
   };
 
   const handleReset = () => {
-    if (!lines.length && !blackLines.length) {
+    if (!lines.length) {
       return;
     }
     setLines([]);
-    setBlackLines([]);
   };
 
   const handleUndo = () => {
-    if (!lines.length && !blackLines.length) {
+    if (!lines.length) {
       return;
     }
-    let objectLines = lines.slice(0, -1);
-    let backgroundLines = blackLines.slice(0, -1);
-    setLines(objectLines);
-    setBlackLines(backgroundLines);
+    let newLines = lines.slice(0, -1);
+    setLines(newLines);
   };
 
   return (
