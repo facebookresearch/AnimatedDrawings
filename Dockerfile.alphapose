@@ -115,9 +115,13 @@ COPY --chown=ap-server:ap-server torchserve_ap torchserve_ap/
 ENV PATH /venv/bin/:${PATH}
 # Define the default command.
 
+# Create a test Alphapose Image
 FROM runtime_base AS runtime_test
-# Test Alphapose
-RUN "./torchserve_ap/scripts/docker_test.sh"
+# Execute tests duiring build
+# ```
+# docker buildx build -f Dockerfile.alphapose -t alphapose:test --target runtime_test . && docker run alphapose:test bash ./torchserve_ap/scripts/docker_test.sh
+# ```
+# RUN "./torchserve_ap/scripts/docker_test.sh"
 
 
 FROM runtime_base AS runtime_prod
