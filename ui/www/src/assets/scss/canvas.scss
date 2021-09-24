@@ -124,6 +124,32 @@
   color: $dark;
 }
 
+.disagree-opt {
+  display: inline-block;
+  width: 48%;
+  border-radius: 10px;
+  background-color: $default;
+  color: $dark;
+}
+
+.disagree-opt:hover {
+  background-color: $danger;
+  color: $white;
+}
+
+.agree-opt {
+  display: inline-block;
+  width: 48%;
+  border-radius: 10px;
+  background-color: $default;
+  color: $dark;
+}
+
+.agree-opt:hover{
+  background-color: $success;
+  color: $white;
+}
+
 .md-button:hover {
   background-color: $primary;
   color: black;
@@ -202,6 +228,12 @@
     font-size: 14px;
   }
   .md-button-2 {
+    width: 40%;
+  }
+  .agree-opt {
+    width: 40%;
+  }
+  .disagree-opt {
     width: 40%;
   }
   .md-button-success {

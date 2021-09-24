@@ -108,7 +108,7 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
               className={classnames(
                 "ml-2 buttons",
                 { "md-button-disagree text-white": agreeTerms === false },
-                { "md-button-2": agreeTerms === null || agreeTerms === true}
+                { "disagree-opt": agreeTerms === null || agreeTerms === true}
               )}
               //onClick={() => setAgreeTerms(false)}
               onClick={() => handleNext(false)}
@@ -119,7 +119,7 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
               className={classnames(
                 "ml-2 buttons",
                 { "md-button-success text-white": agreeTerms === true },
-                { "md-button-2": agreeTerms === null ||  agreeTerms === false}
+                { "agree-opt": agreeTerms === null ||  agreeTerms === false}
               )}
               //onClick={() => setAgreeTerms(true)}
               onClick={() => handleNext(true)}

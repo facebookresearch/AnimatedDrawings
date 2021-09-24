@@ -103,6 +103,7 @@ const Annotation = ({
 
       <Transformer
         ref={transformRef}
+        rotateEnabled={false}
         boundBoxFunc={(oldBox, newBox) => {
           // limit resize
           if (newBox.width < 5 || newBox.height < 5) {
