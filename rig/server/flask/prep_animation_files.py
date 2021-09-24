@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-import os, sys
+import os, sys, shutil
 from resources.exemplar_sketch import sketch as exemplar_sketch
 from copy import deepcopy
 from pathlib import Path
@@ -8,7 +8,7 @@ import json
 import yaml
 
 
-def prep_animation_files(input_parent_dir):
+def prep_animation_files(input_parent_dir, video_share_root):
     img_loc = Path(os.path.join(input_parent_dir, 'cropped_image.png'))
     assert img_loc.exists(),  "Image not found: {}".format(str(img_loc))
 
@@ -19,7 +19,15 @@ def prep_animation_files(input_parent_dir):
     assert keypoint_json_loc.exists(), "AP predictions not found: {}".format(str(keypoint_json_loc))
 
     outdir = os.path.join(input_parent_dir, 'animation')
+    if os.path.exists(outdir): # delete old animation files if they exist
+        shutil.rmtree(outdir)
     Path(outdir).mkdir(exist_ok=True, parents=True)
+
+    uuid = input_parent_dir.split('/')[-1]
+    video_dir = os.path.join(video_share_root, uuid)
+    if os.path.exists(video_dir): # delete old video files if they exist
+        shutil.rmtree(video_dir)
+
 
     img = Image.open(img_loc)
     im_size = max(img.size)

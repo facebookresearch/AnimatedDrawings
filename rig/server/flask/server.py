@@ -91,7 +91,7 @@ def upload_image():
         detect_pose.detect_pose(work_dir)
         #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
-        prep_animation_files.prep_animation_files(work_dir)
+        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
         #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
         return make_response(unique_id, 200)
@@ -161,7 +161,7 @@ def set_bounding_box_coordinates():
     detect_pose.detect_pose(work_dir)
     # subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
-    prep_animation_files.prep_animation_files(work_dir)
+    prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
 
     #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
     #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
@@ -211,7 +211,7 @@ def set_mask():
         filename = secure_filename(file.filename)
         file.save(os.path.join(work_dir, 'mask.png'))
 
-        prep_animation_files.prep_animation_files(work_dir)
+        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
 
         #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
@@ -255,7 +255,7 @@ def set_joint_locations():
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)
 
-    prep_animation_files.prep_animation_files(work_dir)
+    prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
     #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
     return send_from_directory(work_dir, 'joint_locations.json')
