@@ -10,8 +10,6 @@ ENV PYTHONUNBUFFERED TRUE
 RUN mkdir /src
 WORKDIR /src
 
-# --mount=type=cache,id=apt-dev,target=/var/cache/apt \
-
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -20,15 +18,29 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
     gcc \
     && rm -rf /var/lib/apt/lists/* 
 
-# RUN cd /tmp \
-#     && curl -O https://bootstrap.pypa.io/get-pip.py \
-#     && python3 get-pip.py
+# Create Conda environment for Building AlphaPose
 
-# RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-# RUN update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+RUN --mount=type=cache,target=/opt/conda/pkgs conda create  -vv --name alphapose_build python=3.6 -y
+# Activate new shell with conda env
+SHELL ["conda", "run", "-n", "alphapose_build", "/bin/bash", "-c"]
+
+RUN  --mount=type=cache,target=/opt/conda/pkgs \
+    conda install -vvv pytorch-cpu==1.1.0 torchvision-cpu==0.3.0 cpuonly -c pytorch  \
+    && conda install -vvv cython numpy \
+    && conda clean -vvv -afy
+
+ENV ALPHAPOSE_PATH=/src/AlphaPose 
 
 
-RUN --mount=type=cache,target=/opt/conda/pkgs conda create  --name alphapose python=3.6 -y
+COPY AlphaPose AlphaPose/
+
+# # Compile alphapose
+RUN cd AlphaPose \
+    && python3 setup.py build
+
+
+# Create Conda environment for Running AlphaPose 
+RUN --mount=type=cache,target=/opt/conda/pkgs conda create -vv --name alphapose python=3.6 -y
 # Activate new shell with conda env
 SHELL ["conda", "run", "-n", "alphapose", "/bin/bash", "-c"]
 
@@ -36,27 +48,16 @@ SHELL ["conda", "run", "-n", "alphapose", "/bin/bash", "-c"]
 RUN  --mount=type=cache,target=/opt/conda/pkgs \
     --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.local \
-    conda install pytorch-cpu==1.1.0 torchvision-cpu==0.3.0 cpuonly -c pytorch \
-    && export PATH=/usr/local/cuda/bin/:$PATH \
-    && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
-    && pip install cython pycocotools opencv-python pyyaml six terminaltables scipy==1.1.0 visdom tqdm tensorboardx easydict munkres timm==0.1.20 natsort \
-    && conda install matplotlib \
+    conda install -vvv pytorch-cpu==1.1.0 torchvision-cpu==0.3.0 cpuonly torchserve==0.4.0 -c pytorch \
+    && pip install -v pycocotools opencv-python pyyaml six terminaltables scipy==1.1.0 visdom tqdm tensorboardx easydict munkres timm==0.1.20 natsort \
+    && conda install -v matplotlib \
     && export CUDA_HOME=/usr/local/cuda \
     && export ALPHAPOSE_PATH=/src/AlphaPose \
     # Install conda-pack:
-    && conda install -c conda-forge conda-pack \
-    && conda install -c pytorch torchserve==0.4.0 \
+    && conda install -v -c conda-forge conda-pack \
     # clean up after conda install from https://jcristharif.com/conda-docker-tips.html
     && conda clean -afy 
 
-COPY AlphaPose AlphaPose/
-
-# Compile alphapose
-RUN --mount=type=cache,target=/opt/conda/pkgs \
-    --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=cache,target=/root/.local \
-    cd AlphaPose \
-    && python3 setup.py build
 
 
 # Use conda-pack to create a standalone enviornment
@@ -71,10 +72,23 @@ RUN /venv/bin/conda-unpack
 
 RUN cp -r AlphaPose/build/lib/* /venv/lib/python3.6/
 
+# Remove unnecessary python files. https://uwekorn.com/2021/03/01/deploying-conda-environments-in-docker-how-to-do-it-right.html
+RUN cd /venv \
+    && find -name '*.a' -delete \
+    && rm -rf /venv/conda-meta \
+    && rm -rf /venv/include \
+    && rm -rf /venv/bin/sqlite3 \
+    && rm -rf /venv/bin/openssl \
+    &&  find /venv/lib/python3.6/site-packages/scipy -name 'tests' -type d -exec rm -rf '{}' '+'  \
+    &&  find /venv/lib/python3.6/site-packages/numpy -name 'tests' -type d -exec rm -rf '{}' '+'  \
+    &&  find /venv/lib/python3.6/site-packages/torch -name 'test' -type d -exec rm -rf '{}' '+' 
+
+
+
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM ubuntu:18.04 AS runtime
+FROM ubuntu:18.04 AS runtime_base
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
     apt-get update && \
@@ -98,16 +112,14 @@ COPY --chown=ap-server:ap-server torchserve_ap torchserve_ap/
 # COPY --from=build /src/AlphaPose/build //venv/AlphaPose/build
 # COPY alphapose_weights.pth /inference/AlphaPose
 
-# Test Alphapose
-# When image is run, run the code with the environment
-# activated:
-# SHELL ["/bin/bash", "-c"]
-# RUN source /venv/bin/activate && \
-#     python -c "import numpy; print('success!')"
-
 ENV PATH /venv/bin/:${PATH}
 # Define the default command.
 
+FROM runtime_base AS runtime_test
+# Test Alphapose
+RUN "./torchserve_ap/scripts/docker_test.sh"
 
+
+FROM runtime_base AS runtime_prod
 CMD [ "./torchserve_ap/torchserve_start2.sh" ]
 
