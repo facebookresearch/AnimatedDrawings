@@ -356,12 +356,20 @@ def get_animation():
 
     animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
-    if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', os.path.abspath(work_dir), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
+    # if not os.path.exists(animation_path):
+    #     subprocess.run(['./run_animate.sh', os.path.abspath(work_dir), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
+
+    cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} http://animation_server:5000/generate_animation"
+    response = str(subprocess.check_output(cmd.split(' ')))
+    if response =="0":
+        pass # everything okay
+    else:
+        pass # something went wrong
 
     with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
         consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
 
+    # TODO: Fix so that, whenever user confirms joint locations, we then copy their annotations to a permanent location
     # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
     if consent_response:
         src = work_dir

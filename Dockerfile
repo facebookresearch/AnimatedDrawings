@@ -56,7 +56,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
     /home/model-server/conda/bin/conda clean -ya
 
 
-
+# TODO: All of this sketch_animate code can be removed
 FROM conda as sketch_animate
 
 RUN mkdir -p /home/model-server/tmp \ 

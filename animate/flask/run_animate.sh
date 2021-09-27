@@ -17,7 +17,7 @@ source ~/.bashrc
 rm -rf ${WORK_DIR}/animation/output_images
 mkdir ${WORK_DIR}/animation/output_images
 
-MOTION_CONFIG=/home/model-server/animate/Data/motion_configs/${ANIMATION_TYPE}.yaml
+MOTION_CONFIG=/home/animation-server/animate/Data/motion_configs/${ANIMATION_TYPE}.yaml
 
 cd ~/animate/sketch_animate
 

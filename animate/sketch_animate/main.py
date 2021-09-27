@@ -53,8 +53,10 @@ def main(cfg):
     scene_manager.add_bvh(bvh)
 
     # create character and add to scene
-    with open(sys.argv[2], 'r') as f:
+    character_cfg_path = Path(sys.argv[2])
+    with open(character_cfg_path, 'r') as f:
         sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        sketch_cfg['image_loc'] = f"{str(character_cfg_path.parent)}/{sketch_cfg['image_name']}"
 
       
     ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
