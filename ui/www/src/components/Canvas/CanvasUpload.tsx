@@ -25,7 +25,8 @@ const CanvasUpload = () => {
     inputFile.current.click();
   };
 
-  const compress = async (e: any) => {
+  const compress = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
     const file = e.target.files[0];
     const options = {
       maxSizeMB: 1,
