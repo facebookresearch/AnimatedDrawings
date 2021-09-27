@@ -1,9 +1,11 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
+import useMaskingStore from "../../hooks/useMaskingStore";
 
 const Step5 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
+  const { setLines } = useMaskingStore();
 
   return (
     <>
@@ -28,7 +30,10 @@ const Step5 = () => {
           variant="outline-dark"
           size="sm"
           disabled={false}
-          onClick={() => setCurrentStep(currentStep - 1)}
+          onClick={() => {
+            setLines([]);
+            setCurrentStep(currentStep - 1)
+          }}
         >
           Previous
         </Button>
