@@ -685,8 +685,8 @@ class ARAP_Sketch(BaseSketch):
         self.vbo = None
         self.ebo = None
 
-        with open(os.path.join(Path(sketch['image_loc']).parent, 'ARAP_Sketch.pickle'), 'wb') as f:
-            pickle.dump(self, f)
+        # with open(os.path.join(Path(sketch['image_loc']).parent, 'ARAP_Sketch.pickle'), 'wb') as f:
+        #     pickle.dump(self, f)
 
         self._initialize_opengl()
 

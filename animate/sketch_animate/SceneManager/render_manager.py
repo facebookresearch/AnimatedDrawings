@@ -1,8 +1,16 @@
 import os
-from OpenGL import GL, osmesa
+if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
+        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
+    from OpenGL import GL
+    import glfw
+else:
+    from OpenGL import GL, osmesa
+
 import cv2
 import numpy as np
 from SceneManager.base_manager import BaseManager
+import logging
+
 
 
 class RenderManager(BaseManager):
@@ -22,8 +30,12 @@ class RenderManager(BaseManager):
 
         self.ctx = None
         self.buffer = None
-        self._initialize_mesa(self.width, self.height)
-        #self._initialize_opengl(self.width, self.height)  # uncomment, comment line above if no mesa available
+
+        if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
+        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
+            self._initialize_opengl(self.width, self.height)  # uncomment, comment line above if no mesa available
+        else:
+            self._initialize_mesa(self.width, self.height)
 
         super().__init__(cfg)
 
@@ -87,7 +99,6 @@ class RenderManager(BaseManager):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
     def _initialize_opengl(self, width: int, height: int):
-        import glfw
         glfw.init()
         """ Initalize opengl"""
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)

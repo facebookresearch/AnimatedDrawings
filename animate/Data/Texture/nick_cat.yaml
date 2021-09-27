@@ -1,5 +1,5 @@
 image_loc: ../Data/Texture/nick_cat.png
-img_name: nick_cat.png
+image_name: nick_cat.png
 segments:
   head:
     clockwise: false

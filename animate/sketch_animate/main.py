@@ -17,15 +17,27 @@ def build_cfg():
 
 def main(cfg):
     if cfg['RENDER_MODE'] == 'RENDER':
-        logging.info('RENDER_MODE is RENDER, initializing osmesa')
-        try:
-            os.environ['PYOPENGL_PLATFORM'] = "osmesa"
-            os.environ['MUJOCO_GL'] = "osmesa"
-            os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
-            from OpenGL import GL, osmesa
-        except:
-            logging.critical('Error initializing osmesa. Aborting')
-        logging.info('osmesa successfully initialized')
+        logging.info('RENDER_MODE is RENDER')
+
+        if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
+        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
+            logging.info('SKETCH_ANIMATE_RENDER_BACKEND == OPENGL. Using OpenGL')
+            try:
+                from OpenGL import GL
+            except:
+                logging.critical('Error initializing OpenGL. Aborting')
+            logging.info('OpenGL successfully initialized')
+
+        else:
+            logging.info('SKETCH_ANIMATE_RENDER_BACKEND != OPENGL, Using OSMesa')
+            try:
+                os.environ['PYOPENGL_PLATFORM'] = "osmesa"
+                os.environ['MUJOCO_GL'] = "osmesa"
+                os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
+                from OpenGL import GL, osmesa
+            except:
+                logging.critical('Error initializing osmesa. Aborting')
+            logging.info('osmesa successfully initialized')
 
         cfg['OUTPUT_PATH'] = sys.argv[3]
 
