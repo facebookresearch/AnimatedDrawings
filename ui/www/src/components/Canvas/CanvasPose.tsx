@@ -23,28 +23,50 @@ const CanvasPose = () => {
     imageUrlMask,
     pose,
     setPose,
+    setImageUrlMask,
   } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
-  const { isLoading, setJointLocations } = useDrawingApi((err) => {
+  const { isLoading, getMask, setJointLocations } = useDrawingApi((err) => {
     console.log(err);
   });
   const [imgScale, setImgScale] = useState(1);
 
   /**
-   * When canvas mounts, calculate the ratio between canvas
-   * and cropped image to make the drawing fit the canvas.
-   * substract canvas padding 20.
+   * 1. When canvas mounts, calculate the ratio between canvas
+   * and cropped image to make the drawing fit the canvas, substract canvas padding 20. 
+   * 2. Get the mask from previous state to use in the background.
+   * The component will only rerender when the uuid and croppedImg dimensions 
+   * dependencies change. Exhaustive-deps eslint warning was diable as 
+   * no more dependencies are really necesary as side effects
    */
   useEffect(() => {
-    const ratio = calculateRatio(
-      canvasWindow.current?.offsetWidth - 20,
-      canvasWindow.current?.offsetHeight - 20,
-      croppedImgDimensions.width,
-      croppedImgDimensions.height
-    );
-    setImgScale(ratio);
+    const fetchMask = async () => {
+      try {
+        const ratio = calculateRatio(
+          canvasWindow.current?.offsetWidth - 20,
+          canvasWindow.current?.offsetHeight - 20,
+          croppedImgDimensions.width,
+          croppedImgDimensions.height
+        );
+        setImgScale(ratio);
+
+        await getMask(uuid!, (data) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(data);
+          reader.onload = function () {
+            let imageDataUrl = reader.result; // base64
+            setImageUrlMask(imageDataUrl);
+          };
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (uuid !== "") fetchMask();
+
     return () => {};
-  }, [croppedImgDimensions]);
+  }, [uuid, croppedImgDimensions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClick = async (clickType: string) => {
     try {

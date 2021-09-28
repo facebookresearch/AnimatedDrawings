@@ -125,7 +125,7 @@ const CanvasMask = () => {
   /**
    * Here there is one scenarios/side effect when the CanvasMask component mounts
    * this hook invokes API to fetch a mask given uuid as parameter.
-   * The component will only rerender when the uuid dependency changes.
+   * The component will only rerender when the uuid and croppedImg dimensions dependencies change.
    * exhaustive-deps eslint warning was diable as no more dependencies are really necesary as side effects.
    * Contrary to this, including other function dependencies will trigger infinite loop rendereing.
    */
