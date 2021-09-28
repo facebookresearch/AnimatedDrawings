@@ -251,7 +251,7 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
       </svg>
       {hoveredJoint ? (
         <div className="tooltip-pose">
-          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")}
+          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")?.replace("nose","head center")}
         </div>
       ) : null}
     </div>

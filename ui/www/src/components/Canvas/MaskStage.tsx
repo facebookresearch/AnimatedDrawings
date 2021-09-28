@@ -100,7 +100,7 @@ const MaskStage = React.forwardRef(
             <Line
               key={i}
               points={line.points}
-              stroke={line.tool === "eraser" ? "white" : "black"}
+              stroke={line.tool === "eraser" ? "dark" : "white"}
               strokeWidth={line.penSize}
               tension={0.5}
               lineCap="round"
