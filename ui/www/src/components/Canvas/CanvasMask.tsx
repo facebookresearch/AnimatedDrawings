@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import classnames from "classnames";
 import { Row, Col } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -8,6 +8,7 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import MaskStage from "./MaskStage";
 import { Position } from "../PoseEditor";
+import { resizedataURL, calculateRatio } from "../../utils/Helpers";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -96,7 +97,7 @@ const mapJointsToPose = (joints: object) => {
 };
 
 const CanvasMask = () => {
-  const canvasWindow = useRef<HTMLInputElement>(null);
+  const canvasWindow = useRef<HTMLInputElement | any>(null);
   const layerRef = useRef<HTMLImageElement | any>(null);
   const {
     drawing,
@@ -119,6 +120,7 @@ const CanvasMask = () => {
   } = useMaskingStore();
   const { isLoading, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
+  const [imgScale, setImgScale] = useState(1);
 
   /**
    * Here there is one scenarios/side effect when the CanvasMask component mounts
@@ -130,6 +132,14 @@ const CanvasMask = () => {
   useEffect(() => {
     const fetchMask = async () => {
       try {
+        const ratio = calculateRatio(
+          canvasWindow.current?.offsetWidth -20,
+          canvasWindow.current?.offsetHeight -20,
+          croppedImgDimensions.width,
+          croppedImgDimensions.height
+        );  
+        setImgScale(ratio);
+
         await getMask(uuid!, (data) => {
           let reader = new window.FileReader();
           reader.readAsDataURL(data);
@@ -158,7 +168,7 @@ const CanvasMask = () => {
     if (uuid !== "") fetchMask();
 
     return () => {};
-  }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uuid, croppedImgDimensions ]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   /**
@@ -189,8 +199,14 @@ const CanvasMask = () => {
 
       if (clickType === "next" && uuid) {
         const uri = layerRef.current?.toDataURL();
-        setMaskBase64(uri); // base64
-        const response = await fetch(uri);
+        const newDataUri = await resizedataURL(
+          uri,
+          croppedImgDimensions.width,
+          croppedImgDimensions.height
+        );
+        setMaskBase64(newDataUri); // base64
+
+        const response = await fetch(newDataUri || uri);
         const blob = await response.blob();
         const file = new File([blob], "mask.png", {
           type: "image/png",
@@ -301,6 +317,7 @@ const CanvasMask = () => {
           <Loader drawingURL={drawing} />
         ) : (
           <MaskStage
+            scale={imgScale}
             canvasWidth={croppedImgDimensions.width}
             canvasHeight={croppedImgDimensions.height}
             ref={layerRef}

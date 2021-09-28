@@ -25,6 +25,7 @@ interface Props {
   //   imageHeight: number;
   //   imageWidth: number;
   imageUrl: any;
+  maskUrl: any;
   pose: Pose;
   isLoading?: boolean;
   setPose: (pose: Pose) => void;
@@ -127,7 +128,7 @@ const Circle = ({
   );
 };
 
-const PoseEditor = ({ imageUrl, pose, setPose, isLoading }: Props) => {
+const PoseEditor = ({ imageUrl, maskUrl, pose, setPose, isLoading }: Props) => {
   const [hoveredJoint, setHoveredJoint] = React.useState<string>();
   const [isMoving, setIsMoving] = React.useState(false);
 
@@ -135,7 +136,6 @@ const PoseEditor = ({ imageUrl, pose, setPose, isLoading }: Props) => {
   const [imageHeight, setImageHeight] = useState(0);
 
   //const [debug, setDebug] = useState(true);
-
   //const padding = 20;
   //const yStep = (imageHeight - padding) / 7;
   //const xStep = (imageWidth - padding) / 8;
@@ -163,91 +163,94 @@ const PoseEditor = ({ imageUrl, pose, setPose, isLoading }: Props) => {
   }, [imageUrl]);
 
   return (
-    <svg
-      //width="100%"
-      //height="100%"
-      width={imageWidth}
-      height={imageHeight}
-      viewBox={`0 0 ${imageWidth} ${imageHeight}`}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <image href={imageUrl}></image>
-      <g>
-        {pose.edges.map(({ from, to }) => (
-          <>
-            <Line
-              key={`${from}-${to}-border`}
-              x1={mapX(nodeMap.get(from)!.position.x)}
-              y1={mapY(nodeMap.get(from)!.position.y)}
-              x2={mapX(nodeMap.get(to)!.position.x)}
-              y2={mapY(nodeMap.get(to)!.position.y)}
-              stroke={
-                isMoving &&
-                hoveredJoint &&
-                [from, to].indexOf(hoveredJoint) >= 0
-                  ? "black"
-                  : "white"
-              }
-              strokeWidth="3"
-            />
-            <Line
-              key={`${from}-${to}`}
-              x1={mapX(nodeMap.get(from)!.position.x)}
-              y1={mapY(nodeMap.get(from)!.position.y)}
-              x2={mapX(nodeMap.get(to)!.position.x)}
-              y2={mapY(nodeMap.get(to)!.position.y)}
-              stroke={
-                isMoving &&
-                hoveredJoint &&
-                [from, to].indexOf(hoveredJoint) >= 0
-                  ? "red"
-                  : "black"
-              }
-              strokeWidth="1"
-            />
-          </>
-        ))}
-        {pose.nodes.map((node) => (
-          <Circle
-            key={node.id}
-            cx={mapX(node.position.x)}
-            cy={mapY(node.position.y)}
-            strokeWidth="2"
-            stroke="white"
-            r="4"
-            onPositionUpdate={(pos) => {
-              const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
+    <div className="pose-wrapper">
+      <svg
+        //width="100%"
+        //height="100%"
+        width={imageWidth}
+        height={imageHeight}
+        viewBox={`0 0 ${imageWidth} ${imageHeight}`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <image href={imageUrl}></image>
+        <image href={maskUrl} style={{opacity: 0.25}}></image>
+        <g>
+          {pose.edges.map(({ from, to }) => (
+            <>
+              <Line
+                key={`${from}-${to}-border`}
+                x1={mapX(nodeMap.get(from)!.position.x)}
+                y1={mapY(nodeMap.get(from)!.position.y)}
+                x2={mapX(nodeMap.get(to)!.position.x)}
+                y2={mapY(nodeMap.get(to)!.position.y)}
+                stroke={
+                  isMoving &&
+                  hoveredJoint &&
+                  [from, to].indexOf(hoveredJoint) >= 0
+                    ? "black"
+                    : "white"
+                }
+                strokeWidth="3"
+              />
+              <Line
+                key={`${from}-${to}`}
+                x1={mapX(nodeMap.get(from)!.position.x)}
+                y1={mapY(nodeMap.get(from)!.position.y)}
+                x2={mapX(nodeMap.get(to)!.position.x)}
+                y2={mapY(nodeMap.get(to)!.position.y)}
+                stroke={
+                  isMoving &&
+                  hoveredJoint &&
+                  [from, to].indexOf(hoveredJoint) >= 0
+                    ? "red"
+                    : "black"
+                }
+                strokeWidth="1"
+              />
+            </>
+          ))}
+          {pose.nodes.map((node) => (
+            <Circle
+              key={node.id}
+              cx={mapX(node.position.x)}
+              cy={mapY(node.position.y)}
+              strokeWidth="2"
+              stroke="white"
+              r="4"
+              onPositionUpdate={(pos) => {
+                const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
 
-              nodeMap.set(node.id, {
-                ...node,
-                position: newPos,
-              });
+                nodeMap.set(node.id, {
+                  ...node,
+                  position: newPos,
+                });
 
-              setPose({
-                ...pose,
-                nodes: Array.from(nodeMap.values()),
-              });
-              setIsMoving(pos.active);
-            }}
-            onHover={(enter) => {
-              setHoveredJoint(enter ? node.label : undefined);
-            }}
-          />
-        ))}
-      </g>
-    </svg>
+                setPose({
+                  ...pose,
+                  nodes: Array.from(nodeMap.values()),
+                });
+                setIsMoving(pos.active);
+              }}
+              onHover={(enter) => {
+                setHoveredJoint(enter ? node.label : undefined);
+              }}
+            />
+          ))}
+        </g>
+      </svg>
+      {hoveredJoint ? (
+        <div className="tooltip-pose">
+          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")}
+        </div>
+      ) : null}
+    </div>
   );
 };
 
 export default PoseEditor;
 
 /**
- *  {hoveredJoint ? (
-        <div className="tooltip">
-          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")}
-        </div>
-      ) : null}
-      {debug && (
+ *   {debug && (
         <div className="debug">
           <strong>DEBUG:</strong>
           {pose.nodes.map((node) => (

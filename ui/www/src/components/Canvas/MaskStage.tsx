@@ -43,7 +43,7 @@ const DrawingImage = ({ urlImg, height, width }: imgProps) => {
  * this is the mask sent to the server.
  */
 const MaskStage = React.forwardRef(
-  ({ canvasWidth, canvasHeight }: any, ref: any) => {
+  ({ scale, canvasWidth, canvasHeight }: any, ref: any) => {
     const isDrawing = useRef(false);
     const { imageUrlPose, imageUrlMask } = useDrawingStore();
     const {
@@ -55,7 +55,8 @@ const MaskStage = React.forwardRef(
 
     const handleMouseDown = (e: { target: Event | any }) => {
       isDrawing.current = true;
-      const pos = e.target.getStage().getPointerPosition();
+      //const pos = e.target.getStage().getPointerPosition();
+      const pos = e.target.getStage().getRelativePointerPosition()
 
       setLines([...lines, { tool, penSize, points: [pos.x, pos.y] }]);
     };
@@ -65,7 +66,8 @@ const MaskStage = React.forwardRef(
         return;
       }
       const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      //const point = stage.getPointerPosition();
+      const point = stage.getRelativePointerPosition()
       let lastLine = lines[lines.length - 1];
         lastLine.points = lastLine.points.concat([point.x, point.y]);
         lines.splice(lines.length - 1, 1, lastLine);
@@ -78,14 +80,15 @@ const MaskStage = React.forwardRef(
 
     return (
       <Stage
-        width={canvasWidth}
-        height={canvasHeight || 0}
+        width={canvasWidth * scale}
+        height={canvasHeight * scale}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
         onMousemove={handleMouseMove}
         onTouchMove={handleMouseMove}
         onMouseup={handleMouseUp}
         onTouchEnd={handleMouseUp}
+        scale={{ x: scale, y: scale }}
       >
         <Layer ref={ref}>
           <MaskImage

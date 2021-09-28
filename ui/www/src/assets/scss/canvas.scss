@@ -279,4 +279,38 @@
 .mask-wrapper img { 
   flex-grow: 1;
   object-fit: cover;
+} 
+
+/*** Canvas Pose ***/
+
+.pose-wrapper {
+  position: relative;
+  svg line {
+    pointer-events: none;
+  }
+  svg circle {
+    cursor: move;
+  }
+}
+
+.tooltip-pose {
+  position: absolute;
+  background-color: $dark;
+  color: $white;
+  border: none;
+  padding: 3px 8px;
+  top: 0;
+  right: 0;
+  font-size: 0.8em;
+  border-radius: 8%;
+  animation: pop 0.2s ease-out 1;
+}
+@keyframes pop {
+  0% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+  }
 }

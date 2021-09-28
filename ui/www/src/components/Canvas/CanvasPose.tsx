@@ -14,7 +14,7 @@ const mapPoseToJoints = (pose: Pose) => {
 };
 
 const CanvasPose = () => {
-  const { uuid, imageUrlPose, pose, setPose } = useDrawingStore();
+  const { uuid, imageUrlPose, imageUrlMask, pose, setPose } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
   const { isLoading, setJointLocations } = useDrawingApi((err) => {
     console.log(err);
@@ -43,7 +43,7 @@ const CanvasPose = () => {
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
         {pose && (
-          <PoseEditor imageUrl={imageUrlPose} pose={pose} setPose={setPose} />
+          <PoseEditor imageUrl={imageUrlPose} maskUrl={imageUrlMask} pose={pose} setPose={setPose} />
         )}
       </div>
 
