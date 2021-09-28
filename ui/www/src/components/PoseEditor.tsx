@@ -28,6 +28,7 @@ interface Props {
   maskUrl: any;
   pose: Pose;
   isLoading?: boolean;
+  scale: number;
   setPose: (pose: Pose) => void;
 }
 
@@ -39,6 +40,8 @@ const Line = (props: LineProps) => {
 interface CircleProps extends React.SVGProps<SVGCircleElement> {
   cx: number;
   cy: number;
+  imgWidth: number;
+  imgHeight: number;
   onPositionUpdate: (position: CirclePosition) => void;
   onHover: (hover: boolean) => void;
 }
@@ -50,6 +53,8 @@ interface CirclePosition extends Position {
 const Circle = ({
   cx,
   cy,
+  imgWidth,
+  imgHeight,
   onPositionUpdate,
   onHover,
   ...props
@@ -96,7 +101,13 @@ const Circle = ({
       x: position.x - (position.offset.x - x),
       y: position.y - (position.offset.y - y),
     };
-    if (position.active) {
+    if (
+      position.active &&
+      movePosition.x > 0 &&
+      movePosition.y > 0 &&
+      movePosition.x < imgWidth &&
+      movePosition.y < imgHeight
+    ) {
       setPosition(movePosition);
     }
   };
@@ -128,7 +139,7 @@ const Circle = ({
   );
 };
 
-const PoseEditor = ({ imageUrl, maskUrl, pose, setPose, isLoading }: Props) => {
+const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Props) => {
   const [hoveredJoint, setHoveredJoint] = React.useState<string>();
   const [isMoving, setIsMoving] = React.useState(false);
 
@@ -165,10 +176,8 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, setPose, isLoading }: Props) => {
   return (
     <div className="pose-wrapper">
       <svg
-        //width="100%"
-        //height="100%"
-        width={imageWidth}
-        height={imageHeight}
+        width={imageWidth * scale}
+        height={imageHeight * scale}
         viewBox={`0 0 ${imageWidth} ${imageHeight}`}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -217,6 +226,8 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, setPose, isLoading }: Props) => {
               strokeWidth="2"
               stroke="white"
               r="4"
+              imgWidth={imageWidth * scale}
+              imgHeight={imageHeight * scale}
               onPositionUpdate={(pos) => {
                 const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
 
