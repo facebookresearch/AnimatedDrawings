@@ -14,6 +14,7 @@ services:
       - type: volume
         source: dev-demo-sketch-out-animations
         target: /home/model-server/rig/server/flask/videos
+      - /home/ec2-user/data/sketch:/home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
       REACT_APP_API_HOST: http://13.59.214.59:5010
     networks:
