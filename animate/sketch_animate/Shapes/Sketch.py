@@ -25,6 +25,7 @@ from DataStructures import halfedge
 from Shapes.Shapes import Rectangle
 
 from PIL import Image
+import cv2
 
 from collections import OrderedDict, defaultdict
 
@@ -1000,52 +1001,71 @@ class ARAP_Sketch(BaseSketch):
             self.mesh_vertices[idx, 4] = 1 - self.triangle_mesh['vertices'][idx][1]     # y tex
         return
 
+
     def _assign_triangles_to_bones(self):
-        """Called during construction to determine which triangles belong to which bone. Used for depth ordering"""
+        from collections import deque
+        mask_np = cv2.imread(self.sketch['image_loc'][:-4] + '_mask.png')
+        mask_np = mask_np[:,:,0].astype(np.bool)
 
-        mask_img = Image.open(self.sketch['image_loc'][:-4] + '_mask.png').convert('1')
-        mask_np = np.transpose(np.array(mask_img).astype(np.bool))
+        closest_bone = np.empty(mask_np.shape[:2], dtype=np.int)  #instead of distances for each bone, just keep track of closest bone for each pixel
+        in_queue = np.zeros(mask_np.shape[0:2], dtype=np.bool)  # keep track of what's in our queue
 
-        distances = np.empty([len(self.bones), *mask_np.shape], dtype=np.int)
-        for idx, bone in enumerate(self.bones):
-            joint_img_coord1 = [bone.djoint.loc[0], 1 - bone.djoint.loc[1]]
-            x1 = int(joint_img_coord1[0] * mask_np.shape[0])
-            y1 = int(joint_img_coord1[1] * mask_np.shape[1])
+        #uncomment parts about viz if you want to see how mesh is assigned to different bones
+        #viz = np.zeros((*mask_np.shape[:2], 3), dtype='uint8')
+        #COLOR = [
+        #    [255, 0, 0],
+        #    [0, 255, 0],
+        #    [0, 0, 255],
+        #    [255, 0, 255],
+        #    [0, 255, 255],
+        #    [255, 0, 255],
+        #    [128, 0, 255],
+        #    [0, 128, 255],
+        #    [255, 0, 128],
+        #    [255, 0, 128],
+        #    [0, 128, 255],
+        #    [128, 0, 255],
+        #    [255, 0, 0],
+        #    [0, 255, 0],
+        #    [0, 0, 255]
+        #]
 
-            joint_img_coord2 = [bone.pjoint.loc[0], 1 - bone.pjoint.loc[1]]
-            x2 = int(joint_img_coord2[0] * mask_np.shape[0])
-            y2 = int(joint_img_coord2[1] * mask_np.shape[1])
+        seeds = []
+        queue = deque()
+        for bone_idx, bone in enumerate(self.bones):  # for each bone
+            joint_img_coord1 = [bone.djoint.loc[0], 1 - bone.djoint.loc[1]]  # coordindates of bone first joint
+            y1 = int(joint_img_coord1[0] * mask_np.shape[0])
+            x1 = int(joint_img_coord1[1] * mask_np.shape[1])
 
-            # BFS variables
-            distance = np.zeros(mask_np.shape, dtype=np.int)
-            in_queue = np.zeros(mask_np.shape, dtype=np.bool)
-            queue = []
+            joint_img_coord2 = [bone.pjoint.loc[0], 1 - bone.pjoint.loc[1]]  # coordinates of bone second joint
+            y2 = int(joint_img_coord2[0] * mask_np.shape[0])
+            x2 = int(joint_img_coord2[1] * mask_np.shape[1])
 
-            # BFS seed with points along bone
-            seeds = []
-            for _p in range(0, 100):
-                p = _p / 100
-                point = int(round(x1 + p * (x2-x1))),  int(round(y1 + p * (y2 - y1)))
+            for _p in range(0, 20):  # sample 20 points along each bone
+                p = _p / 20
+                point = int(round(x1 + p * (x2-x1))),  int(round(y1 + p * (y2 - y1))), bone_idx
                 seeds.append(point)
-            seeds = list(set(seeds))  # dedups
-            for seed in seeds:
+            seeds = list(set(seeds))  # dedup
+
+            for seed in seeds:  #
+                closest_bone[seed[0], seed[1]] = seed[2]
                 queue.append(seed)
-                in_queue[seed] = True
+                in_queue[seed[0], seed[1]] = True
+                #viz[seed[0], seed[1]] = [255, 255, 255]
 
-            # BFS search
-            while queue:
-                x, y = queue.pop(0)
-                for _x, _y in [(x - 1, y - 1), (x + 0, y - 1), (x + 1, y - 1),
-                               (x - 1, y + 0), (x + 1, y + 0),
-                               (x - 1, y + 1), (x + 0, y + 1), (x + 1, y + 1)]:
+        while queue:  # while items in queue
+            x, y, bone_idx = queue.popleft()  # get first item
+            for _x, _y in [(x - 1, y - 1), (x + 0, y - 1), (x + 1, y - 1),  # for each possible neighbor
+                           (x - 1, y + 0), (x + 1, y + 0),
+                           (x - 1, y + 1), (x + 0, y + 1), (x + 1, y + 1)]:
 
-                    if in_queue[_x, _y] or not mask_np[_x, _y]:
-                        continue
-                    queue.append((_x, _y))
-                    in_queue[_x, _y] = True
-                    distance[_x, _y] = distance[x, y] + 1
-
-            distances[idx] = np.transpose(distance)
+                if in_queue[_x, _y] or not mask_np[_x, _y]:  # if it's already in queue or outside mask,
+                    continue
+                queue.append((_x, _y, bone_idx))  # otherwise append it..
+                in_queue[_x, _y] = True
+                closest_bone[_x, _y] = bone_idx
+                #viz[_x, _y] = COLOR[bone_idx]
+        #cv2.imwrite('/Users/hjessmith/Desktop/viz.png', viz)
 
         self.tri2bone = {}
         # for each triangle, get centroid and use it to find closest bone
@@ -1055,8 +1075,11 @@ class ARAP_Sketch(BaseSketch):
             v1 = [int(_v1[0] * mask_np.shape[0]), int((_v1[1]) * mask_np.shape[1])]
             v2 = [int(_v2[0] * mask_np.shape[0]), int((_v2[1]) * mask_np.shape[1])]
             centroid_x, centroid_y = int((v0[0] + v1[0] + v2[0]) / 3), int((v0[1] + v1[1] + v2[1]) / 3)
-            closest_bone_idx = distances[:, centroid_y, centroid_x].argmin()
+            closest_bone_idx = closest_bone[centroid_y, centroid_x]
             self.tri2bone[idx] = closest_bone_idx
+
+
+
 
     def _get_joint_constraints(self):
         """Called once during object construction to generate the joint-drived ARAP constraints"""
