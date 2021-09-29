@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from SceneManager.base_manager import BaseManager
 import logging
-
+from pathlib import Path
 
 
 class RenderManager(BaseManager):
@@ -23,10 +23,10 @@ class RenderManager(BaseManager):
 
         self.mode = 'RENDER'
         self.render_fps = self.cfg['RENDER_FPS']
-        self.render_idx = 0
 
-        if not os.path.exists(self.cfg['OUTPUT_PATH']):
-            os.mkdir(self.cfg['OUTPUT_PATH'])
+        self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
+        self.video_writer = None
+        self.prep_video_writer()
 
         self.ctx = None
         self.buffer = None
@@ -39,10 +39,24 @@ class RenderManager(BaseManager):
 
         super().__init__(cfg)
 
+    def prep_video_writer(self):
+
+        out_file = Path(os.path.join(self.cfg['OUTPUT_PATH'], self.cfg['BVH_PATH'].split('/')[-1].split('.')[0] + '.mp4'))
+
+        os.makedirs(out_file.parent, exist_ok=True)
+
+        if out_file.exists():
+            Path.unlink(out_file)
+
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        self.video_writer = cv2.VideoWriter(str(out_file), fourcc, self.render_fps, (self.width, self.height))
+
+
     def run(self):
         self.time_manager.initialize_time()
 
         while not self._scene_is_finished():
+
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
             self._update_transferrer_cameras()
 
@@ -52,14 +66,14 @@ class RenderManager(BaseManager):
 
             self._update()
 
-            self._render_to_file(self.cfg['OUTPUT_PATH'])
+            self._write_to_buffer()
 
-    def _render_to_file(self, dir):
-        data = np.empty((self.height, self.width, 3), dtype='uint16')
-        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_RGB, GL.GL_UNSIGNED_SHORT, data)
-        data = data[::-1, :, ::-1]  # turn rightside up, address cv2 BRG expectation
-        cv2.imwrite(os.path.join(dir, "{:04}.png".format(self.render_idx)), data)
-        self.render_idx += 1
+        self.video_writer.release()
+
+    def _write_to_buffer(self):
+        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
+        self.video_writer.write(self.frame_data[::-1,:,:])
+
 
     def _render_view(self):
         camera, bottom, left, width, height = self.camera_manager.free_camera, 0, 0, self.width, self.height
