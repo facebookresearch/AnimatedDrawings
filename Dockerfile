@@ -116,34 +116,7 @@ RUN  --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.
 RUN mkdir -p /home/model-server/torchserve_d2
 COPY --chown=model-server:model-server torchserve_d2/ /home/model-server/torchserve_d2
 
-# # Alpha Pose
-# RUN conda create  --name alphapose python=3.6 -y
-# # Activate new shell with conda env
-# SHELL ["conda", "run", "-n", "alphapose", "/bin/bash", "-c"]
 
-# The following is from here: https://github.com/MVIG-SJTU/AlphaPose/blob/master/docs/INSTALL.md \
-# RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-#     conda install pytorch-cpu==1.1.0 torchvision-cpu==0.3.0 cpuonly -c pytorch \
-#     # && git clone https://github.com/MVIG-SJTU/AlphaPose.git \
-#     && export PATH=/usr/local/cuda/bin/:$PATH \
-#     && export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH \
-#     && pip install cython pycocotools \
-#     && conda install matplotlib \
-#     && conda install -c pytorch torchserve==0.4.0
-
-# ENV CUDA_HOME=/usr/local/cuda
-# ENV ALPHAPOSE_PATH=/home/model-server/AlphaPose
-# COPY --chown=model-server:model-server AlphaPose AlphaPose/
-
-# Compile alphapose
-# RUN  --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-#     cd AlphaPose \
-# #     && python3 setup.py build develop --user
-
-# COPY --chown=model-server:model-server convert_ap_to_mar convert_ap_to_mar/
-COPY --chown=model-server:model-server torchserve_ap torchserve_ap/
-
-# RUN cp /home/model-server/rig/server/input/0004.png /home/model-server/rig/server/in 
 
 SHELL ["/bin/bash","-c"]
 RUN conda init
