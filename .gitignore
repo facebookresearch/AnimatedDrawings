@@ -5,3 +5,5 @@ alphapose_weights.pth
 **/*.mar
 # Docker output
 videos
+
+/tmp/**
