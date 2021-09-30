@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    command: ./run.sh
+    # command: ./run.sh
     ports:
       - 5000:5000
     volumes:
@@ -24,22 +24,22 @@ services:
       ap-net: {}
 
   alphapose_server:
-    image: runtime
+    image: alphapose_runtime
     build:
       context: .
       dockerfile: Dockerfile.alphapose
-    command: ./torchserve_ap/torchserve_start2.sh
+    # command: ./torchserve_ap/torchserve_start2.sh
     networks:
       ap-net:
         aliases:
           - alphapose_server # name of network to other services in docker
 
   animation_server:
-    image: runtime
+    image: animation_runtime
     build:
       context: .
       dockerfile: Dockerfile.animation
-    command: /home/animation-server/animate/flask/run.sh
+    # command: /home/animation-server/animate/flask/run.sh
     volumes:
       - type: bind
         source: ./tmp/video

@@ -74,7 +74,7 @@ RUN cp -r AlphaPose/build/lib/* /venv/lib/python3.6/
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM ubuntu:18.04 AS runtime
+FROM ubuntu:18.04 AS alphapose_runtime
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
     apt-get update && \
