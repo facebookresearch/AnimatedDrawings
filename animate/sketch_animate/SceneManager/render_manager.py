@@ -41,7 +41,7 @@ class RenderManager(BaseManager):
 
     def prep_video_writer(self):
 
-        out_file = Path(os.path.join(self.cfg['OUTPUT_PATH'], self.cfg['BVH_PATH'].split('/')[-1].split('.')[0] + '.mp4'))
+        out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
 
         os.makedirs(out_file.parent, exist_ok=True)
 
@@ -49,6 +49,8 @@ class RenderManager(BaseManager):
             Path.unlink(out_file)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        #fourcc = cv2.VideoWriter_fourcc(*'vp90')
+        #fourcc = cv2.VideoWriter_fourcc(*'x264')
         self.video_writer = cv2.VideoWriter(str(out_file), fourcc, self.render_fps, (self.width, self.height))
 
 

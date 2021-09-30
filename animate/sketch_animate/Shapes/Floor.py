@@ -1,4 +1,4 @@
-from Shapes.Shapes import Rectangle as Rectangle
+from Shapes.Shapes import Rectangle
 from util import rotate, translate
 
 

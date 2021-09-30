@@ -9,7 +9,8 @@ ENV PYTHONUNBUFFERED TRUE
 
 # --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+#RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+RUN \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \

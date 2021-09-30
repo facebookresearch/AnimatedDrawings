@@ -3,9 +3,8 @@ import itertools
 import OpenGL.GL as GL
 import numpy as np
 import ctypes
-import util
 import triangle
-from util import read_texture
+from util import read_texture, scale
 
 
 class ARAP_Rectangle:
@@ -525,7 +524,7 @@ class Rectangle:
         self.model[2, -1] = z
 
     def set_uniform_scale(self, s):
-        self.scale = util.scale(s, s, s)
+        self.scale = scale(s, s, s)
 
     def draw(self, **kwargs):
 
@@ -798,7 +797,7 @@ class Drawing:
         self.model[2, -1] = z
 
     def set_uniform_scale(self, s):
-        self.scale = util.scale(s, s, s)
+        self.scale = scale(s, s, s)
 
     def draw(self, **kwargs):
 
