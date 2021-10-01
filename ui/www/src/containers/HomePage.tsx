@@ -33,9 +33,8 @@ const HomePage = () => {
           <div className="home-img-wrapper">
             <img alt="Landing" src={landing_page_img} />
           </div>
-          <div className="home-footer text-center">
+          <div className="home-footer text-center py-2">
             <h4>Presented by Facebook AI Research</h4>
-            <i className="bi bi-arrow-down-short" />
           </div>
         </div>
       </div>

@@ -16,8 +16,8 @@ export interface BoundingBox {
 const calculateRatio = (
   canvasWidth: number,
   canvasHeight: number,
-  oW: number,
-  oH: number
+  oW: number,  //Original image width
+  oH: number,  //Original image height
 ) => {
   if (oH >= oW && canvasHeight >= canvasWidth) {
     return canvasHeight / oH < 1 ? canvasHeight / oH : 1;
@@ -87,7 +87,6 @@ const CanvasBoundingBox = () => {
         setImgRatio(ratio);
 
         await getBoundingBox(uuid!, (data) => {
-          console.log("coordinates: ", data);
           setBox({
             x:
               data.x1 * ratio +
@@ -109,8 +108,6 @@ const CanvasBoundingBox = () => {
 
     return () => {};
   }, [uuid, canvasWindow.current]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  //console.log(boundingBox)
 
   const handleClick = async (clickType: string) => {
     try {
@@ -145,7 +142,7 @@ const CanvasBoundingBox = () => {
         };
        
         await setBoundingBox(uuid!, coordinates, () => {
-          console.log("New Coordinates: ", coordinates);
+          console.log("Bounding box loaded.");
         });
         setCurrentStep(currentStep + 1);
       }

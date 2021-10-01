@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import classnames from "classnames";
 import { Row, Col } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -8,6 +8,7 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import MaskStage from "./MaskStage";
 import { Position } from "../PoseEditor";
+import { resizedataURL, calculateRatio } from "../../utils/Helpers";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -96,7 +97,7 @@ const mapJointsToPose = (joints: object) => {
 };
 
 const CanvasMask = () => {
-  const canvasWindow = useRef<HTMLInputElement>(null);
+  const canvasWindow = useRef<HTMLInputElement | any>(null);
   const layerRef = useRef<HTMLImageElement | any>(null);
   const {
     drawing,
@@ -112,26 +113,33 @@ const CanvasMask = () => {
     tool,
     penSize,
     lines,
-    blackLines,
     setMaskBase64,
     setTool,
     setPenSize,
     setLines,
-    setBlackLines,
   } = useMaskingStore();
   const { isLoading, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
+  const [imgScale, setImgScale] = useState(1);
 
   /**
    * Here there is one scenarios/side effect when the CanvasMask component mounts
    * this hook invokes API to fetch a mask given uuid as parameter.
-   * The component will only rerender when the uuid dependency changes.
+   * The component will only rerender when the uuid and croppedImg dimensions dependencies change.
    * exhaustive-deps eslint warning was diable as no more dependencies are really necesary as side effects.
    * Contrary to this, including other function dependencies will trigger infinite loop rendereing.
    */
   useEffect(() => {
     const fetchMask = async () => {
       try {
+        const ratio = calculateRatio(
+          canvasWindow.current?.offsetWidth -20,
+          canvasWindow.current?.offsetHeight -20,
+          croppedImgDimensions.width,
+          croppedImgDimensions.height
+        );  
+        setImgScale(ratio);
+
         await getMask(uuid!, (data) => {
           let reader = new window.FileReader();
           reader.readAsDataURL(data);
@@ -160,8 +168,13 @@ const CanvasMask = () => {
     if (uuid !== "") fetchMask();
 
     return () => {};
-  }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uuid, croppedImgDimensions ]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+  /**
+   * When cropped image is updated, recalculate the dimensions, 
+   * which are provided to the mask/segmentation canvas.
+   */
   useEffect(() => {
     const tempImage = new Image();
     if (imageUrlPose !== null && imageUrlPose !== undefined)
@@ -176,7 +189,7 @@ const CanvasMask = () => {
       }
     };
     return () => {};
-  }, [imageUrlPose]);
+  }, [imageUrlPose]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClick = async (clickType: string) => {
     try {
@@ -186,8 +199,14 @@ const CanvasMask = () => {
 
       if (clickType === "next" && uuid) {
         const uri = layerRef.current?.toDataURL();
-        setMaskBase64(uri); // base64
-        const response = await fetch(uri);
+        const newDataUri = await resizedataURL(
+          uri,
+          croppedImgDimensions.width,
+          croppedImgDimensions.height
+        );
+        setMaskBase64(newDataUri); // base64
+
+        const response = await fetch(newDataUri || uri);
         const blob = await response.blob();
         const file = new File([blob], "mask.png", {
           type: "image/png",
@@ -195,8 +214,8 @@ const CanvasMask = () => {
         });
         await setMask(uuid!, file, () => {
           console.log("New mask loaded.");
-          setCurrentStep(currentStep + 1);
         });
+        setCurrentStep(currentStep + 1);
       }
     } catch (err) {
       console.log(err);
@@ -204,21 +223,18 @@ const CanvasMask = () => {
   };
 
   const handleReset = () => {
-    if (!lines.length && !blackLines.length) {
+    if (!lines.length) {
       return;
     }
     setLines([]);
-    setBlackLines([]);
   };
 
   const handleUndo = () => {
-    if (!lines.length && !blackLines.length) {
+    if (!lines.length) {
       return;
     }
-    let objectLines = lines.slice(0, -1);
-    let backgroundLines = blackLines.slice(0, -1);
-    setLines(objectLines);
-    setBlackLines(backgroundLines);
+    let newLines = lines.slice(0, -1);
+    setLines(newLines);
   };
 
   return (
@@ -301,6 +317,7 @@ const CanvasMask = () => {
           <Loader drawingURL={drawing} />
         ) : (
           <MaskStage
+            scale={imgScale}
             canvasWidth={croppedImgDimensions.width}
             canvasHeight={croppedImgDimensions.height}
             ref={layerRef}

@@ -124,6 +124,32 @@
   color: $dark;
 }
 
+.disagree-opt {
+  display: inline-block;
+  width: 48%;
+  border-radius: 10px;
+  background-color: $default;
+  color: $dark;
+}
+
+.disagree-opt:hover {
+  background-color: $danger;
+  color: $white;
+}
+
+.agree-opt {
+  display: inline-block;
+  width: 48%;
+  border-radius: 10px;
+  background-color: $default;
+  color: $dark;
+}
+
+.agree-opt:hover{
+  background-color: $success;
+  color: $white;
+}
+
 .md-button:hover {
   background-color: $primary;
   color: black;
@@ -204,6 +230,12 @@
   .md-button-2 {
     width: 40%;
   }
+  .agree-opt {
+    width: 40%;
+  }
+  .disagree-opt {
+    width: 40%;
+  }
   .md-button-success {
     width: 40%;
   } 
@@ -247,4 +279,38 @@
 .mask-wrapper img { 
   flex-grow: 1;
   object-fit: cover;
+} 
+
+/*** Canvas Pose ***/
+
+.pose-wrapper {
+  position: relative;
+  svg line {
+    pointer-events: none;
+  }
+  svg circle {
+    cursor: move;
+  }
+}
+
+.tooltip-pose {
+  position: absolute;
+  background-color: $dark;
+  color: $white;
+  border: none;
+  padding: 3px 8px;
+  top: 0;
+  left: 0;
+  font-size: 0.8em;
+  border-radius: 8%;
+  animation: pop 0.2s ease-out 1;
+}
+@keyframes pop {
+  0% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+  }
 }

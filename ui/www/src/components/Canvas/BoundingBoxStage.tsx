@@ -16,6 +16,8 @@ interface imgProps {
 interface BBProps {
   shapeProps: BoundingBox;
   isSelected: boolean;
+  canvasWidth: number;
+  canvasHeight: number;
   onSelect?: () => void;
   onChange: (atrr: object) => void;
 }
@@ -38,6 +40,8 @@ const DrawingImage = ({ urlImg, height, width, canvasWidth, canvasHeight }: imgP
 const Annotation = ({
   shapeProps,
   isSelected,
+  canvasWidth,
+  canvasHeight,
   onSelect,
   onChange,
 }: BBProps) => {
@@ -58,6 +62,25 @@ const Annotation = ({
 
   const onMouseLeave = (event: MouseEvent | any) => {
     event.target.getStage().container().style.cursor = "crosshair";
+  };
+
+  const limitBoundingBox = (pos: { x: number; y: number }) => {
+    const node = shapeRef.current;
+    const newRect = node.getClientRect();
+    let newPos = { ...pos };
+    if (pos.x < 0) {
+      newPos.x = 0;
+    }
+    if (pos.y < 0) {
+      newPos.y = 0;
+    }
+    if (pos.x + newRect.width > canvasWidth) {
+      newPos.x = canvasWidth - newRect.width;
+    }
+    if (pos.y + newRect.height > canvasHeight) {
+      newPos.y = canvasHeight - newRect.height;
+    }
+    return newPos;
   };
 
   return (
@@ -99,10 +122,12 @@ const Annotation = ({
             height: Math.max(node.height() * scaleY),
           });
         }}
+        dragBoundFunc={(pos) => limitBoundingBox(pos)}
       />
 
       <Transformer
         ref={transformRef}
+        rotateEnabled={false}
         boundBoxFunc={(oldBox, newBox) => {
           // limit resize
           if (newBox.width < 5 || newBox.height < 5) {
@@ -140,17 +165,16 @@ const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }
         <Layer>
           <DrawingImage
             urlImg={drawing}
-            //height={528}  
-            //width={396}
             width={imageWidth} //Original dimensions to fit in the square
             height={imageHeight}
-
             canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
           />
           <Annotation
             shapeProps={boundingBox}
             isSelected={true}
+            canvasWidth={canvasWidth}
+            canvasHeight={canvasHeight}
             onChange={(newAttrs: any) => {
               setBox(newAttrs);
             }}

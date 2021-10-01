@@ -25,7 +25,8 @@ const CanvasUpload = () => {
     inputFile.current.click();
   };
 
-  const compress = async (e: any) => {
+  const compress = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
     const file = e.target.files[0];
     const options = {
       maxSizeMB: 1,
@@ -104,7 +105,7 @@ const CanvasUpload = () => {
       {drawing === "" ? (
         <div className="mt-3">
           <button className="buttons large-button" onClick={upload}>
-            <i className="bi bi-camera-fill mr-2" /> Camera
+            <i className="bi bi-upload mr-2" /> Upload
           </button>
         </div>
       ) : (

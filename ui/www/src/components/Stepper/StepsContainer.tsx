@@ -5,7 +5,6 @@ import Step3 from "./Step3";
 import Step4 from "./Step4";
 import Step5 from "./Step5";
 import Step6 from "./Step6";
-import Step7 from "./Step7";
 
 const StepsContainer = () => {
   const { currentStep } = useStepperStore();
@@ -22,8 +21,6 @@ const StepsContainer = () => {
         return <Step5 />;
       case 6:
         return <Step6 />;
-      case 7:
-        return <Step7 />;
       default:
         return [];
     }
@@ -32,7 +29,7 @@ const StepsContainer = () => {
   return (
     <>
       <div className="stepper-container-horizontal">
-        <h4 className="bold">STEP {currentStep}/7</h4>
+        <h4 className="bold">STEP {currentStep}/6</h4>
       </div>
       {renderStep()}
     </>

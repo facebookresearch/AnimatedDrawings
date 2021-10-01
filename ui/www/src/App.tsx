@@ -10,9 +10,6 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/">
-          <HomePage />
-        </Route>
         <Route path="/canvas">
           <MainPage />
         </Route>
@@ -21,6 +18,9 @@ function App() {
         </Route>
         <Route path="/share/:uuid/:type">
           <SharingPage />
+        </Route>
+        <Route exact path="/">
+          <HomePage />
         </Route>
       </Switch>
     </Router>
