@@ -44,7 +44,6 @@ https://repo.anaconda.com/pkgs/main/linux-64/freetype-2.10.4-h5ab3b9f_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/gstreamer-1.14.0-hb31296c_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/libtiff-4.1.0-h2733197_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/sqlite-3.31.1-h62c20be_1.conda
-https://repo.anaconda.com/pkgs/main/linux-64/ffmpeg-4.0-hcdf2ecd_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/fontconfig-2.13.1-h6c09931_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/gst-plugins-base-1.14.0-hbbd80ab_1.conda
 https://repo.anaconda.com/pkgs/main/linux-64/python-3.7.7-hcff3b4d_5.conda
