@@ -86,14 +86,6 @@ def upload_image():
 
         crop_from_bb.crop_from_bb(work_dir)
 
-        segment_mask.segment_mask(work_dir)
-
-        detect_pose.detect_pose(work_dir)
-        #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-
-        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-        #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
-
         return make_response(unique_id, 200)
     return '''
     <!doctype html>
