@@ -11,6 +11,8 @@ import numpy as np
 from SceneManager.base_manager import BaseManager
 import logging
 from pathlib import Path
+import subprocess
+import time
 
 
 class RenderManager(BaseManager):
@@ -22,9 +24,15 @@ class RenderManager(BaseManager):
         self.height = height
 
         self.mode = 'RENDER'
-        self.render_fps = self.cfg['RENDER_FPS']
+        self.video_fps = 18
+
+        self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
+
+        # command line ffmpeg can't read and write to the same image, so create intermediate file and fix after
+        self.intermediary_out_file = Path(str(self.out_file) + str(time.time()) + '.mp4')
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
+        self.frames_written = 0
         self.video_writer = None
         self.prep_video_writer()
 
@@ -41,25 +49,23 @@ class RenderManager(BaseManager):
 
     def prep_video_writer(self):
 
-        out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
+        os.makedirs(self.out_file.parent, exist_ok=True)
 
-        os.makedirs(out_file.parent, exist_ok=True)
+        if self.intermediary_out_file.exists():
+            Path.unlink(self.intermediary_out_file)
 
-        if out_file.exists():
-            Path.unlink(out_file)
-
+        # cv2.videowriter can't use h264 to create mpegs,
+        # so we're rendering with mp4v and later coverting to h264
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        #fourcc = cv2.VideoWriter_fourcc(*'vp90')
-        #fourcc = cv2.VideoWriter_fourcc(*'x264')
-        self.video_writer = cv2.VideoWriter(str(out_file), fourcc, self.render_fps, (self.width, self.height))
+        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.video_fps, (self.width, self.height))
 
 
     def run(self):
         self.time_manager.initialize_time()
 
         while not self._scene_is_finished():
-
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
             self._update_transferrer_cameras()
 
             self._adjust_sketch()
@@ -72,9 +78,45 @@ class RenderManager(BaseManager):
 
         self.video_writer.release()
 
+        self.convert_to_h264()
+
+    def convert_to_h264(self):
+
+        # delete old video file if exists
+        if self.out_file.exists():
+            Path.unlink(self.out_file)
+
+        # mirror if cfg says so
+        if self.cfg['MIRROR_CONCAT']:
+            mirror_fn = Path(str(self.intermediary_out_file)+'_r.mp4')
+
+            #mirror
+            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -vf hflip {str(mirror_fn)}'
+            subprocess.run(cmd.split(' '))
+
+            #concat and convert to h264
+            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -i {str(mirror_fn)} -filter_complex [0:v:0][1:v:0]concat=n=2:v=1[outv] -map [outv] {str(self.out_file)}'
+            subprocess.run(cmd.split(' '))
+
+            # clean up
+            Path.unlink(self.intermediary_out_file)
+            Path.unlink(mirror_fn)
+
+        else:
+            # convert to h264
+            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -c:v h264 {str(self.out_file)}'
+            subprocess.run(cmd.split(' '))
+
+            # clean up
+            Path.unlink(self.intermediary_out_file)
+
+
     def _write_to_buffer(self):
-        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
-        self.video_writer.write(self.frame_data[::-1,:,:])
+        # TODO: Joints pop between first and second frame. This is transferrer bug, but for now throw away first frame
+        if not self.frames_written == 0:
+            GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
+            self.video_writer.write(self.frame_data[::-1,:,:])
+        self.frames_written += 1
 
 
     def _render_view(self):
@@ -127,8 +169,6 @@ class RenderManager(BaseManager):
 
         glfw.make_context_current(self.win)
 
-        #glfw.set_key_callback(self.win, self._on_key)
-
         print('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
@@ -141,7 +181,6 @@ class RenderManager(BaseManager):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-        #glfw.set_cursor_pos_callback(self.win, self._on_mouse_move)
         glfw.set_input_mode(self.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
 

@@ -3,17 +3,6 @@ import sys
 import os
 import logging
 from pathlib import Path
-print('heelo')
-
-def build_cfg(motion_cfg_path):
-    with open('../sketch_animate/config/base.yaml', 'r') as f:
-        base_cfg = yaml.load(f, Loader=yaml.FullLoader)
-
-    with open(motion_cfg_path, 'r') as f:
-        motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
-
-    return {**base_cfg, **motion_cfg}  # combine and overwrite base with user specified config when necessary
-
 
 if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
         os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
@@ -47,6 +36,16 @@ from util import bodypart_groups
 import SceneManager.render_manager as render_manager
 
 
+def build_cfg(motion_cfg_path):
+    with open('../sketch_animate/config/base.yaml', 'r') as f:
+        base_cfg = yaml.load(f, Loader=yaml.FullLoader)
+
+    with open(motion_cfg_path, 'r') as f:
+        motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
+
+    return {**base_cfg, **motion_cfg}  # combine and overwrite base with user specified config when necessary
+
+
 def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
     cfg = build_cfg(motion_cfg_path)
 
@@ -67,7 +66,6 @@ def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
     with open(character_cfg_path, 'r') as f:
         sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
         sketch_cfg['image_loc'] = f"{str(character_cfg_path.parent)}/{sketch_cfg['image_name']}"
-
 
     ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
     if os.path.exists(ARAP_pickle_loc):
@@ -116,4 +114,4 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
     cfg = build_cfg()
-    main(cfg)
+    video_from_cfg(cfg)
