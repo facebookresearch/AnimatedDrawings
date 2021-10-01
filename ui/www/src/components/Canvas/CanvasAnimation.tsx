@@ -101,7 +101,7 @@ const CanvasAnimation = () => {
   };
 
   const getShareLink = () => {
-    let shareLink = `${window.location.href}share/${uuid}/${animationType}`;
+    let shareLink = `${window.location.origin}/share/${uuid}/${animationType}`;
     return shareLink;
   };
 
