@@ -478,3 +478,7 @@ def js_resource(path: str):
 @app.route("/static/media/<path>")
 def media_resource(path: str):
     return send_file(resource_dir / "static/media/" / path)
+
+@app.errorhandler(404)
+def not_found(e):
+    return send_file(resource_dir / "index.html")
