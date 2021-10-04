@@ -196,16 +196,10 @@ def set_mask():
         return redirect(request.url)
 
     file = request.files['file']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(work_dir, 'mask.png'))
+        segment_mask.process_user_uploaded_segmentation_mask(work_dir, file)
 
         prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-
-        #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
     return send_from_directory(work_dir, 'mask.png')
 ##############################################
