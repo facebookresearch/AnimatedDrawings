@@ -7,26 +7,51 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    command: ./run.sh
+    # command: ./run.sh
     ports:
       - 5000:5000
     volumes:
-      - ./videos:/app/out/public/videos
+      #- ./videos:/app/out/public/videos
+      - type: bind
+        source: ./tmp/video
+        target: /home/model-server/rig/server/flask/videos
+      - type: bind
+        source: ./tmp/uploads
+        target: /home/model-server/rig/server/flask/uploads
     environment:
       REACT_APP_API_HOST: http://localhost:5000
     networks:
       ap-net: {}
 
   alphapose_server:
-    image: runtime
+    image: alphapose_runtime
     build:
       context: .
       dockerfile: Dockerfile.alphapose
-    command: ./torchserve_ap/torchserve_start2.sh
+    # command: ./torchserve_ap/torchserve_start2.sh
     networks:
       ap-net:
         aliases:
-          - alphapose_server
+          - alphapose_server # name of network to other services in docker
+
+  animation_server:
+    image: animation_runtime
+    build:
+      context: .
+      dockerfile: Dockerfile.animation
+    # command: /home/animation-server/animate/flask/run.sh
+    volumes:
+      - type: bind
+        source: ./tmp/video
+        target: /home/animation-server/animate/flask/videos # TODO fix path
+      - type: bind
+        source: ./tmp/uploads
+        target: /home/animation-server/animate/flask/uploads # TODO fix path
+    networks:
+      ap-net:
+        aliases:
+          - animation_server
+
 # Network created by default between services
 networks:
   ap-net:

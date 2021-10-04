@@ -43,36 +43,36 @@ class BaseManager:
 
     def prep_shaders(self):
 
-        BVH_VERT = "Shaders/bvh.vert"
-        BVH_FRAG = "Shaders/bvh.frag"
+        BVH_VERT = "../sketch_animate/Shaders/bvh.vert"
+        BVH_FRAG = "../sketch_animate/Shaders/bvh.frag"
         self._initiatize_shader('bvh_shader', BVH_VERT, BVH_FRAG)
 
-        COLOR_VERT = "Shaders/color.vert"
-        COLOR_FRAG = "Shaders/color.frag"
+        COLOR_VERT = "../sketch_animate/Shaders/color.vert"
+        COLOR_FRAG = "../sketch_animate/Shaders/color.frag"
         self._initiatize_shader('color_shader', COLOR_VERT, COLOR_FRAG)
 
-        TEXTURE_VERT = "Shaders/texture.vert"
-        TEXTURE_FRAG = "Shaders/texture.frag"
+        TEXTURE_VERT = "../sketch_animate/Shaders/texture.vert"
+        TEXTURE_FRAG = "../sketch_animate/Shaders/texture.frag"
         self._initiatize_shader('texture_shader', TEXTURE_VERT, TEXTURE_FRAG, texture=True)
 
-        GLYPH_VERT = "Shaders/glyph.vert"
-        GLYPH_FRAG = "Shaders/glyph.frag"
+        GLYPH_VERT = "../sketch_animate/Shaders/glyph.vert"
+        GLYPH_FRAG = "../sketch_animate/Shaders/glyph.frag"
         self._initiatize_shader('glyph_shader', GLYPH_VERT, GLYPH_FRAG)
 
-        BORDER_VERT = "Shaders/border.vert"
-        BORDER_FRAG = "Shaders/border.frag"
+        BORDER_VERT = "../sketch_animate/Shaders/border.vert"
+        BORDER_FRAG = "../sketch_animate/Shaders/border.frag"
         self._initiatize_shader('border_shader', BORDER_VERT, BORDER_FRAG)
 
-        POINTCLOUD_VERT = "Shaders/pointcloud.vert"
-        POINTCLOUD_FRAG = "Shaders/pointcloud.frag"
+        POINTCLOUD_VERT = "../sketch_animate/Shaders/pointcloud.vert"
+        POINTCLOUD_FRAG = "../sketch_animate/Shaders/pointcloud.frag"
         self._initiatize_shader('pointcloud_shader', POINTCLOUD_VERT, POINTCLOUD_FRAG)
 
-        VECTOR_VERT = "Shaders/vector.vert"
-        VECTOR_FRAG = "Shaders/vector.frag"
+        VECTOR_VERT = "../sketch_animate/Shaders/vector.vert"
+        VECTOR_FRAG = "../sketch_animate/Shaders/vector.frag"
         self._initiatize_shader('vector_shader', VECTOR_VERT, VECTOR_FRAG)
 
-        BONE_ASSIGN_VERT = "Shaders/bone_assignment.vert"
-        BONE_ASSIGN_FRAG = "Shaders/bone_assignment.frag"
+        BONE_ASSIGN_VERT = "../sketch_animate/Shaders/bone_assignment.vert"
+        BONE_ASSIGN_FRAG = "../sketch_animate/Shaders/bone_assignment.frag"
         self._initiatize_shader('bone_assignment', BONE_ASSIGN_VERT, BONE_ASSIGN_FRAG)
 
 

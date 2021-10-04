@@ -4,57 +4,54 @@ import os
 import logging
 from pathlib import Path
 
+if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
+        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
+    logging.info('SKETCH_ANIMATE_RENDER_BACKEND == OPENGL. Using OpenGL')
+    try:
+        from OpenGL import GL
+    except:
+        logging.critical('Error initializing OpenGL. Aborting')
+    logging.info('OpenGL successfully initialized')
 
-def build_cfg():
-    with open('./config/base.yaml', 'r') as f:
+else:
+    logging.info('SKETCH_ANIMATE_RENDER_BACKEND != OPENGL, Using OSMesa')
+    try:
+        os.environ['PYOPENGL_PLATFORM'] = "osmesa"
+        os.environ['MUJOCO_GL'] = "osmesa"
+        os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
+        from OpenGL import GL, osmesa
+    except:
+        logging.critical('Error initializing osmesa. Aborting')
+    logging.info('osmesa successfully initialized')
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
+
+from Shapes.Sketch import Sketch, ARAP_Sketch
+from Shapes.Floor import Floor
+from Shapes.BVH import BVH
+from camera import Camera
+from util import bodypart_groups
+import SceneManager.render_manager as render_manager
+
+
+def build_cfg(motion_cfg_path):
+    with open('../sketch_animate/config/base.yaml', 'r') as f:
         base_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
-    with open(sys.argv[1], 'r') as f:
+    with open(motion_cfg_path, 'r') as f:
         motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
     return {**base_cfg, **motion_cfg}  # combine and overwrite base with user specified config when necessary
 
 
-def main(cfg):
-    if cfg['RENDER_MODE'] == 'RENDER':
-        logging.info('RENDER_MODE is RENDER')
+def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
+    cfg = build_cfg(motion_cfg_path)
 
-        if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
-        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
-            logging.info('SKETCH_ANIMATE_RENDER_BACKEND == OPENGL. Using OpenGL')
-            try:
-                from OpenGL import GL
-            except:
-                logging.critical('Error initializing OpenGL. Aborting')
-            logging.info('OpenGL successfully initialized')
+    cfg['OUTPUT_PATH'] = video_output_path
 
-        else:
-            logging.info('SKETCH_ANIMATE_RENDER_BACKEND != OPENGL, Using OSMesa')
-            try:
-                os.environ['PYOPENGL_PLATFORM'] = "osmesa"
-                os.environ['MUJOCO_GL'] = "osmesa"
-                os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
-                from OpenGL import GL, osmesa
-            except:
-                logging.critical('Error initializing osmesa. Aborting')
-            logging.info('osmesa successfully initialized')
-
-        cfg['OUTPUT_PATH'] = sys.argv[3]
-
-        import SceneManager.render_manager as render_manager
-        scene_manager = render_manager.RenderManager(cfg=cfg)
-    elif cfg['RENDER_MODE'] == 'INTERACT':
-        import SceneManager.interactive_manager as interactive_manager
-        scene_manager = interactive_manager.InteractiveManager(cfg=cfg)
-    else:
-        assert False
-
-    from Shapes.Sketch import Sketch, ARAP_Sketch
-    from Shapes.Floor import Floor
-    from Shapes.BVH import BVH
-    from Shapes.Shapes import Drawing
-    from camera import Camera
-    from util import bodypart_groups
+    scene_manager = render_manager.RenderManager(cfg=cfg)
 
     # first add any background scene elements (depth test is disabled)
     if cfg['DRAW_FLOOR']:
@@ -65,12 +62,11 @@ def main(cfg):
     scene_manager.add_bvh(bvh)
 
     # create character and add to scene
-    character_cfg_path = Path(sys.argv[2])
+    character_cfg_path = Path(character_cfg_path)
     with open(character_cfg_path, 'r') as f:
         sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
         sketch_cfg['image_loc'] = f"{str(character_cfg_path.parent)}/{sketch_cfg['image_name']}"
 
-      
     ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
     if os.path.exists(ARAP_pickle_loc):
         print(f'pickled arap_sketch exists. Using it: {ARAP_pickle_loc}')
@@ -118,4 +114,4 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
     cfg = build_cfg()
-    main(cfg)
+    video_from_cfg(cfg)

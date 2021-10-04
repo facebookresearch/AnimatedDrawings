@@ -3,7 +3,8 @@ LOOP_REPEAT_UPPER_LIMIT: 1  # rendered animation will loop bvh clip maximum of t
 RENDERED_FRAME_UPPER_LIMIT: 2500 # rendered animation will be a maximum of this many frames
 X_POSITION_UPPER_LIMIT: 5 # rendered animation will terminate when character moves to this absolute position along x axis
 ROOT_POSITION_UPDATE_TYPE: velocity  # position or velocity. If translation is important, use velocity.
-RENDER_FPS: 12
+RENDER_FPS: 15
+MIRROR_CONCAT: False  # After render, should we mirror the output and concatenate it to form final video?
 
 DRAW_FLOOR: False
 DRAW_BVH: False

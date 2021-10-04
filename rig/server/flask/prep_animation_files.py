@@ -52,8 +52,9 @@ def prep_animation_files(input_parent_dir, video_share_root):
 
     sketch = deepcopy(exemplar_sketch)
 
-    sketch['img_name'] = img_loc.name
-    sketch['image_loc'] = str(square_img_loc.resolve())
+    sketch['image_name'] = img_loc.name
+    #sketch['image_loc'] = str(square_img_loc.resolve())
+    sketch['image_loc'] = None
     sketch['sketch_dim'] = square_img.size[0]
 
     with open(keypoint_json_loc, 'r') as f:
