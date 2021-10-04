@@ -29,7 +29,7 @@ def get_bounding_box_from_torchserve_response(response_json, input_img, padding=
 def detect_humanoids(work_dir):
     input_img_path = os.path.join(work_dir, 'image.png')
 
-    cmd = f"curl -X POST http://localhost:5911/predictions/D2_humanoid_detector -T {input_img_path}"
+    cmd = f"curl -X POST http://detectron2_server:5911/predictions/D2_humanoid_detector -T {input_img_path}"
 
     response_json = json.loads(subprocess.check_output(cmd.split(' ')))
 
@@ -40,4 +40,5 @@ def detect_humanoids(work_dir):
         json.dump(bb, f)
 
     cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
+
     cv2.imwrite(os.path.join(work_dir, 'cropped_image.png'), cropped_img)
