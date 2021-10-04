@@ -40,7 +40,7 @@ def flood_fill(im_in):
 
 
 def retain_largest_contour(mask2):
-    mask, biggest = None
+    mask = None
     biggest = 0
 
     contours = measure.find_contours(mask2, 0.0)
