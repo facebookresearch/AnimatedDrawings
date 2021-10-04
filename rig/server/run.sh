@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 set -e
 set -x
@@ -20,7 +20,7 @@ python scripts/detect-humanoids.py ${INPUT_DIR} ${D2_PREDICTIONS_DIR} configs/hu
 
 python scripts/bbcrop_from_d2_pred.py ${INPUT_DIR} ${D2_PREDICTIONS_DIR} ${D2_PREDICTION_CROPPED_DIR} ${D2_PREDICTION_CROPPED_GRAYBLUR_DIR}
 
-conda deactivate && conda activate ${AP_VIRTUAL_ENV_NAME}
+# conda deactivate && conda activate ${AP_VIRTUAL_ENV_NAME}
 
 CURDIR=`pwd`
 cd ${ALPHAPOSE_PATH}
@@ -39,7 +39,7 @@ CONFIDENCE_FN=${ALPHAPOSE_PREDICTIONS_DIR}/conf.csv
 IMG_DIR=${D2_PREDICTION_CROPPED_DIR}	
 python scripts/visualize_alphapose_predictions.py ${AP_RESULTS_FN} ${AP_OUT_DIR} ${CONFIDENCE_FN} ${IMG_DIR}
 
-conda deactivate && conda activate ${D2_VIRTUAL_ENV_NAME}
+# conda deactivate && conda activate ${D2_VIRTUAL_ENV_NAME}
 
 MASK_OUTPUT=${OUTPUT_DIR}/mask
 python scripts/skeleton_2_segmentation.py ${AP_RESULTS_FN} ${IMG_DIR} ${MASK_OUTPUT}
