@@ -459,6 +459,17 @@ resource_dir: Path = (Path(__file__).parent / "static").absolute()
 def index_resource():
     return send_file(resource_dir / "index.html")
 
+@app.errorhandler(404)
+def not_found(e):
+    return send_file(resource_dir / "index.html")
+
+@app.route("/canvas")
+def canvas_route():
+    return send_file(resource_dir / "index.html")
+
+@app.route("/share/<name>/<type>")
+def share_route(name, type):
+    return send_file(resource_dir / "index.html")
 
 @app.route("/<path>")
 def root_resource(path: str):
@@ -477,7 +488,3 @@ def js_resource(path: str):
 @app.route("/static/media/<path>")
 def media_resource(path: str):
     return send_file(resource_dir / "static/media/" / path)
-
-@app.errorhandler(404)
-def not_found(e):
-    return send_file(resource_dir / "index.html")
