@@ -2,7 +2,6 @@ import yaml
 import sys
 import os
 import logging
-from pathlib import Path
 
 if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
         os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
@@ -28,6 +27,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
+import time
 from Shapes.Sketch import Sketch, ARAP_Sketch
 from Shapes.Floor import Floor
 from Shapes.BVH import BVH
@@ -43,10 +43,16 @@ def build_cfg(motion_cfg_path):
     with open(motion_cfg_path, 'r') as f:
         motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
+    logging.info(f'loaded motion_cfg: {motion_cfg_path}')
+
     return {**base_cfg, **motion_cfg}  # combine and overwrite base with user specified config when necessary
 
 
 def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
+
+
+    logging.basicConfig(filename=f'{str(Path(character_cfg_path).parent)}/log_{time.time()}.txt', level=logging.DEBUG)
+
     cfg = build_cfg(motion_cfg_path)
 
     cfg['OUTPUT_PATH'] = video_output_path
@@ -69,10 +75,10 @@ def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
 
     ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
     if os.path.exists(ARAP_pickle_loc):
-        print(f'pickled arap_sketch exists. Using it: {ARAP_pickle_loc}')
+        logging.info(f'pickled arap_sketch exists. Using it: {ARAP_pickle_loc}')
         arap_sketch = ARAP_Sketch.load_from_pickle(ARAP_pickle_loc)
     else:
-        print(f'pickled arap_sketch DNE. Creating it: {ARAP_pickle_loc}')
+        logging.info(f'pickled arap_sketch DNE. Creating it: {ARAP_pickle_loc}')
         arap_sketch = ARAP_Sketch(sketch_cfg, cfg)
 
     scene_manager.add_sketch(arap_sketch)

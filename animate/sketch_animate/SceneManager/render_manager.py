@@ -63,6 +63,7 @@ class RenderManager(BaseManager):
     def run(self):
         self.time_manager.initialize_time()
 
+        logging.info('starting render run')
         while not self._scene_is_finished():
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
@@ -75,6 +76,8 @@ class RenderManager(BaseManager):
             self._update()
 
             self._write_to_buffer()
+
+        logging.info('render run completed')
 
         self.video_writer.release()
 
