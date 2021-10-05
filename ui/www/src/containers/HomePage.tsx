@@ -9,7 +9,7 @@ const HomePage = () => {
     <>
       <div className="main-content">
         <div className="home-page">
-          <Container className="align-content-center">
+          <Container className="align-content-center home-info">
             <Row className="align-items-center justify-content-center">
               <Col lg={4} md={6} sm={6} className="mx-2">
                 <div className="mb-4">

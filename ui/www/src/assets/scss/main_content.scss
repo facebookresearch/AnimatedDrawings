@@ -39,6 +39,10 @@
   }
 }
 
+.home-info {
+  z-index: 1;
+}
+
 .home-footer {
   position: absolute;
   bottom: 0%;
@@ -54,6 +58,7 @@
   height: 780px;
   bottom: 0;
   right: 0;
+  z-index: 0;
   img {
     margin: 0;
     max-width: 100%;
@@ -68,6 +73,16 @@
 @media screen and (max-width: 576px) {
   .home-img-wrapper {
     height: 280px;
+  }
+  .reg-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 1024px)  {
+  .home-img-wrapper {
+    height: 420px;
   }
   .reg-title {
     font-size: 20px;
