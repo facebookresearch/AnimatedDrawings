@@ -15,6 +15,7 @@ from util import point_in_triangle
 from util import get_arap_handles_visibility, get_sketch_mesh_visibility, get_arap_sketch_visibility
 from util import bone_colors, colors, squared_distance_between_point_and_line, segment_names, x_ax
 from typing import Dict
+from collections import deque
 
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
@@ -1003,7 +1004,6 @@ class ARAP_Sketch(BaseSketch):
 
 
     def _assign_triangles_to_bones(self):
-        from collections import deque
         mask_np = cv2.imread(self.sketch['image_loc'][:-4] + '_mask.png')
         mask_np = mask_np[:,:,0].astype(np.bool)
 
@@ -1079,6 +1079,57 @@ class ARAP_Sketch(BaseSketch):
             self.tri2bone[idx] = closest_bone_idx
 
 
+    def slightly_move_image_coords_into_mask(self, image_coords, distance_to_move, joint_name):
+        assert type(self.dim) == int, f'self.dim is not an int'
+
+        x = int(round(image_coords[0]*self.dim))
+        y = int(round(image_coords[1]*self.dim))
+        mask = np.array(self.mask).T[0,:,:]
+
+        # if predicted joint is outside of mask dimensions return
+        if not 0 <= x < self.dim and 0 <= y < self.dim:
+            return image_coords
+
+        # if joint is inside mask, don't adjust it
+        if mask[x, y] == 255:
+            return image_coords
+
+        # otherwise, BFS search to find a point in mask that is within 10 pixels of joint location
+        queue = deque()
+        queue.append( (x, y, 0) )
+        explored = [(x, y)]
+
+        while queue:
+            x, y, distance = queue.popleft()  # get first item
+            for _x, _y in [                (x + 0, y - 1),                  # for each possible neighbor
+                           (x - 1, y + 0),                 (x + 1, y + 0),
+                                           (x + 0, y + 1),               ]:
+
+                # if outside the image
+                if not (0 <= _x < self.dim and 0 <= _y < self.dim):
+                    continue
+
+                # if we've already seen this
+                if (_x, _y) in explored:
+                    continue
+
+                # if we've already searched the alloted distance
+                if distance >= distance_to_move:
+                    continue
+
+                # if inside the mask, return the new locations
+                if mask[x, y] == 255:
+                    print(f'moved joint {joint_name} {distance} pixels')
+                    new_image_coords = _x / self.dim, _y / self.dim
+                    return new_image_coords
+
+                # otherwise, add to queue
+                queue.append((_x, _y, distance+1))
+                explored.append((_x, _y))
+
+        # if search failed, return original image coordinates
+        print(f'Could not find point on mask within {distance} pixels for {joint_name}')
+        return image_coords
 
 
     def _get_joint_constraints(self):
@@ -1105,8 +1156,10 @@ class ARAP_Sketch(BaseSketch):
             if self.joints[name].parent is None or self.joints[name].parent.name == 'root':  # root motion is handled
                 continue
 
-            parent_name = self.joints[name].parent.name
             image_coords = [self.joints[name].loc[0], 1 - self.joints[name].loc[1]]
+
+            # If the keypoint lies close to but not directly over the mask, adjust so that it does.
+            image_coords = self.slightly_move_image_coords_into_mask(image_coords, 20, name)
 
             intermediate_image_coords = image_coords[0], image_coords[1]
             for t in self.triangle_mesh['triangles']:
