@@ -115,7 +115,7 @@
 .navbar-title {
   position: absolute;
   top: 5%;
-  left: 10%;
+  left: 8%;
   h3 {
     font-family: 'Caveat Brush';
     font-style: normal;
@@ -140,6 +140,16 @@
   }
 }
 
+.col-left {
+  overflow: auto;  
+}
+
+.col-right {
+  padding: 1rem;
+  overflow: auto;
+}
+
+/*** Mobile ***/
 @media screen and (max-width: 576px) {
   .bg-main {
     position: relative;
@@ -169,6 +179,29 @@
     h3 {
       color: $default;
     }
+  }
+}
+
+/* Tablets */
+@media (min-width: 576px) and (max-width: 998px)  {
+  .navbar-title {
+    position: relative;
+    padding-top: 15px;
+    left: 0%;
+    text-align: center;
+    h3 {
+      color: $default;
+    }
+  }
+}
+
+/*** Tablets and above ***/
+@media (min-width: 576px)  {
+  .col-left{
+    min-width: 380px;
+  }
+  .col-right {
+    min-width: 500px;
   }
 }
 
