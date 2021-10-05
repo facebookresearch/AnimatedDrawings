@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import "./assets/scss/root.scss";
 import ResultsPage from "./containers/ResultsPage";
 import MainPage from "./containers/MainPage";
@@ -10,6 +10,9 @@ function App() {
   return (
     <Router>
       <Switch>
+        <Route exact path="/">
+          <HomePage />
+        </Route>
         <Route path="/canvas">
           <MainPage />
         </Route>
@@ -19,9 +22,7 @@ function App() {
         <Route path="/share/:uuid/:type">
           <SharingPage />
         </Route>
-        <Route exact path="/">
-          <HomePage />
-        </Route>
+        <Redirect from="*" to="/" />
       </Switch>
     </Router>
   );
