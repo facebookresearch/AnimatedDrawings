@@ -30,8 +30,8 @@ services:
         aliases:
           - detectron2_server # name of network to other services in docker
     volumes:
-      - type: bind
-        source: ./torchserve_d2/model_store
+      - type: volume
+        source: dev-demo-sketch-in-model-store
         target: /home/model-server/model_store
 
   alphapose_server:
@@ -40,8 +40,8 @@ services:
       dockerfile: Dockerfile.alphapose
       target: alphapose_runtime
     volumes:
-      - type: bind
-        source: ./torchserve_ap/model_store
+      - type: volume
+        source: dev-demo-sketch-in-model-store
         target: /home/ap-server/model_store
     networks:
       ap-net:
@@ -73,4 +73,6 @@ volumes:
   dev-demo-sketch-out-animations:
     external: true
   dev-demo-sketch-out-consents:
+    external: true
+  dev-demo-sketch-in-model-store:
     external: true
