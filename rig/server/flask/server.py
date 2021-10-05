@@ -86,14 +86,6 @@ def upload_image():
 
         crop_from_bb.crop_from_bb(work_dir)
 
-        segment_mask.segment_mask(work_dir)
-
-        detect_pose.detect_pose(work_dir)
-        #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-
-        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-        #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
-
         return make_response(unique_id, 200)
     return '''
     <!doctype html>
@@ -305,6 +297,22 @@ def get_animation():
     if not os.path.exists(work_dir):  # invalid uuid
         return redirect(request.url)
 
+    ### record annotations if consent is given ###
+    with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
+        consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
+
+    # TODO: Fix so that, whenever user confirms joint locations, we then copy their annotations to a permanent location
+    # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
+    if consent_response:
+        src = work_dir
+        dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
+
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+
+        shutil.copytree(src, dst)
+
+
     animation_type = request.form['animation']
 
     assert animation_type in [
@@ -354,27 +362,18 @@ def get_animation():
         'zombie_walk']
 
 
-    animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
+    #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
-    if not os.path.exists(animation_path):
-        subprocess.run(['./run_animate.sh', os.path.abspath(work_dir), animation_type, str(int(mirror_concat)), os.path.abspath(os.path.join(VIDEO_SHARE_ROOT, unique_id))], check=True, capture_output=True)
-
-    with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
-        consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
-
-    # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
-    if consent_response:
-        src = work_dir
-        dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
-
-        if os.path.isdir(dst):
-            shutil.rmtree(dst)
-
-        shutil.copytree(src, dst)
+    cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} http://animation_server:5000/generate_animation"
+    response = str(subprocess.check_output(cmd.split(' ')))
+    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{animation_type}.mp4',
+                               as_attachment=True)
+    # if response =="0":  #everything okay
+    # else:  # something went wrong
+    #     pass
+    #     return make_response("something went wrong", 500)
 
 
-
-    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT,  request.form['uuid']), f'{animation_type}.mp4', as_attachment=True)
 
 @app.route('/set_consent_answer', methods=['POST'])
 @cross_origin()

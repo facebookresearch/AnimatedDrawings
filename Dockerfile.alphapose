@@ -89,6 +89,7 @@ RUN mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
 # so now fix up paths:
 RUN /venv/bin/conda-unpack
 
+# Add the compile alphapose lib to final venv
 RUN cp -r AlphaPose/build/lib/* /venv/lib/python3.6/
 
 # Remove unnecessary python files. https://uwekorn.com/2021/03/01/deploying-conda-environments-in-docker-how-to-do-it-right.html
@@ -107,10 +108,11 @@ RUN cd /venv \
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
+
 FROM ubuntu:18.04 AS runtime_base
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
-    apt-get update && \
+
+RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
     default-jre \
@@ -124,18 +126,14 @@ WORKDIR /home/ap-server
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
 
-# COPY --chown=ap-server:ap-server convert_ap_to_mar convert_ap_to_mar/
 COPY --chown=ap-server:ap-server torchserve_ap torchserve_ap/
-
-# Copy build from the previous stage:
-# COPY --from=build /src/AlphaPose/build //venv/AlphaPose/build
-# COPY alphapose_weights.pth /inference/AlphaPose
 
 ENV PATH /venv/bin/:${PATH}
 # Define the default command.
 
 # Create a test Alphapose Image
 FROM runtime_base AS runtime_test
+
 # Execute tests duiring build
 # ```
 # docker buildx build -f Dockerfile.alphapose -t alphapose:test --target runtime_test . && docker run alphapose:test bash ./torchserve_ap/scripts/docker_test.sh
@@ -143,6 +141,6 @@ FROM runtime_base AS runtime_test
 RUN "./torchserve_ap/scripts/docker_test.sh"
 
 
-FROM runtime_base AS runtime_prod
-CMD [ "./torchserve_ap/torchserve_start2.sh" ]
+FROM runtime_base AS alphapose_runtime
+CMD [ "./torchserve_ap/torchserve_start.sh" ]
 

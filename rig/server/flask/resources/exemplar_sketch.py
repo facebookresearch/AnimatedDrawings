@@ -1,4 +1,4 @@
-sketch = {"sketch_dim": 1244, "image_loc": "./Texture/anime_girl.png", "img_name": "anime_girl.png", "segments": {
+sketch = {"sketch_dim": 1244, "image_loc": "./Texture/anime_girl.png", "image_name": "anime_girl.png", "segments": {
     "torso": {"name": "torso", "img_coords": [[491, 872], [719, 852], [677, 732], [514, 719]], "clockwise": False,
               "prox_joint": "torso", "dist_joint": "neck"},
     "head": {"name": "head", "img_coords": [[679, 721], [1074, 363], [568, 158], [189, 371], [378, 689]],

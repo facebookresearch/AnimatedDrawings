@@ -2,31 +2,70 @@ version: "3.7"
 
 services:
   sketch_server:
-    image: sketch_flask
     build:
       context: .
       dockerfile: Dockerfile
-
-    command: ./run.sh
+      target: rig_runtime
     ports:
       - 5000:5000
     volumes:
-      - ./videos:/app/out/public/videos
+      - type: bind
+        source: ./tmp/video
+        target: /home/model-server/rig/server/flask/videos
+      - type: bind
+        source: ./tmp/uploads
+        target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
       REACT_APP_API_HOST: http://localhost:5000
     networks:
       ap-net: {}
 
-  alphapose_server:
-    image: runtime
+  detectron2_server:
     build:
       context: .
-      dockerfile: Dockerfile.alphapose
-    command: ./torchserve_ap/torchserve_start2.sh
+      dockerfile: Dockerfile
+      target: detectron2_runtime
     networks:
       ap-net:
         aliases:
-          - alphapose_server
+          - detectron2_server # name of network to other services in docker
+    volumes:
+      - type: bind
+        source: ./torchserve_d2/model_store
+        target: /home/model-server/model_store
+
+  alphapose_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.alphapose
+      target: alphapose_runtime
+    volumes:
+      - type: bind
+        source: ./torchserve_ap/model_store
+        target: /home/ap-server/model_store
+    networks:
+      ap-net:
+        aliases:
+          - alphapose_server # name of network to other services in docker
+
+  animation_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.animation
+      target: animation_runtime
+    # command: /home/animation-server/animate/flask/run.sh
+    volumes:
+      - type: bind
+        source: ./tmp/video
+        target: /home/animation-server/animate/flask/videos # TODO fix path
+      - type: bind
+        source: ./tmp/uploads
+        target: /home/animation-server/animate/flask/uploads # TODO fix path
+    networks:
+      ap-net:
+        aliases:
+          - animation_server
+
 # Network created by default between services
 networks:
   ap-net:

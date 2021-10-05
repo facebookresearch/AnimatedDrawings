@@ -1,9 +1,9 @@
-#!/bin/zsh
+#!/bin/bash
 
-source /home/model-server/conda/etc/profile.d/conda.sh
+# source /home/model-server/conda/etc/profile.d/conda.sh
 
-conda activate alphapose
+# conda activate alphapose
 
-cd /home/model-server/torchserve_ap
+cd /home/ap-server/torchserve_ap
 
-torchserve --start --model-store model_store --models alphapose.mar --ts-config config.properties
+torchserve --start --model-store /home/ap-server/model_store --models alphapose.mar --ts-config config.properties --foreground
