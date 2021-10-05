@@ -4,6 +4,8 @@ import numpy as np
 from skimage import measure
 from scipy import ndimage
 import cv2
+import time
+import shutil
 
 
 def threshold(im_in):
@@ -103,5 +105,10 @@ def process_user_uploaded_segmentation_mask(work_dir, request_file):
 
     mask = retain_largest_contour(fl_img)
 
-    cv2.imwrite(os.path.join(work_dir, 'mask.png'), mask)
+    # back up the previous mask annotations
+    out_path = os.path.join(work_dir, 'mask.png')
+    if os.path.exists(out_path):
+        shutil.move(out_path, f'{out_path}.{time.time()}')
+
+    cv2.imwrite(out_path, mask)
 
