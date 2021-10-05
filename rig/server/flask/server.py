@@ -7,6 +7,7 @@ import subprocess
 import json
 import uuid
 import shutil
+import time
 
 import detect_humanoids
 import detect_pose
@@ -141,6 +142,10 @@ def set_bounding_box_coordinates():
     if not os.path.exists(bb_path):  # uuid is invalid
         return redirect(request.url)
 
+    # back up the previous bounding box annotations
+    if os.path.exists(bb_path):
+        shutil.move(bb_path, f'{bb_path}.{time.time()}')
+
     with open(bb_path, 'w') as f:
         json.dump(json.loads(request.form['bounding_box_coordinates']), f)
 
@@ -151,12 +156,8 @@ def set_bounding_box_coordinates():
     segment_mask.segment_mask(work_dir)
 
     detect_pose.detect_pose(work_dir)
-    # subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
     prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-
-    #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-    #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -196,16 +197,9 @@ def set_mask():
         return redirect(request.url)
 
     file = request.files['file']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(work_dir, 'mask.png'))
+        segment_mask.process_user_uploaded_segmentation_mask(work_dir, file)
 
-        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-
-        #subprocess.run(['./run_prep_animation_files.sh', os.path.join(UPLOAD_FOLDER,  request.form['uuid'])], check=True, capture_output=True)
 
     return send_from_directory(work_dir, 'mask.png')
 ##############################################
@@ -243,6 +237,10 @@ def set_joint_locations():
     joint_locations_json_path = os.path.join(work_dir, 'joint_locations.json')
     if not os.path.exists(joint_locations_json_path):  # uuid is invalid
         return redirect(request.url)
+
+    # back up the previous joint locations
+    if os.path.exists(joint_locations_json_path):
+        shutil.move(joint_locations_json_path, f'{joint_locations_json_path}.{time.time()}')
 
     with open(joint_locations_json_path, 'w') as f:
         json.dump(json.loads(request.form['joint_location_json']), f)

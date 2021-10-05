@@ -4,6 +4,8 @@ import numpy as np
 from skimage import measure
 from scipy import ndimage
 import cv2
+import time
+import shutil
 
 
 def threshold(im_in):
@@ -18,26 +20,17 @@ def morph_ops(im_in):
     im_out = cv2.morphologyEx(im_inter, cv2.MORPH_DILATE, kernel, iterations=1)
     return im_out
 
+
 def flood_fill(im_in):
-    im_floodfill = im_in.copy()
-    h, w = im_in.shape[:2]
-
-    im_floodfill[:,0] = 255
-    im_floodfill[:,w-1] = 255
-    im_floodfill[0, :] = 255
-    im_floodfill[h-1,:] = 255
-
-    mask = np.zeros((h+2, w+2), np.uint8)
-    mask.fill(0)
-    mask = np.zeros((h+2, w+2), np.uint8)
-    mask.fill(0)
-
+    # create mask that is 2 px taller and wider than im_in. make mask border = 0, paste image inside center
     mask = np.zeros([im_in.shape[0]+2, im_in.shape[1]+2], np.uint8)
-    mask[1:-1,1:-1] = im_in.copy()
+    mask[1:-1, 1:-1] = im_in.copy()
 
-    im_floodfill = np.empty(im_in.shape, np.uint8)
-    im_floodfill.fill(255)
+    # im_floodfill is results of floodfill. Starts off all white
+    im_floodfill = np.full(im_in.shape, 255, np.uint8)
 
+    # choose 10 points along each image side. use as seed for floodfill. flood while using mask
+    h, w = im_in.shape[:2]
     for x in range(0, w-1, 10):
         cv2.floodFill(im_floodfill, mask, (x, 0), 0);
         cv2.floodFill(im_floodfill, mask, (x, h-1), 0);
@@ -45,34 +38,31 @@ def flood_fill(im_in):
         cv2.floodFill(im_floodfill, mask, (0, y), 0);
         cv2.floodFill(im_floodfill, mask, (w-1, y), 0);
 
-    mask2 = np.zeros([im_floodfill.shape[0]+2, im_floodfill.shape[1]+2], np.uint8)
-    mask2[1:-1,1:-1] = im_floodfill.copy()
-    mask2 = cv2.bitwise_not(mask2)
+    # make sure edges aren't character. necessary for contour finding
+    im_floodfill[0, :] = 0
+    im_floodfill[-1, :] = 0
+    im_floodfill[:, 0] = 0
+    im_floodfill[:, -1] = 0
 
-    return mask2
+    return cv2.bitwise_not(im_floodfill)
+
 
 def retain_largest_contour(mask2):
-    mask_contour = None
     mask = None
     biggest = 0
-    contours = measure.find_contours(mask2, 0.5)
+
+    contours = measure.find_contours(mask2, 0.0)
     for idx, c in enumerate(contours):
         x = np.zeros(mask2.T.shape, np.uint8)
         cv2.fillPoly(x, [np.int32(c)], 1)
         size = len(np.where(x == 1)[0])
         if size > biggest:
-            mask_contour = x
             mask = x
             biggest = size
 
     mask = ndimage.binary_fill_holes(mask).astype(int)
     mask = 255 * mask.astype(np.uint8)
-    im_floodfill2 = mask.T[1:-1, 1:-1]
-
-    return im_floodfill2
-    #kernel = np.ones((5,5),np.uint8)
-    #erosion = cv2.erode(im_floodfill2,kernel,iterations = 1)
-    #_, dist_indices = ndimage.distance_transform_cdt(cv2.bitwise_not(erosion), return_indices=True)
+    return mask.T
 
 
 def get_img_from_work_dir(work_dir):
@@ -97,3 +87,28 @@ def segment_mask(work_dir):
     mask = retain_largest_contour(fl_img)
 
     cv2.imwrite(os.path.join(work_dir, 'mask.png'), mask)
+
+
+def process_user_uploaded_segmentation_mask(work_dir, request_file):
+    """
+    When the user uploads a segmentation mask they've edited, we process it to ensure it is a single polygon without any holes.
+    We skip thresholding and morphological operations.
+    work_dir: str, location where the mask will be saved
+    request_file: werkzeug.datastructures.FileStorage, the uploaded image
+    """
+    filestr = request_file.read()
+    npimg = np.fromstring(filestr, np.uint8)
+    im_in_256 = cv2.imdecode(npimg, cv2.IMREAD_UNCHANGED)
+    im_in = (im_in_256 != np.array([[[0, 0, 0, 255]]])).any(axis=2).astype(np.uint8)
+
+    fl_img = flood_fill(im_in)
+
+    mask = retain_largest_contour(fl_img)
+
+    # back up the previous mask annotations
+    out_path = os.path.join(work_dir, 'mask.png')
+    if os.path.exists(out_path):
+        shutil.move(out_path, f'{out_path}.{time.time()}')
+
+    cv2.imwrite(out_path, mask)
+
