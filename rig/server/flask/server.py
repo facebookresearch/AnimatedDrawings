@@ -151,12 +151,8 @@ def set_bounding_box_coordinates():
     segment_mask.segment_mask(work_dir)
 
     detect_pose.detect_pose(work_dir)
-    # subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
 
     prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-
-    #subprocess.run(['./run_pose_detection.sh', work_dir], check=True, capture_output=True)
-    #subprocess.run(['./run_prep_animation_files.sh', work_dir], check=True, capture_output=True)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -199,7 +195,6 @@ def set_mask():
     if file and allowed_file(file.filename):
         segment_mask.process_user_uploaded_segmentation_mask(work_dir, file)
 
-        prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
 
     return send_from_directory(work_dir, 'mask.png')
 ##############################################
