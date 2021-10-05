@@ -22,7 +22,7 @@ def morph_ops(im_in):
 def flood_fill(im_in):
     # create mask that is 2 px taller and wider than im_in. make mask border = 0, paste image inside center
     mask = np.zeros([im_in.shape[0]+2, im_in.shape[1]+2], np.uint8)
-    mask[1:-1,1:-1] = im_in.copy()
+    mask[1:-1, 1:-1] = im_in.copy()
 
     # im_floodfill is results of floodfill. Starts off all white
     im_floodfill = np.full(im_in.shape, 255, np.uint8)
@@ -36,6 +36,12 @@ def flood_fill(im_in):
         cv2.floodFill(im_floodfill, mask, (0, y), 0);
         cv2.floodFill(im_floodfill, mask, (w-1, y), 0);
 
+    # make sure edges aren't character. necessary for contour finding
+    im_floodfill[0, :] = 0
+    im_floodfill[-1, :] = 0
+    im_floodfill[:, 0] = 0
+    im_floodfill[:, -1] = 0
+
     return cv2.bitwise_not(im_floodfill)
 
 
@@ -43,7 +49,7 @@ def retain_largest_contour(mask2):
     mask = None
     biggest = 0
 
-    contours = measure.find_contours(mask2, 0.0)
+    contours = measure.find_contours(mask2, 0.5)
     for idx, c in enumerate(contours):
         x = np.zeros(mask2.T.shape, np.uint8)
         cv2.fillPoly(x, [np.int32(c)], 1)
@@ -92,10 +98,6 @@ def process_user_uploaded_segmentation_mask(work_dir, request_file):
     npimg = np.fromstring(filestr, np.uint8)
     im_in_256 = cv2.imdecode(npimg, cv2.IMREAD_UNCHANGED)
     im_in = (im_in_256 != np.array([[[0, 0, 0, 255]]])).any(axis=2).astype(np.uint8)
-
-    cv2.imwrite(os.path.join(work_dir, 'im_in_256.png'), im_in)
-
-    cv2.imwrite(os.path.join(work_dir, 'im_in.png'), im_in * 255)
 
     fl_img = flood_fill(im_in)
 
