@@ -24,14 +24,14 @@ const MainPage = () => {
       <div className="main-page">
         <Container>
           <Row className="align-items-center py-2 px-lg-2">
-            <Col lg={6} md={6} sm={12} className="ml-auto mb-2 order-sm-2">
+            <Col lg={6} md={10} sm={12} className="col-right ml-auto mr-auto mb-2 order-sm-2">
               <Canvas />
             </Col>
             <Col
               lg={4}
-              md={4}
+              md={10}
               sm={12}
-              className="mt-sm-6 align-self-start px-2 order-sm-1"
+              className="col-left ml-auto mr-auto mt-sm-6 align-self-start px-2 order-sm-1 pt-md-4"
             >
               <StepsContainer />
             </Col>

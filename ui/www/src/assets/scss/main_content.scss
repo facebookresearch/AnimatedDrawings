@@ -39,6 +39,10 @@
   }
 }
 
+.home-info {
+  z-index: 1;
+}
+
 .home-footer {
   position: absolute;
   bottom: 0%;
@@ -54,6 +58,7 @@
   height: 780px;
   bottom: 0;
   right: 0;
+  z-index: 0;
   img {
     margin: 0;
     max-width: 100%;
@@ -68,6 +73,16 @@
 @media screen and (max-width: 576px) {
   .home-img-wrapper {
     height: 280px;
+  }
+  .reg-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 1024px)  {
+  .home-img-wrapper {
+    height: 420px;
   }
   .reg-title {
     font-size: 20px;
@@ -115,7 +130,7 @@
 .navbar-title {
   position: absolute;
   top: 5%;
-  left: 10%;
+  left: 8%;
   h3 {
     font-family: 'Caveat Brush';
     font-style: normal;
@@ -140,6 +155,16 @@
   }
 }
 
+.col-left {
+  overflow: auto;  
+}
+
+.col-right {
+  padding: 1rem;
+  overflow: auto;
+}
+
+/*** Mobile ***/
 @media screen and (max-width: 576px) {
   .bg-main {
     position: relative;
@@ -169,6 +194,29 @@
     h3 {
       color: $default;
     }
+  }
+}
+
+/* Tablets */
+@media (min-width: 576px) and (max-width: 998px)  {
+  .navbar-title {
+    position: relative;
+    padding-top: 15px;
+    left: 0%;
+    text-align: center;
+    h3 {
+      color: $default;
+    }
+  }
+}
+
+/*** Tablets and above ***/
+@media (min-width: 576px)  {
+  .col-left{
+    min-width: 380px;
+  }
+  .col-right {
+    min-width: 500px;
   }
 }
 
