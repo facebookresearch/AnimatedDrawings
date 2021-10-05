@@ -49,7 +49,7 @@ def retain_largest_contour(mask2):
     mask = None
     biggest = 0
 
-    contours = measure.find_contours(mask2, 0.5)
+    contours = measure.find_contours(mask2, 0.0)
     for idx, c in enumerate(contours):
         x = np.zeros(mask2.T.shape, np.uint8)
         cv2.fillPoly(x, [np.int32(c)], 1)
