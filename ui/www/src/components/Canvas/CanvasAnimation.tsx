@@ -112,7 +112,7 @@ const CanvasAnimation = () => {
           <Loader drawingURL={drawing} />
         ) : (
           <div className="video_box">
-            <video id="videoPlayer" autoPlay muted loop></video>
+            <video id="videoPlayer" autoPlay muted loop playsInline></video>
           </div>
         )}
       </div>
