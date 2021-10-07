@@ -3,8 +3,8 @@ import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
 import useDrawingStore from "../../hooks/useDrawingStore";
 
-import image_1 from "../../assets/step3/image_1.png";
-import image_2 from "../../assets/step3/image_2.png";
+import image_1 from "../../assets/drawings_examples/step3/image_1.png";
+import image_2 from "../../assets/drawings_examples/step3/image_2.png";
 
 const Step3 = () => {
   const { uuid } = useDrawingStore();

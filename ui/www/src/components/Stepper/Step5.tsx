@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
-import image_1 from "../../assets/step5/image_1.png";
-import image_2 from "../../assets/step5/image_2.png";
+import image_1 from "../../assets/drawings_examples/step5/image_1.png";
+import image_2 from "../../assets/drawings_examples/step5/image_2.png";
 
 const Step5 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();

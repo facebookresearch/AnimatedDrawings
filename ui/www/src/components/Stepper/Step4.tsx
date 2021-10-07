@@ -2,9 +2,9 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
-import image_1 from "../../assets/step4/image_1.png";
-import image_2 from "../../assets/step4/image_2.png";
-import image_3 from "../../assets/step4/image_3.png";
+import image_1 from "../../assets/drawings_examples/step4/image_1.png";
+import image_2 from "../../assets/drawings_examples/step4/image_2.png";
+import image_3 from "../../assets/drawings_examples/step4/image_3.png";
 
 const Step4 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
