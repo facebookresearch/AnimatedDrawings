@@ -155,9 +155,8 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(work_dir)
 
+    # TODO @Jesse do we need to do this here? 
     detect_pose.detect_pose(work_dir)
-
-    prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
 
     with open(bb_path, 'r') as f:
         bb = json.load(f)
@@ -347,23 +346,14 @@ def get_animation():
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
-    mirror_concat = animation_type in [
-        'catwalk_walk',
-        'run',
-        'run_walk_jump_walk',
-        'running_jump',
-        'skipping',
-        'standard_walk',
-        'walk_punch_kick_jump_walk',
-        'walk_sway',
-        'walk_swing_arms',
-        'zombie_walk']
-
 
     #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
+    # TODO @Jesse Should the url be passed in as a parameter to the docker image?
     cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} http://animation_server:5000/generate_animation"
     response = str(subprocess.check_output(cmd.split(' ')))
+
+    # TODO at some point we need to return just the url of mp4 file. Not the whole file
     return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{animation_type}.mp4',
                                as_attachment=True)
     # if response =="0":  #everything okay

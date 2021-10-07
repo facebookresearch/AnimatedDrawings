@@ -14,6 +14,9 @@ services:
         target: /home/model-server/rig/server/flask/videos
       - type: bind
         source: ./tmp/uploads
+        target: /home/model-server/rig/server/flask/uploads # TODO fix path
+      - type: bind
+        source: ./tmp/consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
       REACT_APP_API_HOST: http://localhost:5000

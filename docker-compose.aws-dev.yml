@@ -12,6 +12,9 @@ services:
       - type: volume
         source: dev-demo-sketch-out-animations
         target: /home/model-server/rig/server/flask/videos
+      - type: bind
+        source: dev-demo-sketch-out-interim-files
+        target: /home/model-server/rig/server/flask/uploads # TODO fix path
       - type: volume
         source: dev-demo-sketch-out-consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
@@ -59,7 +62,7 @@ services:
         source: dev-demo-sketch-out-animations
         target: /home/animation-server/animate/flask/videos
       - type: volume
-        source: dev-demo-sketch-out-consents
+        source: dev-demo-sketch-out-interim-files
         target: /home/animation-server/animate/flask/uploads
     networks:
       ap-net:
@@ -73,6 +76,8 @@ volumes:
   dev-demo-sketch-out-animations:
     external: true
   dev-demo-sketch-out-consents:
+    external: true
+  dev-demo-sketch-out-interim-files:
     external: true
   dev-demo-sketch-in-model-store:
     external: true

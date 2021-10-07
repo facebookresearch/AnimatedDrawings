@@ -79,6 +79,7 @@
   border-radius: 10px;
   border: transparent;
   text-align: center;
+  color: $dark;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -87,6 +88,7 @@
   width: 100%;
   height: 48px;
   background-color: $primary;
+  color: $dark;
 }
 
 .large-button:hover {
@@ -185,6 +187,7 @@
   cursor: pointer;
   text-align: center;
   border-radius: 10px;
+  color: $dark;
 }
 
 .sm-button {
@@ -210,9 +213,12 @@
   .md-button-reset {
     height: 30px;
     width: 70px;
-    font-size: 10px;
+    font-size: 9px;
   }
   .sm-button-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 30px;
     height: 30px;
     border-radius: 10px;

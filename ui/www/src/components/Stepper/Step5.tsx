@@ -1,23 +1,33 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
+import image_1 from "../../assets/drawings_examples/step5/image_1.png";
+import image_2 from "../../assets/drawings_examples/step5/image_2.png";
 
-const Step6 = () => {
+const Step5 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
 
   return (
     <>
       <div className="step-actions-container">
-        <h1 className="step-title">Detecting Joints</h1>
-        <p>Here are the joint locations we’ve predicted.</p>
+        <h1 className="step-title">Finding Character Joints</h1>
         <p>
-          How do they look? They don’t need to be pixel-perfect, but they do
-          need to be in roughly the correct location.
+          Here are your character's joints! Do they fit the character? Here's an
+          example of what it should look like:
+          <div className="drawing-example-wrapper mt-3">
+            <img src={image_1} alt="img1_step5" />
+          </div>
         </p>
+
+        <h4>Tip!</h4>
         <p>
-          If they’re not, you can correct this by dragging the nodes. Or, you
-          can simply hit the ‘Next’ to continue.
+          If your character doesn't have any arms, drag the elbows and wrist
+          joints far away from the character and it can still be animated:
+          <div className="drawing-example-wrapper">
+            <img src={image_2} alt="img2_step5" />
+          </div>
         </p>
+
         <p>
           In the next step, we’ll use the segmentation mask and these joints
           locations to animate your character with motion capture data.
@@ -37,4 +47,4 @@ const Step6 = () => {
   );
 };
 
-export default Step6;
+export default Step5;

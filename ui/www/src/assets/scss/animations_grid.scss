@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: auto auto auto;
     grid-gap: 10px;
-    background-color: $secondary;
+    background-color: transparent;
     padding: 10px;
     max-width: 360px;
 }
@@ -15,7 +15,7 @@
     padding: 0;
     border-radius: 10px;
     border: 1px solid $dark;
-    opacity: 0.75;
+    opacity: 0.8;
     cursor: pointer;
     img {
       margin: 0;

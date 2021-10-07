@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-import { Col, Button } from "react-bootstrap";
+import { Col, Button, Spinner } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
+import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
@@ -19,6 +20,7 @@ const CanvasUpload = () => {
   const { isLoading, uploadImage } = useDrawingApi((err) => {});
 
   const [showWaiver, setShowWaiver] = useState(false);
+  const [converting, setConvertingHeic] = useState(false);
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,7 +28,7 @@ const CanvasUpload = () => {
   };
 
   const compress = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
+    if (!e.target.files) return;
     const file = e.target.files[0];
     const options = {
       maxSizeMB: 1,
@@ -34,9 +36,48 @@ const CanvasUpload = () => {
       useWebWorker: true,
     };
     try {
-      const compressedFile = await imageCompression(file, options);
-      const imgUrl = URL.createObjectURL(compressedFile);
-      let newFile = new File([compressedFile], "animation.png", {
+      // Check if the file is in HEIC format.
+      if (file.type === "image/heic") {
+        const heicURL = URL.createObjectURL(file);
+        convertHeicformat(heicURL);
+      } else {
+        const compressedFile = await imageCompression(file, options);
+        const imgUrl = URL.createObjectURL(compressedFile);
+        let newFile = new File([compressedFile], "animation.png", {
+          type: "image/png",
+          lastModified: new Date().getTime(),
+        });
+
+        const tempImage = new Image();
+        if (imgUrl !== null && imgUrl !== undefined) tempImage.src = imgUrl;
+
+        tempImage.onload = function (e) {
+          setOriginalDimensions({
+            width: tempImage.naturalWidth,
+            height: tempImage.naturalHeight,
+          });
+        };
+
+        setNewCompressedDrawing(newFile);
+        setDrawing(imgUrl);
+      }
+    } catch (err) {
+      console.log((err as Error)?.message);
+    }
+  };
+
+  const convertHeicformat = async (heicURL: string) => {
+    try {
+      setConvertingHeic(true)
+      const res = await fetch(heicURL);
+      const blob = await res.blob();
+      const conversionResult: any = await heic2any({
+        blob,
+        toType: "image/jpeg",
+        quality: 0.1,
+      });
+      const imgUrl = URL.createObjectURL(conversionResult);
+      let newFile = new File([conversionResult], "animation.png", {
         type: "image/png",
         lastModified: new Date().getTime(),
       });
@@ -53,8 +94,9 @@ const CanvasUpload = () => {
 
       setNewCompressedDrawing(newFile);
       setDrawing(imgUrl);
+      setConvertingHeic(false)
     } catch (err) {
-      console.log((err as Error)?.message);
+      console.log(err);
     }
   };
 
@@ -76,20 +118,34 @@ const CanvasUpload = () => {
   return (
     <div className="canvas-wrapper">
       <div className="canvas-background border border-dark">
-        {drawing !== "" ? (
-          <> {isLoading ? <Loader drawingURL={drawing} /> : <img alt="drawing" src={drawing} /> }
-          </>
-          
+        {converting ? (
+          <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
-          <Col>
-            <p>
-              Drop a photo of your drawing <br /> or <br /> Select a photo from
-              your device
-            </p>
-            <Button className="border border-dark text-dark" onClick={upload}>
-              Choose File
-            </Button>
-          </Col>
+          <>
+            {drawing !== "" ? (
+              <>
+                {" "}
+                {isLoading ? (
+                  <Loader drawingURL={drawing} />
+                ) : (
+                  <img alt="drawing" src={drawing} />
+                )}
+              </>
+            ) : (
+              <Col>
+                <p>
+                  Drop a photo of your drawing <br /> or <br /> Select a photo
+                  from your device
+                </p>
+                <Button
+                  className="border border-dark text-dark"
+                  onClick={upload}
+                >
+                  Choose File
+                </Button>
+              </Col>
+            )}
+          </>
         )}
       </div>
 

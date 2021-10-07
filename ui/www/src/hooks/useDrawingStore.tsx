@@ -47,7 +47,7 @@ const useDrawingStore = create<DrawingState>((set) => ({
   uuid: "",
   croppedImgDimensions : { width: 0, height: 0 },
   pose: { nodes: [], edges: [] },
-  boundingBox: { x: 0, width: 100, y: 0, height: 100, id: "1" },
+  boundingBox: { x: 200, width: 100, y: 200, height: 100, id: "1" },
   videoDownload: "",
   animationType: AnimationType.RunJump,
   imageUrlPose: undefined,
