@@ -30,12 +30,12 @@ const Step3 = () => {
         <p>We’ve identified the character and put a box around it.</p>
         <p>Is the box too small for the character? If so, adjust the box.
         <div className="drawing-example-wrapper">
-          <img src={image_1} />
+          <img src={image_1} alt="Img1"/>
         </div>
         </p>
         <p>Is the box too big for the character? If so, adjust the box.
         <div className="drawing-example-wrapper">
-          <img src={image_2} />
+          <img src={image_2} alt="Img2" />
         </div>
         </p>
 

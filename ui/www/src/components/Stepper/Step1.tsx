@@ -25,7 +25,7 @@ const Step1 = () => {
 
         <h5 className="bold">NOTE</h5>
         <p>Don’t include any identifiable information, offensive content
-          (see our <a href="https://transparency.fb.com/policies/community-standards/" target="_blank">community standards</a>),
+          (see our <a href="https://transparency.fb.com/policies/community-standards/" target="_blank" rel="noreferrer">community standards</a>),
           or drawings that infringe on the copyrights of others.</p>
 
         <ExamplesCarousel />
