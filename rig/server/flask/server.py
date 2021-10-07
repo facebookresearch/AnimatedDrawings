@@ -158,8 +158,6 @@ def set_bounding_box_coordinates():
     # TODO @Jesse do we need to do this here? 
     detect_pose.detect_pose(work_dir)
 
-    prep_animation_files.prep_animation_files(work_dir, VIDEO_SHARE_ROOT)
-
     with open(bb_path, 'r') as f:
         bb = json.load(f)
     return make_response(bb, 200)
