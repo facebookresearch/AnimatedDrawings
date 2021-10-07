@@ -5,8 +5,8 @@ import sketch_animate.main_server
 
 app = Flask(__name__)
 
-VIDEO_SHARE_ROOT='/home/animation-server/animate/flask/videos'
-UPLOAD_FOLDER='/home/animation-server/animate/flask/uploads'
+VIDEO_SHARE_ROOT='./videos' # maps to /home/animation-server/animate/flask/videos
+UPLOAD_FOLDER='./uploads' # /home/animation-server/animate/flask/uploads
 
 @app.route('/generate_animation', methods=['POST'])
 def generate_animation():
