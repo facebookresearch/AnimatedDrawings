@@ -9,22 +9,12 @@ const Step1 = () => {
         <h1 className="step-title">
           Upload a<br className="d-none d-lg-block" /> drawing
         </h1>
-        <h5 className="bold">INSTRUCTIONS</h5>
-        <ul className="d-list">
-          <li>
-            Upload a drawing of a single human-like character where the arms and
-            legs don’t overlap the body (see examples below).{" "}
-          </li>
-          <li>
-            Don’t include any identifiable information, offensive content (see
-            our community standards), or drawings that infringe on the
-            copyrights of others.{" "}
-          </li>
-        </ul>
+        <p>Upload a drawing of a <b>single human-like character</b>, where the arms and
+            legs don’t overlap the body (see examples below). </p>
         <p>For Best Results:</p>
         <ul className="d-list">
           <li>
-            Make sure the character is drawn on a white piece of paper without
+            Make sure the character is drawn on a blank piece of paper without
             lines, wrinkles, or tears.
           </li>
           <li>
@@ -32,6 +22,11 @@ const Step1 = () => {
             camera further away and zoom in on the drawing.
           </li>
         </ul>
+
+        <h5 className="bold">NOTE</h5>
+        <p>Don’t include any identifiable information, offensive content
+          (see our <a href="https://transparency.fb.com/policies/community-standards/" target="_blank">community standards</a>),
+          or drawings that infringe on the copyrights of others.</p>
 
         <ExamplesCarousel />
       </div>

@@ -2,6 +2,9 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import useStepperStore from "../../hooks/useStepperStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
+import image_1 from "../../assets/step4/image_1.png";
+import image_2 from "../../assets/step4/image_2.png";
+import image_3 from "../../assets/step4/image_3.png";
 
 const Step5 = () => {
   const { currentStep, setCurrentStep } = useStepperStore();
@@ -10,20 +13,27 @@ const Step5 = () => {
   return (
     <>
       <div className="step-actions-container">
-        <h1 className="step-title">Segmenting</h1>
+        <h1 className="step-title">Separating Character</h1>
         <p>
-          Using the box, we extracted a segmentation mask to separate the
-          character from the background.
+         We’ve separated the character from the background,
+            and highlighted it.
+            Did we get the entire character?
+            Did we include things that aren’t part of the character?
+            If so, use the tools to fix it.
+            <div className="drawing-example-wrapper">
+              <img src={image_1} />
+            </div>
+            <div className="drawing-example-wrapper">
+              <img src={image_2} />
+            </div>
         </p>
-        <p>Does the mask cover the entire character?</p>
-        <p>Are the arms and legs separated from each other in the mask?</p>
-        <p>
-          Does the mask exclude everything that isn’t part of the character?
-        </p>
-        <p>
-          If not, you can correct this by using the drawing tools. If everything
-          looks fine, simply hit next.
-        </p>
+
+          <p>If the limbs are stuck together, please erase the mask to separate them. See the example below:
+              <div className="drawing-example-wrapper">
+                  <img src={image_3} />
+              </div>
+          </p>
+
       </div>
       <div className="mt-2 text-right">
         <Button
