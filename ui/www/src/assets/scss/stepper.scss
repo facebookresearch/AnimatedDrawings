@@ -121,20 +121,17 @@ ul {
 
 /**** Instructive Examples ****/
 .drawing-example-wrapper {
-  position: relative;
-  display: flex;
-  width: 150px;
-  height: 150px;
+  display:flex;
+  width: 100%;
   border-radius: 16px;
-  background: $white;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 0px;
   img {
     margin: 0;
-    max-width: 100%;
-    max-height: 100%;
+    width: 75%;
+    height: auto;
   }
 }
 

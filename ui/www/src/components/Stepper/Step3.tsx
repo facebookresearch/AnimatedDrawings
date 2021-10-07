@@ -28,17 +28,18 @@ const Step3 = () => {
       <div className="step-actions-container">
         <h1 className="step-title">Finding the Human-Like Character</h1>
         <p>We’ve identified the character and put a box around it.</p>
-        <p>Is the box too small for the character? If so, adjust the box.
-        <div className="drawing-example-wrapper">
-          <img src={image_1} alt="Img1"/>
-        </div>
+        <p>
+          Is the box too small for the character? If so, adjust the box.
+          <div className="drawing-example-wrapper">
+            <img src={image_1} alt="Img1" />
+          </div>
         </p>
-        <p>Is the box too big for the character? If so, adjust the box.
-        <div className="drawing-example-wrapper">
-          <img src={image_2} alt="Img2" />
-        </div>
+        <p>
+          Is the box too big for the character? If so, adjust the box.
+          <div className="drawing-example-wrapper">
+            <img src={image_2} alt="Img2" />
+          </div>
         </p>
-
         <p>If everything looks fine, hit 'Next'.</p>
       </div>
       <div className="mt-2 text-right">
