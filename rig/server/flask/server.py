@@ -348,19 +348,6 @@ def get_animation():
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
-# TODO can this now be removed?
-    mirror_concat = animation_type in [
-        'catwalk_walk',
-        'run',
-        'run_walk_jump_walk',
-        'running_jump',
-        'skipping',
-        'standard_walk',
-        'walk_punch_kick_jump_walk',
-        'walk_sway',
-        'walk_swing_arms',
-        'zombie_walk']
-
 
     #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
