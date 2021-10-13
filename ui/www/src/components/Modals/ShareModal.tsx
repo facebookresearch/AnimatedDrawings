@@ -45,7 +45,7 @@ const ShareModal = ({
   };
 
   return (
-    <Modal size="lg" show={showModal} onHide={handleModal}>
+    <Modal centered size="lg" show={showModal} onHide={handleModal}>
       <Modal.Header closeButton className="bg-secondary px-lg-4">
         <h2 className="modal-title">SHARE</h2>
       </Modal.Header>

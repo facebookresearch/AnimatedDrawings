@@ -1,6 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import SplashVideo from "../assets/video_assets/splashVideo.mp4";
 
 const HomePage = () => {
   const history = useHistory();
@@ -26,7 +27,18 @@ const HomePage = () => {
           <Row className="justify-content-center">
             <Col lg={6} md={10} xs={12} className="mb-4 justify-content-center">
               <div className="gif-wrapper">
-                <div className="gif-div"></div>
+                <div className="gif-div">
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    width="100%"
+                    height="100%"
+                  >
+                    <source src={SplashVideo} type="video/mp4" />
+                  </video>
+                </div>
                 <div className="gif-shadow-div"></div>
               </div>
             </Col>
