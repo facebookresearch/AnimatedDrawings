@@ -1,10 +1,33 @@
 .canvas-wrapper {
+  position: relative;
   width: 528px;
   align-items: center;
+  justify-content: center;
   margin: auto;
+  .blue-box {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 528px;
+    height: 528px;
+    background-color: $primary;
+    border-radius: 16px;
+  }
+  .blue-box-2 {
+    position: absolute;
+    z-index: 0;
+    top: 1%;
+    right: -10%;
+    width: 528px;
+    height: 528px;
+    background-color: $primary;
+    border-radius: 16px;
+  }
 }
 
+/***************************/
 /**** Canvas Background ****/ 
+/***************************/
 
 .canvas-background {
   position: relative;
@@ -16,7 +39,6 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 1px solid;
   padding: 10px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
   img {
@@ -24,19 +46,42 @@
     max-width: 100%;
     max-height: 100%;
   }
-  p {
-    color: $black;
+}
+
+.canvas-background-p-0 {
+  position: relative;
+  display: flex;
+  width: 528px;
+  height: 528px;
+  border-radius: 16px;
+  background: $white;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+  img {
+    margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .placeholder {
+    border-radius: 16px;
   }
 }
 
 /* Mobile */
 @media screen and (max-width: 576px) {
   .canvas-wrapper {
-    width: 100%;
-    margin: 0;
+    //width: 100%;
+    width: 350px;
   }
   .canvas-background {
-    width: 100%;
+    width: 350px;
+    height: 350px;
+    border-radius: 5%;
+  }
+  .canvas-background-p-0 {
+    width: 350px;
     height: 350px;
     border-radius: 5%;
   }
@@ -50,13 +95,19 @@
   and (-webkit-min-device-pixel-ratio: 1) {
     .canvas-wrapper {
       width: 400px;
-      margin: 0;
+      margin: auto;
+      justify-content: center;
     }
     .canvas-background {
       width: 400px;
       height: 400px;
       border-radius: 5%; 
     }
+    .canvas-background-p-0 {
+      width: 400px;
+      height: 400px;
+      border-radius: 5%; 
+    }  
 }
 
 /* Tablets: Portrait iPad Pro */
@@ -64,14 +115,31 @@
   and (min-device-width: 1024px) 
   and (orientation: portrait) 
   and (-webkit-min-device-pixel-ratio: 2) {
+    .canvas-wrapper {
+      width: 385px;
+      margin: auto;
+      justify-content: center;
+    }
     .canvas-background {
       width: 385px;
       height: 385px;
       border-radius: 5%;  
     }
+    .canvas-background-p-0 {
+      width: 385px;
+      height: 385px;
+      border-radius: 5%;
+    }
 }
 
-/*** Custom Buttons ***/
+/************************/
+/**** Custom Buttons ****/
+/************************/
+
+.shadow-button {
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+}
+
 .buttons {
   height: 48px;
   cursor: pointer;
@@ -79,7 +147,7 @@
   border-radius: 10px;
   border: transparent;
   text-align: center;
-  color: $dark;
+  color: $white;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -88,12 +156,12 @@
   width: 100%;
   height: 48px;
   background-color: $primary;
-  color: $dark;
+  color: $white;
 }
 
 .large-button:hover {
-  background-color: pink;
-  color: black;
+  background-color: $default;
+  color: $dark;
   opacity: 1
 }
 
@@ -101,7 +169,6 @@
   display: inline-block;
   width: 47%;
   background-color: $primary;
-  color: $dark;
 }
 
 .md-button-2 {
@@ -109,7 +176,6 @@
   width: 48%;
   border-radius: 10px;
   background-color: $default;
-  color: $dark;
 }
 
 .md-button-success {
@@ -154,7 +220,6 @@
 
 .md-button:hover {
   background-color: $primary;
-  color: black;
   opacity: 0.8
 }
 
@@ -271,7 +336,10 @@
     }
 }
 
+/*******************************/
 /**** Custom Loader/Spinner ****/
+/*******************************/
+
 .custom-loader {
   position: relative;
   display: inline-block; 
@@ -291,24 +359,48 @@
   left: 0;
 }
 
-/*** Video ****/
+/***************/
+/**** Video ****/
+/***************/
 
-.video_box video {
-  width: 100%;
-  display: block;
+.video_box {
+  video {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+    pointer-events: none; // Hide controls in full screen
+  }
+  .custom-controls {
+    display:flex;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    z-index: 100; 
+  }
+  .fullscreen-btn {
+    margin: 10px 10px;
+    padding: 4px;
+    cursor: pointer;
+    font-family: $font-family-md;
+  }
 }
 
+/*******************/
 /*** Canvas Mask ***/
-.mask-wrapper {
-  display: flex;
-  height: 100%;
-}
-.mask-wrapper img { 
-  flex-grow: 1;
-  object-fit: cover;
-} 
+/*******************/
 
+.tools-wrapper {
+  position: relative;
+  z-index: 5;
+  padding: 6px 6px;
+  background-color: $white;
+  border-radius: 10px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+}
+
+/*******************/
 /*** Canvas Pose ***/
+/*******************/
 
 .pose-wrapper {
   position: relative;

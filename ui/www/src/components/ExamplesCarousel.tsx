@@ -8,7 +8,6 @@ import example6 from "../assets/drawings_examples/example6.png";
 const ExamplesCarousel = () => {
   return (
     <div className="horizontal-scrolling">
-        <p>Feel free to try the demo by downloading one of the following example images.</p>
       <ul className="hs full">
         <li className="item">
           <div className="drawing-example-wrapper">
