@@ -22,7 +22,7 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
         setShowModal(false);
         console.log(response)
       });
-      setCurrentStep(3);
+      setCurrentStep(2);
     } catch (error) {
       console.log(error);
     }
@@ -32,9 +32,9 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
     <Fragment>
       {showModal ? (
         <div className="waiver-step-container-wrap">
-          <div className="main-content">
+          <div className="main-content bg-waiver">
             <div className="navbar-title-waiver">
-              <h3>ANIMATED DRAWINGS</h3>
+              <h2>ANIMATED <span className="text-info">DRAWINGS</span></h2>
             </div>
             <div className="share-page">
               <Step2

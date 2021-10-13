@@ -30,9 +30,7 @@ const DrawingImage = ({ urlImg, height, width, canvasWidth, canvasHeight }: imgP
       width={width || 0}
       height={height || 0} 
       x={canvasWidth/2 - width/2 || 0} 
-      //x={0} 
       y={canvasHeight/2 - height/2 ||0} 
-      //y={0} 
     />
   );
 };
@@ -86,11 +84,12 @@ const Annotation = ({
   return (
     <Fragment>
       <Rect
-        fill="transparent"
-        stroke="#00BCAD"
+        ref={shapeRef}
+        fill = 'white'  // Use destination-out to mock transparency.
+        globalCompositeOperation = 'destination-out'
+        stroke="#3D92C7"
         onMouseDown={onSelect}
         onTap={onSelect}
-        ref={shapeRef}
         {...shapeProps}
         draggable
         onMouseEnter={onMouseEnter}
@@ -128,6 +127,10 @@ const Annotation = ({
       <Transformer
         ref={transformRef}
         rotateEnabled={false}
+        borderStroke="#3D92C7"
+        borderStrokeWidth={4}
+        anchorFill="white"
+        anchorCornerRadius={5}
         boundBoxFunc={(oldBox, newBox) => {
           // limit resize
           if (newBox.width < 5 || newBox.height < 5) {
@@ -140,7 +143,12 @@ const Annotation = ({
   );
 };
 
-const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }: any) => {
+const BoundingBoxStage = ({
+  canvasWidth,
+  canvasHeight,
+  imageWidth,
+  imageHeight,
+}: any) => {
   const { drawing, boundingBox, setBox } = useDrawingStore();
 
   const handleMouseEnter = (event: MouseEvent | any) => {
@@ -150,7 +158,7 @@ const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }
   const checkDeselect = (e: TouchEvent | any) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
-      return
+      return;
     }
   };
 
@@ -165,10 +173,20 @@ const BoundingBoxStage = ({ canvasWidth, canvasHeight,imageWidth, imageHeight  }
         <Layer>
           <DrawingImage
             urlImg={drawing}
-            width={imageWidth} //Original dimensions to fit in the square
+            width={imageWidth} // Original dimensions to fit in the square
             height={imageHeight}
             canvasWidth={canvasWidth}
             canvasHeight={canvasHeight}
+          />
+        </Layer>
+        <Layer>
+          <Rect
+            fill="dark" // dark overlay in canvas
+            x={10}
+            y={10}
+            width={canvasWidth - 20 || 20}
+            height={canvasHeight - 20 || 20}
+            opacity={0.6}
           />
           <Annotation
             shapeProps={boundingBox}

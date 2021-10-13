@@ -13,13 +13,13 @@ const Canvas = () => {
     switch (currentStep) {
       case 1:
         return <CanvasUpload />;
-      case 3:
+      case 2:
         return <CanvasBoundingBox />;
-      case 4:
+      case 3:
         return <CanvasMask />;
-      case 5:
+      case 4:
         return <CanvasPose />;
-      case 6:
+      case 5:
         return <CanvasAnimation />;
       default:
         return [];
@@ -27,9 +27,9 @@ const Canvas = () => {
   };
 
   return (
-    <div>
+    <>
       {renderStep()}
-    </div>
+    </>
   );
 };
 

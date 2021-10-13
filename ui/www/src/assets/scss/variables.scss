@@ -1,3 +1,32 @@
+@font-face {
+  font-family: 'facebook-display';
+  src: url('../fonts/Optimistic_Display_W_Md.eot'); /* IE9 Compat Modes */
+  src: url('../fonts/Optimistic_Display_W_Md.woff2') format('woff2'), /* Modern Browsers */
+       url('../fonts/Optimistic_Display_W_Md.woff') format('woff'), 
+       url('../fonts/Optimistic_Display_A_Md.ttf')  format('truetype'); /* Safari, Android, iOS */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'facebook-text';
+  src: url('../fonts/Optimistic_Text_W_Md.eot');
+  src: url('../fonts/Optimistic_Text_W_Lt.woff2') format('woff2'), 
+       url('../fonts/Optimistic_Text_W_Md.woff2') format('woff2'),
+       url('../fonts/Optimistic_Text_W_Lt.woff') format('woff'), 
+       url('../fonts/Optimistic_Text_W_Md.woff') format('woff'),
+       url('../fonts/Optimistic_Text_Md.ttf')  format('truetype'); 
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'facebook-text-md';
+  src: url('../fonts/Optimistic_Text_W_Md.eot');
+  src: url('../fonts/Optimistic_Text_W_Md.woff2') format('woff2'),
+       url('../fonts/Optimistic_Text_W_Md.woff') format('woff'),
+       url('../fonts/Optimistic_Text_Md.ttf')  format('truetype'); 
+  font-style: normal;
+}
+
 $white: #fff !default;
 $gray-100: #f6f9fc !default;
 $gray-200: #e9ecef !default;
@@ -26,8 +55,8 @@ $grays: map-merge(
   $grays
 );
 
-$blue: #3a6a88 !default;
-$indigo: #2d303d !default;
+$blue: #0E2D52 !default;
+$indigo: #3D92C7 !default;
 $purple: #8965e0 !default;
 $pink: #FEB1C8 !default;
 $red: #f5365c !default;
@@ -36,18 +65,34 @@ $yellow: #efcb87 !default;
 $green: #2dce89 !default;
 $teal: #00BCAD !default;
 $cyan: #87bfa1 !default;
-$blue2: #5ca5b2 !default;
+$blue2: #7DC8EF !default;
 
-$default: #00BCAD !default;
-$primary: $pink !default;
-$secondary: #ffefe1 !default;
+$default: $blue2 !default;
+$primary: $blue !default;
+$secondary: $gray-100 !default;
 $success: $green !default;
-$info: $teal !default;
+$info: $indigo !default;
 $warning: $yellow !default;
 $danger: $red !default;
 $light: $gray-500 !default;
 $dark: #282c34 !default;
 $darker: darken($gray-900, 15%) !default;
+
+$theme-colors: () !default;
+$theme-colors: map-merge((
+  "default":      $default,
+  "primary":      $primary,
+  "secondary":    $secondary,
+  "success":      $success,
+  "info":         $info,
+  "warning":      $warning,
+  "danger":       $danger,
+  "white":        $white,
+  "neutral":      $white,
+  "dark":         $dark,
+  "darker":       $darker,
+  "blue":         $blue
+), $theme-colors);
 
 // Content
 
@@ -56,7 +101,9 @@ $main-content-padding-x: 15px !default;
 
 // Fonts
 
-$font-family-sans-serif: "Nunito", sans-serif !default;
+$font-family-sans-serif: "facebook-text", sans-serif !default;
+$font-family-headings: 'facebook-display', sans-serif;
+$font-family-md: 'facebook-text-md', sans-serif;
 $font-family-base: $font-family-sans-serif !default;
 
 $font-size-base: 1rem !default; // Assumes the browser default, typically `16px`
@@ -78,6 +125,30 @@ $h5-font-size: $font-size-base * 0.8125 !default;
 $h6-font-size: $font-size-base * 0.625 !default;
 
 $list-inline-padding:         .5rem !default;
+
+// Navs
+
+$nav-link-padding-y:                .25rem !default;
+$nav-link-padding-x:                .75rem !default;
+$nav-link-color:                    $gray-700 !default;
+$nav-link-hover-color:              theme-color("primary") !default;
+$nav-link-disabled-color:           $gray-600 !default;
+
+$nav-pills-padding-y:               .75rem !default;
+$nav-pills-padding-x:               1rem !default;
+
+$nav-pills-space-x:                 1rem !default;
+
+$nav-pills-bg:                      $default !default;
+$nav-pills-border-width:            1px !default;
+$nav-pills-border-color:            theme-color("blue") !default;
+$nav-pills-border-radius:           16px !default; //$border-radius
+
+$nav-pills-link-color:              theme-color("blue") !default;
+$nav-pills-link-hover-color:        theme-color("blue") !default;
+$nav-pills-link-active-color:       color-yiq(theme-color("blue")) !default;
+$nav-pills-link-active-bg:          theme-color("blue") !default;
+$nav-pills-box-shadow:              0 !default; //$btn-box-shadow
 
 // Navbar
 
@@ -127,7 +198,7 @@ $input-bg: $white !default;
 $input-disabled-bg: $gray-200 !default;
 
 $component-active-color: $white !default;
-$component-active-bg: $success !default;
+$component-active-bg: $primary !default;
 $component-active-border-color: $success !default;
 
 $custom-control-indicator-bg: $input-bg !default;
@@ -171,3 +242,10 @@ $modal-footer-border-color:         $modal-header-border-color !default;
 $modal-header-border-width:         $modal-content-border-width !default;
 $modal-footer-border-width:         $modal-header-border-width !default;
 $modal-header-padding:              1.25rem !default;
+
+// Links
+
+$link-color:                $primary !default;
+$link-decoration:           none !default;
+$link-hover-color:          darken($link-color, 15%) !default;
+$link-hover-decoration:     none !default;

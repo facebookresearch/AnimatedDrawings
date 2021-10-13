@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
-import { Col, Button, Spinner } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import Loader from "../Loader";
+import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -68,7 +69,7 @@ const CanvasUpload = () => {
 
   const convertHeicformat = async (heicURL: string) => {
     try {
-      setConvertingHeic(true)
+      setConvertingHeic(true);
       const res = await fetch(heicURL);
       const blob = await res.blob();
       const conversionResult: any = await heic2any({
@@ -94,7 +95,7 @@ const CanvasUpload = () => {
 
       setNewCompressedDrawing(newFile);
       setDrawing(imgUrl);
-      setConvertingHeic(false)
+      setConvertingHeic(false);
     } catch (err) {
       console.log(err);
     }
@@ -117,7 +118,7 @@ const CanvasUpload = () => {
 
   return (
     <div className="canvas-wrapper">
-      <div className="canvas-background border border-dark">
+      <div className="canvas-background-p-0">
         {converting ? (
           <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
@@ -132,27 +133,17 @@ const CanvasUpload = () => {
                 )}
               </>
             ) : (
-              <Col>
-                <p>
-                  Drop a photo of your drawing <br /> or <br /> Select a photo
-                  from your device
-                </p>
-                <Button
-                  className="border border-dark text-dark"
-                  onClick={upload}
-                >
-                  Choose File
-                </Button>
-              </Col>
+              <img alt="placeholder" src={CanvasPlaceholder} />
             )}
           </>
         )}
       </div>
 
       <input
+        ref={inputFile}
         type="file"
         name="file"
-        ref={inputFile}
+        accept=".jpg, .png, .heic"
         style={{ display: "none" }}
         multiple={false}
         onChange={compress}
@@ -161,12 +152,12 @@ const CanvasUpload = () => {
       {drawing === "" ? (
         <div className="mt-3">
           <button className="buttons large-button" onClick={upload}>
-            <i className="bi bi-upload mr-2" /> Upload
+            <i className="bi bi-image-fill mr-2" /> Upload
           </button>
         </div>
       ) : (
         <div className="mt-3 text-center">
-          <button className="buttons sm-button mr-1" onClick={upload}>
+          <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
             Retake
           </button>
           <button

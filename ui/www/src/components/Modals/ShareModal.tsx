@@ -1,117 +1,130 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import React, { useRef, useState, useEffect } from "react";
+import { Modal, Row, Col, FormControl } from "react-bootstrap";
+import DownloadIcon from "../../assets/customIcons/downloadIcon.svg";
+import FacebookIcon from "../../assets/customIcons/facebookIcon.svg";
+import TwitterIcon from "../../assets/customIcons/twitterIcon.svg";
+import WhatsappIcon from "../../assets/customIcons/whatsapp.svg";
+import EmailIcon from "../../assets/customIcons/envelopeIcon.svg";
 import {
   EmailShareButton,
-  EmailIcon,
   FacebookShareButton,
-  FacebookIcon,
-  LinkedinShareButton,
-  LinkedinIcon,
-  RedditShareButton,
-  RedditIcon,
   TwitterShareButton,
-  TwitterIcon,
   WhatsappShareButton,
-  WhatsappIcon,
-  WorkplaceShareButton,
-  WorkplaceIcon
 } from "react-share";
 
 interface props {
   showModal: boolean;
-  handleModal: () => void;
   title: string;
   getShareLink: any;
+  videoDownload: string; //base64
+  handleModal: () => void;
 }
 
-const ShareModal = ({ showModal, handleModal, title, getShareLink }: props) => {
+const ShareModal = ({ showModal, title, getShareLink, videoDownload, handleModal }: props) => {
   const [shareLink, setShareLink] = useState("");
+  const [copySuccess, setCopySuccess] = useState("");
+  const textAreaRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
     setShareLink(getShareLink);
     return () => {};
   }, [getShareLink]);
 
+  const copyToClipboard = (e: MouseEvent | any) => {
+    textAreaRef.current.select();
+    document.execCommand("copy");
+    e.target.focus();
+    setCopySuccess("Copied!");
+  };
+
   return (
-    <Modal show={showModal} onHide={handleModal}>
-      <Modal.Header closeButton className="bg-secondary">
-        <Modal.Title>{title}</Modal.Title>
+    <Modal size="lg" show={showModal} onHide={handleModal}>
+      <Modal.Header closeButton className="bg-secondary px-lg-4">
+        <h2 className="modal-title">SHARE</h2>
       </Modal.Header>
-      <Modal.Body className="bg-secondary">
-        <Row className="align-items-center justify-content-center px-0">
-        <Col lg={1} xs={1}>
+      <Modal.Body className="bg-secondary modal-share">
+        <Row className="align-items-center pl-3 px-lg-5 mb-4">
+          <Col lg={2} xs={2} className="px-0">
+            <a
+              download="animation.mp4"
+              href={videoDownload}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img src={DownloadIcon} alt="icon" />
+            </a>
+          </Col>
+          <Col lg={2} xs={2} className="px-0">
             <FacebookShareButton
               url={shareLink}
               quote={"Check this kid's drawing animation."}
               className="mr-3"
             >
-              <FacebookIcon size={32} round />
+              <img src={FacebookIcon} alt="icon" />
             </FacebookShareButton>
           </Col>
-          <Col lg={1} xs={1}>
+          <Col lg={2} xs={2} className="px-0">
             <WhatsappShareButton
               url={shareLink}
               title={title}
               separator=":: "
               className="mr-2"
             >
-              <WhatsappIcon size={32} round />
+              <img src={WhatsappIcon} alt="icon" />
             </WhatsappShareButton>
           </Col>
-          <Col lg={1} md={1} xs={1}>
+          <Col lg={2} xs={2} className="px-0">
             <TwitterShareButton
               url={shareLink}
               title={"Check this kid's drawing animation."}
               className="mr-2"
             >
-              <TwitterIcon size={32} round />
+              <img src={TwitterIcon} alt="icon" />
             </TwitterShareButton>
           </Col>
-          <Col lg={1} xs={1}>
-            <LinkedinShareButton
-              url={shareLink}
-              className="mr-2"
-            >
-              <LinkedinIcon size={32} round />
-            </LinkedinShareButton>
-          </Col>
-          <Col lg={1} xs={1}>
+          <Col lg={2} xs={2} className="px-0">
             <EmailShareButton
               url={shareLink}
               subject={"Check this kid's drawing animation."}
               body="body"
               className="mr-2"
             >
-              <EmailIcon size={32} round />
+              <img src={EmailIcon} alt="icon" />
             </EmailShareButton>
           </Col>
-          <Col lg={1} xs={1}>
-            <RedditShareButton
-              url={shareLink}
-              title={"Check this kid's drawing animation."}
-              windowWidth={660}
-              windowHeight={460}
-              className="mr-2"
-            >
-              <RedditIcon size={32} round />
-            </RedditShareButton>
+        </Row>
+        <Row className="px-lg-4 mt-2 mb-1">
+          <Col>
+            <h6>PAGE LINK</h6>
           </Col>
-          <Col lg={1} xs={1}>
-          <WorkplaceShareButton
-            url={shareLink}
-            quote={"Check this kid's drawing animation."}
-            className="mr-2"
+        </Row>
+        <Row className="align-items-center mt-3 px-lg-4">
+          <Col lg={11} md={11} xs={10}>
+            <FormControl
+              aria-describedby="basic-addon1"
+              ref={textAreaRef}
+              type="text"
+              readOnly
+              value={shareLink}
+            />
+          </Col>
+          <Col
+            lg={1}
+            md={1}
+            xs={1}
+            style={{ cursor: "pointer" }}
+            onClick={copyToClipboard}
           >
-            <WorkplaceIcon size={32} round />
-          </WorkplaceShareButton>
+            <i className="bi bi-link-45deg h1"></i>
+          </Col>
+        </Row>
+        <Row className="px-lg-4">
+          <Col lg={2} className="mt-1 h5">
+            {copySuccess}
           </Col>
         </Row>
       </Modal.Body>
-      <Modal.Footer className="bg-secondary">
-        <Button variant="default" onClick={handleModal}>
-          Close
-        </Button>
-      </Modal.Footer>
+      <Modal.Footer className="bg-secondary"></Modal.Footer>
     </Modal>
   );
 };

@@ -1,7 +1,5 @@
 import React from "react";
-import classnames from "classnames";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import useStepperStore from "../../hooks/useStepperStore";
 
 interface Props {
   showModal: boolean;
@@ -11,7 +9,6 @@ interface Props {
 }
 
 const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
-  const { agreeTerms } = useStepperStore();
 
   return (
     <Container>
@@ -19,7 +16,7 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
         <Col lg={6} md={12} sm={12} className="ml-auto mr-auto">
           <Row>
             <Col>
-              <h4 className="bold">Step 2/4</h4>
+      
             </Col>
             <Col className="text-right">
               <Button
@@ -33,11 +30,11 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
             </Col>
           </Row>
           <div className="waiver-step-container">
-            <h1 className="step-title">
-              Would you like
-              <br className="d-none d-lg-block" /> to help our research?
-            </h1>
-            <p>Granting permission is totally optional.</p>
+            <h2>
+              Would you like to <br className="d-none d-lg-block" />
+              <span className="text-info">help our research?</span>
+            </h2>
+            <p className="bold">Granting permission is totally optional.</p>
             <p>
               Thanks for giving our demo a try. It is still a work in progress
               and, to make it more robust, we need to collect additional
@@ -103,30 +100,29 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
               part of an open source dataset.
             </p>
           </div>
-          <div className="mt-2 text-center mb-4">
-            <button
-              className={classnames(
-                "ml-2 buttons",
-                { "md-button-disagree text-white": agreeTerms === false },
-                { "disagree-opt": agreeTerms === null || agreeTerms === true}
-              )}
-              //onClick={() => setAgreeTerms(false)}
-              onClick={() => handleNext(false)}
-            >
-              Disagree
-            </button>
-            <button
-              className={classnames(
-                "ml-2 buttons",
-                { "md-button-success text-white": agreeTerms === true },
-                { "agree-opt": agreeTerms === null ||  agreeTerms === false}
-              )}
-              //onClick={() => setAgreeTerms(true)}
-              onClick={() => handleNext(true)}
-            >
-              Agree
-            </button>
-          </div>
+          <Row className="justify-content-center px-3">
+            <Col lg={6} md={4} xs={12}>
+              <Button
+                block
+                size="lg"
+                variant="outline-primary"
+                className="py-3 my-2"
+                onClick={() => handleNext(false)}
+              >
+                Disagree
+              </Button>
+            </Col>
+            <Col lg={6} md={4} xs={12} className="text-center">
+              <Button
+                block
+                size="lg"
+                className="py-3 my-2"
+                onClick={() => handleNext(true)}
+              >
+                Agree
+              </Button>
+            </Col>
+          </Row>
         </Col>
       </Row>
     </Container>

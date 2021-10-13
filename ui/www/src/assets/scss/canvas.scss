@@ -1,6 +1,7 @@
 .canvas-wrapper {
   width: 528px;
   align-items: center;
+  justify-content: center;
   margin: auto;
 }
 
@@ -16,7 +17,6 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 1px solid;
   padding: 10px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
   img {
@@ -29,14 +29,37 @@
   }
 }
 
+.canvas-background-p-0 {
+  position: relative;
+  display: flex;
+  width: 528px;
+  height: 528px;
+  border-radius: 16px;
+  background: $white;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+  img {
+    margin: 0;
+    border-radius: 16px;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
 /* Mobile */
 @media screen and (max-width: 576px) {
   .canvas-wrapper {
     width: 100%;
-    margin: 0;
   }
   .canvas-background {
-    width: 100%;
+    width: 350px;
+    height: 350px;
+    border-radius: 5%;
+  }
+  .canvas-background-p-0 {
+    width: 350px;
     height: 350px;
     border-radius: 5%;
   }
@@ -50,13 +73,19 @@
   and (-webkit-min-device-pixel-ratio: 1) {
     .canvas-wrapper {
       width: 400px;
-      margin: 0;
+      margin: auto;
+      justify-content: center;
     }
     .canvas-background {
       width: 400px;
       height: 400px;
       border-radius: 5%; 
     }
+    .canvas-background-p-0 {
+      width: 400px;
+      height: 400px;
+      border-radius: 5%; 
+    }  
 }
 
 /* Tablets: Portrait iPad Pro */
@@ -69,9 +98,18 @@
       height: 385px;
       border-radius: 5%;  
     }
+    .canvas-background-p-0 {
+      width: 385px;
+      height: 385px;
+      border-radius: 5%;
+    }
 }
 
 /*** Custom Buttons ***/
+.shadow-button {
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+}
+
 .buttons {
   height: 48px;
   cursor: pointer;
@@ -79,7 +117,7 @@
   border-radius: 10px;
   border: transparent;
   text-align: center;
-  color: $dark;
+  color: $white;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
 
@@ -88,12 +126,12 @@
   width: 100%;
   height: 48px;
   background-color: $primary;
-  color: $dark;
+  color: $white;
 }
 
 .large-button:hover {
-  background-color: pink;
-  color: black;
+  background-color: $default;
+  color: $dark;
   opacity: 1
 }
 
@@ -101,7 +139,6 @@
   display: inline-block;
   width: 47%;
   background-color: $primary;
-  color: $dark;
 }
 
 .md-button-2 {
@@ -109,7 +146,6 @@
   width: 48%;
   border-radius: 10px;
   background-color: $default;
-  color: $dark;
 }
 
 .md-button-success {
@@ -154,7 +190,6 @@
 
 .md-button:hover {
   background-color: $primary;
-  color: black;
   opacity: 0.8
 }
 
@@ -299,14 +334,13 @@
 }
 
 /*** Canvas Mask ***/
-.mask-wrapper {
-  display: flex;
-  height: 100%;
+
+.tools-wrapper {
+  padding: 6px 6px;
+  background-color: $white;
+  border-radius: 10px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
-.mask-wrapper img { 
-  flex-grow: 1;
-  object-fit: cover;
-} 
 
 /*** Canvas Pose ***/
 

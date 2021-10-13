@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { Spinner } from "react-bootstrap";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
+import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import ShareModal from "../Modals/ShareModal";
@@ -16,6 +17,7 @@ const CanvasAnimation = () => {
     setVideoDownload,
     setAnimationFiles,
   } = useDrawingStore();
+  const { currentStep, setCurrentStep } = useStepperStore();
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
   });
@@ -107,7 +109,7 @@ const CanvasAnimation = () => {
 
   return (
     <div className="canvas-wrapper">
-      <div className="canvas-background border border-dark">
+      <div className="canvas-background">
         {isLoading ? (
           <Loader drawingURL={drawing} />
         ) : (
@@ -117,14 +119,64 @@ const CanvasAnimation = () => {
         )}
       </div>
 
-      <div className="mt-3 text-center">
-        <a
-          download="animation.mp4"
-          href={videoDownload}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button className="buttons md-button mr-1" disabled={isLoading}>
+      <Row className="justify-content-center mt-3">
+        <Col lg={2} md={2} xs={2}>
+          <Button
+            size="lg"
+            variant="outline-primary"
+            className="my-1"
+            onClick={() => setCurrentStep(currentStep - 1)}
+          >
+            Fix
+          </Button>
+        </Col>
+        <Col lg={5} md={5} xs={5} className="pr-1">
+          <Button
+            block
+            size="lg"
+            className="my-1 d-none d-lg-block shadow-button"
+            disabled={isLoading}
+            href="/canvas"
+          >
+            Create new drawing
+          </Button>
+          <a
+            download="animation.mp4"
+            href={videoDownload}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button
+              block
+              size="lg"
+              className="my-1 d-inline-block d-none d-sm-none"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  <i className="bi bi-download mr-2" /> Download
+                </>
+              )}
+            </Button>
+          </a>
+        </Col>
+        <Col lg={5} md={5} xs={5} className="pl-1">
+          <Button
+            block
+            size="lg"
+            variant="info"
+            className="my-1 text-primary shadow-button"
+            disabled={isLoading}
+            onClick={handleShare}
+          >
             {isLoading ? (
               <Spinner
                 as="span"
@@ -135,25 +187,18 @@ const CanvasAnimation = () => {
               />
             ) : (
               <>
-                <i className="bi bi-download mr-2" /> Download
+                <i className="bi bi-share-fill mr-2" /> Share
               </>
             )}
-          </button>
-        </a>
-
-        <button
-          className="buttons md-button ml-1"
-          disabled={isLoading}
-          onClick={handleShare}
-        >
-          <i className="bi bi-share-fill mr-2" /> Share
-        </button>
-      </div>
+          </Button>
+        </Col>
+      </Row>
       <ShareModal
         showModal={showModal}
         handleModal={() => setModal(!showModal)}
-        title={"Share"}
+        title={"SHARE"}
         getShareLink={getShareLink}
+        videoDownload={videoDownload}
       />
     </div>
   );

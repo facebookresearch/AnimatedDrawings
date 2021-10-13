@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import PoseEditor, { Pose } from "../PoseEditor";
+import PoseEditor, { Pose } from "./PoseEditor";
 import { calculateRatio } from "../../utils/Helpers";
 
 const mapPoseToJoints = (pose: Pose) => {
@@ -82,6 +83,9 @@ const CanvasPose = () => {
         });
         setCurrentStep(currentStep + 1);
       }
+      if (clickType === "previous") {
+        setCurrentStep(currentStep - 1);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -89,7 +93,7 @@ const CanvasPose = () => {
 
   return (
     <div className="canvas-wrapper">
-      <div ref={canvasWindow} className="canvas-background border border-dark">
+      <div ref={canvasWindow} className="canvas-background">
         {pose && (
           <PoseEditor
             imageUrl={imageUrlPose}
@@ -101,15 +105,43 @@ const CanvasPose = () => {
         )}
       </div>
 
-      <div className="mt-3">
-        <button
-          className="buttons large-button"
-          disabled={isLoading}
-          onClick={() => handleClick("next")}
-        >
-          Next <i className="bi bi-arrow-right" />
-        </button>
-      </div>
+      <Row className="justify-content-center mt-3">
+        <Col lg={5} md={5} xs={12}>
+          <Button
+            block
+            size="lg"
+            variant="outline-primary"
+            className="my-1"
+            disabled={isLoading}
+            onClick={() => handleClick("previous")}
+          >
+            Previous
+          </Button>
+        </Col>
+        <Col lg={5} md={5} xs={12} className="text-center">
+          <Button
+            block
+            size="lg"
+            className="my-1 shadow-button"
+            disabled={isLoading}
+            onClick={() => handleClick("next")}
+          >
+            {isLoading ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : (
+              <>
+                Next <i className="bi bi-arrow-right ml-1" />{" "}
+              </>
+            )}
+          </Button>
+        </Col>
+      </Row>
     </div>
   );
 };
