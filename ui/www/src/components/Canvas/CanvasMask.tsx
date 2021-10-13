@@ -282,7 +282,7 @@ const CanvasMask = () => {
               </button>
               <div className="pens-wrapper border border-dark">
                 <form className="pens">
-                  <label className="label1">
+                  <label className="label0 d-none d-lg-block">
                     <input
                       type="radio"
                       name="radio"
@@ -292,13 +292,23 @@ const CanvasMask = () => {
                     />
                     <span></span>
                   </label>
+                  <label className="label1">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value={5}
+                      checked={penSize === 5}
+                      onChange={() => setPenSize(5)}
+                    />
+                    <span></span>
+                  </label>
                   <label className="label2">
                     <input
                       type="radio"
                       name="radio"
-                      value={10}
-                      checked={penSize === 10}
-                      onChange={() => setPenSize(10)}
+                      value={15}
+                      checked={penSize === 15}
+                      onChange={() => setPenSize(15)}
                     />
                     <span></span>
                   </label>
@@ -306,9 +316,9 @@ const CanvasMask = () => {
                     <input
                       type="radio"
                       name="radio"
-                      value={20}
-                      checked={penSize === 20}
-                      onChange={() => setPenSize(20)}
+                      value={26}
+                      checked={penSize === 26}
+                      onChange={() => setPenSize(26)}
                     />
                     <span></span>
                   </label>
