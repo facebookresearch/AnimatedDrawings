@@ -1,5 +1,5 @@
 import create from "zustand";
-import { Pose } from "../components/PoseEditor";
+import { Pose } from "../components/Canvas/PoseEditor";
 import { BoundingBox } from "../components/Canvas/CanvasBoundingBox";
 
 type DrawingState = {

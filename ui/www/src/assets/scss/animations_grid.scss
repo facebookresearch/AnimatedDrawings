@@ -1,19 +1,26 @@
+.nav-pills {
+  button {
+    border-radius: 15px;
+    margin: 4px;
+    font-family: $font-family-md;
+  }
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: auto auto auto;
     grid-gap: 10px;
     background-color: transparent;
     padding: 10px;
-    max-width: 360px;
 }
 
 .sm-grid-item {
     background-color: $white;
     text-align: center;
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid $dark;
     opacity: 0.8;
     cursor: pointer;
@@ -26,12 +33,31 @@
 }
 
 .item-grid-selected {
-  border: 2px solid $primary;
+  border: 4px solid $info;
 }
 
 .sm-grid-item:hover {
   border-color: white;
   opacity: 1;
-  border: 1px solid $primary;
+  border: 2px solid $primary;
+}
+
+/* Mobile */
+@media screen and (max-width: 576px) {
+  .nav-pills {
+    button {
+      margin: 3px;
+    }
+  }
+  .grid-container {
+    max-width: 360px;
+}
+  .sm-grid-item {
+    width: 100px;
+    height: 100px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid $dark;
+  }
 }
 

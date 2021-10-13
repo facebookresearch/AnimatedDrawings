@@ -1,36 +1,19 @@
-import React, { useEffect, useState, forwardRef } from "react";
-import { useLocation, useHistory } from "react-router";
-import { Dropdown, Spinner, Alert } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
+import { Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import ShareModal from "../Modals/ShareModal";
 
 interface Props {
   uuid: string;
   animationType: string;
 }
 
-const CustomToggle = forwardRef(({ children, onClick }: any, ref: any) => (
-  <a
-    href="/#"
-    ref={ref}
-    onClick={(e) => {
-      e.preventDefault();
-      onClick(e);
-    }}
-  >
-    {children}
-  </a>
-));
-
 const CanvasShare = ({ uuid, animationType }: Props) => {
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
   });
-  const location = useLocation();
   const history = useHistory();
-  const [animationFiles, setAnimationFiles] = useState<File[]>([]);
   const [videoDownload, setVideoDownload] = useState("");
-  const [showModal, setModal] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
   /**
@@ -80,48 +63,15 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
         }
       };
 
-      var filesArray: File[] = [
-        new File([data], "animation.mp4", {
-          type: "video/mp4",
-          lastModified: Date.now(),
-        }),
-      ];
-
       var blob = new Blob([data], { type: "video/mp4" });
       setVideoDownload(URL.createObjectURL(blob));
-      setAnimationFiles(filesArray);
       reader.readAsDataURL(blob);
     }
   };
 
-  const handleShare = () => {
-    let data = {
-      url: `${window.location.href}${location.search}`,
-      title: "Animation",
-      text: "Check this kid's drawing animation",
-      files: animationFiles,
-    };
-    if (
-      typeof navigator.share === "function"
-      //&& navigator.canShare({ files: animationFile })
-    ) {
-      navigator
-        .share(data)
-        .then(() => console.log("Successful share"))
-        .catch((error) => console.log("Error sharing", error));
-    } else {
-      console.log("Your device does not support sharing");
-      setModal(true);
-    }
-  };
-
-  const getShareLink = () => {
-    let shareLink = `${window.location.href}${location.search}`;
-    return shareLink;
-  };
-
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box d-none d-lg-block"></div>
       {showWarning && (
         <Alert
           variant="danger"
@@ -135,33 +85,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
           </Alert.Heading>
         </Alert>
       )}
-      <div className="text-right m-2">
-        <Dropdown className="d-inline mx-2" drop="up">
-          <Dropdown.Toggle as={CustomToggle} id="dropdown-autoclose-true">
-            <i className="bi bi-three-dots h1 text-dark" />
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            <Dropdown.Item
-              download="animation.mp4"
-              href={videoDownload}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {" "}
-              <i className="bi bi-download mr-2" /> Download
-            </Dropdown.Item>
-            <Dropdown.Item onClick={handleShare}>
-              {" "}
-              <i className="bi bi-share-fill mr-2" /> Share
-            </Dropdown.Item>
-            <Dropdown.Item href="#" className="text-danger">
-              <i className="bi bi-flag-fill text-danger mr-2" /> Report
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-      <div className="canvas-background border border-dark">
+      <div className="canvas-background">
         {isLoading ? (
           <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
@@ -171,47 +95,43 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
         )}
       </div>
 
-      <div className="mt-3 text-center">
-        <a
-          download="animation.mp4"
-          href={videoDownload}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button
-            className="md-button-2 border border-dark"
-            disabled={isLoading}
+      <Row className="justify-content-center mt-3">
+        <Col lg={6} md={6} xs={12}>
+          <Button block size="lg" variant="primary" className="my-1" href="/">
+            Create your Animation
+          </Button>
+        </Col>
+        <Col lg={6} md={6} xs={12} className="text-center">
+          <a
+            download="animation.mp4"
+            href={videoDownload}
+            target="_blank"
+            rel="noreferrer"
           >
-            {isLoading ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-              <>
-                <i className="bi bi-download" /> Download
-              </>
-            )}
-          </button>
-        </a>
-
-        <button
-          className="md-button border border-dark"
-          disabled={isLoading}
-          onClick={handleShare}
-        >
-          <i className="bi bi-share-fill" /> Share
-        </button>
-      </div>
-      <ShareModal
-        showModal={showModal}
-        handleModal={() => setModal(!showModal)}
-        title={"Share"}
-        getShareLink={getShareLink}
-      />
+            <Button
+              block
+              size="lg"
+              variant="info"
+              className="my-1 text-primary"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  <i className="bi bi-download mr-1" /> Download
+                </>
+              )}
+            </Button>
+          </a>
+        </Col>
+      </Row>
     </div>
   );
 };

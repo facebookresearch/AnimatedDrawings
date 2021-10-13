@@ -451,6 +451,10 @@ def index_resource():
 def not_found(e):
     return send_file(resource_dir / "index.html")
 
+@app.route("/about")
+def about_route():
+    return send_file(resource_dir / "index.html")
+
 @app.route("/canvas")
 def canvas_route():
     return send_file(resource_dir / "index.html")

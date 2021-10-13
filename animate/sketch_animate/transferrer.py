@@ -56,14 +56,18 @@ class JointAngleTransferrer(Transferrer):
             if segment.name not in self.target_joints:
                 continue
 
-            bvh_bone_vector = normalized(self.get_bvh_bone_vector(segment, time))
+            proj_m = self.bvh_camera.get_proj_matrix(self.viewer.width, self.viewer.height)
+            view_m = self.bvh_camera.get_view_matrix()
+
+            bvh_bone_vector = normalized(self.get_bvh_bone_vector(segment, time, proj_m, view_m))
             theta = angle_from(x_ax, bvh_bone_vector)
             self.set_sketch_angle(segment, theta)
 
 
-    def get_bvh_bone_vector(self, sketch_segment: Sketch.Segment, time: int):
+    def get_bvh_bone_vector(self, sketch_segment: Sketch.Segment, time: int, proj_m: np.array, view_m: np.array):
         """Given a segment(bone) and timeframe, returns the screenspace orientation of
-        that bone
+        that bone. proj_m and view_m are calculated once and passed from calling function `transfer_orientations`
+        since it is expensive
         """
 
         def name_to_screen_coords(seg_jnt_name: str):
@@ -72,11 +76,10 @@ class JointAngleTransferrer(Transferrer):
             pos = self.bvh.pos[time, idx, :]
             pos = np.array([*pos, 1.0], np.float32)
 
-            proj_m = self.bvh_camera.get_proj_matrix(self.viewer.width, self.viewer.height)
-            view_m = self.bvh_camera.get_view_matrix()
             screen = proj_m @ view_m @ self.bvh.model @ pos
             screen = screen[0:2] / screen[3]
             return screen
+
 
         djnt_screen = name_to_screen_coords(sketch_segment.dist_joint.name)
         pjnt_screen = name_to_screen_coords(sketch_segment.prox_joint.name)

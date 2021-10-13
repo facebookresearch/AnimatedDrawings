@@ -1225,11 +1225,11 @@ class ARAP_Sketch(BaseSketch):
         self.pinPoses = np.asarray(self.pinPoses)
 
         b1 = self._buildB1(self.pinPoses, self.w, self.nEdges)
-        v1 = spla.spsolve(self.tA1 * self.A1, self.tA1 * b1)
+        v1 = spla.spsolve(self.tA1xA1, self.tA1 * b1)
 
         b2 = self._buildB2(self.heVectors, self.heIndices, self.edges, self.pinPoses, self.w, self.G, v1)
-        v2x = spla.spsolve(self.tA2 * self.A2, self.tA2 * b2[:, 0])
-        v2y = spla.spsolve(self.tA2 * self.A2, self.tA2 * b2[:, 1])
+        v2x = spla.spsolve(self.tA2xA2, self.tA2 * b2[:, 0])
+        v2y = spla.spsolve(self.tA2xA2, self.tA2 * b2[:, 1])
         v2 = np.vstack((v2x, v2y)).T
 
         for idx in range(self.mesh_vertices.shape[0]):
@@ -1255,18 +1255,19 @@ class ARAP_Sketch(BaseSketch):
         self.nVertices = self.xy.shape[0]
         self.edges, self.heIndices = halfedge.toEdge(self.halfedges)
         self.nEdges = self.edges.shape[0]
-        self.A1top, self.G = self._buildA1top(self.heVectors, self.halfedges, self.edges, self.heIndices,
-                                              self.nVertices)
-
+        self.A1top, self.G = self._buildA1top(self.heVectors, self.halfedges, self.edges, self.heIndices, self.nVertices)
         self.A1bottom = self._buildA1bottom(self.pins, self.w, self.nVertices)
 
         self.A1 = sp.vstack((self.A1top, self.A1bottom))
         self.tA1 = self.A1.transpose()
+        self.tA1xA1 = self.tA1 * self.A1
 
         self.A2top = self._buildA2top(self.edges, self.nVertices)
         self.A2bottom = self._buildA2bottom(self.pins, self.w, self.nVertices)
+
         self.A2 = sp.vstack((self.A2top, self.A2bottom))
         self.tA2 = self.A2.transpose()
+        self.tA2xA2 = self.tA2 * self.A2
 
     def _buildA1top(self, heVectors, halfedges, edges, heIndices, nVertices):
 
@@ -1369,7 +1370,7 @@ class ARAP_Sketch(BaseSketch):
         bcols = [0 for i in range(0, len(brows))]
         bdata = (w * pinPositions).flatten()
         bshape = (nEdges * 2 + pinPositions.size, 1)
-        b1 = sp.csr_matrix((bdata, (brows, bcols)), shape=bshape).tolil()
+        b1 = sp.csr_matrix((bdata, (brows, bcols)), shape=bshape)
         return b1
 
     def _buildA2top(self, edges, nVertices):
@@ -1402,6 +1403,7 @@ class ARAP_Sketch(BaseSketch):
         shape = (pins.shape[0], nVertices)
         spA2bottom = sp.csr_matrix((Adata, (Arow, Acol)), shape=shape)
         return spA2bottom
+
 
     def _buildB2(self, heVectors, heIndices, edges, pinPoses, w, G, v1):
         T1 = G * v1

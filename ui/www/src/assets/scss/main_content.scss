@@ -16,7 +16,27 @@
   }
 }
 
-/**** Home Page ****/
+/********************/
+/**** Home Page *****/
+/********************/
+
+.bg-home {
+  position: relative;
+  background-image: url('../backgrounds/Homescreen.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: $secondary;
+}
+
+.bg-about {
+  position: relative;
+  background-image: url('../backgrounds/Aboutscreen.jpg');
+  background-position: bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: $secondary;
+}
 
 .home-page {
   position: relative;
@@ -24,18 +44,47 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  h1 {
-    font-size: 64px;
+  h2 {
+    font-size: 40px;
     font-weight: 700;
     line-height: 64px;
-    font-family: 'Caveat Brush';
+    font-family: $font-family-headings;
     font-style: normal;
-    font-weight: normal;
-    color: $default;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
   }
   h3 {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 24px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: normal;
+  }
+}
+
+.about-page {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  h2 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 64px;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-size: 24px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: normal;
   }
 }
 
@@ -43,62 +92,201 @@
   z-index: 1;
 }
 
+.gif-wrapper {
+  position: relative;
+  width: 504px;
+  height: 312px;
+  .gif-div {
+    position: absolute;
+    left: 0%;
+    bottom: 0%;
+    width: 472px;
+    height: 283px;
+    border-radius: 20px;
+    background-color: $white;
+    z-index: 5;
+  }
+  .gif-shadow-div {
+    position: absolute;
+    right: 0%;
+    top: 0%;
+    width: 472px;
+    height: 283px;
+    border-radius: 20px;
+    background-color: $primary;
+  }
+}
+
 .home-footer {
   position: absolute;
   bottom: 0%;
   cursor: pointer;
+  color: #1B4978;
+  font-family: $font-family-md;
   h4 {
-    font-size: 18px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
   }
 }
 
-.home-img-wrapper {
+.home-footer-credits {
   position: absolute;
-  height: 780px;
-  bottom: 0;
-  right: 0;
-  z-index: 0;
-  img {
-    margin: 0;
-    max-width: 100%;
-    max-height: 100%;
+  bottom: 0%;
+  left: 4%;
+  font-family: $font-family-md;
+  color: #1B4978;
+  .rg-1{
+    letter-spacing: 0.05em;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
   }
 }
 
-.reg-title {
-  font-size: 36px;
+.footer-report-content {
+  position: absolute;
+  bottom: 0%;
+  right: 4%;
+  cursor: pointer;
+  color: #1B4978;
+  font-family: $font-family-md;
+  text-transform: uppercase;
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
 }
 
+.wr-about-1 {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  color: $info;
+  font-family: $font-family-md;
+  cursor: pointer;
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Mobile */
 @media screen and (max-width: 576px) {
-  .home-img-wrapper {
-    height: 280px;
+  .bg-home {
+    position: relative;
+    background-image: url('../backgrounds/Mobile_Homescreen.jpg');
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: auto 100% ;
+    background-color: $white;
   }
-  .reg-title {
-    font-size: 20px;
-    font-weight: 600;
+
+  .home-page {
+    h3 {
+      font-size: 16px;
+      line-height: 20px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+  }
+
+  .about-page {
+    h3 {
+      font-size: 16px;
+      line-height: 20px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+  }
+
+  .gif-wrapper {
+    position: relative;
+    width: 340px;
+    height: 207px;
+    margin: auto;
+    .gif-div {
+      position: absolute;
+      left: 0%;
+      bottom: 0%;
+      width: 316px;
+      height: 195px;
+    }
+    .gif-shadow-div {
+      position: absolute;
+      right: 0%;
+      top: 0%;
+      width: 316px;
+      height: 195px;
+    }
+  }
+
+  .home-footer {
+    bottom: 10%;
+  }
+
+  .home-footer-credits {
+    bottom: 0%;
+    text-align: center;
+  }
+
+  .footer-report-content {
+    bottom: 13%;
+    left: auto;
+    right: auto;
+  }
+
+  .wr-about-1 {
+    top: 2%;
+    h4 {
+      font-size: 14px;
+    }
   }
 }
 
+/* Tablets */
 @media (min-width: 576px) and (max-width: 1024px)  {
-  .home-img-wrapper {
-    height: 420px;
+  .bg-home {
+    position: relative;
+    background-image: url('../backgrounds/Mobile_Homescreen.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: $white;
   }
-  .reg-title {
-    font-size: 20px;
-    font-weight: 600;
+  .home-page {
+    position: relative;
+    height: 1000px;
+  }
+  .about-page {
+    position: relative;
+    height: 1000px;
+  }
+  .home-footer {
+    bottom: 10%;
+  }
+  .home-footer-credits {
+    bottom: 0%;
+    text-align: center;
   }
 }
 
-
-/**** Main Page ****/
+/********************/
+/**** Main Page *****/
+/********************/
 
 .bg-main {
   position: relative;
-  background-image: url('../background_layer.svg');
-  background-position: right;
+  background-image: url('../backgrounds/Defaultscreen.jpg');
+  background-position: center;
+  background-size: cover;
   background-repeat: no-repeat;
-  background-size: contain ;
   background-color: $secondary;
 }
 
@@ -107,8 +295,17 @@
   top:0;
   right:0;
   padding: 1rem;
-  color: $white;
-  cursor: pointer
+  color: $primary;
+  cursor: pointer;
+  h4 {
+    font-family: $font-family-md;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .icon {
+    font-size: 20px;
+  }
 }
 
 .main-page {
@@ -117,13 +314,17 @@
   justify-content: center;
   align-items: center;
   .step-title {
-    font-family: 'Caveat Brush';
+    font-family: $font-family-headings;
     font-style: normal;
-    font-size: 56px;
+    font-size: 32px;
+    font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1B4978;
   }
   .bold {
     font-weight: 700;
+    font-family: $font-family-md;
   }
 }
 
@@ -131,13 +332,14 @@
   position: absolute;
   top: 5%;
   left: 8%;
-  h3 {
-    font-family: 'Caveat Brush';
-    font-style: normal;
-    font-weight: normal;
+  h2 {
     font-size: 24px;
-    letter-spacing: 0.4px;
-    color: $default;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
   }
 }
 
@@ -145,13 +347,14 @@
   position: absolute;
   top: 5%;
   left: 10%;
-  h3 {
-    font-family: 'Caveat Brush';
-    font-style: normal;
-    font-weight: normal;
+  h2 {
     font-size: 24px;
-    letter-spacing: 0.4px;
-    color: $default;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
   }
 }
 
@@ -164,15 +367,48 @@
   overflow: auto;
 }
 
+.main-page-footer {
+  position: absolute;
+  bottom: 0%;
+  cursor: pointer;
+  color: #1B4978;
+  font-family: $font-family-md;
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
+}
+
+.modal-title {
+    font-size: 24px;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.modal-share {
+  h6 {
+    font-family: $font-family-md;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+  }
+}
+
 /*** Mobile ***/
 @media screen and (max-width: 576px) {
   .bg-main {
     position: relative;
-    background-image: url('../background_layer.svg');
+    background-image: url('../backgrounds/Mobile_Defaultscreen.jpg');
     background-position: top;
     background-repeat: no-repeat;
-    background-size: contain ;
-    background-color: $secondary;
+    background-size: auto 80% ;
+    background-color: $white;
   }
   .main-page {
     align-items: flex-start;
@@ -182,8 +418,8 @@
     padding-top: 15px;
     left: 0%;
     text-align: center;
-    h3 {
-      color: $white;
+    h2 {
+      font-size: 20px;
     }
   }
   .navbar-title-waiver {
@@ -191,8 +427,13 @@
     padding-top: 15px;
     left: 0%;
     text-align: center;
-    h3 {
-      color: $default;
+    h2 {
+      font-size: 20px;
+    }
+  }
+  .modal-share {
+    img {
+      width: 40px;
     }
   }
 }
@@ -204,9 +445,6 @@
     padding-top: 15px;
     left: 0%;
     text-align: center;
-    h3 {
-      color: $default;
-    }
   }
 }
 
@@ -220,23 +458,38 @@
   }
 }
 
+/*****************************/
 /**** Waiver Page / Modal ****/
+/*****************************/
+
+.bg-waiver {
+  position: relative;
+  background-image: url('../backgrounds/Waiverscreen.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: $secondary;
+}
 
 .waiver-step-container {
   padding: 10px;
   width: 100%;
-  height: 70vh;
+  height: 60vh;
   max-width: 550px;
   overflow: auto;
   margin-bottom: 20px;
-  .step-title {
-    font-family: 'Caveat Brush';
+  h2 {
+    font-family: $font-family-headings;
     font-style: normal;
-    font-size: 56px;
+    font-size: 32px;
+    font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1B4978;
   }
   .bold {
-    font-weight: 700;
+    font-family: $font-family-md;
+    font-weight: bold;
   }
 }
 
@@ -250,31 +503,52 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  .step-title {
-    font-family: 'Caveat Brush';
-    font-style: normal;
-    font-size: 56px;
-    text-transform: uppercase;
-  }
-  .bold {
-    font-weight: 700;
-  }
 }
 
 @media screen and (max-width: 576px) {
+  .bg-waiver {
+    position: relative;
+    background-image: url('../backgrounds/Mobile_Homescreen.jpg');
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: auto 100% ;
+    background-color: $white;
+  }
+
   .waiver-step-container-wrap {
     height: 100vh;
+    align-items:flex-start
   }
   .waiver-step-container{
     height: 50vh;
+    h2 {  
+      font-size: 24px;
+    }
   }
 }
 
+/********************/
 /**** Share Page ****/
+/********************/
+
+.bg-share {
+  position: relative;
+  background-image: url('../backgrounds/Shareablescreen.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: $secondary;
+}
 
 .share-page {
   min-height: 100vh; /* height of the browser viewport */
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media screen and (max-width: 576px) {
+  .share-page {
+    align-content: flex-start;
+  }
 }

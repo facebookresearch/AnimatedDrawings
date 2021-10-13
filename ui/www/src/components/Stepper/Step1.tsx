@@ -2,16 +2,17 @@ import React from "react";
 import ExamplesCarousel from "../ExamplesCarousel";
 
 const Step1 = () => {
-
   return (
     <>
       <div className="step-actions-container">
-        <h1 className="step-title">
-          Upload a<br className="d-none d-lg-block" /> drawing
-        </h1>
-        <p>Upload a drawing of a <b>single human-like character</b>, where the arms and
-            legs don’t overlap the body (see examples below). </p>
-        <p>For Best Results:</p>
+        <h2 className="step-title">
+          Upload a <span className="text-info">drawing</span>
+        </h2>
+        <p>
+          Upload a drawing of a <span className="bold">single human-like character</span>, where the
+          arms and legs don’t overlap the body (see examples below).{" "}
+        </p>
+        <p className="bold" style={{letterSpacing: "0.2em"}}>FOR BEST RESULTS:</p>
         <ul className="d-list">
           <li>
             Make sure the character is drawn on a blank piece of paper without
@@ -23,11 +24,21 @@ const Step1 = () => {
           </li>
         </ul>
 
-        <h5 className="bold">NOTE</h5>
-        <p>Don’t include any identifiable information, offensive content
-          (see our <a href="https://transparency.fb.com/policies/community-standards/" target="_blank" rel="noreferrer">community standards</a>),
-          or drawings that infringe on the copyrights of others.</p>
-
+        <p>
+          Don’t include any identifiable information, offensive content (see our{" "}
+          <a
+            href="https://transparency.fb.com/policies/community-standards/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="bold">community standards</span>
+          </a>
+          ), or drawings that infringe on the copyrights of others.
+        </p>
+        <p>
+          Feel free to try the demo by downloading one of the following example
+          images.
+        </p>
         <ExamplesCarousel />
       </div>
     </>

@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import classnames from "classnames";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
+import { resizedataURL, calculateRatio } from "../../utils/Helpers";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import MaskStage from "./MaskStage";
-import { Position } from "../PoseEditor";
-import { resizedataURL, calculateRatio } from "../../utils/Helpers";
+import { Position } from "./PoseEditor";
+import SegmentationHelpModal from "../Modals/SegmentationHelpModal";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -120,7 +121,10 @@ const CanvasMask = () => {
   } = useMaskingStore();
   const { isLoading, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
-  const [imgScale, setImgScale] = useState(1);
+  const [ imgScale, setImgScale ] = useState(1);
+  const [ showTools, setShowTools ] = useState(false)
+  const [ showModal, setModal] = useState(false);
+
 
   /**
    * Here there is one scenarios/side effect when the CanvasMask component mounts
@@ -217,6 +221,10 @@ const CanvasMask = () => {
         });
         setCurrentStep(currentStep + 1);
       }
+      if (clickType === "previous") {
+        setLines([]);
+        setCurrentStep(currentStep - 1);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -238,102 +246,171 @@ const CanvasMask = () => {
   };
 
   return (
-    <div className="canvas-wrapper">
-      <Row className="justify-content-between px-3 mb-3">
-        <Col>
-          <Row>
-            <button
-              className={classnames("sm-button-icon border border-dark mr-2", {
-                "bg-primary": tool === "pen",
-              })}
-              onClick={() => setTool("pen")}
-            >
-              <i className="bi bi-pencil-fill" />
-            </button>
-            <button
-              className={classnames("sm-button-icon border border-dark mr-2", {
-                "bg-primary": tool === "eraser",
-              })}
-              onClick={() => setTool("eraser")}
-            >
-              <i className="bi bi-eraser-fill" />
-            </button>
-            <div className="pens-wrapper">
-              <form className="pens">
-                <label className="label1">
-                  <input
-                    type="radio"
-                    name="radio"
-                    value={3}
-                    checked={penSize === 3}
-                    onChange={() => setPenSize(3)}
-                  />
-                  <span></span>
-                </label>
-                <label className="label2">
-                  <input
-                    type="radio"
-                    name="radio"
-                    value={10}
-                    checked={penSize === 10}
-                    onChange={() => setPenSize(10)}
-                  />
-                  <span></span>
-                </label>
-                <label className="label3">
-                  <input
-                    type="radio"
-                    name="radio"
-                    value={20}
-                    checked={penSize === 20}
-                    onChange={() => setPenSize(20)}
-                  />
-                  <span></span>
-                </label>
-              </form>
-            </div>
+    <>
+      <div className="canvas-wrapper">
+        <div className="blue-box-2 d-none d-lg-block"></div>
+        {!showTools ? (
+          <Row className="justify-content-center px-3 mb-3">
+            <Col sm={8} className="text-right">
+              <Button 
+                block 
+                variant="info" 
+                onClick={() => {
+                  setModal(true)
+                  setShowTools(true)
+                }}>
+                <i className="bi bi-palette-fill mr-2" />
+                Fix
+              </Button>
+            </Col>
           </Row>
-        </Col>
-        <Col>
-          <Row className="justify-content-end">
-            <button
-              className="sm-button-icon border border-dark mr-2"
-              onClick={handleUndo}
-            >
-              <i className="bi bi-arrow-90deg-left" />
-            </button>
-
-            <button
-              className="md-button-reset border border-dark"
-              onClick={handleReset}
-            >
-              Reset mask
-            </button>
-          </Row>
-        </Col>
-      </Row>
-      <div ref={canvasWindow} className="canvas-background border border-dark">
-        {isLoading ? (
-          <Loader drawingURL={drawing} />
         ) : (
-          <MaskStage
-            scale={imgScale}
-            canvasWidth={croppedImgDimensions.width}
-            canvasHeight={croppedImgDimensions.height}
-            ref={layerRef}
-          />
+          <Row className="mb-3 mx-0 tools-wrapper">
+            <Col>
+              <Row>
+                <button
+                  className={classnames(
+                    "sm-button-icon border border-dark mr-2",
+                    {
+                      "bg-primary text-white": tool === "pen",
+                    }
+                  )}
+                  onClick={() => setTool("pen")}
+                >
+                  <i className="bi bi-pencil-fill" />
+                </button>
+                <button
+                  className={classnames(
+                    "sm-button-icon border border-dark mr-2",
+                    {
+                      "bg-primary text-white": tool === "eraser",
+                    }
+                  )}
+                  onClick={() => setTool("eraser")}
+                >
+                  <i className="bi bi-eraser-fill" />
+                </button>
+                <div className="pens-wrapper border border-dark">
+                  <form className="pens">
+                    <label className="label0 d-none d-lg-block">
+                      <input
+                        type="radio"
+                        name="radio"
+                        value={3}
+                        checked={penSize === 3}
+                        onChange={() => setPenSize(3)}
+                      />
+                      <span></span>
+                    </label>
+                    <label className="label1">
+                      <input
+                        type="radio"
+                        name="radio"
+                        value={5}
+                        checked={penSize === 5}
+                        onChange={() => setPenSize(5)}
+                      />
+                      <span></span>
+                    </label>
+                    <label className="label2">
+                      <input
+                        type="radio"
+                        name="radio"
+                        value={15}
+                        checked={penSize === 15}
+                        onChange={() => setPenSize(15)}
+                      />
+                      <span></span>
+                    </label>
+                    <label className="label3">
+                      <input
+                        type="radio"
+                        name="radio"
+                        value={26}
+                        checked={penSize === 26}
+                        onChange={() => setPenSize(26)}
+                      />
+                      <span></span>
+                    </label>
+                  </form>
+                </div>
+              </Row>
+            </Col>
+            <Col>
+              <Row className="justify-content-end">
+                <button
+                  className="sm-button-icon border border-dark mr-2"
+                  onClick={handleUndo}
+                >
+                  <i className="bi bi-arrow-90deg-left" />
+                </button>
+
+                <button
+                  className="md-button-reset border border-dark"
+                  onClick={handleReset}
+                >
+                  Reset mask
+                </button>
+              </Row>
+            </Col>
+          </Row>
         )}
+        <div ref={canvasWindow} className="canvas-background">
+          {isLoading ? (
+            <Loader drawingURL={drawing} />
+          ) : (
+            <MaskStage
+              scale={imgScale}
+              canvasWidth={croppedImgDimensions.width}
+              canvasHeight={croppedImgDimensions.height}
+              ref={layerRef}
+            />
+          )}
+        </div>
+        <Row className="justify-content-center mt-3">
+          <Col lg={5} md={5} xs={12}>
+            <Button
+              block
+              size="lg"
+              variant="outline-primary"
+              className="my-1"
+              disabled={isLoading}
+              onClick={() => handleClick("previous")}
+            >
+              Previous
+            </Button>
+          </Col>
+          <Col lg={5} md={5} xs={12} className="text-center">
+            <Button
+              block
+              size="lg"
+              className="my-1 shadow-button"
+              disabled={isLoading}
+              onClick={() => handleClick("next")}
+            >
+              {isLoading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  Next <i className="bi bi-arrow-right ml-1" />{" "}
+                </>
+              )}
+            </Button>
+          </Col>
+        </Row>
       </div>
-      <div className="mt-3">
-        <button
-          className="buttons large-button"
-          disabled={isLoading}
-          onClick={() => handleClick("next")}
-        >
-          Next <i className="bi bi-arrow-right ml-1" />
-        </button>
-      </div>
-    </div>
+      <SegmentationHelpModal
+        showModal={showModal}
+        handleModal={() => setModal(!showModal)}
+        title={"HOW TO FIX"}
+      />
+    </>
   );
 };
 

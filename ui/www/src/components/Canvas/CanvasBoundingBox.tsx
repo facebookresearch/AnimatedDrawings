@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
@@ -146,6 +146,10 @@ const CanvasBoundingBox = () => {
         });
         setCurrentStep(currentStep + 1);
       }
+
+      if (clickType === "previous") {
+        setCurrentStep(1);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -153,7 +157,8 @@ const CanvasBoundingBox = () => {
 
   return (
     <div className="canvas-wrapper">
-      <div ref={canvasWindow} className="canvas-background border border-dark">
+      <div className="blue-box d-none d-lg-block"></div>
+      <div ref={canvasWindow} className="canvas-background">
         <BoundingBoxStage
           canvasWidth={canvasWindow.current?.offsetWidth}
           canvasHeight={canvasWindow.current?.offsetHeight}
@@ -161,14 +166,28 @@ const CanvasBoundingBox = () => {
           imageHeight={iHeight}
         />
       </div>
-
-      <div className="mt-3">
-        <button
-          className="buttons large-button"
-          disabled={isLoading}
-          onClick={() => handleClick("next")}
-        >
-          {isLoading ? (
+      <Row className="justify-content-center mt-3">
+        <Col lg={5} md={5} xs={12}>
+          <Button
+            block
+            size="lg"
+            variant="outline-primary"
+            className="my-1"
+            disabled={isLoading}
+            onClick={() => handleClick("previous")}
+          >
+            Previous
+          </Button>
+        </Col>
+        <Col lg={5} md={5} xs={12} className="text-center">
+          <Button
+            block
+            size="lg"
+            className="my-1 shadow-button"
+            disabled={isLoading}
+            onClick={() => handleClick("next")}
+          >
+            {isLoading ? (
             <Spinner
               as="span"
               animation="border"
@@ -181,8 +200,9 @@ const CanvasBoundingBox = () => {
               Next <i className="bi bi-arrow-right ml-1" />{" "}
             </>
           )}
-        </button>
-      </div>
+          </Button>
+        </Col>
+      </Row>
     </div>
   );
 };

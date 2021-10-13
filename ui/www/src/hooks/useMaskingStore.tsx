@@ -19,7 +19,7 @@ type MaskingState = {
 
 const useMaskingStore = create<MaskingState>((set) => ({
   tool: "eraser",
-  penSize: 3,
+  penSize: 5,
   lines: [],
   maskBase64: "",
   setTool: (tool) => set(() => ({ tool: tool })),
