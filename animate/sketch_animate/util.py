@@ -5,6 +5,7 @@ from PIL import Image, ImageOps
 from string import Template
 import OpenGL.GL as GL
 import os
+import logging
 
 from doctest import testmod
 
@@ -311,7 +312,7 @@ def matmul(a, b):
 
 
 def read_texture(filename, channels):
-    print('trying to open', filename)
+    logging.info('trying to open', filename)
     try:
         if os.path.exists(filename):
             pass
@@ -320,11 +321,11 @@ def read_texture(filename, channels):
         image = Image.open(filename, 'r')
 
     except IOError as ex:
-        print('OPError: failed to open texture file')
+        logging.error('OPError: failed to open texture file')
         message = Template.template.format(type(ex).__name__, ex.args)
-        print(message)
+        logging.error(message)
         return -1
-    print('Opened file: size=', image.size, 'format=', image.format)
+    logging.info('Opened file: size=', image.size, 'format=', image.format)
     image = ImageOps.flip(image)
     imageData = np.array(list(image.getdata()), np.uint8)
 

@@ -18,7 +18,8 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
     --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt  \
     && pip install flask flask_cors gunicorn \
-    && conda install -c conda-forge conda-pack 
+    && pip install ffmpeg-python==0.2.0 \
+    && conda install -c conda-forge conda-pack
 
 # Use conda-pack to create a standalone enviornment
 # in /venv:

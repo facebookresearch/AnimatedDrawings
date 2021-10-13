@@ -1,5 +1,4 @@
 import yaml
-import sys
 import os
 import logging
 
@@ -50,12 +49,9 @@ def build_cfg(motion_cfg_path):
 
 def video_from_cfg(character_cfg_path, motion_cfg_path, video_output_path):
 
-
-    logging.basicConfig(filename=f'{str(Path(character_cfg_path).parent)}/log_{time.time()}.txt', level=logging.DEBUG)
-
     cfg = build_cfg(motion_cfg_path)
 
-    cfg['OUTPUT_PATH'] = video_output_path
+    cfg['OUTPUT_PATH'] = str(Path(video_output_path).resolve())
 
     scene_manager = render_manager.RenderManager(cfg=cfg)
 
