@@ -40,7 +40,7 @@ const AboutPage = () => {
         </Container>
       </div>
       <div className="wr-about-1" onClick={() => history.push("/")}>
-        <h1>X</h1>
+        <i className="bi bi-x-lg h1"/>
       </div>
     </div>
   );
