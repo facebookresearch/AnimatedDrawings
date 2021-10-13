@@ -157,6 +157,7 @@ const CanvasBoundingBox = () => {
 
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box d-none d-lg-block"></div>
       <div ref={canvasWindow} className="canvas-background">
         <BoundingBoxStage
           canvasWidth={canvasWindow.current?.offsetWidth}

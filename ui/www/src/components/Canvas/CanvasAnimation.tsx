@@ -109,7 +109,8 @@ const CanvasAnimation = () => {
 
   return (
     <div className="canvas-wrapper">
-      <div className="canvas-background">
+      <div className="blue-box d-none d-lg-block"></div>
+      <div className="canvas-background-p-0">
         {isLoading ? (
           <Loader drawingURL={drawing} />
         ) : (

@@ -1,11 +1,33 @@
 .canvas-wrapper {
+  position: relative;
   width: 528px;
   align-items: center;
   justify-content: center;
   margin: auto;
+  .blue-box {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 528px;
+    height: 528px;
+    background-color: $primary;
+    border-radius: 16px;
+  }
+  .blue-box-2 {
+    position: absolute;
+    z-index: 0;
+    top: 1%;
+    right: -10%;
+    width: 528px;
+    height: 528px;
+    background-color: $primary;
+    border-radius: 16px;
+  }
 }
 
+/***************************/
 /**** Canvas Background ****/ 
+/***************************/
 
 .canvas-background {
   position: relative;
@@ -24,9 +46,6 @@
     max-width: 100%;
     max-height: 100%;
   }
-  p {
-    color: $black;
-  }
 }
 
 .canvas-background-p-0 {
@@ -42,16 +61,19 @@
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
   img {
     margin: 0;
-    border-radius: 16px;
     max-width: 100%;
     max-height: 100%;
+  }
+  .placeholder {
+    border-radius: 16px;
   }
 }
 
 /* Mobile */
 @media screen and (max-width: 576px) {
   .canvas-wrapper {
-    width: 100%;
+    //width: 100%;
+    width: 350px;
   }
   .canvas-background {
     width: 350px;
@@ -93,6 +115,11 @@
   and (min-device-width: 1024px) 
   and (orientation: portrait) 
   and (-webkit-min-device-pixel-ratio: 2) {
+    .canvas-wrapper {
+      width: 385px;
+      margin: auto;
+      justify-content: center;
+    }
     .canvas-background {
       width: 385px;
       height: 385px;
@@ -105,7 +132,10 @@
     }
 }
 
-/*** Custom Buttons ***/
+/************************/
+/**** Custom Buttons ****/
+/************************/
+
 .shadow-button {
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
@@ -306,7 +336,10 @@
     }
 }
 
+/*******************************/
 /**** Custom Loader/Spinner ****/
+/*******************************/
+
 .custom-loader {
   position: relative;
   display: inline-block; 
@@ -326,23 +359,32 @@
   left: 0;
 }
 
-/*** Video ****/
+/***************/
+/**** Video ****/
+/***************/
 
 .video_box video {
   width: 100%;
   display: block;
+  border-radius: 16px;
 }
 
+/*******************/
 /*** Canvas Mask ***/
+/*******************/
 
 .tools-wrapper {
+  position: relative;
+  z-index: 5;
   padding: 6px 6px;
   background-color: $white;
   border-radius: 10px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
 
+/*******************/
 /*** Canvas Pose ***/
+/*******************/
 
 .pose-wrapper {
   position: relative;

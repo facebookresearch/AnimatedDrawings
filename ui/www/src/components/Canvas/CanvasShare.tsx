@@ -71,6 +71,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
 
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box d-none d-lg-block"></div>
       {showWarning && (
         <Alert
           variant="danger"

@@ -118,6 +118,7 @@ const CanvasUpload = () => {
 
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box d-none d-lg-block"></div>
       <div className="canvas-background-p-0">
         {converting ? (
           <Spinner animation="border" role="status" aria-hidden="true" />
@@ -133,7 +134,11 @@ const CanvasUpload = () => {
                 )}
               </>
             ) : (
-              <img alt="placeholder" src={CanvasPlaceholder} />
+              <img
+                alt="placeholder"
+                src={CanvasPlaceholder}
+                className="placeholder"
+              />
             )}
           </>
         )}

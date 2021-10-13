@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Modal, Row, Col, FormControl } from "react-bootstrap";
+import { Modal, Row, Col, FormControl, Badge } from "react-bootstrap";
 import DownloadIcon from "../../assets/customIcons/downloadIcon.svg";
 import FacebookIcon from "../../assets/customIcons/facebookIcon.svg";
 import TwitterIcon from "../../assets/customIcons/twitterIcon.svg";
@@ -20,13 +20,20 @@ interface props {
   handleModal: () => void;
 }
 
-const ShareModal = ({ showModal, title, getShareLink, videoDownload, handleModal }: props) => {
+const ShareModal = ({
+  showModal,
+  title,
+  getShareLink,
+  videoDownload,
+  handleModal,
+}: props) => {
   const [shareLink, setShareLink] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
   const textAreaRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   useEffect(() => {
     setShareLink(getShareLink);
+    setCopySuccess("");
     return () => {};
   }, [getShareLink]);
 
@@ -34,7 +41,7 @@ const ShareModal = ({ showModal, title, getShareLink, videoDownload, handleModal
     textAreaRef.current.select();
     document.execCommand("copy");
     e.target.focus();
-    setCopySuccess("Copied!");
+    setCopySuccess("Copied to clipboard!");
   };
 
   return (
@@ -119,8 +126,8 @@ const ShareModal = ({ showModal, title, getShareLink, videoDownload, handleModal
           </Col>
         </Row>
         <Row className="px-lg-4">
-          <Col lg={2} className="mt-1 h5">
-            {copySuccess}
+          <Col lg={2} className="mt-1 h4">
+            <Badge variant="success">{copySuccess}</Badge>
           </Col>
         </Row>
       </Modal.Body>

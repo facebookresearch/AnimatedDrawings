@@ -245,6 +245,7 @@ const CanvasMask = () => {
 
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box-2 d-none d-lg-block"></div>
       {!showTools ? (
         <Row className="justify-content-center px-3 mb-3">
           <Col sm={8} className="text-right">

@@ -93,6 +93,7 @@ const CanvasPose = () => {
 
   return (
     <div className="canvas-wrapper">
+      <div className="blue-box d-none d-lg-block"></div>
       <div ref={canvasWindow} className="canvas-background">
         {pose && (
           <PoseEditor
