@@ -11,8 +11,8 @@ import numpy as np
 from SceneManager.base_manager import BaseManager
 import logging
 from pathlib import Path
-import subprocess
 import time
+import ffmpeg
 
 
 class RenderManager(BaseManager):
@@ -28,8 +28,9 @@ class RenderManager(BaseManager):
 
         self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
 
-        # command line ffmpeg can't read and write to the same image, so create intermediate file and fix after
-        self.intermediary_out_file = Path(str(self.out_file) + str(time.time()) + '.mp4')
+        self.video_working_dir = Path('./video_work_dir/' + self.out_file.parent.name)
+        self.video_working_dir.mkdir(parents=True, exist_ok=True)
+        self.intermediary_out_file = Path(self.video_working_dir)/f'{time.time()}.mp4'
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
         self.frames_written = 0
@@ -93,25 +94,21 @@ class RenderManager(BaseManager):
         if self.cfg['MIRROR_CONCAT']:
             mirror_fn = Path(str(self.intermediary_out_file)+'_r.mp4')
 
-            #mirror
-            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -vf hflip {str(mirror_fn)}'
-            subprocess.run(cmd.split(' '))
-
-            #concat and convert to h264
-            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -i {str(mirror_fn)} -filter_complex [0:v:0][1:v:0]concat=n=2:v=1[outv] -map [outv] {str(self.out_file)}'
-            subprocess.run(cmd.split(' '))
+            ffmpeg.input(str(self.intermediary_out_file), r=18).hflip().output(str(mirror_fn), vcodec='h264').run()
+            ffmpeg.concat(ffmpeg.input(self.intermediary_out_file, r=18), ffmpeg.input(str(mirror_fn), r=18)).output(str(self.out_file), vcodec='h264').run()
 
             # clean up
             Path.unlink(self.intermediary_out_file)
             Path.unlink(mirror_fn)
+            Path.rmdir(self.video_working_dir)
 
         else:
             # convert to h264
-            cmd = f'ffmpeg -r {self.video_fps} -i {str(self.intermediary_out_file)} -c:v h264 {str(self.out_file)}'
-            subprocess.run(cmd.split(' '))
+            ffmpeg.input(str(self.intermediary_out_file), r=18).output(str(self.out_file), vcodec='h264').run()
 
             # clean up
             Path.unlink(self.intermediary_out_file)
+            Path.rmdir(self.video_working_dir)
 
 
     def _write_to_buffer(self):
