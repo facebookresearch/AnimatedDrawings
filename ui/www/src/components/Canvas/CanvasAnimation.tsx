@@ -7,6 +7,15 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import Loader from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 
+declare global {
+  interface Element {
+    requestFullScreen?(): void /* W3C API */;
+    webkitRequestFullScreen?(): void /* Chrome, Opera - Webkit API */;
+    mozRequestFullScreen?(): void /* Firefox */;
+    webkitEnterFullScreen?(): void /* Safari on iOs */;
+  }
+}
+
 const CanvasAnimation = () => {
   const {
     uuid,
@@ -107,6 +116,20 @@ const CanvasAnimation = () => {
     return shareLink;
   };
 
+  // Create fullscreen video
+  const toggleFullScreen = () => {
+    const videoPlayer = document.getElementById("videoPlayer") as HTMLVideoElement;
+    if (videoPlayer && videoPlayer.requestFullScreen) {
+      videoPlayer.requestFullScreen();
+    } else if (videoPlayer && videoPlayer.webkitRequestFullScreen) {
+      videoPlayer.webkitRequestFullScreen();
+    } else if (videoPlayer && videoPlayer.mozRequestFullScreen) {
+      videoPlayer.mozRequestFullScreen();
+    } else if (videoPlayer && videoPlayer.webkitEnterFullScreen) {
+      videoPlayer.webkitEnterFullScreen(); // IOS Mobile edge case
+    }
+  };
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -115,7 +138,18 @@ const CanvasAnimation = () => {
           <Loader drawingURL={drawing} />
         ) : (
           <div className="video_box">
-            <video id="videoPlayer" autoPlay muted loop playsInline></video>
+            <video
+              id="videoPlayer"
+              autoPlay
+              muted
+              loop
+              playsInline
+            ></video>
+            <div className="custom-controls">
+              <div className="fullscreen-btn" onClick={toggleFullScreen}>
+                <i className="bi bi-arrows-fullscreen text-dark h3" />
+              </div>
+            </div>
           </div>
         )}
       </div>

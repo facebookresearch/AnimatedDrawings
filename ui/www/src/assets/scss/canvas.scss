@@ -363,10 +363,26 @@
 /**** Video ****/
 /***************/
 
-.video_box video {
-  width: 100%;
-  display: block;
-  border-radius: 16px;
+.video_box {
+  video {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+    pointer-events: none; // Hide controls in full screen
+  }
+  .custom-controls {
+    display:flex;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    z-index: 100009902839273970; 
+  }
+  .fullscreen-btn {
+    margin: 10px 10px;
+    padding: 4px;
+    cursor: pointer;
+    font-family: $font-family-md;
+  }
 }
 
 /*******************/
