@@ -141,9 +141,9 @@
 }
 
 .buttons {
-  height: 48px;
+  height: 60px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 10px;
   border: transparent;
   text-align: center;
@@ -154,7 +154,7 @@
 .large-button {
   display: block;
   width: 100%;
-  height: 48px;
+  height: 60px;
   background-color: $primary;
   color: $white;
 }
@@ -346,6 +346,12 @@
   transition: transform 150ms ease-in-out;
   width: 100%;
   height: 100%;
+  text-align: center;
+  p {
+    font-family: $font-family-md;
+    padding: 45% 0;
+    color: #1B4978;
+  }
 }
 
 .custom-loader img { 

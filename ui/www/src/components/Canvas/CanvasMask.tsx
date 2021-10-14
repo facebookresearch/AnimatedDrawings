@@ -101,7 +101,6 @@ const CanvasMask = () => {
   const canvasWindow = useRef<HTMLInputElement | any>(null);
   const layerRef = useRef<HTMLImageElement | any>(null);
   const {
-    drawing,
     uuid,
     croppedImgDimensions,
     imageUrlPose,
@@ -358,7 +357,7 @@ const CanvasMask = () => {
         )}
         <div ref={canvasWindow} className="canvas-background">
           {isLoading ? (
-            <Loader drawingURL={drawing} />
+            <Loader drawingURL={""} />
           ) : (
             <MaskStage
               scale={imgScale}

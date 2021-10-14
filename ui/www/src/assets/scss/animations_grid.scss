@@ -34,12 +34,17 @@
 
 .item-grid-selected {
   border: 4px solid $info;
+  opacity: 1;
 }
 
 .sm-grid-item:hover {
   border-color: white;
   opacity: 1;
   border: 2px solid $primary;
+}
+
+.item-grid-waiting {
+  cursor: wait;
 }
 
 /* Mobile */

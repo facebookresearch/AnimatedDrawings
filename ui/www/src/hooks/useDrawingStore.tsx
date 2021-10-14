@@ -12,6 +12,7 @@ type DrawingState = {
   boundingBox: BoundingBox;
   videoDownload: string;
   animationType: AnimationType;
+  renderingVideo: boolean;
   imageUrlPose?: string; // Cropped Image
   imageUrlMask?: string; // Mask Image
   animationFiles: File[];
@@ -24,6 +25,7 @@ type DrawingState = {
   setBox: (dimensions: any) => void;
   setVideoDownload: (url: string) => void;
   setAnimationType: (ani_type: any) => void;
+  setRenderingVideo : (state: boolean) => void;
   setImageUrlPose: (url: string | any) => void;
   setImageUrlMask: (url: string | any) => void;
   setAnimationFiles: (files: File[]) => void;
@@ -45,11 +47,12 @@ const useDrawingStore = create<DrawingState>((set) => ({
   newCompressedDrawing: null,
   originalDimension: { width: 10, height: 10 },
   uuid: "",
-  croppedImgDimensions : { width: 0, height: 0 },
+  croppedImgDimensions: { width: 0, height: 0 },
   pose: { nodes: [], edges: [] },
   boundingBox: { x: 200, width: 100, y: 200, height: 100, id: "1" },
   videoDownload: "",
   animationType: AnimationType.RunJump,
+  renderingVideo: false,
   imageUrlPose: undefined,
   imageUrlMask: undefined,
   animationFiles: [],
@@ -58,11 +61,13 @@ const useDrawingStore = create<DrawingState>((set) => ({
     set(() => ({ newCompressedDrawing: file })),
   setOriginalDimensions: (data) => set(() => ({ originalDimension: data })),
   setUuid: (uuid) => set(() => ({ uuid: uuid })),
-  setCroppedImgDimensions: (data) => set(() => ({ croppedImgDimensions: data })),
+  setCroppedImgDimensions: (data) =>
+    set(() => ({ croppedImgDimensions: data })),
   setPose: (n_pose) => set(() => ({ pose: n_pose })),
   setBox: (newBB) => set(() => ({ boundingBox: newBB })),
   setVideoDownload: (url) => set(() => ({ videoDownload: url })),
   setAnimationType: (ani_type) => set(() => ({ animationType: ani_type })),
+  setRenderingVideo: (rendering) => set(() => ({ renderingVideo: rendering })),
   setImageUrlPose: (url) => set(() => ({ imageUrlPose: url })),
   setImageUrlMask: (url) => set(() => ({ imageUrlMask: url })),
   setAnimationFiles: (files) => set(() => ({ animationFiles: files })),

@@ -5,7 +5,7 @@ import useDrawingStore from "../../hooks/useDrawingStore";
 import AnimationTypes from "../../utils/AnimationTypes";
 
 const Step7 = () => {
-  const { animationType, setAnimationType } = useDrawingStore();
+  const { animationType, renderingVideo, setAnimationType } = useDrawingStore();
   const [group, setGroup] = useState("all");
 
   const groups = AnimationTypes.reduce((r, a) => {
@@ -14,14 +14,29 @@ const Step7 = () => {
     return r;
   }, Object.create(null));
 
+  /**
+   * Update the animation type to propagate a get_animation API call.
+   * only set a new animation when there is not an ongoing animation load
+   * to reduce heavy CPU server process
+   * @param name a string with the name of the animation.
+   * @returns updates state of animationType
+   */
+  const handleAnimationClick = (name: string) => {
+    if (!renderingVideo) {
+      setAnimationType(name);
+    }
+    return;
+  };
+
   const allGroup = AnimationTypes.map((i: any, index: number) => {
     return (
       <Fragment key={index}>
         <div
           className={classnames("sm-grid-item", {
             "item-grid-selected": i.name === animationType,
+            "item-grid-waiting": renderingVideo
           })}
-          onClick={() => setAnimationType(i.name)}
+          onClick={() => handleAnimationClick(i.name)}
         >
           <img src={i.gif} alt="" />
         </div>
@@ -35,8 +50,9 @@ const Step7 = () => {
         <div
           className={classnames("sm-grid-item", {
             "item-grid-selected": i.name === animationType,
+            "item-grid-waiting": renderingVideo
           })}
-          onClick={() => setAnimationType(i.name)}
+          onClick={() => handleAnimationClick(i.name)}
         >
           <img src={i.gif} alt="" />
         </div>
@@ -50,8 +66,9 @@ const Step7 = () => {
         <div
           className={classnames("sm-grid-item", {
             "item-grid-selected": i.name === animationType,
+            "item-grid-waiting": renderingVideo
           })}
-          onClick={() => setAnimationType(i.name)}
+          onClick={() => handleAnimationClick(i.name)}
         >
           <img src={i.gif} alt="" />
         </div>
@@ -65,8 +82,9 @@ const Step7 = () => {
         <div
           className={classnames("sm-grid-item", {
             "item-grid-selected": i.name === animationType,
+            "item-grid-waiting": renderingVideo
           })}
-          onClick={() => setAnimationType(i.name)}
+          onClick={() => handleAnimationClick(i.name)}
         >
           <img src={i.gif} alt="" />
         </div>
@@ -80,8 +98,9 @@ const Step7 = () => {
         <div
           className={classnames("sm-grid-item", {
             "item-grid-selected": i.name === animationType,
+            "item-grid-waiting": renderingVideo
           })}
-          onClick={() => setAnimationType(i.name)}
+          onClick={() => handleAnimationClick(i.name)}
         >
           <img src={i.gif} alt="" />
         </div>
@@ -107,52 +126,54 @@ const Step7 = () => {
   };
 
   return (
-      <div className="step-actions-container-animation">
-        <h1 className="step-title ml-2">
-          Add <span className="text-info">Animation</span>
-        </h1>
-        <p className="ml-2">Choose one of the motions below to see your character perform it!</p>
+    <div className="step-actions-container-animation">
+      <h1 className="step-title ml-2">
+        Add <span className="text-info">Animation</span>
+      </h1>
+      <p className="ml-2">
+        Choose one of the motions below to see your character perform it!
+      </p>
 
-        <Row className="px-0 m-0 ml-lg-2 nav-pills">
-          <Button
-            variant={group === "all" ? "primary" : "outline-primary"}
-            size="sm"
-            onClick={() => setGroup("all")}
-          >
-            ALL
-          </Button>
-          <Button
-            variant={group === "dance" ? "primary" : "outline-primary"}
-            size="sm"
-            onClick={() => setGroup("dance")}
-          >
-            DANCE
-          </Button>
-          <Button
-            variant={group === "funny" ? "primary" : "outline-primary"}
-            size="sm"
-            onClick={() => setGroup("funny")}
-          >
-            FUNNY
-          </Button>
-          <Button
-            variant={group === "jumps" ? "primary" : "outline-primary"}
-            size="sm"
-            onClick={() => setGroup("jumps")}
-          >
-            JUMPING
-          </Button>
-          <Button
-            variant={group === "walks" ? "primary" : "outline-primary"}
-            size="sm"
-            onClick={() => setGroup("walks")}
-          >
-            WALKING
-          </Button>
-        </Row>
+      <Row className="px-0 m-0 ml-lg-2 nav-pills">
+        <Button
+          variant={group === "all" ? "primary" : "outline-primary"}
+          size="sm"
+          onClick={() => setGroup("all")}
+        >
+          ALL
+        </Button>
+        <Button
+          variant={group === "dance" ? "primary" : "outline-primary"}
+          size="sm"
+          onClick={() => setGroup("dance")}
+        >
+          DANCE
+        </Button>
+        <Button
+          variant={group === "funny" ? "primary" : "outline-primary"}
+          size="sm"
+          onClick={() => setGroup("funny")}
+        >
+          FUNNY
+        </Button>
+        <Button
+          variant={group === "jumps" ? "primary" : "outline-primary"}
+          size="sm"
+          onClick={() => setGroup("jumps")}
+        >
+          JUMPING
+        </Button>
+        <Button
+          variant={group === "walks" ? "primary" : "outline-primary"}
+          size="sm"
+          onClick={() => setGroup("walks")}
+        >
+          WALKING
+        </Button>
+      </Row>
 
-        <Row className="px-0 m-0 mt-4">{renderGroup()}</Row>
-      </div>
+      <Row className="px-0 m-0 mt-4">{renderGroup()}</Row>
+    </div>
   );
 };
 
