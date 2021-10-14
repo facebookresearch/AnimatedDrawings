@@ -19,7 +19,7 @@ services:
         source: dev-demo-sketch-out-consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
-      REACT_APP_API_HOST: http://18.219.131.236:5010
+      REACT_APP_API_HOST: ${API_ROOT}
     networks:
       ap-net: {}
     logging:
@@ -27,6 +27,7 @@ services:
       options:
         awslogs-region: us-east-2
         awslogs-group: dev-demo-sketch-log-group
+        awslogs-stream: dev-demo-sketch-www-logs
 
   detectron2_server:
     build:
@@ -46,6 +47,7 @@ services:
       options:
         awslogs-region: us-east-2
         awslogs-group: dev-demo-sketch-log-group
+        awslogs-stream: dev-demo-sketch-detectron2-logs
 
   alphapose_server:
     build:
@@ -65,13 +67,13 @@ services:
       options:
         awslogs-region: us-east-2
         awslogs-group: dev-demo-sketch-log-group
+        awslogs-stream: dev-demo-sketch-alphapose-logs
 
   animation_server:
     build:
       context: .
       dockerfile: Dockerfile.animation
       target: animation_runtime
-    # command: /home/animation-server/animate/flask/run.sh
     volumes:
       - type: volume
         source: dev-demo-sketch-out-animations
@@ -88,6 +90,7 @@ services:
       options:
         awslogs-region: us-east-2
         awslogs-group: dev-demo-sketch-log-group
+        awslogs-stream: dev-demo-sketch-animation-logs
 
 # Network created by default between services
 networks:
