@@ -16,10 +16,13 @@ services:
         source: dev-demo-sketch-out-interim-files
         target: /home/model-server/rig/server/flask/uploads # TODO fix path
       - type: volume
+        source: dev-demo-sketch-out-interim-files
+        target: /home/model-server/rig/server/flask/uploads # TODO fix path
+      - type: volume
         source: dev-demo-sketch-out-consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
-      REACT_APP_API_HOST: http://13.59.214.59:5010
+      REACT_APP_API_HOST: http://18.219.131.236:5010
     networks:
       ap-net: {}
 
