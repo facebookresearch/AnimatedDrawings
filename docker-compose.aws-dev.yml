@@ -12,6 +12,9 @@ services:
       - type: volume
         source: dev-demo-sketch-out-animations
         target: /home/model-server/rig/server/flask/videos
+      - type: bind
+        source: dev-demo-sketch-out-interim-files
+        target: /home/model-server/rig/server/flask/uploads # TODO fix path
       - type: volume
         source: dev-demo-sketch-out-interim-files
         target: /home/model-server/rig/server/flask/uploads # TODO fix path
