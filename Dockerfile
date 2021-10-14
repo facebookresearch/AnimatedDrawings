@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED TRUE
 ENV CONDA_ALWAYS_COPY=true
 
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
@@ -118,7 +118,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/s
 ###################### 
 FROM ubuntu:18.04 AS rig_runtime
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     # RUN \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \

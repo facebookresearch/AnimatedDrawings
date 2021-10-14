@@ -7,7 +7,7 @@ FROM ${BASE_IMAGE} as dev-base
 
 ENV PYTHONUNBUFFERED TRUE
 
-# --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+# --mount=type=cache,id=apt-dev,target=/var/cache/apt,sharing=locked \
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
