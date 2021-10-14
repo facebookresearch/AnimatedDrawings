@@ -7,7 +7,7 @@
   .blue-box {
     position: absolute;
     top: -10%;
-    right: -10%;
+    right: -12%;
     width: 528px;
     height: 528px;
     background-color: $primary;
@@ -16,8 +16,8 @@
   .blue-box-2 {
     position: absolute;
     z-index: 0;
-    top: 1%;
-    right: -10%;
+    top: 4%;
+    right: -12%;
     width: 528px;
     height: 528px;
     background-color: $primary;
@@ -368,7 +368,6 @@
     width: 100%;
     display: block;
     border-radius: 16px;
-    pointer-events: none; // Hide controls in full screen
   }
   .custom-controls {
     display:flex;

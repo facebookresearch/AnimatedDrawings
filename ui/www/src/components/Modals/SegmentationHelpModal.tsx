@@ -11,8 +11,8 @@ interface modalProps {
 const SegmentationHelpModal = ({ showModal, title, handleModal }: modalProps) => {
   return (
     <Modal centered show={showModal} onHide={handleModal}>
-      <Modal.Header closeButton className="bg-secondary px-lg-4">
-        <h2 className="modal-title">{title}</h2>
+      <Modal.Header closeButton className="bg-secondary mt-lg-2">
+        <h2 className="ml-lg-4 modal-title">{title}</h2>
       </Modal.Header>
       <Modal.Body className="bg-secondary modal-share">
         <Row className="px-lg-4 mt-2 mb-1">
@@ -23,7 +23,7 @@ const SegmentationHelpModal = ({ showModal, title, handleModal }: modalProps) =>
           </Col>
         </Row>
       </Modal.Body>
-      <Modal.Footer className="bg-secondary"></Modal.Footer>
+      <Modal.Footer className="bg-secondary pb-0"></Modal.Footer>
     </Modal>
   );
 };

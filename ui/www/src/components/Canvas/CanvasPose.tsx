@@ -112,7 +112,7 @@ const CanvasPose = () => {
             block
             size="lg"
             variant="outline-primary"
-            className="my-1"
+            className="py-lg-3 mt-lg-3 my-1"
             disabled={isLoading}
             onClick={() => handleClick("previous")}
           >
@@ -123,7 +123,7 @@ const CanvasPose = () => {
           <Button
             block
             size="lg"
-            className="my-1 shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 shadow-button"
             disabled={isLoading}
             onClick={() => handleClick("next")}
           >

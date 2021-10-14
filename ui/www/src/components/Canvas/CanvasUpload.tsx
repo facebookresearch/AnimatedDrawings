@@ -155,13 +155,13 @@ const CanvasUpload = () => {
       />
 
       {drawing === "" ? (
-        <div className="mt-3">
+        <div className="mt-4">
           <button className="buttons large-button" onClick={upload}>
             <i className="bi bi-image-fill mr-2" /> Upload
           </button>
         </div>
       ) : (
-        <div className="mt-3 text-center">
+        <div className="mt-4 text-center">
           <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
             Retake
           </button>

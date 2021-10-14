@@ -250,11 +250,12 @@ const CanvasMask = () => {
       <div className="canvas-wrapper">
         <div className="blue-box-2 d-none d-lg-block"></div>
         {!showTools ? (
-          <Row className="justify-content-center px-3 mb-3">
+          <Row className="justify-content-center px-3 mb-0">
             <Col sm={8} className="text-right">
               <Button 
                 block 
-                variant="info" 
+                variant="info"
+                className="py-lg-3 my-3" 
                 onClick={() => {
                   setModal(true)
                   setShowTools(true)
@@ -373,7 +374,7 @@ const CanvasMask = () => {
               block
               size="lg"
               variant="outline-primary"
-              className="my-1"
+              className="py-lg-3 mt-lg-3 my-1"
               disabled={isLoading}
               onClick={() => handleClick("previous")}
             >
@@ -384,7 +385,7 @@ const CanvasMask = () => {
             <Button
               block
               size="lg"
-              className="my-1 shadow-button"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button"
               disabled={isLoading}
               onClick={() => handleClick("next")}
             >

@@ -156,10 +156,10 @@ const CanvasAnimation = () => {
 
       <Row className="justify-content-center mt-3">
         <Col lg={2} md={2} xs={2}>
-          <Button
+          <Button     
             size="lg"
             variant="outline-primary"
-            className="my-1"
+            className="py-lg-3 mt-lg-3 my-1"
             onClick={() => setCurrentStep(currentStep - 1)}
           >
             Fix
@@ -169,7 +169,7 @@ const CanvasAnimation = () => {
           <Button
             block
             size="lg"
-            className="my-1 d-none d-lg-block shadow-button"
+            className="py-3 mt-3 d-none d-lg-block shadow-button"
             disabled={isLoading}
             href="/canvas"
           >
@@ -184,7 +184,7 @@ const CanvasAnimation = () => {
             <Button
               block
               size="lg"
-              className="my-1 d-inline-block d-none d-sm-none"
+              className="py-lg-3 mt-lg-3 my-1 d-inline-block d-none d-sm-none"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -208,7 +208,7 @@ const CanvasAnimation = () => {
             block
             size="lg"
             variant="info"
-            className="my-1 text-primary shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 text-primary shadow-button"
             disabled={isLoading}
             onClick={handleShare}
           >

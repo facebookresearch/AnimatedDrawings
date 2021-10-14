@@ -108,12 +108,12 @@ const Step7 = () => {
 
   return (
       <div className="step-actions-container-animation">
-        <h1 className="step-title">
+        <h1 className="step-title ml-2">
           Add <span className="text-info">Animation</span>
         </h1>
-        <p>Choose one of the motions below to see your character perform it!</p>
+        <p className="ml-2">Choose one of the motions below to see your character perform it!</p>
 
-        <Row className="px-0 m-0 ml-lg-3 nav-pills">
+        <Row className="px-0 m-0 ml-lg-2 nav-pills">
           <Button
             variant={group === "all" ? "primary" : "outline-primary"}
             size="sm"
