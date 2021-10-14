@@ -8,8 +8,8 @@ FROM ${BASE_IMAGE} as build
 ENV PYTHONUNBUFFERED TRUE
 
 
-COPY --chown=animation-server:animation-server animate/conda-env.txt conda-env.txt
-COPY --chown=animation-server:animation-server animate/requirements.txt requirements.txt
+COPY  animate/conda-env.txt conda-env.txt
+COPY  animate/requirements.txt requirements.txt
 RUN --mount=type=cache,target=/opt/conda/pkgs \
     conda create --name sketch_animate --file conda-env.txt
 SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
