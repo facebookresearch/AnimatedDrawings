@@ -7,3 +7,6 @@ alphapose_weights.pth
 videos
 
 /tmp/**
+
+# ignore .env
+.env
