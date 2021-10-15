@@ -4,7 +4,7 @@ import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import Loader from "../Loader";
+import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 
 declare global {

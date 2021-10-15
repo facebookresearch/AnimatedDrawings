@@ -163,7 +163,7 @@ const BoundingBoxStage = ({
   };
 
   return (
-    <div>
+    <div className="div-fade">
       <Stage
         width={canvasWidth}
         height={canvasHeight || 0}

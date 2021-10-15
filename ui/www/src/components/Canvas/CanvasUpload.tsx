@@ -5,7 +5,7 @@ import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
-import Loader from "../Loader";
+import { Loader } from "../Loader";
 import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
 
 const CanvasUpload = () => {

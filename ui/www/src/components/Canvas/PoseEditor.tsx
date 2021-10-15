@@ -174,7 +174,7 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
   }, [imageUrl]);
 
   return (
-    <div className="pose-wrapper">
+    <div className="pose-wrapper div-fade">
       <svg
         width={imageWidth * scale}
         height={imageHeight * scale}

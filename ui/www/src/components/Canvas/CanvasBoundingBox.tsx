@@ -188,18 +188,18 @@ const CanvasBoundingBox = () => {
             onClick={() => handleClick("next")}
           >
             {isLoading ? (
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-            />
-          ) : (
-            <>
-              Next <i className="bi bi-arrow-right ml-1" />{" "}
-            </>
-          )}
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : (
+              <>
+                Next <i className="bi bi-arrow-right ml-1" />{" "}
+              </>
+            )}
           </Button>
         </Col>
       </Row>
