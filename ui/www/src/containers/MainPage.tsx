@@ -13,9 +13,11 @@ const MainPage = () => {
   return (
     <div className="main-content bg-main">
       <div className="navbar-title">
-        <h2 className="mb-3">
-          ANIMATED <span className="text-info">DRAWINGS</span>
-        </h2>
+        <a href="/">
+          <h2 className="mb-3">
+            ANIMATED <span className="text-info">DRAWINGS</span>
+          </h2>
+        </a>
       </div>
       <a
         href={`mailto:animatingdrawingsfb@gmail.com?subject=Questions%20or%20Feedback&body=Please%20include%20the%20following%20ID%20in%20your%20message.%0AUUID:%20${

@@ -4,7 +4,7 @@ import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import Loader from "../Loader";
+import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 
 declare global {
@@ -19,10 +19,10 @@ declare global {
 const CanvasAnimation = () => {
   const {
     uuid,
-    drawing,
     videoDownload,
     animationType,
     animationFiles,
+    setRenderingVideo,
     setVideoDownload,
     setAnimationFiles,
   } = useDrawingStore();
@@ -42,9 +42,11 @@ const CanvasAnimation = () => {
    */
   useEffect(() => {
     const fetchAnimation = async () => {
+      setRenderingVideo(true)
       await getAnimation(uuid, animationType, (data) => {
         loadVideoBlob(data as string);
       });
+      setRenderingVideo(false)
     };
     fetchAnimation();
     return () => {};
@@ -135,7 +137,7 @@ const CanvasAnimation = () => {
       <div className="blue-box d-none d-lg-block"></div>
       <div className="canvas-background-p-0">
         {isLoading ? (
-          <Loader drawingURL={drawing} />
+          <Loader drawingURL={""} showText />
         ) : (
           <div className="video_box">
             <video
@@ -155,21 +157,22 @@ const CanvasAnimation = () => {
       </div>
 
       <Row className="justify-content-center mt-3">
-        <Col lg={2} md={2} xs={2}>
+        <Col lg={2} md={2} xs={3}>
           <Button
+            block     
             size="lg"
             variant="outline-primary"
-            className="my-1"
+            className="py-lg-3 mt-lg-3 my-1"
             onClick={() => setCurrentStep(currentStep - 1)}
           >
             Fix
           </Button>
         </Col>
-        <Col lg={5} md={5} xs={5} className="pr-1">
+        <Col lg={5} md={5} xs={4}>
           <Button
             block
             size="lg"
-            className="my-1 d-none d-lg-block shadow-button"
+            className="py-3 mt-3 d-none d-lg-block shadow-button"
             disabled={isLoading}
             href="/canvas"
           >
@@ -184,7 +187,7 @@ const CanvasAnimation = () => {
             <Button
               block
               size="lg"
-              className="my-1 d-inline-block d-none d-sm-none"
+              className="py-lg-3 mt-lg-3 my-1 d-inline-block d-none d-sm-none"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -197,18 +200,18 @@ const CanvasAnimation = () => {
                 />
               ) : (
                 <>
-                  <i className="bi bi-download mr-2" /> Download
+                  Download
                 </>
               )}
             </Button>
           </a>
         </Col>
-        <Col lg={5} md={5} xs={5} className="pl-1">
+        <Col lg={5} md={5} xs={4}>
           <Button
             block
             size="lg"
             variant="info"
-            className="my-1 text-primary shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 px-0 text-primary shadow-button"
             disabled={isLoading}
             onClick={handleShare}
           >
@@ -222,7 +225,7 @@ const CanvasAnimation = () => {
               />
             ) : (
               <>
-                <i className="bi bi-share-fill mr-2" /> Share
+                <i className="bi bi-share-fill mr-1" /> Share
               </>
             )}
           </Button>

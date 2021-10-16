@@ -104,6 +104,7 @@
     height: 283px;
     border-radius: 20px;
     background-color: $white;
+    overflow: hidden;
     z-index: 5;
   }
   .gif-shadow-div {
@@ -332,6 +333,7 @@
   position: absolute;
   top: 5%;
   left: 8%;
+  cursor: pointer;
   h2 {
     font-size: 24px;
     font-family: $font-family-headings;

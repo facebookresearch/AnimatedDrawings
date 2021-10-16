@@ -34,7 +34,7 @@ const HomePage = () => {
                     loop
                     playsInline
                     width="100%"
-                    height="100%"
+                    height="auto"
                   >
                     <source src={SplashVideo} type="video/mp4" />
                   </video>

@@ -5,7 +5,7 @@ import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
-import Loader from "../Loader";
+import { Loader } from "../Loader";
 import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
 
 const CanvasUpload = () => {
@@ -22,6 +22,7 @@ const CanvasUpload = () => {
 
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
+  const [compressing, setCompressing] = useState(false)
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,6 +43,7 @@ const CanvasUpload = () => {
         const heicURL = URL.createObjectURL(file);
         convertHeicformat(heicURL);
       } else {
+        setCompressing(true);
         const compressedFile = await imageCompression(file, options);
         const imgUrl = URL.createObjectURL(compressedFile);
         let newFile = new File([compressedFile], "animation.png", {
@@ -61,6 +63,7 @@ const CanvasUpload = () => {
 
         setNewCompressedDrawing(newFile);
         setDrawing(imgUrl);
+        setCompressing(false)
       }
     } catch (err) {
       console.log((err as Error)?.message);
@@ -155,23 +158,41 @@ const CanvasUpload = () => {
       />
 
       {drawing === "" ? (
-        <div className="mt-3">
-          <button className="buttons large-button" onClick={upload}>
-            <i className="bi bi-image-fill mr-2" /> Upload
-          </button>
+        <div className="mt-4">
+          {compressing ? (
+            <button className="buttons large-button">
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            </button>
+          ) : (
+            <button className="buttons large-button" onClick={upload}>
+              <i className="bi bi-image-fill mr-2" /> Upload
+            </button>
+          )}
         </div>
       ) : (
-        <div className="mt-3 text-center">
+        <div className="mt-4 text-center">
           <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
             Retake
           </button>
           <button
             className="buttons md-button-right ml-1"
-            disabled={isLoading}
+            disabled={isLoading || compressing}
             onClick={() => handleNext()}
           >
-            {isLoading ? (
-              "Loading ..."
+            {isLoading || compressing ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
             ) : (
               <>
                 Next <i className="bi bi-arrow-right px-2" />

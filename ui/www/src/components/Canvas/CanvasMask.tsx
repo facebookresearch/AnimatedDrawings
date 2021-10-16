@@ -6,7 +6,8 @@ import useDrawingStore from "../../hooks/useDrawingStore";
 import useMaskingStore from "../../hooks/useMaskingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
-import Loader from "../Loader";
+import { EmptyLoader } from "../Loader";
+import BoundingBoxStage from "./BoundingBoxStage";
 import MaskStage from "./MaskStage";
 import { Position } from "./PoseEditor";
 import SegmentationHelpModal from "../Modals/SegmentationHelpModal";
@@ -97,14 +98,32 @@ const mapJointsToPose = (joints: object) => {
   };
 };
 
+const calculateRatio2 = (
+  canvasWidth: number,
+  canvasHeight: number,
+  oW: number,  //Original image width
+  oH: number,  //Original image height
+) => {
+  if (oH >= oW && canvasHeight >= canvasWidth) {
+    return canvasHeight / oH < 1 ? canvasHeight / oH : 1;
+  } else if (oH < oW && canvasHeight >= canvasWidth) {
+    return canvasHeight / oW < 1 ? canvasHeight / oW : 1
+  } else if (oH >= oW && canvasHeight < canvasWidth) {
+    return canvasWidth / oH < 1 ? canvasWidth / oH : 1;
+  } else {
+    return canvasWidth / oW < 1 ? canvasWidth / oW : 1;
+  }
+};
+
 const CanvasMask = () => {
   const canvasWindow = useRef<HTMLInputElement | any>(null);
   const layerRef = useRef<HTMLImageElement | any>(null);
   const {
-    drawing,
     uuid,
     croppedImgDimensions,
     imageUrlPose,
+    originalDimension,
+    setBox,
     setCroppedImgDimensions,
     setImageUrlPose,
     setImageUrlMask,
@@ -119,11 +138,75 @@ const CanvasMask = () => {
     setPenSize,
     setLines,
   } = useMaskingStore();
-  const { isLoading, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
+  const { isLoading,   getBoundingBox, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
   const [ imgScale, setImgScale ] = useState(1);
   const [ showTools, setShowTools ] = useState(false)
   const [ showModal, setModal] = useState(false);
+  const [ isFetching, setIsFetching ] = useState(true)
+  const [ iWidth, setImageWidth ] = useState(0);
+  const [ iHeight, setImageHeight ] = useState(0);
+
+  /**
+   * When the components mounts, invokes API to fetch json bounding box coordinates.
+   * The component will only render once while waitng for the mask to finish fetching.
+   * exhaustive-deps eslint warning was diable as no more dependencies are really necesary as side effects.
+   * Contrary to this, including other function dependencies will trigger infinite loop rendereing.
+   */
+   useEffect(() => {
+    const fetchBB = async () => {
+      try {
+        const tempImage = new Image();
+        if (imageUrlPose !== null && imageUrlPose !== undefined)
+          tempImage.src = imageUrlPose; // cropped image base64
+
+        tempImage.onload = (e) => {
+          if (canvasWindow.current) {
+            setCroppedImgDimensions({
+              width: tempImage.naturalWidth,
+              height: tempImage.naturalHeight,
+            });
+          }
+        };
+
+        const ratio = calculateRatio2(
+          canvasWindow.current?.offsetWidth -20,
+          canvasWindow.current?.offsetHeight -20,
+          originalDimension.width,
+          originalDimension.height
+        );
+        
+        const calculatedWidth = originalDimension.width * ratio;
+        const calculatedHeight = originalDimension.height * ratio;
+        setImageWidth(calculatedWidth);
+        setImageHeight(calculatedHeight);
+
+        await getBoundingBox(uuid!, (data) => {
+          setBox({
+            x:
+              data.x1 * ratio +
+              (canvasWindow.current?.offsetWidth / 2 - calculatedWidth / 2),
+            width: data.x2 * ratio - data.x1 * ratio,
+            y:
+              data.y1 * ratio +
+              (canvasWindow.current?.offsetHeight / 2 - calculatedHeight / 2),
+            height: data.y2 * ratio - data.y1 * ratio,
+            id: "1",
+          });
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const timeout = setTimeout(() => {
+      setIsFetching(false);
+    }, 3000);
+
+    if (uuid !== "") fetchBB();
+
+    return () => {clearTimeout(timeout)};
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   /**
@@ -195,6 +278,11 @@ const CanvasMask = () => {
     return () => {};
   }, [imageUrlPose]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /**
+   * Handles Next and Previous buttons logic.
+   * @param clickType a string with a type of action "next" or "previous"
+   * @returns 
+   */
   const handleClick = async (clickType: string) => {
     try {
       if (null === uuid && undefined === uuid) {
@@ -250,15 +338,17 @@ const CanvasMask = () => {
       <div className="canvas-wrapper">
         <div className="blue-box-2 d-none d-lg-block"></div>
         {!showTools ? (
-          <Row className="justify-content-center px-3 mb-3">
+          <Row className="justify-content-center px-3 mb-0">
             <Col sm={8} className="text-right">
-              <Button 
-                block 
-                variant="info" 
+              <Button
+                block
+                variant="info"
+                className="py-lg-3 my-3"
                 onClick={() => {
-                  setModal(true)
-                  setShowTools(true)
-                }}>
+                  setModal(true);
+                  setShowTools(true);
+                }}
+              >
                 <i className="bi bi-palette-fill mr-2" />
                 Fix
               </Button>
@@ -355,16 +445,27 @@ const CanvasMask = () => {
             </Col>
           </Row>
         )}
-        <div ref={canvasWindow} className="canvas-background">
-          {isLoading ? (
-            <Loader drawingURL={drawing} />
+        <div ref={canvasWindow} className="canvas-background loader">
+          {isFetching ? (
+            <>
+              <BoundingBoxStage
+                canvasWidth={canvasWindow.current?.offsetWidth}
+                canvasHeight={canvasWindow.current?.offsetHeight}
+                imageWidth={iWidth}
+                imageHeight={iHeight}
+              />
+              <EmptyLoader />
+            </>
           ) : (
-            <MaskStage
-              scale={imgScale}
-              canvasWidth={croppedImgDimensions.width}
-              canvasHeight={croppedImgDimensions.height}
-              ref={layerRef}
-            />
+            <>
+              <MaskStage
+                scale={imgScale}
+                canvasWidth={croppedImgDimensions.width}
+                canvasHeight={croppedImgDimensions.height}
+                ref={layerRef}
+              />
+              {isLoading && <EmptyLoader />} 
+            </>
           )}
         </div>
         <Row className="justify-content-center mt-3">
@@ -373,7 +474,7 @@ const CanvasMask = () => {
               block
               size="lg"
               variant="outline-primary"
-              className="my-1"
+              className="py-lg-3 mt-lg-3 my-1"
               disabled={isLoading}
               onClick={() => handleClick("previous")}
             >
@@ -384,7 +485,7 @@ const CanvasMask = () => {
             <Button
               block
               size="lg"
-              className="my-1 shadow-button"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button"
               disabled={isLoading}
               onClick={() => handleClick("next")}
             >

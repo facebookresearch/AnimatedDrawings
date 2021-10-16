@@ -77,6 +77,7 @@ const MaskStage = React.forwardRef(
     };
 
     return (
+      <div className="test-fade">
       <Stage
         width={canvasWidth * scale}
         height={canvasHeight * scale}
@@ -113,6 +114,7 @@ const MaskStage = React.forwardRef(
           />
         </Layer>
       </Stage>
+      </div>
     );
   }
 );

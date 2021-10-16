@@ -172,7 +172,7 @@ const CanvasBoundingBox = () => {
             block
             size="lg"
             variant="outline-primary"
-            className="my-1"
+            className="py-lg-3 mt-lg-3 my-1"
             disabled={isLoading}
             onClick={() => handleClick("previous")}
           >
@@ -183,23 +183,23 @@ const CanvasBoundingBox = () => {
           <Button
             block
             size="lg"
-            className="my-1 shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 shadow-button"
             disabled={isLoading}
             onClick={() => handleClick("next")}
           >
             {isLoading ? (
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-            />
-          ) : (
-            <>
-              Next <i className="bi bi-arrow-right ml-1" />{" "}
-            </>
-          )}
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : (
+              <>
+                Next <i className="bi bi-arrow-right ml-1" />{" "}
+              </>
+            )}
           </Button>
         </Col>
       </Row>

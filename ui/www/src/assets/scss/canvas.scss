@@ -7,7 +7,7 @@
   .blue-box {
     position: absolute;
     top: -10%;
-    right: -10%;
+    right: -12%;
     width: 528px;
     height: 528px;
     background-color: $primary;
@@ -16,12 +16,51 @@
   .blue-box-2 {
     position: absolute;
     z-index: 0;
-    top: 1%;
-    right: -10%;
+    top: 4%;
+    right: -12%;
     width: 528px;
     height: 528px;
     background-color: $primary;
     border-radius: 16px;
+  }
+}
+
+.div-fade {
+  animation: fadein 2s;
+  -moz-animation: fadein 2s; /* Firefox */
+  -webkit-animation: fadein 2s; /* Safari and Chrome */
+  -o-animation: fadein 2s; /* Opera */
+}
+@keyframes fadein {
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+}
+@-moz-keyframes fadein { /* Firefox */
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+}
+@-webkit-keyframes fadein { /* Safari and Chrome */
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+}
+@-o-keyframes fadein { /* Opera */
+  from {
+      opacity:0;
+  }
+  to {
+      opacity: 1;
   }
 }
 
@@ -141,9 +180,9 @@
 }
 
 .buttons {
-  height: 48px;
+  height: 60px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 10px;
   border: transparent;
   text-align: center;
@@ -154,7 +193,7 @@
 .large-button {
   display: block;
   width: 100%;
-  height: 48px;
+  height: 60px;
   background-color: $primary;
   color: $white;
 }
@@ -346,6 +385,12 @@
   transition: transform 150ms ease-in-out;
   width: 100%;
   height: 100%;
+  text-align: center;
+  p {
+    font-family: $font-family-md;
+    padding: 45% 0;
+    color: #1B4978;
+  }
 }
 
 .custom-loader img { 
@@ -354,6 +399,12 @@
 }
 
 .custom-loader svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.loader svg {
   position: absolute;
   top: 0;
   left: 0;
@@ -368,7 +419,6 @@
     width: 100%;
     display: block;
     border-radius: 16px;
-    pointer-events: none; // Hide controls in full screen
   }
   .custom-controls {
     display:flex;
