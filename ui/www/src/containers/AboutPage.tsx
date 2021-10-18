@@ -6,7 +6,7 @@ const AboutPage = () => {
   const history = useHistory();
   return (
     <div className="main-content bg-about" id="about">
-      <div className="home-page">
+      <div className="about-page">
         <Container className="align-content-center">
           <Row className="justify-content-center">
             <Col lg={6} md={10} xs={12}>
@@ -20,19 +20,13 @@ const AboutPage = () => {
               <br />
               <p>
                 {" "}
-                Our goal in this work is to develop a pipeline that can with
-                high probability, and without either adult or child
-                intervention, identify the humans-like figures in a drawing,
-                segment them from the background, rig them by locating the key
-                bones, body parts, and joints, and animate them using motion
-                capture data. We assess the quality of our results by comparing
-                them with crowd-sourced manual annotations and through a series
-                of perceptual user studies.
+                This demo builds upon <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noreferrer" className="bold">Detectron2</a> and <a href="https://github.com/MVIG-SJTU/AlphaPose" target="_blank" rel="noreferrer">AlphaPose</a>.
+                Motion capture data comes from the <a href="http://mocap.cs.cmu.edu/" target="_blank" rel="noreferrer">CMU Graphics Motion Capture Lab</a> and <a href="https://www.mixamo.com/" target="_blank" rel="noreferrer">Mixamo</a>.
               </p>
               <br />
               <p>
                 Built by Jesse Smith, Jessica Hodgins, Somya Jain, Sahir Gomez,
-                Somayan Chakrabarti, Clarence Edmondson III, and friends at
+                Somayan Chakrabarti, Clarence Edmondson III, Qingyuan Zheng, and friends at
                 Facebook AI Research.
               </p>
             </Col>
