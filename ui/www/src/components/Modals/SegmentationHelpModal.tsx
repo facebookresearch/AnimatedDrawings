@@ -10,7 +10,7 @@ interface modalProps {
 
 const SegmentationHelpModal = ({ showModal, title, handleModal }: modalProps) => {
   return (
-    <Modal centered show={showModal} onHide={handleModal}>
+    <Modal centered animation={false} show={showModal} onHide={handleModal}>
       <Modal.Header closeButton className="bg-secondary mt-lg-2">
         <h2 className="ml-lg-4 modal-title">{title}</h2>
       </Modal.Header>

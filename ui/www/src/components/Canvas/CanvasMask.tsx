@@ -201,7 +201,7 @@ const CanvasMask = () => {
 
     const timeout = setTimeout(() => {
       setIsFetching(false);
-    }, 3000);
+    }, 2000);
 
     if (uuid !== "") fetchBB();
 

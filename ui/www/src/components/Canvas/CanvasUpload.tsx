@@ -3,6 +3,7 @@ import { Spinner } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
+import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
@@ -10,6 +11,7 @@ import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
+  const { setCurrentStep } = useStepperStore();
   const {
     drawing,
     newCompressedDrawing,
@@ -18,11 +20,11 @@ const CanvasUpload = () => {
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
-  const { isLoading, uploadImage } = useDrawingApi((err) => {});
+  const { isLoading, uploadImage, setConsentAnswer } = useDrawingApi((err) => {});
 
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
-  const [compressing, setCompressing] = useState(false)
+  const [compressing, setCompressing] = useState(false);
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -63,7 +65,7 @@ const CanvasUpload = () => {
 
         setNewCompressedDrawing(newFile);
         setDrawing(imgUrl);
-        setCompressing(false)
+        setCompressing(false);
       }
     } catch (err) {
       console.log((err as Error)?.message);
@@ -105,14 +107,23 @@ const CanvasUpload = () => {
   };
 
   /**
-   * Upload image when user click on next
-   * thne open the waiver modal.
+   * Upload image when user click on next, check for a cached waiver response. 
+   * "waiver_res". If not response is found open the waiver modal.
+   * Otherwise skip the waiver step.
    */
   const handleNext = async () => {
+    let waiver_res = sessionStorage.getItem("waiver_res");
     try {
       await uploadImage(newCompressedDrawing, (data) => {
         setUuid(data as string);
-        setShowWaiver(true);
+        if (!waiver_res) {
+          setShowWaiver(true);
+        } else {
+          let res = parseInt(waiver_res);
+          setConsentAnswer(data, res, () => {
+            setCurrentStep(2);
+          });
+        }
       });
     } catch (error) {
       console.log(error);
@@ -186,13 +197,13 @@ const CanvasUpload = () => {
             onClick={() => handleNext()}
           >
             {isLoading || compressing ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
             ) : (
               <>
                 Next <i className="bi bi-arrow-right px-2" />
