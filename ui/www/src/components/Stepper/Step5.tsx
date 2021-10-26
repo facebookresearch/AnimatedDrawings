@@ -5,7 +5,7 @@ import image_2 from "../../assets/drawings_examples/step5/image_2.png";
 const Step5 = () => {
   return (
     <>
-      <div className="step-actions-container">
+      <div className="step-actions-container bottom-shadow">
         <h1 className="step-title">
           Finding <span className="text-info">Character Joints</span>
         </h1>
