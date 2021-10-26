@@ -97,7 +97,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
 
       <Row className="justify-content-center mt-3">
         <Col lg={6} md={6} xs={12}>
-          <Button block size="lg" variant="primary" className="my-1" href="/">
+          <Button block size="lg" variant="primary" className="py-lg-3 mt-lg-3 my-1" href="/">
             Create your Animation
           </Button>
         </Col>
@@ -112,7 +112,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
               block
               size="lg"
               variant="info"
-              className="my-1 text-primary"
+              className="py-lg-3 mt-lg-3 my-1 text-primary"
               disabled={isLoading}
             >
               {isLoading ? (

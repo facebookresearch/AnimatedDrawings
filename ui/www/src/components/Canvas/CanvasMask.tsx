@@ -11,6 +11,7 @@ import BoundingBoxStage from "./BoundingBoxStage";
 import MaskStage from "./MaskStage";
 import { Position } from "./PoseEditor";
 import SegmentationHelpModal from "../Modals/SegmentationHelpModal";
+import UndoIcon from "../../assets/customIcons/undo.svg";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -432,11 +433,11 @@ const CanvasMask = () => {
                   className="sm-button-icon border border-dark mr-2"
                   onClick={handleUndo}
                 >
-                  <i className="bi bi-arrow-90deg-left" />
+                  <img src={UndoIcon} alt="icon" />
                 </button>
 
                 <button
-                  className="md-button-reset border border-dark"
+                  className="md-button-reset border border-dark p-0"
                   onClick={handleReset}
                 >
                   Reset mask
@@ -464,7 +465,7 @@ const CanvasMask = () => {
                 canvasHeight={croppedImgDimensions.height}
                 ref={layerRef}
               />
-              {isLoading && <EmptyLoader />} 
+              {isLoading && <EmptyLoader />}
             </>
           )}
         </div>

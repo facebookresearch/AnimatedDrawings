@@ -62,10 +62,10 @@ const HomePage = () => {
           <h4>PRESENTED BY FACEBOOK AI RESEARCH</h4>
         </div>
         <div
-          className="home-footer text-center py-2"
+          className="home-footer text-center py-1"
           onClick={() => history.push("/about")}
         >
-          <h4>ABOUT THIS DEMO</h4>
+          <h3>ABOUT THIS DEMO</h3>
         </div>
       </div>
     </div>

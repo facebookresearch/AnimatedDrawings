@@ -57,16 +57,13 @@ const MainPage = () => {
         {currentStep === 5 && (
           <>
             <div className="home-footer-credits py-2">
-              <h4>
-                <span className="rg-1">Presented By</span> FACEBOOK AI{" "}
-                <span className="rg-1">Research</span>
-              </h4>
+              <h4> PRESENTED BY FACEBOOK AI RESEARCH</h4>
             </div>
             <div
               className="home-footer d-none d-lg-block text-center py-2"
               onClick={() => history.push("/about")}
             >
-              <h4>ABOUT THIS DEMO</h4>
+              <h3>ABOUT THIS DEMO</h3>
             </div>
           </>
         )}
