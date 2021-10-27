@@ -16,6 +16,7 @@ import crop_from_bb
 import segment_mask
 import prep_animation_files
 
+
 UPLOAD_FOLDER='./uploads/'
 CONSENT_GIVEN_SAVE_DIR = './consent_given_upload_copies/'
 #VIDEO_SHARE_ROOT='/app/out/public/videos'
@@ -145,8 +146,9 @@ def set_bounding_box_coordinates():
                 )
 
     unique_id = request.form['uuid']
+    work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
     bb_path = os.path.join(UPLOAD_FOLDER, unique_id, 'bb.json')
-    if not os.path.exists(bb_path):  # uuid is invalid
+    if not os.path.exists(work_dir):  # uuid is invalid
         return redirect(request.url)
 
     # back up the previous bounding box annotations
@@ -199,7 +201,7 @@ def set_mask():
                 )
     work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
     mask_path = os.path.join(work_dir, 'mask.png')
-    if not os.path.exists(mask_path):
+    if not os.path.exists(work_dir):
         return redirect(request.url)
 
     file = request.files['file']
@@ -241,7 +243,7 @@ def set_joint_locations():
 
     work_dir = os.path.join(app.config['UPLOAD_FOLDER'], request.form['uuid'])
     joint_locations_json_path = os.path.join(work_dir, 'joint_locations.json')
-    if not os.path.exists(joint_locations_json_path):  # uuid is invalid
+    if not os.path.exists(work_dir):  # uuid is invalid
         return redirect(request.url)
 
     # back up the previous joint locations

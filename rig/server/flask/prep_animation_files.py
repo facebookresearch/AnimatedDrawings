@@ -13,7 +13,7 @@ def prep_animation_files(input_parent_dir, video_share_root):
     assert img_loc.exists(),  "Image not found: {}".format(str(img_loc))
 
     mask_loc = Path(os.path.join(input_parent_dir, 'mask.png'))
-    assert mask_loc.exists(), "Mask not found: {mask_loc}".format(str(mask_loc))
+    assert mask_loc.exists(), "Mask not found: {}".format(str(mask_loc))
 
     keypoint_json_loc = Path(os.path.join(input_parent_dir, 'joint_locations.json'))
     assert keypoint_json_loc.exists(), "AP predictions not found: {}".format(str(keypoint_json_loc))
