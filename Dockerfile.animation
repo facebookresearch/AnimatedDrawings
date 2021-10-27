@@ -2,6 +2,7 @@
 
 ARG BASE_IMAGE=continuumio/miniconda3
 ARG PYTHON_VERSION=3.8
+ARG BASE_APT=base_apt
 
 FROM ${BASE_IMAGE} as build
 
@@ -17,7 +18,8 @@ SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
 RUN --mount=type=cache,target=/opt/conda/pkgs \
     --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt  \
-    && pip install flask flask_cors gunicorn \
+    # TODO remove functiontrace. Couldn't find an easy way to do this
+    && pip install flask flask_cors gunicorn functiontrace \ 
     && pip install ffmpeg-python==0.2.0 \
     && conda install -c conda-forge conda-pack
 
@@ -34,7 +36,7 @@ RUN /venv/bin/conda-unpack
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM ubuntu:18.04 AS animation_runtime
+FROM ubuntu:18.04 AS base_apt
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -59,6 +61,49 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
+# Create an image for profiling python code using function trace
+FROM base_apt as profile_apt
+
+ENV RUSTUP_HOME=/usr/local/rustup CARGO_HOME=/usr/local/cargo PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Install Rust needed for functiontrace
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt\
+    /bin/sh -c set -eux;     \
+    apt-get update;  \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gcc \
+    libc6-dev \
+    wget \
+    ;\
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+    amd64) rustArch='x86_64-unknown-linux-gnu' ;; \
+    arm64) rustArch='aarch64-unknown-linux-gnu' ;; \
+    *) echo >&2 "unsupported architecture: ${dpkgArch}";\
+    exit 1 ;; \ 
+    esac; \
+    url="https://static.rust-lang.org/rustup/dist/${rustArch}/rustup-init"; \
+    wget "$url"; \
+    chmod +x rustup-init; \
+    ./rustup-init -y --no-modify-path --default-toolchain nightly; \ 
+    rm rustup-init; \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
+    rustup --version; \
+    cargo --version; \
+    rustc --version; \
+    apt-get remove -y --auto-remove         wget         ;\
+    rm -rf /var/lib/apt/lists/*; # buildkit
+
+
+# Check cargo is visible
+RUN cargo --help
+
+# install function trace. Note Pip package already installed
+RUN cargo install functiontrace-server
+
+
+FROM ${BASE_APT} as animation_runtime
 
 RUN useradd -m animation-server
 USER animation-server
