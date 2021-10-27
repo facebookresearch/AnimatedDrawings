@@ -8,6 +8,7 @@ import json
 import uuid
 import shutil
 import time
+import logging
 
 import detect_humanoids
 import detect_pose
@@ -22,6 +23,12 @@ VIDEO_SHARE_ROOT='./videos/'
 ALLOWED_EXTENSIONS= {'png'}
 
 app = Flask(__name__)
+gunicorn_logger = logging.getLogger('gunicorn.error')
+
+if gunicorn_logger:
+    root_logger = logging.getLogger()
+    root_logger.handlers = gunicorn_logger.handlers
+    root_logger.setLevel(gunicorn_logger.level)
 cors = CORS(app)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
