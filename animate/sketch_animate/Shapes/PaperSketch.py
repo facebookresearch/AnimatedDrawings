@@ -908,7 +908,7 @@ class ARAP_Sketch(BaseSketch):
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.tex_id)
 
-        # render the sketch texture
+        # # render the sketch texture
         if get_arap_sketch_visibility() and kwargs['camera'].cam_type not in ['triangulation']:
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
             GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
@@ -956,12 +956,12 @@ class ARAP_Sketch(BaseSketch):
             for c in self.arap_handles:
                 c.draw(**kwargs)
 
-        if get_sketch_segment_visibility():
-            GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
-            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.model.T)
-            for b in self.bones:
-                b.draw(**kwargs)
+        # if get_sketch_segment_visibility():
+        #     GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+        #     model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+        #     GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.model.T)
+        #     for b in self.bones:
+        #         b.draw(**kwargs)
 
     def _prepare_indices(self):
         """

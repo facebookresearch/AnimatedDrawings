@@ -49,7 +49,8 @@ def main(cfg):
     else:
         assert False
 
-    from Shapes.Sketch import Sketch, ARAP_Sketch
+    #from Shapes.PaperSketch import Sketch, ARAP_Sketch
+    from Shapes.ARAP_Sketch import ARAP_Sketch
     from Shapes.Floor import Floor
     from Shapes.BVH import BVH
     from Shapes.Shapes import Drawing

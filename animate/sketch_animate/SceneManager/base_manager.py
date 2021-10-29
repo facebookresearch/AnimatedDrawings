@@ -5,7 +5,7 @@ from util import *
 from camera import Camera
 from time_manager import TimeManager
 from transferrer import JointAngleTransferrer, RootMotionTransferrer
-from Shapes.Sketch import Sketch
+from Shapes.ARAP_Sketch import ARAP_Sketch
 from camera_manager import CameraManager
 from Shapes.BVH import BVH
 import freetype as ft
@@ -379,7 +379,7 @@ class BaseManager:
 
         self.root_motion_transferrer = RootMotionTransferrer(self.cfg, self.sketch, self.bvh)
 
-    def add_sketch(self, sketch: Sketch):
+    def add_sketch(self, sketch: ARAP_Sketch):
         """
         Adds the sketch to be animated to the viewer. Should only be called one
         :param sketch: Sketch object

@@ -27,7 +27,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
 import time
-from Shapes.Sketch import Sketch, ARAP_Sketch
+from Shapes.ARAP_Sketch import Sketch, ARAP_Sketch
 from Shapes.Floor import Floor
 from Shapes.BVH import BVH
 from camera import Camera

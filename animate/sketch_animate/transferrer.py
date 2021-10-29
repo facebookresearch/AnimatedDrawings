@@ -4,7 +4,7 @@ from Shapes.Shapes import ScreenSpaceSquare
 from camera import Camera
 
 from typing import List
-from Shapes.Sketch import Sketch
+from Shapes.PaperSketch import Sketch
 
 """
 Transferrers are responsible for transferring motion from the BVH onto the sketch. 
