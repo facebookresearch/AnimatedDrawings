@@ -8,5 +8,7 @@ videos
 
 /tmp/**
 
+**/__pycache__
+
 # ignore .env
 .env

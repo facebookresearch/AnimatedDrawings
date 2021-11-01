@@ -2,7 +2,7 @@
 
 ARG BASE_IMAGE=continuumio/miniconda3
 ARG PYTHON_VERSION=3.8
-ARG BASE_APT=base_apt
+ARG BUILD_CONFIG=realase
 
 FROM ${BASE_IMAGE} as build
 
@@ -37,7 +37,7 @@ RUN /venv/bin/conda-unpack
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM ubuntu:18.04 AS base_apt
+FROM ubuntu:18.04 AS release_packages
 
 ENV PYTHONUNBUFFERED TRUE
 
@@ -62,8 +62,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
+# Dev runtime is the same as realase
+FROM release_packages as development_packages
+
 # Create an image for profiling python code using function trace
-FROM base_apt as profile_apt
+FROM release_packages as profile_packages
 
 ENV RUSTUP_HOME=/usr/local/rustup CARGO_HOME=/usr/local/cargo PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
@@ -103,39 +106,52 @@ RUN cargo --help
 # install function trace. Note Pip package already installed
 RUN cargo install functiontrace-server
 
+FROM ${BUILD_CONFIG}_packages as common_runtime
 
-FROM ${BASE_APT} as animation_runtime
+# "glfw", "egl", or "osmesa" from https://github.com/deepmind/dm_control#rendering
+ENV MUJOCO_GL="osmesa"
+ENV TEMP=/home/animation-server/tmp
 
-RUN useradd -m animation-server
-USER animation-server
-WORKDIR /home/animation-server
-
+RUN mkdir -p /home/animation-server/tmp
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
 ENV PATH /venv/bin/:${PATH}
 
 
-RUN mkdir -p /home/animation-server/tmp \
-    && mkdir -p /home/animation-server/animate \
-    && mkdir -p /home/animation-server/animate/output \
-    && mkdir -p /home/animation-server/animate/sketch_animate/output
+
+FROM common_runtime as release_runtime
+
+RUN useradd -m animation-server
+USER animation-server
+WORKDIR /home/animation-server
 
 
 COPY --chown=animation-server:animation-server animate animate/
 
 
-# "glfw", "egl", or "osmesa" from https://github.com/deepmind/dm_control#rendering
-ENV MUJOCO_GL="osmesa"
-
-ENV TEMP=/home/animation-server/tmp
-
-
 # Define the default command.
-COPY --chown=animation-server:animation-server animate/flask/run.sh /home/animation-server/animate/flask/run.sh
-RUN chmod +x /home/animation-server/animate/flask/run.sh
+
+
+FROM common_runtime as develoment_runtime
+
+ARG USER_ID
+ARG GROUP_ID
+
+# RUN addgroup --gid $GROUP_ID animation-server
+RUN adduser --disabled-password --gecos '' --uid $USER_ID  animation-server 
+# --gid $GROUP_ID
+USER animation-server
+
+#  don't need to copy the code as it'll be mounted on the local volume
+FROM develoment_runtime as profile_runtime
+
+
+FROM ${BUILD_CONFIG}_runtime as animation_runtime
+
 WORKDIR /home/animation-server/animate/flask 
+# COPY --chown=animation-server:animation-server animate/flask/run.sh /home/animation-server/animate/flask/run.sh
+# RUN chmod +x /home/animation-server/animate/flask/run.sh
+
 CMD [ "/home/animation-server/animate/flask/run.sh" ]
-
 # CMD [ "sleep", "infinity" ]
-

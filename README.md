@@ -8,6 +8,46 @@ git submodule init && git submodule update
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
+3. create your own .env environment. Copy from .env.default
+
+4. Kick off a development build user docker-compose
+
+```
+docker-compose \
+    --env-file .env.profile \
+    -f docker-compose.development.yml \
+    build \
+    --build-arg USER_ID=$(id -u) \
+    --build-arg GROUP_ID=$(id -g) \
+```
+
+5. Run the container
+
+```
+docker-compose \
+--env-file .env.profile \
+-f docker-compose.development.yml \
+up \
+```
+
+6. Single Build and run command (optional)
+
+```
+docker-compose \
+    --env-file .env.profile \
+    -f docker-compose.development.yml \
+    build \
+    --build-arg USER_ID=$(id -u) \
+    --build-arg GROUP_ID=$(id -g)
+&&
+docker-compose     \
+--env-file .env.profile  \
+-f docker-compose.development.yml     \
+up
+```
+
+# OLD Instructions [DEPRECATED]
+
 3. Build the Docker Image using buildx
 
 ```
