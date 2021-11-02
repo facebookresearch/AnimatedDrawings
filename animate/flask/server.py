@@ -1,9 +1,17 @@
 import os, sys
+import logging
 from flask import Flask, make_response, request
 sys.path.insert(0, '..')
 import sketch_animate.main_server
 
 app = Flask(__name__)
+
+gunicorn_logger = logging.getLogger('gunicorn.error')
+
+if gunicorn_logger:
+    root_logger = logging.getLogger()
+    root_logger.handlers = gunicorn_logger.handlers
+    root_logger.setLevel(gunicorn_logger.level)
 
 VIDEO_SHARE_ROOT='./videos' # maps to /home/animation-server/animate/flask/videos
 UPLOAD_FOLDER='./uploads' # /home/animation-server/animate/flask/uploads
@@ -66,5 +74,7 @@ def generate_animation():
         return make_response("0", 200)
 
     except Exception as e:
+        app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
+        app.log_exception(e)
         return make_response("1", 500)
 
