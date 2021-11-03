@@ -191,8 +191,6 @@ class ARAP_Sketch(BaseSketch):
 
             self.assigned_vertices = []  # vertices that are assigned to this bone for skinning purposes
 
-            self.vao = GL.glGenVertexArrays(1)
-            self.vbo = GL.glGenBuffers(1)
 
             self.djoint = self.arap_handle.joint
             self.pjoint = self.arap_handle.pjoint
@@ -201,7 +199,19 @@ class ARAP_Sketch(BaseSketch):
             self.points[:, 3:] = colors[idx]
             self.dj_loc = None
             self.pj_loc = None
+
+            self.vao = None
+            self.vbo = None
+            self._initialize_opengl()
+
+
+
             self.update_position()
+
+
+        def _initialize_opengl(self):
+            self.vao = GL.glGenVertexArrays(1)
+            self.vbo = GL.glGenBuffers(1)
 
             GL.glBindVertexArray(self.vao)
             GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
@@ -339,6 +349,10 @@ class ARAP_Sketch(BaseSketch):
         with open(pickle_fn, 'rb') as f:
             ret = pickle.load(f)
         ret._initialize_opengl()
+
+        for bone in ret.bones:
+            bone._initialize_opengl()
+
         return ret
 
     def _initialize_opengl(self):
@@ -503,6 +517,35 @@ class ARAP_Sketch(BaseSketch):
             del(distances[max_key])
         self.render_order = render_order
 
+    def draw_render_mp(self, mesh_vertices, **kwargs):
+        """Drawing function, specifically for multiprocessing use while rendering
+        mesh_vertices: the mesh vertices of character for this frame. precomputed in separate thread
+        """
+        GL.glBindVertexArray(self.vao)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)  # buffer vertex data
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, mesh_vertices, GL.GL_DYNAMIC_DRAW)
+
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+
+        GL.glBindVertexArray(self.vao)
+
+        GL.glActiveTexture(GL.GL_TEXTURE0)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.tex_id)
+
+        # render the sketch texture
+        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+        GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
+        model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['texture_shader'], "model")
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.model.T)
+
+        for bone_idx, _, _ in self.render_order:
+            if bone_idx not in self.indices_info.keys():
+                continue
+            start, length = self.indices_info[bone_idx]
+            GL.glDrawElements(GL.GL_TRIANGLES, length, GL.GL_UNSIGNED_INT, ctypes.c_void_p(4 * start))
+
+        GL.glBindVertexArray(0)
 
     def draw(self, **kwargs):
 
@@ -836,6 +879,31 @@ class ARAP_Sketch(BaseSketch):
     #######################
     # Begin ARAP functions.
     #######################
+    def _arap_solve_render_mp(self):
+
+        self._update_global_matrices()
+        for arap_handle in self.arap_handles:
+            arap_handle.set_world_coords()
+
+        self.pinPoses = []
+        for handle in self.arap_handles:
+            self.pinPoses.append((handle.cx, 1 - handle.cy))
+        self.pinPoses = np.asarray(self.pinPoses)
+
+        b1 = self._buildB1(self.pinPoses, self.w, self.nEdges)
+        v1 = spla.spsolve(self.tA1xA1, self.tA1 * b1)
+
+        b2 = self._buildB2(self.heVectors, self.heIndices, self.edges, self.pinPoses, self.w, self.G, v1)
+        v2x = spla.spsolve(self.tA2xA2, self.tA2 * b2[:, 0])
+        v2y = spla.spsolve(self.tA2xA2, self.tA2 * b2[:, 1])
+        v2 = np.vstack((v2x, v2y)).T
+
+        for idx in range(self.mesh_vertices.shape[0]):
+            self.mesh_vertices[idx, 0] = v2[idx][0]
+            self.mesh_vertices[idx, 1] = 1 - v2[idx][1]
+
+        return self.mesh_vertices.copy()
+
     def _arap_solve(self):
 
         self.pinPoses = []
@@ -855,10 +923,6 @@ class ARAP_Sketch(BaseSketch):
             self.mesh_vertices[idx, 0] = v2[idx][0]
             self.mesh_vertices[idx, 1] = 1 - v2[idx][1]
 
-        # for idx, tri in enumerate(self.triangle_mesh['triangles']):
-        #     for jdx, vert_idx in enumerate(reversed(tri)):  # reversed so it faces camera
-        #         self.mesh_vertices[3 * idx + jdx, 0] = v2[vert_idx][0]
-        #         self.mesh_vertices[3 * idx + jdx, 1] = 1 - v2[vert_idx][1]
 
     def _arap_setup(self):
         """ Called once during object construction to generate the reusable parts of the ARAP matrices"""
@@ -1022,7 +1086,6 @@ class ARAP_Sketch(BaseSketch):
         shape = (pins.shape[0], nVertices)
         spA2bottom = sp.csr_matrix((Adata, (Arow, Acol)), shape=shape)
         return spA2bottom
-
 
     def _buildB2(self, heVectors, heIndices, edges, pinPoses, w, G, v1):
         T1 = G * v1
