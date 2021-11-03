@@ -3,7 +3,6 @@ import math
 from numbers import Number
 from PIL import Image, ImageOps
 from string import Template
-import OpenGL.GL as GL
 import os
 import logging
 
@@ -114,6 +113,42 @@ def toggle_camera_multi_view():
 def get_show_multi_cameras():
     global SHOW_MULTI_CAMERAS
     return SHOW_MULTI_CAMERAS
+
+###############################
+
+###############################
+
+def use_opengl():
+    """Checks if proper env vars set, returns true if use opengl, false if use osmesa"""
+    return 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and  \
+           os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL'
+
+
+def prep_render_backend():
+    """
+    If OpenGL and GLFW are available, set SKETCH_ANIMATE_RENDER_BACKEND=OPENGL in env before running.
+    Otherwise, osmesa is assumed to be used for headless rendering.
+    This function is called by main once to set variables and import dependencies properly
+    """
+    if use_opengl():
+        logging.info('SKETCH_ANIMATE_RENDER_BACKEND == OPENGL. Using OpenGL')
+        try:
+            from OpenGL import GL
+        except:
+            logging.critical('Error initializing OpenGL. Aborting')
+        logging.info('OpenGL successfully initialized')
+
+    else:
+        logging.info('SKETCH_ANIMATE_RENDER_BACKEND != OPENGL, Using OSMesa')
+        try:
+            os.environ['PYOPENGL_PLATFORM'] = "osmesa"
+            os.environ['MUJOCO_GL'] = "osmesa"
+            os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
+            from OpenGL import GL, osmesa
+        except Exception as e:
+            logging.critical(f'Error initializing osmesa. Aborting: {e}')
+        logging.info('osmesa successfully initialized')
+
 
 
 ###############################
@@ -230,8 +265,22 @@ bodypart_groups = {
         # 'head',
     ]
 }
-
-
+###############################
+# used by Transferrer_Render.retarget()
+cached_rot_name_to_index = {
+    'fwd_vel': 0,
+    'vrt_vel': 1,
+    'left_arm_lower': 2,
+    'left_arm_upper': 3,
+    'left_leg_lower': 4,
+    'left_leg_upper': 5,
+    'right_arm_lower': 6,
+    'right_arm_upper': 7,
+    'right_leg_lower': 8,
+    'right_leg_upper': 9,
+    'torso': 10,
+    'head' : 11
+}
 ###############################
 
 def identity():
@@ -312,7 +361,8 @@ def matmul(a, b):
 
 
 def read_texture(filename, channels):
-    logging.info('trying to open', filename)
+    import OpenGL.GL as GL
+    logging.info(f'trying to open {filename}')
     try:
         if os.path.exists(filename):
             pass
@@ -325,7 +375,7 @@ def read_texture(filename, channels):
         message = Template.template.format(type(ex).__name__, ex.args)
         logging.error(message)
         return -1
-    logging.info('Opened file: size=', image.size, 'format=', image.format)
+    logging.info(f'Opened file: size={image.size}, format={image.format}')
     image = ImageOps.flip(image)
     imageData = np.array(list(image.getdata()), np.uint8)
 

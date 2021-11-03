@@ -1,7 +1,8 @@
-from util import rotate, z_ax, x_ax, angle_from, normalized, constrain_angle
+from util import rotate, z_ax, x_ax, angle_from, normalized, constrain_angle, cached_rot_name_to_index
 import numpy as np
 from Shapes.Shapes import ScreenSpaceSquare
 from camera import Camera
+from pathlib import Path
 
 from typing import List
 from Shapes.PaperSketch import Sketch
@@ -9,10 +10,10 @@ from Shapes.PaperSketch import Sketch
 """
 Transferrers are responsible for transferring motion from the BVH onto the sketch. 
 RootMotionTransferrer is responsible for transferring global translation onto the sketch.
-JointAngleTransferrer are responsible determining the orientation of the BVH bones, when viewed from a particular direction,
+JointAngleTransferrer_Interact are responsible determining the orientation of the BVH bones, when viewed from a particular direction,
 and orientating a set of sketch bones such that, when the are viewed from a second camera, the orientation in screen space is identical.
+Transferrer_Render is only used for headless rendering.
 """
-
 
 class Transferrer:
 
@@ -27,7 +28,98 @@ class Transferrer:
         self.bvh = bvh
 
 
-class JointAngleTransferrer(Transferrer):
+class Transferrer_Render():
+    """
+    We need to render more quickly. So instead of reading in BVH and calculating global bone orientations,
+    we are going to pre-cache them since they don't change based on sketch character, and cameras aren't moved in
+    non-interactive mode
+    """
+    def __init__(self, viewer, cfg):
+        self.cfg = cfg
+        self.view = viewer
+
+        self.rots = np.loadtxt(Path('../Data/cached/') / (Path(self.cfg['BVH_PATH']).name + '.rot'))
+
+        self.ords = None  # distance from joints to the camera used for projection. Needed to determine drawing order
+        self._prep_ords()
+
+        self.motion_scale_factor = None  # sketch must be assigned before this is set
+
+        self.fwd_pos = None  # self.motion_scale_factor must be set before this can be calc'd
+        self.vrt_pos = None  # self.motion_scale_factor must be set before this can be calc'd
+
+    def _prep_ords(self):
+        import ast
+        ords_fn = Path('../Data/cached/') / (Path(self.cfg['BVH_PATH']).name + '.ord')
+        with open(ords_fn, 'r') as f:
+            lines = f.readlines()
+        self.ords = [ast.literal_eval(line) for line in lines]
+
+    def set_motion_scale_factor(self, sketch):
+        """
+        calc and save leg length of character. Needed for scaling root offsets due to walking, etc.
+        """
+        l_hip_pos = sketch.joints['left_hip'].global_matrix[0:3, -1]
+        l_knee_pos = sketch.joints['left_knee'].global_matrix[0:3, -1]
+        l_foot_pos = sketch.joints['left_foot'].global_matrix[0:3, -1]
+        l_leg_len = np.linalg.norm(l_hip_pos - l_knee_pos) + np.linalg.norm(l_knee_pos - l_foot_pos)
+
+        r_hip_pos = sketch.joints['right_hip'].global_matrix[0:3, -1]
+        r_knee_pos = sketch.joints['right_knee'].global_matrix[0:3, -1]
+        r_foot_pos = sketch.joints['right_foot'].global_matrix[0:3, -1]
+        r_leg_len = np.linalg.norm(r_hip_pos - r_knee_pos) + np.linalg.norm(r_knee_pos - r_foot_pos)
+
+        self.motion_scale_factor = l_leg_len + r_leg_len
+
+    def prep_root_pos(self):
+        """for multiprocessor rendering, better to have a list of root positions to refer to"""
+        upper_frame_limit = int(self.cfg['RENDERED_FRAME_UPPER_LIMIT'])
+        bvh_frame_count = self.rots.shape[0]
+        self.fwd_pos = np.zeros(upper_frame_limit)
+        self.vrt_pos = np.zeros(upper_frame_limit)
+
+        for idx in range(1, upper_frame_limit):
+            self.fwd_pos[idx] = self.fwd_pos[idx-1] + self.rots[idx % bvh_frame_count, cached_rot_name_to_index['fwd_vel']] * self.motion_scale_factor
+            self.vrt_pos[idx] = self.vrt_pos[idx-1] + self.rots[idx % bvh_frame_count, cached_rot_name_to_index['vrt_vel']] * self.motion_scale_factor
+
+    def retarget(self, sketch, cur_bvh_frame: int, cur_scene_frame: int):
+        """
+        Retarget the cached mocap angles/root offsets onto character
+        """
+        if self.cfg['SHOW_ORIGINAL_POSE_ONLY']:
+            return
+
+        if self.cfg['CALCULATE_RENDER_ORDER']:
+            sketch.render_order = self.ords[cur_bvh_frame]
+
+        for segment in sketch.segments.values():
+            if segment.name == 'head':  # don't rotate head. Works poorly on tadpole characters
+                continue
+
+            segment_idx = cached_rot_name_to_index[segment.name]
+            theta = self.rots[cur_bvh_frame, segment_idx]
+            self.set_sketch_angle(sketch, segment, theta)
+
+        sketch.joints['root'].local_matrix[0, -1] = self.fwd_pos[cur_scene_frame]
+        sketch.joints['root'].local_matrix[1, -1] = self.vrt_pos[cur_scene_frame]
+
+    def set_sketch_angle(self, sketch, sketch_segment: Sketch.Segment, theta: float):
+        """Given a sketch segment, sets it's matrix so that it is theta degrees from the x axis"""
+        pjnt = sketch.joints[sketch_segment.prox_joint.name]
+        djnt = sketch.joints[sketch_segment.dist_joint.name]
+
+        cur_theta = angle_from(x_ax, normalized(djnt.global_matrix[0:2, -1] - pjnt.global_matrix[0:2, -1]))
+
+        delta = theta - cur_theta
+
+        rmat = rotate(z_ax, delta)
+
+        pjnt.local_matrix = pjnt.local_matrix @ rmat
+        sketch._update_global_matrices()
+
+
+class JointAngleTransferrer_Interact(Transferrer):
+
     def __init__(self, viewer, cfg):
         self.cfg = cfg
         self.bvh_camera = None
@@ -59,17 +151,24 @@ class JointAngleTransferrer(Transferrer):
             proj_m = self.bvh_camera.get_proj_matrix(self.viewer.width, self.viewer.height)
             view_m = self.bvh_camera.get_view_matrix()
 
+            # #Uncomment this if you want to cache more mocap files later
+            # vec = self.get_bvh_bone_vector(segment, time, proj_m, view_m)
+            # if self.viewer.time_manager.is_playing:
+            #     with open(self.cfg['OUTPUT_PATH'] + f'/{self.cfg["BVH_PATH"].split("/")[-1]}_{segment.name}.txt', 'a') as f:
+            #         angle = math.degrees(math.atan2(vec[1], vec[0]))
+            #         if angle < 0:
+            #             angle = 360.0 + angle
+            #         f.write(f'{angle}\n')
+
             bvh_bone_vector = normalized(self.get_bvh_bone_vector(segment, time, proj_m, view_m))
             theta = angle_from(x_ax, bvh_bone_vector)
             self.set_sketch_angle(segment, theta)
-
 
     def get_bvh_bone_vector(self, sketch_segment: Sketch.Segment, time: int, proj_m: np.array, view_m: np.array):
         """Given a segment(bone) and timeframe, returns the screenspace orientation of
         that bone. proj_m and view_m are calculated once and passed from calling function `transfer_orientations`
         since it is expensive
         """
-
         def name_to_screen_coords(seg_jnt_name: str):
             bvh_jnt_name = self.bvh.jnt_map[seg_jnt_name]
             idx = self.bvh.joint_names.index(bvh_jnt_name)
@@ -79,7 +178,6 @@ class JointAngleTransferrer(Transferrer):
             screen = proj_m @ view_m @ self.bvh.model @ pos
             screen = screen[0:2] / screen[3]
             return screen
-
 
         djnt_screen = name_to_screen_coords(sketch_segment.dist_joint.name)
         pjnt_screen = name_to_screen_coords(sketch_segment.prox_joint.name)
@@ -133,11 +231,13 @@ class JointAngleTransferrer(Transferrer):
 
 class RootMotionTransferrer(Transferrer):
 
-    def __init__(self, cfg, sketch, bvh):
+    def __init__(self, cfg, sketch, bvh, viewer):
         self.cfg = cfg
         self.sketch = sketch
         self.bvh = bvh
         self.sketch_root = self.sketch.joints['root']
+
+        self.viewer = viewer
 
         self.last_transferred_frame = 0
 
@@ -145,22 +245,24 @@ class RootMotionTransferrer(Transferrer):
         self._calculate_motion_scaling_factor()
 
         # cache forward root velocities for each frame
-        frame_count = self.bvh.frame_count
-        self.bvh_fwd_vel = np.empty([frame_count], np.float32)
-        self.bvh_vrt_vel = np.empty([frame_count], np.float32)
+        self.bvh_fwd_vel = None
+        self.bvh_vrt_vel = None
         self._cache_bvh_root_velocities()
 
-        self.sketch_positions = np.zeros([frame_count, 2], np.float32)  # [x positions, y position]
+        self.sketch_positions = None
         self._cache_sketch_root_positions()
 
     def _cache_sketch_root_positions(self):
+        self.sketch_positions = np.zeros([self.bvh.frame_count, 2], np.float32)  # [x positions, y position]
         for frame in range(1, self.bvh_fwd_vel.shape[0]):  # for every frame
-            self.sketch_positions[frame, 0] = self.sketch_positions[frame - 1, 0] + self.motion_scaling_factor * \
-                                              self.bvh_fwd_vel[frame]
-            self.sketch_positions[frame, 1] = self.sketch_positions[frame - 1, 1] + self.motion_scaling_factor * \
-                                              self.bvh_vrt_vel[frame]
+            posx_prev = self.sketch_positions[frame - 1, 0]
+            posy_prev = self.sketch_positions[frame - 1, 1]
+            self.sketch_positions[frame, 0] = posx_prev + self.bvh_fwd_vel[frame] # * self.motion_scaling_factor
+            self.sketch_positions[frame, 1] = posy_prev + self.bvh_vrt_vel[frame] # * self.motion_scaling_factor
 
     def _cache_bvh_root_velocities(self):
+        self.bvh_fwd_vel = np.empty([self.bvh.frame_count], np.float32)
+        self.bvh_vrt_vel = np.empty([self.bvh.frame_count], np.float32)
         self.bvh_fwd_vel[0] = 0.0
         self.bvh_vrt_vel[0] = 0.0
         root_pos = self.bvh.pos[:, 0, :]
@@ -171,10 +273,10 @@ class RootMotionTransferrer(Transferrer):
 
             fwd = self.bvh.get_forward(frame)
             fwd_vel = np.dot(vel, fwd) / np.linalg.norm(fwd)
-            self.bvh_fwd_vel[frame] = fwd_vel
+            self.bvh_fwd_vel[frame] = fwd_vel #/ self.motion_scaling_factor
 
             vrt_vel = vel[1]
-            self.bvh_vrt_vel[frame] = vrt_vel
+            self.bvh_vrt_vel[frame] = vrt_vel #/ self.motion_scaling_factor
 
     def _calculate_motion_scaling_factor(self):
         """
@@ -193,7 +295,7 @@ class RootMotionTransferrer(Transferrer):
         r_foot = self.bvh.pos[0, self.bvh.joint_names.index(self.bvh.jnt_map['right_foot']), :]
         r_leg_len = np.linalg.norm(r_hip - r_knee) + np.linalg.norm(r_knee - r_foot)
 
-        bvh_leg_length = l_leg_len + r_leg_len
+        self.bvh_leg_length = l_leg_len + r_leg_len  #TODO remove self.
 
         # sketch
         l_hip_pos = self.sketch.joints['left_hip'].global_matrix[0:3, -1]
@@ -208,12 +310,22 @@ class RootMotionTransferrer(Transferrer):
 
         sketch_leg_length = l_leg_len + r_leg_len
 
-        self.motion_scaling_factor = float(sketch_leg_length) / bvh_leg_length
+        #self.motion_scaling_factor = float(sketch_leg_length) / bvh_leg_length
+        self.motion_scaling_factor = float(sketch_leg_length) / self.bvh_leg_length  #TODO remove this line
 
     def update_sketch_root_position(self, time: int):
+
+        if not self.viewer.time_manager.is_playing:
+            return
+        with open(self.cfg['OUTPUT_PATH'] + f'/{self.cfg["BVH_PATH"].split("/")[-1]}_bvh_vrt_vel.txt', 'a') as f:
+            f.writelines(f'{np.sum(self.bvh_vrt_vel[self.last_transferred_frame:time]) / self.bvh_leg_length}\n')
+        with open(self.cfg['OUTPUT_PATH'] + f'/{self.cfg["BVH_PATH"].split("/")[-1]}_bvh_fwd_vel.txt', 'a') as f:
+            f.writelines(f'{np.sum(self.bvh_fwd_vel[self.last_transferred_frame:time]) / self.bvh_leg_length}\n')
+
         if self.cfg['ROOT_POSITION_UPDATE_TYPE'] == 'velocity':
             fwd_vel = np.sum(self.bvh_fwd_vel[self.last_transferred_frame:time]) * self.motion_scaling_factor
             vrt_vel = np.sum(self.bvh_vrt_vel[self.last_transferred_frame:time]) * self.motion_scaling_factor
+            print(fwd_vel)
             self.sketch_root.local_matrix[0, -1] += fwd_vel
             self.sketch_root.local_matrix[1, -1] += vrt_vel
         elif self.cfg['ROOT_POSITION_UPDATE_TYPE'] == 'position':
