@@ -3,13 +3,10 @@ import pyrr
 from Shaders.Shader import Shader
 from util import *
 from camera import Camera
-from time_manager import TimeManager
-from transferrer import JointAngleTransferrer, RootMotionTransferrer
 from Shapes.ARAP_Sketch import ARAP_Sketch
 from camera_manager import CameraManager
-from Shapes.BVH import BVH
 import freetype as ft
-from typing import List, Optional
+from typing import List
 import os
 from abc import abstractmethod
 import logging
@@ -22,7 +19,7 @@ class BaseManager:
         assert cfg is not None
 
         # members associated with time and motion
-        self.time_manager = TimeManager(cfg)
+        self.time_manager = None    # Must be assigned by child class TimeManager(cfg)
         self.loop_upper_limit = cfg['LOOP_REPEAT_UPPER_LIMIT']
         self.rendered_frame_upper_limit = cfg['RENDERED_FRAME_UPPER_LIMIT']
         self.x_position_upper_limit = cfg['X_POSITION_UPPER_LIMIT']
@@ -95,23 +92,6 @@ class BaseManager:
         color = [0, 0, 0]
         self.render_text(text, xpos, ypos, 1, color)
 
-    def _adjust_sketch(self):
-
-        if (self.time_manager.is_playing and self.cfg['CALCULATE_RENDER_ORDER']) or (
-                self.mode == 'RENDER' and self.cfg['CALCULATE_RENDER_ORDER']):
-            self.sketch.set_render_order(self.camera_manager.bvh_cameras[0], self.bvh,
-                                         self.time_manager.get_current_bvh_frame())
-
-        if self.cfg['SHOW_ORIGINAL_POSE_ONLY']:
-            return
-
-        for transferrer in self.joint_angle_transferrers:
-            if transferrer.sketch is not None:
-                transferrer.transfer_orientations(self.time_manager.get_current_bvh_frame())
-
-        if self.root_motion_transferrer is not None:
-            self.root_motion_transferrer.update_sketch_root_position(self.time_manager.get_current_bvh_frame())
-
     def _initialize_characters(self):
         # Load font  and check it is monotype
         filename = os.path.join(os.getcwd(), '..', 'fonts', 'VeraMono.ttf')
@@ -182,40 +162,26 @@ class BaseManager:
             GL.glUniform1i(GL.glGetUniformLocation(self.shader_ids[shader_name], 'texture0'), 0)
 
     def _update(self):
-        if self.time_manager.bvh is not None:
-            self.time_manager.tick()
+        self.time_manager.tick()
 
-    def _scene_is_finished(self):
+    def _scene_is_finished(self, frame_idx=None):
         """ Based upon contents of motion_config, determine if scene has finished playing"""
         if self.time_manager.loop_count >= self.loop_upper_limit:
             logging.info('self.time_manager.loop_count > self.loop_upper_limit. Scene is finished.')
             return True
-        elif self.time_manager.cur_scene_frame > self.rendered_frame_upper_limit:
+        elif self.time_manager.cur_scene_frame >= self.rendered_frame_upper_limit:
             logging.info('self.time_manager.cur_scene_frame > self.rendered_frame_upper_limit. Scene is finished.')
             return True
         elif self.sketch.joints['root'].local_matrix[0, -1] > self.x_position_upper_limit:
             logging.info('self.sketch.model[0, -1] > self.x_position_upper_limit. Scene is finished.')
             return True
+        ### these conditions used for render
+        elif frame_idx is not None and frame_idx >= self.rendered_frame_upper_limit:
+            return True
+        elif frame_idx is not None and frame_idx >= self.loop_upper_limit * self.time_manager.bvh_frame_count:
+            return True
         else:
             return False
-
-    def add_bvh(self, bvh: BVH):
-        """
-        Adds the BVH used to drive the sketch animation into the scene. Should only be called once.
-        :param bvh:
-        :return:
-        """
-        if self.bvh is not None:
-            return
-
-        for transferrer in self.joint_angle_transferrers:
-            transferrer.set_bvh(bvh)
-
-        self.bvh = bvh
-
-        self.time_manager.initialize_bvh(bvh)
-
-        self.drawables.append(bvh)
 
     def add_free_camera(self, camera: Camera):  # TODO: Incorporate this
         """
@@ -228,32 +194,6 @@ class BaseManager:
         self.drawables.append(camera)
         self._set_shader_projections(
             self.camera_manager.get_proj_matrix(self.width, self.height, camera))  # TODO: This should go elsewhere
-
-    def add_bvh_camera(self, camera: Camera, target_segments: Optional[List[str]] = None):
-        """
-        given a camera and a list of target joints (and optional camera name), will create a joint angle transferrer that will adjust segments of the sketch
-        based on how mocap bones are oriented, when projected on that camera.
-        :param camera: the camera whose screen coordinates will be used to drive the joints
-        :param target_segments: the joints of the sketch that will be driven by this transfer camera
-        :param camera_name : camera name for display purposes
-        :return:
-        """
-        camera.initialize_target('root')
-        self.camera_manager.add_bvh_camera(camera)
-
-        transferrer = JointAngleTransferrer(self, self.cfg)
-        transferrer.set_bvh_camera(camera)
-        transferrer.set_target_segments(target_segments)
-        if self.camera_manager.sketch_camera is not None:
-            transferrer.set_view_camera(self.camera_manager.sketch_camera)
-        if self.bvh is not None:
-            transferrer.set_bvh(self.bvh)
-        if self.sketch is not None:
-            transferrer.set_sketch(self.sketch)
-        self.joint_angle_transferrers.append(transferrer)
-
-        self.drawables.append(camera)
-        self.drawables.append(transferrer)
 
     def add_info_camera(self, camera: Camera):
         camera.initialize_target('root')
@@ -348,7 +288,7 @@ class BaseManager:
         :return:
         """
         # get the position of the bvh root at this time step
-        for transferrer in self.joint_angle_transferrers:  # TODO: See what happens if I remove this for loop.... this stuff should only be happening once
+        for transferrer in self.joint_angle_transferrers:
 
             # with the viewing angle, we get the position of the root joint for the target.
             # and we call the pca segmenter to get the optimal viewing angle.
@@ -369,15 +309,6 @@ class BaseManager:
             camera.set_target_position(sketch_root_pos)
         # put in some code here to get the sketch root position and move the camera and orient it.
         # Also somewhere make it so you cannot move the camera with mouse and keyboard
-
-    def create_root_motion_transferrer(self):
-        """ Creates the transferrer responsible for sketch's root motion. both sketch and bvh must be set first"""
-        assert self.bvh is not None
-        assert self.sketch is not None
-
-        assert self.root_motion_transferrer is None  # only one of these should exist
-
-        self.root_motion_transferrer = RootMotionTransferrer(self.cfg, self.sketch, self.bvh)
 
     def add_sketch(self, sketch: ARAP_Sketch):
         """
