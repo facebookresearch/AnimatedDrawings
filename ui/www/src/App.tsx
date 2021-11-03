@@ -9,7 +9,6 @@ import "./assets/scss/root.scss";
 import MainPage from "./containers/MainPage";
 import SharingPage from "./containers/SharingPage";
 import HomePage from "./containers/HomePage";
-import AboutPage from "./containers/AboutPage";
 
 function App() {
   return (
@@ -17,9 +16,6 @@ function App() {
       <Switch>
         <Route exact path="/">
           <HomePage />
-        </Route>
-        <Route path="/about">
-          <AboutPage />
         </Route>
         <Route path="/canvas">
           <MainPage />

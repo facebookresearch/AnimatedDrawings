@@ -1,10 +1,12 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import AboutModal from "../components/Modals/AboutModal";
 import SplashVideo from "../assets/video_assets/splashVideo.mp4";
 
 const HomePage = () => {
   const history = useHistory();
+  const [showModal, setShowModal] = React.useState(false);
   return (
     <div className="main-content bg-home" id="home">
       <div className="home-page">
@@ -63,11 +65,12 @@ const HomePage = () => {
         </div>
         <div
           className="home-footer text-center py-1"
-          onClick={() => history.push("/about")}
+          onClick={() => setShowModal(true)}
         >
           <h3>ABOUT THIS DEMO</h3>
         </div>
       </div>
+      <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
 };
