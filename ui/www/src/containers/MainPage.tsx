@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
 import Canvas from "../components/Canvas/Canvas";
 import StepsContainer from "../components/Stepper/StepsContainer";
 import useDrawingStore from "../hooks/useDrawingStore";
 import useStepperStore from "../hooks/useStepperStore";
+import AboutModal from "../components/Modals/AboutModal";
 
 const MainPage = () => {
-  const history = useHistory();
   const { uuid } = useDrawingStore();
   const { currentStep } = useStepperStore();
+  const [showModal, setShowModal] = useState(false);
   return (
     <div className="main-content bg-main">
       <div className="navbar-title">
@@ -57,20 +57,18 @@ const MainPage = () => {
         {currentStep === 5 && (
           <>
             <div className="home-footer-credits py-2">
-              <h4>
-                <span className="rg-1">Presented By</span> FACEBOOK AI{" "}
-                <span className="rg-1">Research</span>
-              </h4>
+              <h4> PRESENTED BY FACEBOOK AI RESEARCH</h4>
             </div>
             <div
               className="home-footer d-none d-lg-block text-center py-2"
-              onClick={() => history.push("/about")}
+              onClick={() => setShowModal(true)}
             >
-              <h4>ABOUT THIS DEMO</h4>
+              <h3>ABOUT THIS DEMO</h3>
             </div>
           </>
         )}
       </div>
+      <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
 };

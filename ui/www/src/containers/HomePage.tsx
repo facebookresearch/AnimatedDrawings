@@ -1,10 +1,12 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import AboutModal from "../components/Modals/AboutModal";
 import SplashVideo from "../assets/video_assets/splashVideo.mp4";
 
 const HomePage = () => {
   const history = useHistory();
+  const [showModal, setShowModal] = React.useState(false);
   return (
     <div className="main-content bg-home" id="home">
       <div className="home-page">
@@ -26,18 +28,20 @@ const HomePage = () => {
           </Row>
           <Row className="justify-content-center">
             <Col lg={6} md={10} xs={12} className="mb-4 justify-content-center">
-              <div className="gif-wrapper">
+              <div className="ml-auto mr-auto gif-wrapper">
                 <div className="gif-div">
-                  <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    width="100%"
-                    height="auto"
-                  >
-                    <source src={SplashVideo} type="video/mp4" />
-                  </video>
+                  <div className="video-contain">
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      width="100%"
+                      height="auto"
+                    >
+                      <source src={SplashVideo} type="video/mp4" />
+                    </video>
+                  </div>
                 </div>
                 <div className="gif-shadow-div"></div>
               </div>
@@ -48,7 +52,7 @@ const HomePage = () => {
               <Button
                 block
                 size="lg"
-                className="px-4 py-2"
+                className="px-4 py-2 py-lg-3"
                 onClick={() => history.push("/canvas")}
               >
                 Get Started
@@ -57,18 +61,16 @@ const HomePage = () => {
           </Row>
         </Container>
         <div className="home-footer-credits py-2">
-          <h4>
-            <span className="rg-1">Presented By</span> FACEBOOK AI{" "}
-            <span className="rg-1">Research</span>
-          </h4>
+          <h4>PRESENTED BY FACEBOOK AI RESEARCH</h4>
         </div>
         <div
-          className="home-footer text-center py-2"
-          onClick={() => history.push("/about")}
+          className="home-footer text-center py-1"
+          onClick={() => setShowModal(true)}
         >
-          <h4>ABOUT THIS DEMO</h4>
+          <h3>ABOUT THIS DEMO</h3>
         </div>
       </div>
+      <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
 };

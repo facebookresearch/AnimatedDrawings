@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import useStepperStore from "../../hooks/useStepperStore";
 import useDrawingStore from "../../hooks/useDrawingStore";
-import Step2 from "../Stepper/Step2";
+import WaiverStep from "../Stepper/WaiverStep";
 
 interface modalProps {
   showModal: boolean;
@@ -18,6 +18,7 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
     let response = res ? 1 : 0;
     try {
       setAgreeTerms(res)
+      sessionStorage.setItem('waiver_res', response.toString());
       await setConsentAnswer(uuid, response, () => {
         setShowModal(false);
         console.log(response)
@@ -37,7 +38,7 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
               <h2>ANIMATED <span className="text-info">DRAWINGS</span></h2>
             </div>
             <div className="share-page">
-              <Step2
+              <WaiverStep
                 showModal={showModal}
                 isLoading={isLoading}
                 setShowModal={setShowModal}

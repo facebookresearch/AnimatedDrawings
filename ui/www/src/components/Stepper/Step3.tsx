@@ -4,7 +4,7 @@ import image_2 from "../../assets/drawings_examples/step3/image_2.png";
 
 const Step3 = () => {
   return (
-    <div className="step-actions-container">
+    <div className="step-actions-container bottom-shadow">
       <h1 className="step-title">
         Finding the <span className="text-info">Human-Like</span> Character
       </h1>

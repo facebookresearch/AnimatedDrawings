@@ -8,7 +8,7 @@ interface Props {
   handleNext: (res: boolean) => void
 }
 
-const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
+const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
 
   return (
     <Container>
@@ -129,4 +129,4 @@ const Step2 = ({ showModal, isLoading, setShowModal, handleNext }: Props) => {
   );
 };
 
-export default Step2;
+export default WaiverStep;

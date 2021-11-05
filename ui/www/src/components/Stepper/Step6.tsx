@@ -126,7 +126,11 @@ const Step7 = () => {
   };
 
   return (
-    <div className="step-actions-container-animation">
+    <div
+      className={classnames("step-actions-container-animation", {
+        "bottom-shadow": group === "all",
+      })}
+    >
       <h1 className="step-title ml-2">
         Add <span className="text-info">Animation</span>
       </h1>

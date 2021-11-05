@@ -110,6 +110,13 @@
     background-color: $white;
     overflow: hidden;
     z-index: 5;
+    padding: 6px;
+  }
+  .video-contain {
+    width: 460px;
+    height: 271px;
+    border-radius: 10px;
+    overflow: hidden;
   }
   .gif-shadow-div {
     position: absolute;
@@ -130,6 +137,11 @@
   font-family: $font-family-md;
   h4 {
     font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
+  h3 {
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.2em;
   }
@@ -222,6 +234,13 @@
       bottom: 0%;
       width: 316px;
       height: 195px;
+      padding: 8px;
+    }
+    .video-contain {
+      width: 300px;
+      height: 179px;
+      border-radius: 10px;
+      overflow: hidden;
     }
     .gif-shadow-div {
       position: absolute;

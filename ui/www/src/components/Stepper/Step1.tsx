@@ -4,7 +4,7 @@ import ExamplesCarousel from "../ExamplesCarousel";
 const Step1 = () => {
   return (
     <>
-      <div className="step-actions-container">
+      <div className="step-actions-container bottom-shadow">
         <h2 className="step-title">
           Upload a <span className="text-info">drawing</span>
         </h2>
