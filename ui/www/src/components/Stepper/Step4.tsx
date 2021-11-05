@@ -6,7 +6,7 @@ import image_3 from "../../assets/drawings_examples/step4/image_3.png";
 const Step4 = () => {
   return (
     <>
-      <div className="step-actions-container">
+      <div className="step-actions-container bottom-shadow">
         <h1 className="step-title">
           Separating <span className="text-info">Character</span>
         </h1>
