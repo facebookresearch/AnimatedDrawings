@@ -860,15 +860,9 @@ class ARAP_Sketch(BaseSketch):
 
                     # if inside the mask, return the new locations
                     if mask[x, y] == 255:
-                        print(f'moved joint {name} {distance} pixels')
-                        #new_image_coords = _x / self.dim, _y / self.dim
-
-                        #new_x, new_y = _x / self.dim, _y / self.dim
-                        #image_coords = [self.joints[name].loc[0], 1 - self.joints[name].loc[1]]
-                        self.joints[name].loc = _y, _x
+                        self.joints[name].loc = np.array([_x / self.dim, 1 - _y/self.dim], dtype=np.float32)
                         queue = None
                         break
-                        #return new_image_coords
 
                     # otherwise, add to queue
                     queue.append((_x, _y, distance+1))
