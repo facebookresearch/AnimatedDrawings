@@ -5,6 +5,8 @@ from PIL import Image, ImageOps
 from string import Template
 import os
 import logging
+from pathlib import Path
+import cv2
 
 from doctest import testmod
 
@@ -377,7 +379,13 @@ def read_texture(filename, channels):
         return -1
     logging.info(f'Opened file: size={image.size}, format={image.format}')
     image = ImageOps.flip(image)
-    imageData = np.array(list(image.getdata()), np.uint8)
+    npimage = np.array(image)
+
+    # make pixels outside mask transparent
+    mask_p = Path(filename).parent / (str(Path(filename).stem) + '_mask.png')
+    mask = cv2.imread(str(mask_p))[::-1,:,0]
+    npimage[np.where(mask == 0)] = 0
+    imageData = npimage.flatten()
 
     texture_id = GL.glGenTextures(1)
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4)
