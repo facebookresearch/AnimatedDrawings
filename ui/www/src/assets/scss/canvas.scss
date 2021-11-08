@@ -461,6 +461,7 @@
   }
   svg circle {
     cursor: move;
+    z-index: 10;
   }
 }
 
@@ -470,10 +471,11 @@
   color: $white;
   border: none;
   padding: 3px 8px;
-  top: 0;
+  z-index: 0;
+  top: -7%;
   left: 0;
   font-size: 0.8em;
-  border-radius: 8%;
+  border-radius: 5px;
   animation: pop 0.2s ease-out 1;
 }
 @keyframes pop {

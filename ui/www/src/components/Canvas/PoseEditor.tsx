@@ -175,6 +175,11 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
 
   return (
     <div className="pose-wrapper div-fade">
+      {hoveredJoint ? (
+        <div className="tooltip-pose">
+          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")?.replace("nose","head center")}
+        </div>
+      ) : <div className="tooltip-pose">Adjust by dragging the points</div>}
       <svg
         width={imageWidth * scale}
         height={imageHeight * scale}
@@ -249,11 +254,6 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
           ))}
         </g>
       </svg>
-      {hoveredJoint ? (
-        <div className="tooltip-pose">
-          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")?.replace("nose","head center")}
-        </div>
-      ) : <div className="tooltip-pose">Adjust by dragging the points</div>}
     </div>
   );
 };
