@@ -5,6 +5,7 @@ import Step3 from "./Step3";
 import Step4 from "./Step4";
 import Step5 from "./Step5";
 import Step6 from "./Step6";
+import StepTitle from "./StepTitle";
 import StepTracker from "./StepTracker";
 
 const stepsArray = [...Array(5).keys()].map((i) => i + 1);
@@ -31,10 +32,15 @@ const StepsContainer = () => {
 
   return (
     <>
-      {currentStep !== 5 && (
+      {currentStep !== 5 ? (
         <div className="stepper-container-horizontal">
           <h3 className="step-counter">STEP {currentStep}/5</h3>
           <StepTracker currentStepNumber={currentStep - 1} steps={stepsArray} />
+          <StepTitle currentStep={currentStep} />
+        </div>
+      ) : (
+        <div className="stepper-container-horizontal">
+          <StepTitle currentStep={currentStep} />
         </div>
       )}
       {renderStep()}

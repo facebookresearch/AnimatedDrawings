@@ -131,9 +131,6 @@ const Step7 = () => {
         "bottom-shadow": group === "all",
       })}
     >
-      <h1 className="step-title ml-2">
-        Add <span className="text-info">Animation</span>
-      </h1>
       <p className="ml-2">
         Choose one of the motions below to see your character perform it!
       </p>

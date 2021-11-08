@@ -7,9 +7,6 @@ const Step4 = () => {
   return (
     <>
       <div className="step-actions-container bottom-shadow">
-        <h1 className="step-title">
-          Separating <span className="text-info">Character</span>
-        </h1>
         <p>
           We’ve separated the character from the background, and highlighted it.
           Did we get the entire character? Did we include things that aren’t

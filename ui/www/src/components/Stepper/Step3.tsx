@@ -5,9 +5,6 @@ import image_2 from "../../assets/drawings_examples/step3/image_2.png";
 const Step3 = () => {
   return (
     <div className="step-actions-container bottom-shadow">
-      <h1 className="step-title">
-        Finding the <span className="text-info">Human-Like</span> Character
-      </h1>
       <p>We’ve identified the character and put a box around it.</p>
       <p>Is the box too small for the character? If so, adjust the box.</p>
       <div className="drawing-example-wrapper">
