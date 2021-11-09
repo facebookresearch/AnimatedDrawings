@@ -46,7 +46,8 @@ const MainPage = () => {
             </Col>
             <Col
               lg={5}
-              md={10}
+              md={8}
+              sm={10}
               xs={12}
               className="col-left ml-auto mr-auto mt-sm-6 align-self-start px-3 order-sm-1 pt-md-4"
             >

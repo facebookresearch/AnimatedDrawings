@@ -1,4 +1,3 @@
-import { on } from "events";
 import React, { useRef } from "react";
 import { Stage, Layer, Line, Image } from "react-konva";
 import useImage from "use-image";
