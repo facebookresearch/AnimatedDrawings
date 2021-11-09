@@ -49,6 +49,7 @@ class RenderManager(BaseManager):
 
         self.video_working_dir = Path('./video_work_dir/' + self.out_file.parent.name)
         self.video_working_dir.mkdir(parents=True, exist_ok=True)
+        self.intermediary_out_file = self.video_working_dir / (str(time.time()) + '.mp4')
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
         self.frames_written = 0
@@ -66,7 +67,7 @@ class RenderManager(BaseManager):
             Path.unlink(self.out_file)
 
         fourcc = cv2.VideoWriter_fourcc(*'x264')
-        self.video_writer = cv2.VideoWriter(str(self.out_file), fourcc, self.BVH_fps, (self.width, self.height))
+        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.BVH_fps, (self.width, self.height))
 
     def run(self):
 
@@ -102,36 +103,13 @@ class RenderManager(BaseManager):
 
         [p.join() for p in sub_ps]
 
-        do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=True)
+        if self.cfg['MIRROR_CONCAT']:
+            do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=True)
 
         self.video_writer.release()
 
-
-    def convert_to_h264(self):
-
-        # delete old video file if exists
-        if self.out_file.exists():
-            Path.unlink(self.out_file)
-
-        # mirror if cfg says so
-        if self.cfg['MIRROR_CONCAT']:
-            mirror_fn = Path(str(self.intermediary_out_file)+'_r.mp4')
-
-            ffmpeg.input(str(self.intermediary_out_file), r=self.BVH_fps).hflip().output(str(mirror_fn), vcodec='h264').run()
-            ffmpeg.concat(ffmpeg.input(self.intermediary_out_file, r=self.BVH_fps), ffmpeg.input(str(mirror_fn), r=self.BVH_fps)).output(str(self.out_file), vcodec='h264').run()
-
-            # clean up
-            Path.unlink(self.intermediary_out_file)
-            Path.unlink(mirror_fn)
-            Path.rmdir(self.video_working_dir)
-
-        else:
-            # convert to h264
-            ffmpeg.input(str(self.intermediary_out_file), r=self.BVH_fps).output(str(self.out_file), vcodec='h264').run()
-
-            # clean up
-            Path.unlink(self.intermediary_out_file)
-            Path.rmdir(self.video_working_dir)
+        shutil.move(self.intermediary_out_file, self.out_file)
+        Path.rmdir(self.video_working_dir)
 
     def create_transferrer_render(self):
         self.transferrer = Transferrer_Render(self, self.cfg)
