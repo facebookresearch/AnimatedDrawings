@@ -867,9 +867,9 @@ class ARAP_Sketch(BaseSketch):
                     # otherwise, add to queue
                     queue.append((_x, _y, distance+1))
                     explored.append((_x, _y))
-                else:
-                    # if search failed, return original image coordinates
-                    print(f'Could not find point on mask within {distance} pixels for {name}')
+            else:
+                # if search failed, return original image coordinates
+                logging.info(f'Could not find point on mask within {distance} pixels for {name}')
 
     def _get_joint_constraints(self):
         """Called once during object construction to generate the joint-drived ARAP constraints"""
