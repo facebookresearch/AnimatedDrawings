@@ -1,5 +1,6 @@
 import os
 from util import use_opengl
+import shutil
 
 if use_opengl():
     from OpenGL import GL
@@ -48,7 +49,6 @@ class RenderManager(BaseManager):
 
         self.video_working_dir = Path('./video_work_dir/' + self.out_file.parent.name)
         self.video_working_dir.mkdir(parents=True, exist_ok=True)
-        self.intermediary_out_file = Path(self.video_working_dir)/f'{time.time()}.mp4'
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
         self.frames_written = 0
@@ -62,16 +62,15 @@ class RenderManager(BaseManager):
 
         os.makedirs(self.out_file.parent, exist_ok=True)
 
-        if self.intermediary_out_file.exists():
-            Path.unlink(self.intermediary_out_file)
+        if self.out_file.exists():
+            Path.unlink(self.out_file)
 
-        # cv2.videowriter can't use h264 to create mpegs, so we're rendering with mp4v and later coverting to h264
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.BVH_fps, (self.width, self.height))
+        fourcc = cv2.VideoWriter_fourcc(*'x264')
+        self.video_writer = cv2.VideoWriter(str(self.out_file), fourcc, self.BVH_fps, (self.width, self.height))
 
     def run(self):
 
-        def do_drawing_stuff(vert_arr, frame_size, written, finished):
+        def do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=False):
             pointer = 0
 
             while not finished[0] or not finished[1] or not finished[2] or written[pointer+1]:
@@ -82,7 +81,7 @@ class RenderManager(BaseManager):
                 mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
                 mesh_np = np.array(mesh_vs, dtype='float32')
                 order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
-                self._render_view_mp(mesh_np, order)
+                self._render_view_mp(mesh_np, order, mirror)
                 pointer += 1
 
         p_count = 3
@@ -99,13 +98,14 @@ class RenderManager(BaseManager):
 
         [p.start() for p in sub_ps]
 
-        do_drawing_stuff(vert_arr, frame_size, written, finished)
+        do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=False)
 
         [p.join() for p in sub_ps]
 
+        do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=True)
+
         self.video_writer.release()
 
-        self.convert_to_h264()
 
     def convert_to_h264(self):
 
@@ -144,9 +144,12 @@ class RenderManager(BaseManager):
         frame_count = self.transferrer.rots.shape[0]
         self.time_manager.set_bvh_frame_count(frame_count)
 
-    def _write_to_buffer(self):
+    def _write_to_buffer(self, mirror=False):
         GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
-        self.video_writer.write(self.frame_data[::-1,:,:])
+        frame = self.frame_data[::-1, :, :]
+        if mirror:
+            frame = frame[:, ::-1, :]
+        self.video_writer.write(frame)
         self.frames_written += 1
 
     def _adjust_sketch(self):
@@ -178,7 +181,7 @@ class RenderManager(BaseManager):
             viewPos_loc = GL.glGetUniformLocation(self.shader_ids[key], "viewPos")
             GL.glUniform3fv(viewPos_loc, 1, view_pos)
 
-    def _render_view_mp(self, mesh_vertices, order):
+    def _render_view_mp(self, mesh_vertices, order, mirror=False):
         self._render_preamble()
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
@@ -192,7 +195,7 @@ class RenderManager(BaseManager):
                 else:
                     drawable.draw(shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
 
-        self._write_to_buffer()
+        self._write_to_buffer(mirror)
 
     def _initialize_mesa(self, width: int, height: int):
 
