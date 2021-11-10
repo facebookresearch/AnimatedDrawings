@@ -39,7 +39,6 @@ RUN /venv/bin/conda-unpack
 # for us.
 FROM ubuntu:18.04 AS release_packages
 
-
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt \
