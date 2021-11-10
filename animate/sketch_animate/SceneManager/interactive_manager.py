@@ -2,6 +2,11 @@ from SceneManager.base_manager import BaseManager
 import glfw
 import OpenGL.GL as GL
 from util import *
+from Shapes.BVH import BVH
+from transferrer import JointAngleTransferrer_Interact, RootMotionTransferrer
+from camera import Camera
+from typing import List, Optional
+from time_manager import TimeManager_Interact
 
 class InteractiveManager(BaseManager):
 
@@ -17,6 +22,8 @@ class InteractiveManager(BaseManager):
         self.win = None
         self._initialize_opengl(self.width, self.height)
         super().__init__(cfg)
+
+        self.time_manager = TimeManager_Interact(self.cfg)    # Must be assigned by child class TimeManager(cfg)
 
         self.characters = {}
         self.text_vao = None
@@ -190,7 +197,81 @@ class InteractiveManager(BaseManager):
             # draw border
             self._draw_border()
 
-    # TODO: This needs a way better name
+    def add_bvh(self, bvh: BVH):
+        """
+        Adds the BVH used to drive the sketch animation into the scene. Should only be called once.
+        :param bvh:
+        :return:
+        """
+        if self.bvh is not None:
+            return
+
+        for transferrer in self.joint_angle_transferrers:
+            transferrer.set_bvh(bvh)
+
+        self.bvh = bvh
+
+        self.time_manager.initialize_bvh(bvh)
+
+        self.drawables.append(bvh)
+
+    def add_bvh_camera(self, camera: Camera, target_segments: Optional[List[str]] = None):
+        """
+        given a camera and a list of target joints (and optional camera name), will create a joint angle transferrer that will adjust segments of the sketch
+        based on how mocap bones are oriented, when projected on that camera.
+        :param camera: the camera whose screen coordinates will be used to drive the joints
+        :param target_segments: the joints of the sketch that will be driven by this transfer camera
+        :param camera_name : camera name for display purposes
+        :return:
+        """
+        camera.initialize_target('root')
+        self.camera_manager.add_bvh_camera(camera)
+
+        transferrer = JointAngleTransferrer_Interact(self, self.cfg)
+        transferrer.set_bvh_camera(camera)
+        transferrer.set_target_segments(target_segments)
+        if self.camera_manager.sketch_camera is not None:
+            transferrer.set_view_camera(self.camera_manager.sketch_camera)
+        if self.bvh is not None:
+            transferrer.set_bvh(self.bvh)
+        if self.sketch is not None:
+            transferrer.set_sketch(self.sketch)
+        self.joint_angle_transferrers.append(transferrer)
+
+        self.drawables.append(camera)
+        self.drawables.append(transferrer)
+
+    def _adjust_sketch(self):
+
+        if (self.time_manager.is_playing and self.cfg['CALCULATE_RENDER_ORDER']):
+            self.sketch.set_render_order(self.camera_manager.bvh_cameras[0],
+                                         self.bvh,
+                                         self.time_manager.get_current_bvh_frame())
+
+            with open(self.cfg['OUTPUT_PATH'] + f'/{self.cfg["BVH_PATH"].split("/")[-1]}_render_order.txt', 'a') as f:
+                f.write(str(self.sketch.render_order) + '\n')
+
+
+
+        if self.cfg['SHOW_ORIGINAL_POSE_ONLY']:
+            return
+
+        for transferrer in self.joint_angle_transferrers:
+            if transferrer.sketch is not None:
+                transferrer.transfer_orientations(self.time_manager.get_current_bvh_frame())
+
+        if self.root_motion_transferrer is not None:
+            self.root_motion_transferrer.update_sketch_root_position(self.time_manager.get_current_bvh_frame())
+
+    def create_root_motion_transferrer(self):
+        """ Creates the transferrer responsible for sketch's root motion. both sketch and bvh must be set first"""
+        assert self.bvh is not None
+        assert self.sketch is not None
+
+        assert self.root_motion_transferrer is None  # only one of these should exist
+
+        self.root_motion_transferrer = RootMotionTransferrer(self.cfg, self.sketch, self.bvh, self)
+
     def get_rendering_subwindow_info(self):
 
         win_width, win_height = glfw.get_window_size(self.win)
