@@ -20,8 +20,8 @@ const MainPage = () => {
         </a>
       </div>
       <a
-        href={`mailto:animatingdrawingsfb@gmail.com?subject=Questions%20or%20Feedback&body=Please%20include%20the%20following%20ID%20in%20your%20message.%0AUUID:%20${
-          uuid !== "" ? uuid : "Preload_Step"
+        href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=${
+          uuid !== "" ? uuid : "Preload Step [No ID]"
         }`}
         target="_blank"
         rel="noreferrer"
