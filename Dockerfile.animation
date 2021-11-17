@@ -18,8 +18,9 @@ SHELL ["conda","run","-n","sketch_animate","/bin/bash","-c"]
 RUN --mount=type=cache,target=/opt/conda/pkgs \
     --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt  \
-    # TODO remove functiontrace. Couldn't find an easy way to do this
-    && pip install flask flask_cors gunicorn functiontrace \ 
+    # Add the following line to enable functiontrace.
+    # && pip install functiontrace \
+    && pip install flask flask_cors gunicorn  \ 
     && pip install ffmpeg-python==0.2.0 \
     && pip install shapely==1.7.1 \
     && conda install -c conda-forge conda-pack

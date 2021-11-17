@@ -3,9 +3,9 @@ import logging
 from flask import Flask, make_response, request
 sys.path.insert(0, '..')
 import sketch_animate.main_server
-#  TODO limit to only when tracing. *** do not merge into main.
-import functiontrace
-functiontrace.trace()
+# Uncomment the following lines to enable functiontrace
+# import functiontrace
+# functiontrace.trace()
 
 
 app = Flask(__name__)
