@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Badge } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import CanvasShare from "../components/Canvas/CanvasShare";
 import AboutModal from "../components/Modals/AboutModal";
 
 const SharingPage = () => {
   const { uuid, type } = useParams<{ uuid: string; type: string }>();
-  const [reported, setReported] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -34,23 +33,15 @@ const SharingPage = () => {
           >
             <h3>ABOUT THIS DEMO</h3>
           </div>
-          {!reported ? (
-            <div
-              className="footer-report-content py-2"
-              onClick={() => setReported(true)}
-            >
+          <a
+            href={`https://docs.google.com/forms/d/e/1FAIpQLSeKewkuKtcePdGLAbzkjF6apnLHpfswMyjgt7hKBNH0m02W3Q/viewform?usp=pp_url&entry.1352936659=${window.location.href}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div className="footer-report-content py-2">
               <h4>Report something wrong</h4>
             </div>
-          ) : (
-            <div
-              className="footer-report-content py-2"
-              //onClick={() => history.push("/about")}
-            >
-              <h2>
-                <Badge variant="success">Reported</Badge>
-              </h2>
-            </div>
-          )}
+          </a>
         </div>
         <AboutModal showModal={showModal} setShowModal={setShowModal} />
       </div>
