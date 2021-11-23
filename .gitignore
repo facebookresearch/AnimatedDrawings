@@ -8,5 +8,9 @@ videos
 
 /tmp/**
 
+**/__pycache__
+
+**/functiontrace.*
+
 # ignore .env
 .env
