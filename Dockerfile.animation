@@ -3,6 +3,9 @@
 ARG BASE_IMAGE=continuumio/miniconda3
 ARG PYTHON_VERSION=3.8
 
+
+FROM opencv:4.3.0 as opencv
+
 FROM ${BASE_IMAGE} as build
 
 ENV PYTHONUNBUFFERED TRUE
@@ -22,15 +25,33 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
     && pip install shapely==1.7.1 \
     && conda install -c conda-forge conda-pack
 
+
 # Use conda-pack to create a standalone enviornment
 # in /venv:
 RUN conda-pack -n sketch_animate -o /tmp/env.tar 
 RUN mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
     rm /tmp/env.tar
 
+# Copy our compiled opencv library built using the following command
+# ```docker build -f Dockerfile.opencv -t opencv:4.3.0 .```
+# COPY --from=opencv /usr/local/lib/python3.7/dist-packages/cv2.so /venv/lib/python3.7/site-packages/cv2.so
+COPY --from=opencv /usr/local/lib/python3.7/dist-packages/ /venv/lib/python3.7/site-packages/
+COPY --from=opencv /root/opencv-4.3.0/build/lib/ /venv/lib/
+
 # We've put venv in same path it'll be in final image,
 # so now fix up paths:
 RUN /venv/bin/conda-unpack
+
+# Remove unnecessary python files. https://uwekorn.com/2021/03/01/deploying-conda-environments-in-docker-how-to-do-it-right.html
+RUN cd /venv \
+    && find -name '*.a' -delete \
+    && rm -rf /venv/conda-meta \
+    && rm -rf /venv/include \
+    && rm -rf /venv/bin/sqlite3 \
+    && rm -rf /venv/bin/openssl \
+    && find /venv/ -name '__pycache__' -type d -exec rm -rf '{}' '+' \
+    &&  find /venv/lib/python3.7/site-packages -name 'tests' -type d -exec rm -rf '{}' '+'  
+
 
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
@@ -50,6 +71,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     # zsh \
     # gcc \ 
     # g++ \
+    libtbb2 \
     python3-opengl \
     libglfw3 \ 
     libglfw3-dev \
@@ -70,6 +92,9 @@ WORKDIR /home/animation-server
 COPY --from=build /venv /venv
 ENV PATH /venv/bin/:${PATH}
 
+# Ensure sahred opencv libs are linked 
+RUN echo "/venv/lib" > /etc/ld.so.conf.d/opencv.conf \
+    && ldconfig
 
 RUN mkdir -p /home/animation-server/tmp \
     && mkdir -p /home/animation-server/animate \

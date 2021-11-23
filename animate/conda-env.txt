@@ -75,9 +75,9 @@ https://repo.anaconda.com/pkgs/main/linux-64/multipledispatch-0.6.0-py37_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/pyqt-5.9.2-py37h05f1152_2.conda
 https://repo.anaconda.com/pkgs/main/noarch/python-dateutil-2.8.1-py_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/cryptography-2.9.2-py37h1ba5d50_0.conda
-https://repo.anaconda.com/pkgs/main/linux-64/libopencv-3.4.2-hb342d67_1.conda
+#https://repo.anaconda.com/pkgs/main/linux-64/libopencv-3.4.2-hb342d67_1.conda
 https://repo.anaconda.com/pkgs/main/linux-64/matplotlib-3.2.2-0.conda
-https://repo.anaconda.com/pkgs/main/linux-64/numpy-base-1.18.1-py37hde5b4d6_1.conda
+#https://repo.anaconda.com/pkgs/main/linux-64/numpy-base-1.18.1-py37hde5b4d6_1.conda
 https://repo.anaconda.com/pkgs/main/linux-64/setuptools-46.4.0-py37_0.conda
 https://repo.anaconda.com/pkgs/main/noarch/pygments-2.6.1-py_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/pyopenssl-19.1.0-py37_0.conda
@@ -88,9 +88,9 @@ https://repo.anaconda.com/pkgs/main/linux-64/requests-2.23.0-py37_0.conda
 https://repo.anaconda.com/pkgs/main/noarch/imageio-2.9.0-py_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/mkl_fft-1.0.15-py37ha843d7b_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/mkl_random-1.1.1-py37h0573a6f_0.conda
-https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.18.1-py37h4f9e942_0.conda
-https://repo.anaconda.com/pkgs/main/linux-64/py-opencv-3.4.2-py37hb342d67_1.conda
+#https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.18.1-py37h4f9e942_0.conda
+#https://repo.anaconda.com/pkgs/main/linux-64/py-opencv-3.4.2-py37hb342d67_1.conda
 https://repo.anaconda.com/pkgs/main/linux-64/pywavelets-1.1.1-py37h7b6447c_0.conda
 https://repo.anaconda.com/pkgs/main/linux-64/scipy-1.4.1-py37h0b6359f_0.conda
-https://repo.anaconda.com/pkgs/main/linux-64/opencv-3.4.2-py37h6fd60c2_1.conda
+#https://repo.anaconda.com/pkgs/main/linux-64/opencv-3.4.2-py37h6fd60c2_1.conda
 https://repo.anaconda.com/pkgs/main/linux-64/scikit-image-0.16.2-py37h0573a6f_0.conda
