@@ -3,12 +3,22 @@ import json
 import cv2, imutils
 import numpy as np
 from PIL import Image
+import io
+import s3_object
 
-def crop_from_bb(work_dir):
+
+UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+
+
+def crop_from_bb(unique_id):
         # handle image transparancies
-        input_img = Image.open(os.path.join(work_dir, 'image.png'))
-        if input_img.mode == 'P' or 'A' in input_img.mode:
-                input_img = np.array(input_img.convert('RGBA'))
+        # pull down image from s3 as bytes
+
+        image_data = s3_object.get_object_bytes(unique_id, "image.png")
+        image = Image.open(io.BytesIO(image_data))
+        #input_img = Image.open(os.path.join(work_dir, 'image.png'))
+        if image.mode == 'P' or 'A' in image.mode:
+                input_img = np.array(image.convert('RGBA'))
 
                 # find pixels with val [0, 0, 0, 0]
                 pix_eq_0s = np.array(input_img[:, :] == [0, 0, 0, 0])
@@ -18,10 +28,11 @@ def crop_from_bb(work_dir):
                 input_img = cv2.cvtColor(input_img, cv2.COLOR_RGB2BGR)
 
         else:
-                input_img = cv2.imread(os.path.join(work_dir, 'image.png'))
-
-        with open(os.path.join(work_dir, 'bb.json'), 'r') as f:
-            bb = json.load(f)
+                input_img = cv2.imread(image_data)
+        
+        
+        #pull down bb.json as bytes
+        bb = s3_object.get_object_bytes(unique_id, "bb.json")
 
         cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
 
@@ -31,25 +42,12 @@ def crop_from_bb(work_dir):
         else:
                 cropped_img = imutils.resize(cropped_img, width=400)
 
-        cv2.imwrite(os.path.join(work_dir, 'cropped_image.png'), cropped_img)
+        #upload cropped_image.png to s3
+        s3_object.write_object(unique_id, "cropped_image.png", cropped_img)
 
         ## Create gray blurred version of image for input to pose detector
         bg_cropped_img_ = cv2.cvtColor(cropped_img,cv2.COLOR_BGR2GRAY)
         bg_cropped_img = cv2.GaussianBlur(bg_cropped_img_,(5,5),0)
 
-        bg_output_path = os.path.join(work_dir, 'gray_blur.png')
-
-        cv2.imwrite(bg_output_path, bg_cropped_img)
-
-        ## Create sketch-DET.json for input to pose detector
-        h, w = cropped_img.shape[:2]
-        cx, cy = int(w/2), int(h/2)
-        det = [{
-                'category_id':1,
-                'score':0.9,
-                'bbox': (cx, cy, w, h),
-                'image_id': f'{os.path.abspath(bg_output_path)}',
-        }]
-        with open(os.path.join(work_dir, 'sketch-DET.json'), 'w') as f:
-                json.dump(det, f)
-
+        # save data of bg_cropped_img to gray_blur.png
+        s3_object.write_object(unique_id, "gray_blur.png", bg_cropped_img)
