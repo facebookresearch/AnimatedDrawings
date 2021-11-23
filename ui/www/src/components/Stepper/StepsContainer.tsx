@@ -8,7 +8,7 @@ import Step6 from "./Step6";
 import StepTitle from "./StepTitle";
 import StepTracker from "./StepTracker";
 
-const stepsArray = [...Array(5).keys()].map((i) => i + 1);
+const stepsArray = [...Array(4).keys()].map((i) => i + 1);
 
 const StepsContainer = () => {
   const { currentStep } = useStepperStore();
@@ -31,10 +31,10 @@ const StepsContainer = () => {
   };
 
   return (
-    <>
+    <div className="stepper-wrapper bg-white">
       {currentStep !== 5 ? (
         <div className="stepper-container-horizontal">
-          <h3 className="step-counter">STEP {currentStep}/5</h3>
+          <h3 className="step-counter">STEP {currentStep}/4</h3>
           <StepTracker currentStepNumber={currentStep - 1} steps={stepsArray} />
           <StepTitle currentStep={currentStep} />
         </div>
@@ -44,7 +44,7 @@ const StepsContainer = () => {
         </div>
       )}
       {renderStep()}
-    </>
+    </div>
   );
 };
 

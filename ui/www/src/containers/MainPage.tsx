@@ -35,21 +35,22 @@ const MainPage = () => {
       </a>
       <div className="main-page">
         <Container>
-          <Row className="align-items-center py-2 px-lg-2">
+          <Row className="align-items-center justify-content-center py-2 px-lg-2">
             <Col
               lg={6}
-              md={12}
+              md={10}
+              sm={12}
               xs={12}
-              className="mb-2 order-sm-2 justify-content-center"
+              className="order-lg-2 mb-2 justify-content-center"
             >
               <Canvas />
             </Col>
             <Col
-              lg={5}
-              md={8}
-              sm={10}
+              lg={6}
+              md={10}
+              sm={12}
               xs={12}
-              className="col-left ml-auto mr-auto mt-sm-6 align-self-start px-3 order-sm-1 pt-md-4"
+              className="order-lg-1 ml-auto mr-auto align-self-start px-3"
             >
               <StepsContainer />
             </Col>

@@ -173,7 +173,7 @@ const Step7 = () => {
         </Button>
       </Row>
 
-      <Row className="px-0 m-0 mt-4">{renderGroup()}</Row>
+      <Row className="px-0 m-0 mt-2">{renderGroup()}</Row>
     </div>
   );
 };
