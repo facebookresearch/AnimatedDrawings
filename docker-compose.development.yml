@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: rig_runtime
+      args:
+        - BUILD_CONFIG=${BUILD_CONFIG}
     ports:
       - 5000:5000
     volumes:
@@ -18,8 +20,10 @@ services:
       - type: bind
         source: ./tmp/consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
+    
     environment:
-      REACT_APP_API_HOST: http://localhost:5000
+      - REACT_APP_API_HOST=http://localhost:5000
+      - ENABLE_UPLOAD=1
     networks:
       ap-net: {}
 

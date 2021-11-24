@@ -75,6 +75,13 @@ resource_set_form = '''<!doctype html>
 @cross_origin()
 def upload_image():
     """ Expects a POST request with a png image (request.files['file']). Returns a unique id that can be used to reference it in the future."""
+    
+
+    upload_enabled = os.environ.get("ENABLE_UPLOAD")
+    if upload_enabled is None or upload_enabled != '1':
+        return make_response("Uploading Images is currently forbidden", 403)
+        
+    
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
