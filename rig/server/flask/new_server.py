@@ -19,12 +19,16 @@ import segment_mask
 import prep_animation_files
 import s3_object
 
-UPLOAD_FOLDER='./uploads/'
-CONSENT_GIVEN_SAVE_DIR = './consent_given_upload_copies/'
-#VIDEO_SHARE_ROOT='/app/out/public/videos'
-VIDEO_SHARE_ROOT='./videos/'
-ALLOWED_EXTENSIONS= {'png'}
+
+CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-consents')
+VIDEO_SHARE_ROOT= s3_object.s3_object('dev-demo-sketch-out-animations')
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+
+
+
+UPLOAD_FOLDER='./uploads/'
+ALLOWED_EXTENSIONS= {'png'}
+
 
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -90,7 +94,7 @@ def upload_image():
 
         image = request.files['file']
         unique_id = uuid.uuid4().hex
-        s3_object.write_object(unique_id, "image.png", base64.b64decode(image))
+        UPLOAD_BUCKET.write_object(unique_id, "image.png", base64.b64decode(image))
 
         
         detect_humanoids.detect_humanoids(unique_id)
@@ -156,7 +160,7 @@ def run_full_pipeline():
     file = request.files['file']
 
     unique_id = uuid.uuid4().hex
-    s3_object.write_object(unique_id, "image.png", "")
+    UPLOAD_BUCKET.write_object(unique_id, "image.png", "")
 
 
     detect_humanoids.detect_humanoids(unique_id)
@@ -198,11 +202,11 @@ def get_bounding_box_coordinates():
         return  resource_request_form.format(resource_type='Bounding Box Coordinates')
 
     unique_id = request.form['uuid']
-    s3_object.write_object(unique_id, "bb.json", "")
-    if s3_object.verify_object(unique_id, "bb.json") == False:
+    UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")
+    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:
         return redirect(request.url)
 
-    bb = s3_object.get_object_bytes(unique_id, "bb.json")
+    bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
 
 
@@ -219,16 +223,16 @@ def set_bounding_box_coordinates():
                 )
 
     unique_id = request.form['uuid']
-    s3_object.write_object(unique_id, "bb.json", "")
-    if s3_object.verify_object(unique_id, "bb.json") == False:
+    UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")
+    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:
         return redirect(request.url)
 
 
-    if s3_object.verify_object(unique_id, "bb.json") == True:
-        bb = s3_object.get_object_bytes(unique_id, "bb.json")
-        s3_object.write_object(unique_id, f"bb-{time.time()}.json", bb)
+    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == True:
+        bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
+        UPLOAD_BUCKET.write_object(unique_id, f"bb-{time.time()}.json", bb)
 
-    s3_object.write_object(unique_id, "bb.json", request.form['bounding_box_coordinates'])
+    UPLOAD_BUCKET.write_object(unique_id, "bb.json", request.form['bounding_box_coordinates'])
 
 
 
@@ -239,7 +243,7 @@ def set_bounding_box_coordinates():
     # TODO @Jesse do we need to do this here? 
     detect_pose.detect_pose(unique_id)
 
-    bb = s3_object.get_object_bytes(unique_id, "bb.json")
+    bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
 ##############################################
 
@@ -255,9 +259,9 @@ def get_mask():
         return resource_request_form.format(resource_type='Mask')
     
     unique_id = request.form['uuid']
-    if s3_object.verify_object(unique_id, "mask.png") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == False:
         return redirect(request.url)
-    mask = s3_object.get_object_bytes(unique_id, "mask.png")
+    mask = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
     return mask
 
 @app.route('/set_mask', methods=['GET', 'POST'])
@@ -272,7 +276,7 @@ def set_mask():
                 resource_name='file'
                 )
     unique_id = request.form['uuid']
-    if s3_object.verify_object(unique_id, "mask.png") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == False:
         return redirect(request.url)
 
     file = request.files['file']
@@ -281,7 +285,7 @@ def set_mask():
 
 
     #return send_from_directory(work_dir, 'mask.png')
-    mask = s3_object.get_object_bytes(unique_id, "mask.png")
+    mask = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
     return mask 
 ##############################################
 
@@ -298,10 +302,10 @@ def get_joint_locations():
     
     unique_id = request.form['uuid']
 
-    if s3_object.verify_object(unique_id, "joint_locations.json") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
     
-    joint_locations = s3_object.get_object_bytes(unique_id, "joint_locations.json")
+    joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
     return joint_locations 
 
 @app.route('/set_joint_locations_json', methods=['GET', 'POST'])
@@ -317,19 +321,19 @@ def set_joint_locations():
                 resource_name='joint_location_json'
                 )
 
-    if s3_object.verify_object(unique_id, "joint_locations.json") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
 
-    if s3_object.verify_object(UPLOAD_BUCKET, "joint_locations.json") == True:
-        joint_locations = s3_object.get_object_bytes(unique_id, "joint_locations.json")
-        s3_object.write_object(unique_id, f"joint_locations-{time.time()}.json", joint_locations)
+    if UPLOAD_BUCKET.verify_object(UPLOAD_BUCKET, "joint_locations.json") == True:
+        joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
+        UPLOAD_BUCKET.write_object(unique_id, f"joint_locations-{time.time()}.json", joint_locations)
 
-    s3_object.write_object(unique_id, "joint_locations.json", request.form['joint_location_json'])
+    UPLOAD_BUCKET.write_object(unique_id, "joint_locations.json", request.form['joint_location_json'])
 
 
     prep_animation_files.prep_animation_files(unique_id, VIDEO_SHARE_ROOT)
 
-    joint_locations = s3_object.get_object_bytes(unique_id, "joint_locations.json")
+    joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
     return joint_locations 
 ##############################################
 
@@ -345,9 +349,9 @@ def get_image():
     if request.method != 'POST':
         return resource_request_form.format('Full Image')
 
-    if s3_object.verify_object(unique_id, "image.png") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "image.png") == False:
         return redirect(request.url)
-    img_path = s3_object.get_object_bytes(unique_id, "image.png")
+    img_path = UPLOAD_BUCKET.get_object_bytes(unique_id, "image.png")
     return img_path
 
 
@@ -359,10 +363,10 @@ def get_cropped_image():
         return  resource_request_form.format(resource_type='Cropped Image')
 
     unique_id = request.form['uuid']    
-    if s3_object.verify_object(unique_id, "cropped_image.png") == False:
+    if UPLOAD_BUCKET.verify_object(unique_id, "cropped_image.png") == False:
         return redirect(request.url)
 
-    cropped_image = s3_object.get_object_bytes(unique_id, "cropped_image.png")
+    cropped_image = UPLOAD_BUCKET.get_object_bytes(unique_id, "cropped_image.png")
     return cropped_image
 
 @app.route('/get_animation', methods=['GET', 'POST'])
@@ -374,13 +378,13 @@ def get_animation():
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
     unique_id = request.form['uuid']
-    if s3_object.verify_directory(unique_id) == False:
+    if UPLOAD_BUCKET.verify_directory(unique_id) == False:
         return redirect(request.url)
 
     ### record annotations if consent is given ###
     #with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
-    consent_response = bool(int(s3_object.get_object_bytes(unique_id, "consent_response.txt")))
+    consent_response = bool(int(CONSENT_GIVEN_SAVE_DIR.get_object_bytes(unique_id, "consent_response.txt")))
 
     # TODO: Fix so that, whenever user confirms joint locations, we then copy their annotations to a permanent location
     # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
@@ -462,7 +466,7 @@ def set_consent_answer():
     # TODO uncomment this after calls to set_consent_answer and upload_image are reversed
     unique_id = request.form['uuid']
     consent_response = request.form['consent_response']
-    s3_object.write_object(unique_id, 'consent_response.txt', consent_response)
+    CONSENT_GIVEN_SAVE_DIR.write_object(unique_id, 'consent_response.txt', consent_response)
     return make_response("", 200)
 
 
