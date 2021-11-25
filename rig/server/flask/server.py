@@ -25,11 +25,13 @@ VIDEO_SHARE_ROOT='./videos/'
 
 ALLOWED_EXTENSIONS= {'png'}
 UPLOAD_BUCKET = s3_object.s3_object('upload-user-data-consent-forms')
-#VIDEO_SHARE_BUCKET = s3_object.s3_object('dev-demo-sketch-out-animations')
-#CONSENT_GIVEN_SAVE_BUCKET = s3_object.s3_object('dev-demo-sketch-out-consents')
+VIDEO_SHARE_BUCKET = s3_object.s3_object('dev-demo-sketch-out-animations')
+CONSENT_GIVEN_SAVE_BUCKET = s3_object.s3_object('dev-demo-sketch-out-consents')
 
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
+
+app.secret_key='123'
 
 if gunicorn_logger:
     root_logger = logging.getLogger()
@@ -84,7 +86,8 @@ def upload_image():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
-            return redirect(request.url)
+            return make_response('here', 200)
+            #return redirect(request.url)
         file = request.files['file']
         if file.filename == '':
             flash('No selected file')

@@ -99,7 +99,7 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
         #PUT image OBJECT to S3
         #resized_path.put(Body=base64.b64encode(image))
-        UPLOAD_BUCKET.write_object(unique_id, 'small_d2_image.png', image.tobytes())
+        UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
         image = image
         # return image as bytes
         return image, (h, w), (h, w), image
@@ -110,7 +110,7 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
     
-    UPLOAD_BUCKET.write_object(unique_id, 'small_d2_image.png', image.tobytes())
+    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
     
     #return resized_img as bytes
     return resized_img, (h, w), reduced_size, image
@@ -136,12 +136,9 @@ def detect_humanoids(unique_id):
     # Serializing json  
     json_object = json.dumps(bb, indent = 4) 
     UPLOAD_BUCKET.write_object(unique_id, "bb.json", json_object)
-    print("uploaded")
     
     cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-    _, cropped_cv2 = cv2.imencode('.png', cropped_img)
-    UPLOAD_BUCKET.write_object(unique_id, 'cropped_image.png', cropped_cv2.tobytes())
-    print("got cropped")
+    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'cropped_image.png', cropped_img)
     
     
     
@@ -171,10 +168,10 @@ def detect_humanoids(unique_id):
     #cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
     #UPLOAD_BUCKET.write_object(unique_id, 'cropped_image.png', cropped_img)
     #print("got cropped")
-    print("success")
+    #print("success")
 
 
-detect_humanoids(unique_id)
+#detect_humanoids(unique_id)
 
 
 

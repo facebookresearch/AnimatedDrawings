@@ -70,9 +70,10 @@ def retain_largest_contour(mask2):
 
 def get_img_from_work_dir(unique_id):
     # pull in cropped_image.png bytes to variable orig_fn
-    orig_fn = s3_object.get_object_bytes(unique_id, "cropped_image.png")
+    img_bytes = UPLOAD_BUCKET.get_object_bytes(unique_id, "cropped_image.png")
 
-    c = cv2.imread(orig_fn, cv2.IMREAD_UNCHANGED)
+    #c = cv2.imread(orig_fn, cv2.IMREAD_UNCHANGED)
+    c = cv2.imdecode(np.fromstring(img_bytes, np.uint8), 1)
     r, g, b = c[:,:,0], c[:, :, 1], c[:, :, 2]
     im_in = (np.min([r,g,b], axis=0))
 
@@ -92,7 +93,8 @@ def segment_mask(unique_id):
     mask = retain_largest_contour(fl_img)
 
     #upload mask object as bytes to mask.png
-    s3_object.write_object(unique_id, "mask.png", mask)
+    _, enc_mask_img = cv2.imencode('.png', mask)
+    UPLOAD_BUCKET.write_object(unique_id, "mask.png", enc_mask_img.tobytes())
 
 def process_user_uploaded_segmentation_mask(unique_id, request_file):
     """
@@ -112,10 +114,10 @@ def process_user_uploaded_segmentation_mask(unique_id, request_file):
 
     # back up the previous mask annotations with time at s3
     
-    if s3_object.verify_object(unique_id, "mask.png") == True:
-        mask_object = s3_object.get_object_bytes(unique_id, "mask.png")
-        s3_object.write_object(unique_id, f"mask-{time.time()}.png", mask_object)
+    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == True:
+        mask_object = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
+        UPLOAD_BUCKET.write_object(unique_id, f"mask-{time.time()}.png", mask_object)
 
     # save mask bytes data as new mask.png s3 object
-    s3_object.write_object(unique_id, "mask.png", mask)
+    UPLOAD_BUCKET.write_object(unique_id, "mask.png", mask)
     

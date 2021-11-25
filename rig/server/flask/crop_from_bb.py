@@ -14,7 +14,7 @@ def crop_from_bb(unique_id):
         # handle image transparancies
         # pull down image from s3 as bytes
 
-        image_data = s3_object.get_object_bytes(unique_id, "image.png")
+        image_data = UPLOAD_BUCKET.get_object_bytes(unique_id, "image.png")
         image = Image.open(io.BytesIO(image_data))
         #input_img = Image.open(os.path.join(work_dir, 'image.png'))
         if image.mode == 'P' or 'A' in image.mode:
@@ -28,11 +28,11 @@ def crop_from_bb(unique_id):
                 input_img = cv2.cvtColor(input_img, cv2.COLOR_RGB2BGR)
 
         else:
-                input_img = cv2.imread(image_data)
+                input_img = cv2.imdecode(np.fromstring(image_data, np.uint8), 1)
         
         
         #pull down bb.json as bytes
-        bb = s3_object.get_object_bytes(unique_id, "bb.json")
+        bb = json.loads(UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json"))
 
         cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
 
@@ -43,11 +43,13 @@ def crop_from_bb(unique_id):
                 cropped_img = imutils.resize(cropped_img, width=400)
 
         #upload cropped_image.png to s3
-        s3_object.write_object(unique_id, "cropped_image.png", cropped_img)
+        _, enc_cropped_img = cv2.imencode('.png', cropped_img)
+        UPLOAD_BUCKET.write_object(unique_id, "cropped_image.png", enc_cropped_img.tobytes())
 
         ## Create gray blurred version of image for input to pose detector
         bg_cropped_img_ = cv2.cvtColor(cropped_img,cv2.COLOR_BGR2GRAY)
         bg_cropped_img = cv2.GaussianBlur(bg_cropped_img_,(5,5),0)
 
         # save data of bg_cropped_img to gray_blur.png
-        s3_object.write_object(unique_id, "gray_blur.png", bg_cropped_img)
+        _, enc_bg_cropped_img = cv2.imencode('.png', cropped_img)
+        UPLOAD_BUCKET.write_object(unique_id, "gray_blur.png", enc_bg_cropped_img.tobytes())

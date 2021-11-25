@@ -1,5 +1,7 @@
 import boto3
 import botocore
+import numpy as np
+import cv2
 
 class s3_object:
 
@@ -12,9 +14,15 @@ class s3_object:
       self.BUCKET = BUCKET
 
     def write_object(self, PREFIX, OBJECTNAME, DATA):
-        s3_object = s3.Object(self.BUCKET,PREFIX+"/%s" % OBJECTNAME)
-        s3_object.put(Body=DATA)
+        s3.Bucket(self.BUCKET).put_object(Key="%s/%s" % (PREFIX, OBJECTNAME) , Body=DATA)
     
+    def write_np_to_png_object(self, PREFIX, OBJECTNAME, DATA):
+        assert type(DATA) == np.ndarray, f"DATA is not np array. is {type(DATA)}"
+        _, buf = cv2.imencode('.png', DATA)
+        self.write_object(PREFIX, OBJECTNAME, buf.tobytes())
+        #UPLOAD_BUCKET.write_object(unique_id, 'cropped_image.png', cropped_cv2.tobytes())
+        #s3.Bucket(self.BUCKET).put_object(Key="%s/%s" % (PREFIX, OBJECTNAME) , Body=DATA)
+
     def verify_object(self, PREFIX, OBJECTNAME):
         list_objects = s3_client.list_objects(Bucket=self.BUCKET, Prefix=PREFIX+"/", Delimiter='/')
         list_objects = [i['Key'] for i in list_objects['Contents']]       
@@ -25,6 +33,12 @@ class s3_object:
     
     def get_object_bytes(self, PREFIX, OBJECTNAME):
         return s3.Object(self.BUCKET, PREFIX+"/%s" % OBJECTNAME).get()['Body'].read()
+
+    def get_object_image_as_np(self, PREFIX, OBJECTNAME):
+        img_bytes =  s3.Object(self.BUCKET, PREFIX+"/%s" % OBJECTNAME).get()['Body'].read()
+        img_np = cv2.imdecode(np.asarray(bytearray(img_bytes)), 1)    
+        return img_np
+
     
     def verify_directory(self, PREFIX):
         try:

@@ -3,6 +3,7 @@ from flask import Flask, send_file, send_from_directory, flash, request, redirec
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 import os
+import io
 import subprocess
 import json
 import uuid
@@ -11,8 +12,10 @@ import time
 import logging
 import requests
 import base64
+import cv2
 
-import detect_humanoids
+#import detect_humanoids
+import test_detect
 import detect_pose
 import crop_from_bb
 import segment_mask
@@ -20,7 +23,7 @@ import prep_animation_files
 import s3_object
 
 
-CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-consents')
+CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 VIDEO_SHARE_ROOT= s3_object.s3_object('dev-demo-sketch-out-animations')
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 
@@ -32,6 +35,8 @@ ALLOWED_EXTENSIONS= {'png'}
 
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
+
+app.secret_key='123'
 
 if gunicorn_logger:
     root_logger = logging.getLogger()
@@ -79,45 +84,27 @@ resource_set_form = '''<!doctype html>
 ##############################################
 # initial image upload call
 ##############################################
-@app.route('/upload_image', methods=['GET', 'POST'])
+@app.route('/upload_image', methods=['POST'])
 @cross_origin()
 def upload_image():
     """ Expects a POST request with a png image (request.files['file']). Returns a unique id that can be used to reference it in the future."""
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
 
-        image = request.files['file']
-        unique_id = uuid.uuid4().hex
-        UPLOAD_BUCKET.write_object(unique_id, "image.png", base64.b64decode(image))
+    file = request.files['file']
 
-        
-        detect_humanoids.detect_humanoids(unique_id)
+    unique_id = uuid.uuid4().hex
 
-        crop_from_bb.crop_from_bb(unique_id)
+    #UPLOAD_BUCKET.write_object(unique_id, "image.png", base64.b64decode(file))  # this fails, throws TypeError: argument should be a bytes-like object or ASCII string, not 'FileStorage'
+    UPLOAD_BUCKET.write_object(unique_id, "image.png", file.read())
 
-        return make_response(unique_id, 200)
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <p>Instructions:
-        <ul>
-            <li> Upload a .png file with a single drawn humanoid figure within it. </li> 
-            <li> Wait ~45 seconds for video to be rendered and returned.</li>
-            <li> If this page is reloaded, try with a different image (still under development). </li>
-        </ul>
-    </p>
-    <form method=post enctype=multipart/form-data>
-        <input type=file name=file>
-    <input type=submit value=Upload>
-    </form>
-    '''
+    print(unique_id)
+    
+    #detect_humanoids.detect_humanoids(unique_id)
+    test_detect.detect_humanoids(unique_id)
+
+    crop_from_bb.crop_from_bb(unique_id)
+
+    return make_response(unique_id, 200)
+
 
 ##############################################
 # if demo is being abused, we won't allow users to upload image, only go through process
@@ -202,9 +189,9 @@ def get_bounding_box_coordinates():
         return  resource_request_form.format(resource_type='Bounding Box Coordinates')
 
     unique_id = request.form['uuid']
-    UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")
-    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:
-        return redirect(request.url)
+    #UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")  # ? why is this here
+    #if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:  # we can assume this will exist
+    #    return redirect(request.url)
 
     bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
@@ -261,8 +248,10 @@ def get_mask():
     unique_id = request.form['uuid']
     if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == False:
         return redirect(request.url)
-    mask = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
-    return mask
+    mask = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "mask.png")
+    _, buf = cv2.imencode('.png', mask)
+    io_buf = io.BytesIO(buf)
+    return send_file(io_buf, download_name='mask.png')
 
 @app.route('/set_mask', methods=['GET', 'POST'])
 @cross_origin()
@@ -285,8 +274,10 @@ def set_mask():
 
 
     #return send_from_directory(work_dir, 'mask.png')
-    mask = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
-    return mask 
+    mask = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "mask.png")
+    _, buf = cv2.imencode('.png', mask)
+    io_buf = io.BytesIO(buf)
+    return send_file(io_buf, download_name='mask.png')
 ##############################################
 
 
@@ -324,7 +315,7 @@ def set_joint_locations():
     if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
 
-    if UPLOAD_BUCKET.verify_object(UPLOAD_BUCKET, "joint_locations.json") == True:
+    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == True:
         joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
         UPLOAD_BUCKET.write_object(unique_id, f"joint_locations-{time.time()}.json", joint_locations)
 
@@ -438,12 +429,20 @@ def get_animation():
     #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
     # TODO @Jesse Should the url be passed in as a parameter to the docker image?
-    cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} http://animation_server:5000/generate_animation"
-    response = str(subprocess.check_output(cmd.split(' ')))
+    ANIMATION_ENDPOINT = 'http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5000/generate_animation'
+    #cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} {ANIMATION_ENDPOINT}"
+    #response = str(subprocess.check_output(cmd.split(' ')))
 
+    data = {'uuid':unique_id, 'animation_type':animation_type}
+    response = requests.post(url=ANIMATION_ENDPOINT, data=data)
     # TODO at some point we need to return just the url of mp4 file. Not the whole file
-    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{animation_type}.mp4',
-                               as_attachment=True)
+    video_bytes = VIDEO_SHARE_ROOT.get_object_bytes(unique_id, f'{animation_type}.mp4')
+
+    io_buf = io.BytesIO(video_bytes)
+    return send_file(io_buf, download_name=f'{animation_type}.mp4')
+
+    # return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{animation_type}.mp4',
+    #                            as_attachment=True)
     # if response =="0":  #everything okay
     # else:  # something went wrong
     #     pass
