@@ -1,3 +1,4 @@
+from re import S, U
 from PIL import Image, ImageDraw
 import os, sys, shutil
 from resources.exemplar_sketch import sketch as exemplar_sketch
@@ -6,36 +7,45 @@ from pathlib import Path
 import numpy as np
 import json
 import yaml
+import s3_object
 
 
-def prep_animation_files(input_parent_dir, video_share_root):
-    img_loc = Path(os.path.join(input_parent_dir, 'cropped_image.png'))
+s3_object = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+
+
+def prep_animation_files(unique_id, video_share_root):
+    img_loc = Path(os.path.join(unique_id, 'cropped_image.png'))
     assert img_loc.exists(),  "Image not found: {}".format(str(img_loc))
 
     mask_loc = Path(os.path.join(input_parent_dir, 'mask.png'))
     assert mask_loc.exists(), "Mask not found: {}".format(str(mask_loc))
 
-    keypoint_json_loc = Path(os.path.join(input_parent_dir, 'joint_locations.json'))
+    keypoint_json_loc = Path(os.path.join(unique_id, 'joint_locations.json'))
     assert keypoint_json_loc.exists(), "AP predictions not found: {}".format(str(keypoint_json_loc))
 
-    outdir = os.path.join(input_parent_dir, 'animation')
-    if os.path.exists(outdir): # delete old animation files if they exist
-        shutil.rmtree(outdir)
-    Path(outdir).mkdir(exist_ok=True, parents=True)
+    img_loc = s3_object.get_object_bytes(unique_id, 'cropped_image.png')
+    mask_loc = s3_object.get_object_bytes(unique_id, 'mask.png')
+    keypoint_json_loc = s3_object.get_object_bytes(unique_id, 'joint_locations.json')
+    
+    assert s3_object.verify_object(unique_id, 'cropped_image.png') == True, "Image not found: {}".format(str(img_loc))
+    assert s3_object.verify_object(unique_id, 'mask.png') == True, "Image not found: {}".format(str(img_loc))
+    assert s3_object.verify_object(unique_id, 'joint_locations.json') == True, "Image not found: {}".format(str(img_loc))
 
-    uuid = input_parent_dir.split('/')[-1]
-    video_dir = os.path.join(video_share_root, uuid)
-    if os.path.exists(video_dir): # delete old video files if they exist
-        shutil.rmtree(video_dir)
+
+    #uuid = unique_id.split('/')[-1]
+    #if uuid directory in video bucket exists, then delete
+    #video_dir = os.path.join(video_share_root, uuid)
+    #if os.path.exists(video_dir): # delete old video files if they exist
+    #    shutil.rmtree(video_dir)
 
 
     img = Image.open(img_loc)
     im_size = max(img.size)
     img = img.convert('RGBA')
     square_img = Image.new( 'RGBA', (im_size, im_size), (255, 255, 255, 255))
+    # save square_img data as cropped_image.png and save it to s3
     square_img.paste(img, (0, 0))
-    square_img_loc = Path(os.path.join(outdir, Path(img_loc).name))
-    square_img.save(str(square_img_loc))
+    s3_object.write_object(unique_id, "cropped_image.png", square_img)
 
     # open mask, make entire border 1px black to ensure contours cover whole character
     mask = Image.open(mask_loc).convert('RGB')
@@ -48,7 +58,9 @@ def prep_animation_files(input_parent_dir, video_share_root):
 
     square_mask = Image.new('RGB', (im_size, im_size), (0, 0, 0))
     square_mask.paste(mask, (0, 0))
-    square_mask.save(str(square_img_loc)[:-4] + '_mask.png')
+
+    # save square_mask byte data as cropped_image_mask.png
+    s3_object.write_object(unique_id, "cropped_image_mask.png", square_mask)
 
     sketch = deepcopy(exemplar_sketch)
 
@@ -57,8 +69,9 @@ def prep_animation_files(input_parent_dir, video_share_root):
     sketch['image_loc'] = None
     sketch['sketch_dim'] = square_img.size[0]
 
-    with open(keypoint_json_loc, 'r') as f:
-        keypoints = json.load(f)
+    # pull joint_locations.json object as bytes, save as keypoints
+    keypoints = s3_object.get_object_bytes(unique_id, 'joint_locations.json')
+
     joints = {key: [val['x'], val['y']] for (key, val) in keypoints.items()}
 
     # slightly different naming convention used in animation code. switch these names.
@@ -87,18 +100,20 @@ def prep_animation_files(input_parent_dir, video_share_root):
     for item in sketch['skeleton']:
         item['loc'] = joints[item['name']]
 
-    with open(os.path.join(outdir, f'{img_loc.stem}.yaml'), 'w') as f:
-        yaml.dump(sketch, f)
+    # save cropped_image.yaml using sketch byte data
+    s3_object.write_object(unique_id, "cropped_image.yaml", sketch)
 
     draw = ImageDraw.Draw(mask)
     for name, xy in joints.items():  # output image with joint locations on it for debugging purposes
         x, y = xy
         draw.ellipse((x-3, y-3, x+3, y+3), fill=(255, 0, 0), outline=(255, 255, 255))
-    mask.save(os.path.join(outdir, f'{img_loc.stem}_mask_joints.png'))
+
+    #save s3 cropped_image_mask_joints.png using mask data
+    s3_object.write_object(unique_id, "cropped_image_mask_joints.png", mask)
 
 
+# pretty sure this isnt needed, quick research
+'''if __name__ == '__main__':
+    #unique_id = sys.argv[1]
 
-if __name__ == '__main__':
-    input_parent_dir = sys.argv[1]
-
-    prep_animation_files(input_parent_dir)
+    prep_animation_files(unique_id)'''

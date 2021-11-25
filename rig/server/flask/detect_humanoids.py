@@ -3,6 +3,8 @@ import subprocess, json
 import cv2
 from pathlib import Path
 
+UPLOAD_BUCKET='dev-demo-sketch-out-interim-files'
+
 def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, padding=0):
 
     # f = open('test_log.txt', 'w')
@@ -80,11 +82,18 @@ def image_resize(input_img_path, largest_dim = 400, inter = cv2.INTER_AREA):
     return resized_path, (h, w), reduced_size
 
 
-def detect_humanoids(work_dir):
-    input_img_path = os.path.join(work_dir, 'image.png')
-
+def detect_humanoids(unique_id):
+    #input_img_path = os.path.join(unique_id, 'image.png')
+    object_url = "https://%s.s3.us-east-2.amazonaws.com/%s-API-TEST/image.png" % (UPLOAD_BUCKET,unique_id)
+    
+    get_obj = s3.Object(UPLOAD_BUCKET, unique_id+"/image.png")
+    print_obj = get_obj.get()['Body'].read().decode('utf-8') 
+    
+    resized_img_path, orig_dims, small_dims = image_resize(object_url)
+    
     resized_img_path, orig_dims, small_dims = image_resize(input_img_path)
 
+    cmd = f"curl -X POST http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5911/predictions/D2_humanoid_detector  -T {resized_img_path}"
     cmd = f"curl -X POST http://detectron2_server:5911/predictions/D2_humanoid_detector -T {resized_img_path}"
 
     response_json = json.loads(subprocess.check_output(cmd.split(' ')))
