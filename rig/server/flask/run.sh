@@ -14,4 +14,4 @@ ln -sf /dev/stdout access.log \
 	&& ln -sf /dev/stderr error.log
 
 
-gunicorn server:app --access-logfile access.log --log-file error.log -w 5 --threads 5 -b 0.0.0.0:5000 ; cat error.log
+gunicorn new_server:app --access-logfile access.log --log-file error.log -w 5 --threads 5 -b 0.0.0.0:5000 ; cat error.log
