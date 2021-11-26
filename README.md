@@ -8,6 +8,15 @@ git submodule init && git submodule update
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
+
+# Sketch Rig Build / Run
+
+``` shell
+DOCKER_BUILDKIT=1 docker build -t sketch_rig .
+docker run --rm -p 5000:5000 -t sketch_rig:latest
+```
+
+
 3. create your own .env environment. Copy from .env.default
 
 4. Kick off a development build user docker-compose
