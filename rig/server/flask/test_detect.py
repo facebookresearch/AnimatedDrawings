@@ -110,7 +110,7 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
     
-    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
+    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', resized_img)
     
     #return resized_img as bytes
     return resized_img, (h, w), reduced_size, image
@@ -119,10 +119,9 @@ def detect_humanoids(unique_id):
 
     resized_img, orig_dims, small_dims, input_img = image_resize(unique_id)
 
-    
-    _, testimage  = cv2.imencode('.png', input_img)
+    _, resized_img_buf  = cv2.imencode('.png', resized_img)
 
-    response = requests.post(url=DETECTRON2_ENDPOINT, data=testimage.tobytes())
+    response = requests.post(url=DETECTRON2_ENDPOINT, data=resized_img_buf.tobytes())
 
 
     #breakpoint()
