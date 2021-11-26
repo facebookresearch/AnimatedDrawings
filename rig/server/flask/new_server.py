@@ -36,7 +36,6 @@ ALLOWED_EXTENSIONS= {'png'}
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 
-app.secret_key='123'
 
 if gunicorn_logger:
     root_logger = logging.getLogger()
