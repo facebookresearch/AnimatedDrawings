@@ -376,16 +376,17 @@ def get_animation():
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
     consent_response = bool(int(CONSENT_GIVEN_SAVE_DIR.get_object_bytes(unique_id, "consent_response.txt")))
 
-    # TODO: Fix so that, whenever user confirms joint locations, we then copy their annotations to a permanent location
-    # whenever a video is returned, if user consented to terms we copy the work_dir to a permanent location
+    #TODO: @Chris, can you write us a function in s3_object to copy a subdirectory from one S3 bucket to another?
+    # e.g. copy <ITERIM_S3_BUCKET>/<uuid> subdir and contents to <CONSENT_GIVEN_S3_BUCKET>/<uuid>? That needs to occur here.
     if consent_response:
-        src = work_dir
-        dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
+        assert False
+        # src = work_dir
+        # dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
 
-        if os.path.isdir(dst):
-            shutil.rmtree(dst)
+        # if os.path.isdir(dst):
+        #     shutil.rmtree(dst)
 
-        shutil.copytree(src, dst)
+        # shutil.copytree(src, dst)
 
 
     animation_type = request.form['animation']
