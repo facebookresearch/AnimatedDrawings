@@ -119,5 +119,6 @@ def process_user_uploaded_segmentation_mask(unique_id, request_file):
         UPLOAD_BUCKET.write_object(unique_id, f"mask-{time.time()}.png", mask_object)
 
     # save mask bytes data as new mask.png s3 object
-    UPLOAD_BUCKET.write_object(unique_id, "mask.png", mask)
+    _, enc_mask_img = cv2.imencode('.png', mask)
+    UPLOAD_BUCKET.write_object(unique_id, "mask.png", enc_mask_img.tobytes())
     
