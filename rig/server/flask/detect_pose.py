@@ -25,7 +25,7 @@ def detect_pose(unique_id):
     try:
         json_object = json.dumps(response_json.json(), indent = 4) 
     except:
-        breakpoint()  # TODO @Chris - I'm intermittantly getting a 503 error response when querying ALPHAPOSE_ENPOINT
+        assert False  # TODO @Chris - I'm intermittantly getting a 503 error response when querying ALPHAPOSE_ENPOINT
     UPLOAD_BUCKET.write_object(unique_id, "alphapose_results.json", json_object)
 
     #UPLOAD_BUCKET.write_object(unique_id, 'alphapose_results.json', response_json.json())
