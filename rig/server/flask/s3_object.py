@@ -30,8 +30,6 @@ class s3_object:
             return False
     
     def get_object_bytes(self, PREFIX, OBJECTNAME):
-        key =  PREFIX+"/%s" % OBJECTNAME
-        print(key)
         return s3.Object(self.BUCKET, PREFIX+"/%s" % OBJECTNAME).get()['Body'].read()
 
     def get_object_image_as_np(self, PREFIX, OBJECTNAME):
