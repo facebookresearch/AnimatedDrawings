@@ -9,14 +9,15 @@ import boto3
 import base64
 import requests
 import json 
-      
+import sys
 
 import s3_object
+import storage_service
 
-UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+# UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+interim_store = storage_service.get_interim_store()
 
 
-# DETECTRON2_ENDPOINT = 'http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5911/predictions/D2_humanoid_detector'
 DETECTRON2_ENDPOINT = os.environ.get("DETECTRON2_ENDPOINT")
 
 def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, padding=0):
@@ -70,14 +71,11 @@ def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dim
 
 
 def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
-
-
-     # CREATE small_d2_image.png S3 OBJECT
-    #resized_path = s3.Object(UPLOAD_BUCKET,unique_id+"small_d2_image.png")
     
     # READ image.png S3 OBJECT as BYTES
 
-    image_obj = UPLOAD_BUCKET.get_object_bytes(unique_id, 'image.png')
+    # image_obj = UPLOAD_BUCKET.get_object_bytes(unique_id, 'image.png')
+    image_obj = interim_store.read_bytes(unique_id, 'image.png')
     image = cv2.imdecode(np.asarray(bytearray(image_obj)), cv2.IMREAD_COLOR)
   
     (h, w) = image.shape[:2]
@@ -90,8 +88,9 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
     if max_dim <= largest_dim:
 
         #PUT image OBJECT to S3
-        #resized_path.put(Body=base64.b64encode(image))
-        UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
+     
+        # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
+        interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(image))
         image = image
         # return image as bytes
         return image, (h, w), (h, w), image
@@ -102,7 +101,8 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
     
-    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', resized_img)
+    # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', resized_img)
+    interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(resized_img))
     
     #return resized_img as bytes
     return resized_img, (h, w), reduced_size, image
@@ -115,63 +115,15 @@ def detect_humanoids(unique_id):
 
     response = requests.post(url=DETECTRON2_ENDPOINT, data=resized_img_buf.tobytes())
 
-
-    #breakpoint()
     bb_response = response.json()
     bb = get_bounding_box_from_torchserve_response(bb_response, input_img, orig_dims, small_dims, 25)
     
-    
-    #bb.json
-    #bb = base64.b64encode(bb)
-
     # Serializing json  
     json_object = json.dumps(bb, indent = 4) 
-    UPLOAD_BUCKET.write_object(unique_id, "bb.json", json_object)
+    # UPLOAD_BUCKET.write_object(unique_id, "bb.json", json_object)
+    interim_store.write_bytes(unique_id, "bb.json", json_object)
     
     cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-    UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'cropped_image.png', cropped_img)
-    
-    
-    
-    
-    #data = {"body": new_img}
-    
-    #response = requests.post(url=DETECTRON2_ENDPOINT, data=testimage)
-    #print(response)
+    # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'cropped_image.png', cropped_img)
+    interim_store.write_bytes(unique_id, 'cropped_image.png', storage_service.np_to_png_bytes(cropped_img))
 
-    #print(type(resized_img))
-    #PUT resized_img OBJECT to s3
-    #resized_path.put(Body=base64.b64encode(resized_img))
-    #resized_img = base64.b64encode(resized_img)
-    #response_json = json.loads(subprocess.check_output(cmd.split(' ')))
-    #(resized_img)
-    #image_s3 = UPLOAD_BUCKET.get_object_bytes(unique_id, 'small_d2_image.png')
-    #print(type(new_img))
-    #image = {resized_img':new_img}
-    #cmd = f"curl -X POST {DETECTRON2_ENDPOINT} -T {new_img}"
-    #response_json = json.loads(subprocess.check_output(cmd.split(' ')))
-    #bb = get_bounding_box_from_torchserve_response(response, input_img, orig_dims, small_dims, 25)
-    #bb = base64.b64encode(bb)
-    #UPLOAD_BUCKET.write_object(unique_id, 'bb.json', bb)
-    #print("got bb")
-
-
-    #cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-    #UPLOAD_BUCKET.write_object(unique_id, 'cropped_image.png', cropped_img)
-    #print("got cropped")
-    #print("success")
-
-
-#detect_humanoids(unique_id)
-
-
-
-
-#bb = get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, 25)
-
-    #with open(os.path.join(work_dir, 'bb.json'), 'w') as f:
-    #    json.dump(bb, f)
-
-    #cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-
-    #cv2.imwrite(os.path.join(work_dir, 'cropped_image.png'), cropped_img)

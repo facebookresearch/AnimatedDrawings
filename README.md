@@ -12,8 +12,10 @@ git submodule init && git submodule update
 # Sketch Rig Build / Run
 
 ``` shell
-DOCKER_BUILDKIT=1 docker build -t sketch_api .
-docker run -p 5000:5000 --rm --env-file .env.aws-dev -t sketch_api:latest 
+DOCKER_BUILDKIT=1 docker build -f Dockerfile.sketch_api --env-file .env.aws-dev -t sketch_api .
+docker run -p 5000:5000 --rm --env-file .env.aws-dev \
+--mount type=bind,src="$(pwd)/rig"/videos,dst=/home/model-server/rig \
+ -t sketch_api:latest 
 ```
 
 
