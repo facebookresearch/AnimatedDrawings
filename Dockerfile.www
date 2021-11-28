@@ -22,7 +22,7 @@ RUN cp env-config.js build/
 
 
 # ####################
-# Flask Web App  
+#  Web App - S3 deploy
 ###################### 
 #Create a new container from a linux base image that has the aws-cli installed
 FROM mesosphere/aws-cli
@@ -32,5 +32,4 @@ COPY --from=builder /usr/src/app/build .
 
 #Set the default command of this container to push the files from the working directory of this container to our s3 bucket 
 CMD ["s3", "sync", "./", "s3://dev-demo-sketch-www"] 
-# CMD [ "sleep", "infinity" ]
 
