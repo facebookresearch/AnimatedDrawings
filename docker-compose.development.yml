@@ -4,7 +4,7 @@ services:
   sketch_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.sketch_api
       target: rig_runtime
     ports:
       - 5000:5000

@@ -1,10 +1,5 @@
 #!/bin/bash
 
-
-
-# setup runtime env vars for react app
-./env.sh
-cp env-config.js static/
 # start flask server
 
 # As per guidance from https://docs.docker.com/config/containers/logging/
