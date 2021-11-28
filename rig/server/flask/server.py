@@ -22,6 +22,8 @@ import prep_animation_files
 import s3_object
 
 
+ANIMATION_ENDPOINT = os.environ.get("ANIMATION_ENDPOINT")
+
 CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 VIDEO_SHARE_ROOT= s3_object.s3_object('dev-demo-sketch-out-animations')
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
@@ -430,8 +432,7 @@ def get_animation():
 
     #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
-    # TODO @Jesse Should the url be passed in as a parameter to the docker image?
-    ANIMATION_ENDPOINT = 'http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5000/generate_animation'
+    
     #cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} {ANIMATION_ENDPOINT}"
     #response = str(subprocess.check_output(cmd.split(' ')))
 

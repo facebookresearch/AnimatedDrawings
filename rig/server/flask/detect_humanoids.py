@@ -16,8 +16,8 @@ import s3_object
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 
 
-
-DETECTRON2_ENDPOINT = 'http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5911/predictions/D2_humanoid_detector'
+# DETECTRON2_ENDPOINT = 'http://Model-Zoo-ALB-1822714093.us-east-2.elb.amazonaws.com:5911/predictions/D2_humanoid_detector'
+DETECTRON2_ENDPOINT = os.environ.get("DETECTRON2_ENDPOINT")
 
 def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, padding=0):
 

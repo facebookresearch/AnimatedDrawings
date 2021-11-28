@@ -12,8 +12,8 @@ git submodule init && git submodule update
 # Sketch Rig Build / Run
 
 ``` shell
-DOCKER_BUILDKIT=1 docker build -t sketch_rig .
-docker run --rm -p 5000:5000 -t sketch_rig:latest
+DOCKER_BUILDKIT=1 docker build -t sketch_api .
+docker run -p 5000:5000 --rm --env-file .env.aws-dev -t sketch_api:latest 
 ```
 
 

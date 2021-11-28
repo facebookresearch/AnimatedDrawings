@@ -7,7 +7,8 @@ import s3_object
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 
 
-ALPHAPOSE_ENDPOINT = 'http://ecs-sketch-animation-alb-275652448.us-east-2.elb.amazonaws.com:5912/predictions/alphapose'
+# ALPHAPOSE_ENDPOINT = 'http://ecs-sketch-animation-alb-275652448.us-east-2.elb.amazonaws.com:5912/predictions/alphapose'
+ALPHAPOSE_ENDPOINT = os.environ.get("ALPHAPOSE_ENDPOINT")
 
 def detect_pose(unique_id):
     #uuid = work_dir.split('/')[-1]
