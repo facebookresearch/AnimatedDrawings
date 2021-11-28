@@ -4,10 +4,7 @@ import cv2, imutils
 import numpy as np
 from PIL import Image
 import io
-import s3_object
 import storage_service
-
-
 
 interim_store = storage_service.get_interim_store()
 

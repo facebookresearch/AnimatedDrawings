@@ -26,10 +26,10 @@ import storage_service
 
 ANIMATION_ENDPOINT = os.environ.get("ANIMATION_ENDPOINT")
 
-CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-interim-files')
-VIDEO_SHARE_ROOT= s3_object.s3_object('dev-demo-sketch-out-animations')
-UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+
+video_store = storage_service.get_video_store()
 interim_store = storage_service.get_interim_store()
+consent_store = storage_service.get_consent_store()
 
 
 
@@ -121,20 +121,24 @@ def copy_preapproved_image():
         return make_response(f"image name not in preapproved image names: {img_name}", 500)
 
     unique_id = uuid.uuid4().hex
-    #work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)  #: remove this after switching to S3
-    #os.makedirs(work_dir, exist_ok=False)  # : remove this after switching to S3
-    s3_object.write_object(unique_id, "", "")
+    # #work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)  #: remove this after switching to S3
+    # #os.makedirs(work_dir, exist_ok=False)  # : remove this after switching to S3
+    # s3_object.write_object(unique_id, "", "")
 
 
     ## ** verify whats going on here
+    # TODO Read the pre-approved image an kick off workflow
+    
     src = f'./preapproved_imgs/{img_name}'
     s3_object.write_object("/preapproved_imgs/", img_name)
+    
+    
     #dst = os.path.join(work_dir, 'image.png')  # TODO: remove this after switching to S3
     #shutil.copy(src, dst)  # TODO: replace this with call to S3 once Chris's changes have been merged
 
-    detect_humanoids.detect_humanoids(work_dir)
+    detect_humanoids.detect_humanoids(unique_id)
 
-    crop_from_bb.crop_from_bb(work_dir)
+    crop_from_bb.crop_from_bb(unique_id)
 
     return make_response(unique_id, 200)
 
@@ -152,7 +156,7 @@ def run_full_pipeline():
     file = request.files['file']
 
     unique_id = uuid.uuid4().hex
-    UPLOAD_BUCKET.write_object(unique_id, "image.png", "")
+    interim_store.write_bytes(unique_id, "image.png", file)
 
 
     detect_humanoids.detect_humanoids(unique_id)
@@ -170,9 +174,7 @@ def run_full_pipeline():
         return make_response(unique_id, 200)
 
 
-    #verify we can remove VIDEO_SHARE_ROOT from function call
-    #verify which function actually creates VIDEO_SHARE_ROOT
-    prep_animation_files.prep_animation_files(unique_id, VIDEO_SHARE_ROOT)
+    prep_animation_files.prep_animation_files(unique_id)
 
     default_animation_type='running_jump'
     data = {"uuid": unique_id, "animation_type": default_animation_type}
@@ -180,8 +182,12 @@ def run_full_pipeline():
 
     # which function needs the url of the mp4 file
     # TODO at some point we need to return just the url of mp4 file. Not the whole file
-    return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{default_animation_type}.mp4',
-                               as_attachment=True)
+
+
+    video_bytes = video_store.read_bytes(unique_id, f'{default_animation_type}.mp4')
+
+    io_buf = io.BytesIO(video_bytes)
+    return send_file(io_buf, download_name=f'{default_animation_type}.mp4')
 
 ##############################################
 # set and get bounding box
@@ -194,11 +200,8 @@ def get_bounding_box_coordinates():
         return  resource_request_form.format(resource_type='Bounding Box Coordinates')
 
     unique_id = request.form['uuid']
-    #UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")  # ? why is this here
-    #if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:  # we can assume this will exist
-    #    return redirect(request.url)
 
-    bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
+    bb = interim_store.read_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
 
 
@@ -215,16 +218,16 @@ def set_bounding_box_coordinates():
                 )
 
     unique_id = request.form['uuid']
-    UPLOAD_BUCKET.write_object(unique_id, "bb.json", "")
-    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == False:
+    interim_store.write_bytes(unique_id, "bb.json", "")
+    if interim_store.exists(unique_id, "bb.json") == False:
         return redirect(request.url)
 
 
-    if UPLOAD_BUCKET.verify_object(unique_id, "bb.json") == True:
-        bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
-        UPLOAD_BUCKET.write_object(unique_id, f"bb-{time.time()}.json", bb)
+    if interim_store.exists(unique_id, "bb.json") == True:
+        bb = interim_store.read_bytes(unique_id, "bb.json")
+        interim_store.write_bytes(unique_id, f"bb-{time.time()}.json", bb)
 
-    UPLOAD_BUCKET.write_object(unique_id, "bb.json", request.form['bounding_box_coordinates'])
+    interim_store.write_bytes(unique_id, "bb.json", request.form['bounding_box_coordinates'])
 
 
 
@@ -235,7 +238,7 @@ def set_bounding_box_coordinates():
     # TODO @Jesse do we need to do this here? 
     detect_pose.detect_pose(unique_id)
 
-    bb = UPLOAD_BUCKET.get_object_bytes(unique_id, "bb.json")
+    bb = interim_store.read_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
 ##############################################
 
@@ -251,9 +254,9 @@ def get_mask():
         return resource_request_form.format(resource_type='Mask')
     
     unique_id = request.form['uuid']
-    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == False:
+    if interim_store.exists(unique_id, "mask.png") == False:
         return redirect(request.url)
-    mask = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "mask.png")
+    mask =  storage_service.png_bytes_to_np(interim_store.read_bytes(unique_id, "mask.png"))
     _, buf = cv2.imencode('.png', mask)
     io_buf = io.BytesIO(buf)
     return send_file(io_buf, download_name='mask.png')
@@ -270,7 +273,7 @@ def set_mask():
                 resource_name='file'
                 )
     unique_id = request.form['uuid']
-    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == False:
+    if interim_store.exists(unique_id, "mask.png") == False:
         return redirect(request.url)
 
     file = request.files['file']
@@ -279,7 +282,7 @@ def set_mask():
 
 
     #return send_from_directory(work_dir, 'mask.png')
-    mask = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "mask.png")
+    mask = storage_service.png_bytes_to_np(interim_store.read_bytes(unique_id, "mask.png"))
     _, buf = cv2.imencode('.png', mask)
     io_buf = io.BytesIO(buf)
     return send_file(io_buf, download_name='mask.png')
@@ -298,10 +301,10 @@ def get_joint_locations():
     
     unique_id = request.form['uuid']
 
-    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == False:
+    if interim_store.exists(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
     
-    joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
+    joint_locations = interim_store.read_bytes(unique_id, "joint_locations.json")
     return joint_locations 
 
 @app.route('/set_joint_locations_json', methods=['GET', 'POST'])
@@ -317,19 +320,19 @@ def set_joint_locations():
                 resource_name='joint_location_json'
                 )
 
-    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == False:
+    if interim_store.exists(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
 
-    if UPLOAD_BUCKET.verify_object(unique_id, "joint_locations.json") == True:
-        joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
-        UPLOAD_BUCKET.write_object(unique_id, f"joint_locations-{time.time()}.json", joint_locations)
+    if interim_store.exists(unique_id, "joint_locations.json") == True:
+        joint_locations = interim_store.read_bytes(unique_id, "joint_locations.json")
+        interim_store.write_bytes(unique_id, f"joint_locations-{time.time()}.json", joint_locations)
 
-    UPLOAD_BUCKET.write_object(unique_id, "joint_locations.json", request.form['joint_location_json'])
+    interim_store.write_bytes(unique_id, "joint_locations.json", request.form['joint_location_json'])
 
 
-    prep_animation_files.prep_animation_files(unique_id, VIDEO_SHARE_ROOT)
+    prep_animation_files.prep_animation_files(unique_id)
 
-    joint_locations = UPLOAD_BUCKET.get_object_bytes(unique_id, "joint_locations.json")
+    joint_locations = interim_store.read_bytes(unique_id, "joint_locations.json")
     return joint_locations 
 ##############################################
 
@@ -345,9 +348,9 @@ def get_image():
     if request.method != 'POST':
         return resource_request_form.format('Full Image')
 
-    if UPLOAD_BUCKET.verify_object(unique_id, "image.png") == False:
+    if interim_store.exists(unique_id, "image.png") == False:
         return redirect(request.url)
-    img_path = UPLOAD_BUCKET.get_object_bytes(unique_id, "image.png")
+    img_path = interim_store.read_bytes(unique_id, "image.png")
     return img_path
 
 
@@ -359,10 +362,10 @@ def get_cropped_image():
         return  resource_request_form.format(resource_type='Cropped Image')
 
     unique_id = request.form['uuid']    
-    if UPLOAD_BUCKET.verify_object(unique_id, "cropped_image.png") == False:
+    if interim_store.exists(unique_id, "cropped_image.png") == False:
         return redirect(request.url)
 
-    cropped_image = UPLOAD_BUCKET.get_object_bytes(unique_id, "cropped_image.png")
+    cropped_image = interim_store.read_bytes(unique_id, "cropped_image.png")
     return cropped_image
 
 @app.route('/get_animation', methods=['GET', 'POST'])
@@ -374,13 +377,13 @@ def get_animation():
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
     unique_id = request.form['uuid']
-    if UPLOAD_BUCKET.verify_directory(unique_id) == False:
+    if interim_store.exists(unique_id, "image.png") == False:
         return redirect(request.url)
 
     ### record annotations if consent is given ###
     #with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
-    consent_response = bool(int(CONSENT_GIVEN_SAVE_DIR.get_object_bytes(unique_id, "consent_response.txt")))
+    consent_response = bool(int(consent_store.read_bytes(unique_id, "consent_response.txt")))
 
     #TODO: @Chris, can you write us a function in s3_object to copy a subdirectory from one S3 bucket to another?
     # e.g. copy <ITERIM_S3_BUCKET>/<uuid> subdir and contents to <CONSENT_GIVEN_S3_BUCKET>/<uuid>? That needs to occur here.
@@ -432,7 +435,6 @@ def get_animation():
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
 
-    #animation_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
 
     
     #cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} {ANIMATION_ENDPOINT}"
@@ -441,17 +443,11 @@ def get_animation():
     data = {'uuid':unique_id, 'animation_type':animation_type}
     response = requests.post(url=ANIMATION_ENDPOINT, data=data)
     # TODO at some point we need to return just the url of mp4 file. Not the whole file
-    video_bytes = VIDEO_SHARE_ROOT.get_object_bytes(unique_id, f'{animation_type}.mp4')
+    video_bytes = video_store.read_bytes(unique_id, f'{animation_type}.mp4')
 
     io_buf = io.BytesIO(video_bytes)
     return send_file(io_buf, download_name=f'{animation_type}.mp4')
 
-    # return send_from_directory(os.path.join(VIDEO_SHARE_ROOT, request.form['uuid']), f'{animation_type}.mp4',
-    #                            as_attachment=True)
-    # if response =="0":  #everything okay
-    # else:  # something went wrong
-    #     pass
-    #     return make_response("something went wrong", 500)
 
 
 
@@ -470,7 +466,7 @@ def set_consent_answer():
     # TODO uncomment this after calls to set_consent_answer and upload_image are reversed
     unique_id = request.form['uuid']
     consent_response = request.form['consent_response']
-    CONSENT_GIVEN_SAVE_DIR.write_object(unique_id, 'consent_response.txt', consent_response)
+    consent_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
     return make_response("", 200)
 
 

@@ -6,10 +6,9 @@ from scipy import ndimage
 import cv2
 import time
 import shutil
-import s3_object
+import storage_service
 
-
-UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+interim_store = storage_service.get_interim_store()
 
 def threshold(im_in):
     im_out_r = cv2.adaptiveThreshold(im_in,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,115,8)
@@ -70,7 +69,7 @@ def retain_largest_contour(mask2):
 
 def get_img_from_work_dir(unique_id):
     # pull in cropped_image.png bytes to variable orig_fn
-    img_bytes = UPLOAD_BUCKET.get_object_bytes(unique_id, "cropped_image.png")
+    img_bytes = interim_store.read_bytes(unique_id, "cropped_image.png")
 
     #c = cv2.imread(orig_fn, cv2.IMREAD_UNCHANGED)
     c = cv2.imdecode(np.fromstring(img_bytes, np.uint8), 1)
@@ -94,7 +93,7 @@ def segment_mask(unique_id):
 
     #upload mask object as bytes to mask.png
     _, enc_mask_img = cv2.imencode('.png', mask)
-    UPLOAD_BUCKET.write_object(unique_id, "mask.png", enc_mask_img.tobytes())
+    interim_store.write_bytes(unique_id, "mask.png", enc_mask_img.tobytes())
 
 def process_user_uploaded_segmentation_mask(unique_id, request_file):
     """
@@ -114,11 +113,11 @@ def process_user_uploaded_segmentation_mask(unique_id, request_file):
 
     # back up the previous mask annotations with time at s3
     
-    if UPLOAD_BUCKET.verify_object(unique_id, "mask.png") == True:
-        mask_object = UPLOAD_BUCKET.get_object_bytes(unique_id, "mask.png")
-        UPLOAD_BUCKET.write_object(unique_id, f"mask-{time.time()}.png", mask_object)
+    if interim_store.exists(unique_id, "mask.png") == True:
+        mask_object = interim_store.read_bytes(unique_id, "mask.png")
+        interim_store.write_bytes(unique_id, f"mask-{time.time()}.png", mask_object)
 
     # save mask bytes data as new mask.png s3 object
     _, enc_mask_img = cv2.imencode('.png', mask)
-    UPLOAD_BUCKET.write_object(unique_id, "mask.png", enc_mask_img.tobytes())
+    interim_store.write_bytes(unique_id, "mask.png", enc_mask_img.tobytes())
     

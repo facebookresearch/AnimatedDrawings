@@ -20,8 +20,6 @@ class s3_object:
         assert type(DATA) == np.ndarray, f"DATA is not np array. is {type(DATA)}"
         _, buf = cv2.imencode('.png', DATA)
         self.write_object(PREFIX, OBJECTNAME, buf.tobytes())
-        #UPLOAD_BUCKET.write_object(unique_id, 'cropped_image.png', cropped_cv2.tobytes())
-        #s3.Bucket(self.BUCKET).put_object(Key="%s/%s" % (PREFIX, OBJECTNAME) , Body=DATA)
 
     def verify_object(self, PREFIX, OBJECTNAME):
         list_objects = s3_client.list_objects(Bucket=self.BUCKET, Prefix=PREFIX+"/", Delimiter='/')

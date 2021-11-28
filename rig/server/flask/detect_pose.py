@@ -1,11 +1,11 @@
 import os, sys
 import subprocess, json
 import requests
-import s3_object
+import storage_service
 
 
-UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 
+interim_store = storage_service.get_interim_store()
 
 ALPHAPOSE_ENDPOINT = os.environ.get("ALPHAPOSE_ENDPOINT")
 
@@ -13,10 +13,8 @@ def detect_pose(unique_id):
     #uuid = work_dir.split('/')[-1]
     #img_pth = os.path.abspath(os.path.join(work_dir, 'gray_blur.png'))
     #pull form s3 as bytes
-    img_bytes = UPLOAD_BUCKET.get_object_bytes(unique_id, 'gray_blur.png')
+    img_bytes = interim_store.read_bytes(unique_id, 'gray_blur.png')
 
-    #cmd = f"curl -X POST -F uuid={uuid} -F image=@{img_pth} http://ecs-sketch-animation-alb-275652448.us-east-2.elb.amazonaws.com:5912/predictions/alphapose"
-    # response_json = requests.post(url=ALPHAPOSE_ENDPOINT, data=img_pth) # this is for the new alphapose.mar file. To use the one currently in production, requests should be in the form below
     response_json = requests.post(url=ALPHAPOSE_ENDPOINT, data={'uuid': unique_id, 'image':img_bytes})
 
     #save alphapose_results.json' under uuid directory in interim bucket
@@ -26,9 +24,8 @@ def detect_pose(unique_id):
         json_object = json.dumps(response_json.json(), indent = 4) 
     except:
         assert False  # TODO @Chris - I'm intermittantly getting a 503 error response when querying ALPHAPOSE_ENPOINT
-    UPLOAD_BUCKET.write_object(unique_id, "alphapose_results.json", json_object)
+    interim_store.write_bytes(unique_id, "alphapose_results.json",  bytearray(json_object, "ascii") )
 
-    #UPLOAD_BUCKET.write_object(unique_id, 'alphapose_results.json', response_json.json())
 
     keypoint_names=[
         "nose", "left_eye", "right_eye", "left_ear", "right_ear",
@@ -44,7 +41,7 @@ def detect_pose(unique_id):
 
     #save joint_locations.json to s3
     joint_locations_s = json.dumps(joint_locations, indent = 4) 
-    UPLOAD_BUCKET.write_object(unique_id, "joint_locations.json", joint_locations_s)
+    interim_store.write_bytes(unique_id, "joint_locations.json", bytearray(joint_locations_s, "ascii") )
 
     # output_loc = os.path.join(work_dir, 'joint_locations.json')
     # with open(output_loc, 'w') as f:

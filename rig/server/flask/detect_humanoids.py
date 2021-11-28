@@ -9,7 +9,6 @@ import boto3
 import base64
 import requests
 import json 
-import sys
 
 import storage_service
 

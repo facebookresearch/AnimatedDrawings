@@ -7,13 +7,12 @@ from pathlib import Path
 import numpy as np
 import json
 import yaml
-import s3_object
+import storage_service
+
+interim_store = storage_service.get_interim_store()
 
 
-UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
-
-
-def prep_animation_files(unique_id, video_share_root):
+def prep_animation_files(unique_id):
     # jkimg_loc = Path(os.path.join(unique_id, 'cropped_image.png'))
     # jkassert img_loc.exists(),  "Image not found: {}".format(str(img_loc))
 
@@ -32,24 +31,21 @@ def prep_animation_files(unique_id, video_share_root):
 
     #uuid = unique_id.split('/')[-1]
     #if uuid directory in video bucket exists, then delete
-    #video_dir = os.path.join(video_share_root, uuid)
-    #if os.path.exists(video_dir): # delete old video files if they exist
-    #    shutil.rmtree(video_dir)
 
-    assert UPLOAD_BUCKET.verify_object(unique_id, 'cropped_image.png') == True, f"Image not found: {unique_id}/cropped_image.png"
-    img = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "cropped_image.png")
+    assert interim_store.exists(unique_id, 'cropped_image.png') == True, f"Image not found: {unique_id}/cropped_image.png"
+    
+    img = storage_service.png_bytes_to_np(interim_store.read_bytes(unique_id, "cropped_image.png"))
     img = Image.fromarray(img)
     im_size = max(img.size)
     img = img.convert('RGBA')
     square_img = Image.new( 'RGBA', (im_size, im_size), (255, 255, 255, 255))
     # save square_img data as cropped_image.png and save it to s3
     square_img.paste(img, (0, 0))
-    #UPLOAD_BUCKET.write_object(f"{unique_id}/animation", "cropped_image.png", square_img)
-    UPLOAD_BUCKET.write_np_to_png_object(f"{unique_id}/animation", "cropped_image.png", np.array(square_img))
+    interim_store.write_bytes(f"{unique_id}/animation", "cropped_image.png", storage_service.np_to_png_bytes(np.array(square_img)))
 
     # open mask, make entire border 1px black to ensure contours cover whole character
-    assert UPLOAD_BUCKET.verify_object(unique_id, 'mask.png') == True, f"Image not found: {unique_id}/mask.png"
-    mask = UPLOAD_BUCKET.get_object_image_as_np(unique_id, "mask.png")
+    assert interim_store.exists(unique_id, 'mask.png') == True, f"Image not found: {unique_id}/mask.png"
+    mask = storage_service.png_bytes_to_np(interim_store.read_bytes(unique_id, "mask.png"))
 
     mask_np = np.array(mask)
     mask_np[:, 0] = (0, 0, 0)
@@ -62,8 +58,7 @@ def prep_animation_files(unique_id, video_share_root):
     square_mask.paste(mask, (0, 0))
 
     # save square_mask byte data as cropped_image_mask.png
-    # UPLOAD_BUCKET.write_object(f"{unique_id}/animation", "cropped_image_mask.png", square_mask)
-    UPLOAD_BUCKET.write_np_to_png_object(f"{unique_id}/animation", "cropped_image_mask.png", np.array(square_mask))
+    interim_store.write_bytes(f"{unique_id}/animation", "cropped_image_mask.png", storage_service.np_to_png_bytes(np.array(square_mask)))
 
     sketch = deepcopy(exemplar_sketch)
 
@@ -72,8 +67,8 @@ def prep_animation_files(unique_id, video_share_root):
     sketch['sketch_dim'] = square_img.size[0]
 
     # pull joint_locations.json object as bytes, save as keypoints
-    assert UPLOAD_BUCKET.verify_object(unique_id, 'joint_locations.json') == True, f"json not found: {unique_id}/joint_location.json"
-    keypoints = UPLOAD_BUCKET.get_object_bytes(unique_id, 'joint_locations.json')
+    assert interim_store.exists(unique_id, 'joint_locations.json') == True, f"json not found: {unique_id}/joint_location.json"
+    keypoints = interim_store.read_bytes(unique_id, 'joint_locations.json')
     keypoints = json.loads(keypoints)
 
     joints = {key: [val['x'], val['y']] for (key, val) in keypoints.items()}
@@ -107,7 +102,7 @@ def prep_animation_files(unique_id, video_share_root):
     # save cropped_image.yaml using sketch byte data
 
     #yaml_object = json.dumps(bb, indent = 4) 
-    UPLOAD_BUCKET.write_object(f'{unique_id}/animation', "cropped_image.yaml", yaml.dump(sketch))
+    interim_store.write_bytes(f'{unique_id}/animation', "cropped_image.yaml", bytearray( yaml.dump(sketch), 'ascii'))
 
     draw = ImageDraw.Draw(mask)
     for name, xy in joints.items():  # output image with joint locations on it for debugging purposes
@@ -115,7 +110,7 @@ def prep_animation_files(unique_id, video_share_root):
         draw.ellipse((x-3, y-3, x+3, y+3), fill=(255, 0, 0), outline=(255, 255, 255))
 
     #save s3 cropped_image_mask_joints.png using mask data
-    UPLOAD_BUCKET.write_np_to_png_object(f'{unique_id}/animation', "cropped_image_mask_joints.png", np.array(mask))
+    interim_store.write_bytes(f'{unique_id}/animation', "cropped_image_mask_joints.png", storage_service.np_to_png_bytes(np.array(mask)))
 
 
 # pretty sure this isnt needed, quick research
