@@ -11,10 +11,8 @@ import requests
 import json 
 import sys
 
-import s3_object
 import storage_service
 
-# UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 interim_store = storage_service.get_interim_store()
 
 
@@ -74,7 +72,6 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
     
     # READ image.png S3 OBJECT as BYTES
 
-    # image_obj = UPLOAD_BUCKET.get_object_bytes(unique_id, 'image.png')
     image_obj = interim_store.read_bytes(unique_id, 'image.png')
     image = cv2.imdecode(np.asarray(bytearray(image_obj)), cv2.IMREAD_COLOR)
   
@@ -89,7 +86,6 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
         #PUT image OBJECT to S3
      
-        # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', image)
         interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(image))
         image = image
         # return image as bytes
@@ -101,7 +97,6 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
     
-    # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'small_d2_image.png', resized_img)
     interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(resized_img))
     
     #return resized_img as bytes
@@ -120,10 +115,8 @@ def detect_humanoids(unique_id):
     
     # Serializing json  
     json_object = json.dumps(bb, indent = 4) 
-    # UPLOAD_BUCKET.write_object(unique_id, "bb.json", json_object)
-    interim_store.write_bytes(unique_id, "bb.json", json_object)
+    interim_store.write_bytes(unique_id, "bb.json", bytearray(json_object, "ascii"))
     
     cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-    # UPLOAD_BUCKET.write_np_to_png_object(unique_id, 'cropped_image.png', cropped_img)
     interim_store.write_bytes(unique_id, 'cropped_image.png', storage_service.np_to_png_bytes(cropped_img))
 

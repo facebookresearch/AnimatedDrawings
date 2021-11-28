@@ -21,12 +21,15 @@ import segment_mask
 import prep_animation_files
 import s3_object
 
+import storage_service
+
 
 ANIMATION_ENDPOINT = os.environ.get("ANIMATION_ENDPOINT")
 
 CONSENT_GIVEN_SAVE_DIR = s3_object.s3_object('dev-demo-sketch-out-interim-files')
 VIDEO_SHARE_ROOT= s3_object.s3_object('dev-demo-sketch-out-animations')
 UPLOAD_BUCKET = s3_object.s3_object('dev-demo-sketch-out-interim-files')
+interim_store = storage_service.get_interim_store()
 
 
 
@@ -93,8 +96,7 @@ def upload_image():
 
     unique_id = uuid.uuid4().hex
 
-    #UPLOAD_BUCKET.write_object(unique_id, "image.png", base64.b64decode(file))  # this fails, throws TypeError: argument should be a bytes-like object or ASCII string, not 'FileStorage'
-    UPLOAD_BUCKET.write_object(unique_id, "image.png", file.read())
+    interim_store.write_bytes(unique_id, "image.png", file.read())
 
     print(unique_id)
     

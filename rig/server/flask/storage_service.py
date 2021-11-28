@@ -19,14 +19,30 @@ class aws_storage_service:
     def write_bytes(self, unique_id, file_name, bytes):
         # if USE_AWS
         return self.store.write_object(unique_id, file_name, bytes);
+    
+class file_storage_service:
+    
+    def __init__(self, root):
+        self.root_dir = root
+
+    def read_bytes(self, unique_id, file_name):
+        with open(os.path.join(self.root_dir, unique_id, file_name), 'rb') as reader:
+           return reader.read();
+
+
+    def write_bytes(self, unique_id, file_name, bytes):
+        dir = os.path.join(self.root_dir, unique_id)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        with open(os.path.join(self.root_dir, unique_id, file_name), 'wb') as writer:
+           writer.write(bytes)
 
 
 def get_interim_store():
-    # TODO get bucket from from config
-    # if USE_AWS:
+    if USE_AWS:
         return aws_storage_service('dev-demo-sketch-out-interim-files')
-    # else:
-        # return file_storage_service('temp')
+    else:
+        return file_storage_service('uploads')
 
 
 def np_to_png_bytes(DATA):
