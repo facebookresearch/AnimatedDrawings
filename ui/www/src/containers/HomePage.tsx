@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import AboutModal from "../components/Modals/AboutModal";
 import SplashVideo from "../assets/video_assets/splashVideo.mp4";
+import CookieConsent, { Cookies } from "react-cookie-consent";
 
 const HomePage = () => {
   const history = useHistory();
@@ -71,6 +72,16 @@ const HomePage = () => {
         </div>
       </div>
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
+      <CookieConsent
+        buttonText="Accept"
+        cookieName="animated_drawings"
+        enableDeclineButton
+        declineButtonText="Decline (optional)"
+      >
+        This demo uses cookies to enhance the user experience, collect
+        information about how you interact with our website and allow us to
+        remember you.
+      </CookieConsent>
     </div>
   );
 };
