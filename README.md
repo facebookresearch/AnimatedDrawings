@@ -27,6 +27,7 @@ docker run -p 5000:5000 --rm --env-file .env.aws-dev \
 
 ```
 docker-compose \
+    --env-file .env.aws-dev
     -f docker-compose.development.yml \
     build \
     --build-arg USER_ID=$(id -u) \
