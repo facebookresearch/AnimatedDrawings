@@ -26,8 +26,6 @@ if gunicorn_logger:
 
 @app.route('/healthy', methods=['POST', 'HEAD', 'GET'])
 def healthy():
-    #status_code = app.Response(status=200)
-    #return status_code
 	
     return {'message': 'Healthy'} 
    
