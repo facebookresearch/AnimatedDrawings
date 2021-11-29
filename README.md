@@ -8,14 +8,18 @@ git submodule init && git submodule update
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
-
 # Sketch Rig Build / Run
 
-``` shell
-DOCKER_BUILDKIT=1 docker build -t sketch_api .
-docker run -p 5000:5000 --rm --env-file .env.aws-dev -t sketch_api:latest 
-```
+```shell
+DOCKER_BUILDKIT=1 docker build -f Dockerfile.sketch_api --build-arg BUILD_CONFIG=development -t sketch_api .
 
+
+
+docker run -p 5000:5000 --rm --env-file .env.aws-dev \
+--mount type=bind,src="$(pwd)"/rig,dst=/home/model-server/rig \
+--mount type=bind,src="$(pwd)"/tmp/uploads,dst=/home/model-server/rig/server/flask/uploads \
+ -t sketch_api:latest
+```
 
 3. create your own .env environment. Copy from .env.default
 

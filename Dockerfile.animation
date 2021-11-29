@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
     pip install -r requirements.txt  \
     # Add the following line to enable functiontrace.
     # && pip install functiontrace \
-    && pip install flask flask_cors gunicorn  \ 
+    && pip install flask flask_cors gunicorn boto3 \ 
     && pip install ffmpeg-python==0.2.0 \
     && pip install shapely==1.7.1 \
     && conda install -c conda-forge conda-pack

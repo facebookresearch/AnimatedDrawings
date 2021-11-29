@@ -2,6 +2,7 @@
 
 ARG BUILD_IMAGE=continuumio/miniconda3
 ARG PYTHON_VERSION=3.8
+ARG BUILD_CONFIG=release
 
 FROM ${BUILD_IMAGE} as build
 
@@ -48,7 +49,7 @@ RUN /venv/bin/conda-unpack
 # ####################
 # Sketch API - Runtime
 ###################### 
-FROM ubuntu:18.04 AS rig_runtime
+FROM ubuntu:18.04 AS common_runtime
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     # RUN \
@@ -76,16 +77,22 @@ RUN mkdir -p /home/model-server/tmp \
 ENV TEMP=/home/model-server/tmp
 ENV PATH /venv/bin/:${PATH}
 
-COPY --chown=model-server:model-server rig rig/
+
 
 WORKDIR /home/model-server/rig/server/flask 
 RUN mkdir uploads && mkdir output_predictions && mkdir consent_given_upload_copies
 
 EXPOSE 5000
 
+FROM common_runtime as development_runtime
+CMD [ "sleep", "infinity" ]
 
-# Define the default command.
+FROM development_runtime as profile_runtime
+
+FROM common_runtime as release_runtime
+# Only copy for relase builds
+COPY --chown=model-server:model-server rig rig/
 CMD [ "./run.sh" ]
 
-# CMD [ "sleep", "infinity" ]
+FROM ${BUILD_CONFIG}_runtime as rig_runtime
 
