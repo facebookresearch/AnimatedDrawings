@@ -3,11 +3,15 @@ import { useHistory } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import AboutModal from "../components/Modals/AboutModal";
 import SplashVideo from "../assets/video_assets/splashVideo.mp4";
-import CookieConsent, { Cookies } from "react-cookie-consent";
+import CookieConsent from "react-cookie-consent";
+import {getCookie} from "../utils/Helpers";
 
 const HomePage = () => {
   const history = useHistory();
   const [showModal, setShowModal] = React.useState(false);
+
+  console.log(getCookie("animated_drawings"))
+
   return (
     <div className="main-content bg-home" id="home">
       <div className="home-page">
@@ -73,10 +77,15 @@ const HomePage = () => {
       </div>
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
       <CookieConsent
-        buttonText="Accept"
-        cookieName="animated_drawings"
+        style={{ padding: "12px", backgroundColor: "white", color: "black", fontSize:"14px" }}
+        overlay
+        disableButtonStyles
         enableDeclineButton
-        declineButtonText="Decline (optional)"
+        buttonText="Accept"
+        declineButtonText="Decline"
+        cookieName="animated_drawings"
+        buttonClasses="btn btn-primary accept-button"
+        declineButtonClasses="btn btn-secondary decline-button"
       >
         This demo uses cookies to enhance the user experience, collect
         information about how you interact with our website and allow us to
