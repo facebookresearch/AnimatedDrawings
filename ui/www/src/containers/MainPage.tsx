@@ -5,6 +5,7 @@ import StepsContainer from "../components/Stepper/StepsContainer";
 import useDrawingStore from "../hooks/useDrawingStore";
 import useStepperStore from "../hooks/useStepperStore";
 import AboutModal from "../components/Modals/AboutModal";
+import MainFooter from "../components/Footers/MainFooter";
 
 const MainPage = () => {
   const { uuid } = useDrawingStore();
@@ -19,20 +20,6 @@ const MainPage = () => {
           </h2>
         </a>
       </div>
-      <a
-        href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=${
-          uuid !== "" ? uuid : "Preload Step [No ID]"
-        }`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        <div className="feedback-wrapper">
-          <h4 className="d-none d-lg-block">
-            Feedback <i className="bi bi-info-square-fill ml-2 h2"></i>
-          </h4>
-          <i className="bi bi-info-square-fill h2 d-inline-block d-block d-sm-none" />
-        </div>
-      </a>
       <div className="main-page">
         <Container>
           <Row className="align-items-center justify-content-center py-2 px-lg-2">
@@ -56,20 +43,8 @@ const MainPage = () => {
             </Col>
           </Row>
         </Container>
-        {currentStep === 5 && (
-          <>
-            <div className="home-footer-credits py-2">
-              <h4> PRESENTED BY FACEBOOK AI RESEARCH</h4>
-            </div>
-            <div
-              className="home-footer d-none d-lg-block text-center py-2"
-              onClick={() => setShowModal(true)}
-            >
-              <h3>ABOUT THIS DEMO</h3>
-            </div>
-          </>
-        )}
       </div>
+      <MainFooter uuid={uuid} showAll={currentStep === 5} setShowModal={setShowModal}/>
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
