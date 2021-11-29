@@ -3,6 +3,17 @@ import logging
 from flask import Flask, make_response, request
 sys.path.insert(0, '..')
 import sketch_animate.main_server
+import s3_object
+import storage_service
+import uuid
+# Uncomment the following lines to enable functiontrace
+# import functiontrace
+# functiontrace.trace()
+
+interim_store = storage_service.get_interim_store()
+video_store = storage_service.get_video_store()
+
+ANIMATION_FOLDER = "/animation/"
 
 app = Flask(__name__)
 
@@ -13,8 +24,12 @@ if gunicorn_logger:
     root_logger.handlers = gunicorn_logger.handlers
     root_logger.setLevel(gunicorn_logger.level)
 
-VIDEO_SHARE_ROOT='./videos' # maps to /home/animation-server/animate/flask/videos
-UPLOAD_FOLDER='./uploads' # /home/animation-server/animate/flask/uploads
+
+@app.route('/healthy', methods=['POST', 'HEAD', 'GET'])
+def healthy():
+	
+    return {'message': 'Healthy'} 
+   
 
 @app.route('/generate_animation', methods=['POST'])
 def generate_animation():
@@ -27,8 +42,8 @@ def generate_animation():
      returns 0 if everything is okay, 1 if anything failed
     """
     unique_id = request.form['uuid']
-    assert os.path.exists(os.path.join(UPLOAD_FOLDER, unique_id)), f'bad uuid {unique_id}' # uuid is invalid
-
+    assert interim_store.exists(unique_id, "image.png") == True, f'bad uuid {unique_id}' # uuid is invalid
+    
     animation_type = request.form['animation_type']
     assert animation_type in [
         'box_jump',
@@ -63,10 +78,67 @@ def generate_animation():
         'wave_hello_3',
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
+    
+    video_id = None
+    if interim_store.exists(unique_id, "video_id.txt"):
+        video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
+    else:
+        video_id = uuid.uuid4().hex;
 
-    video_output_path = os.path.join(VIDEO_SHARE_ROOT, unique_id, f'{animation_type}.mp4')
-
+    video_output_path = video_store.exists(video_id, f'{animation_type}.mp4')
     try:
+        if video_output_path != True:
+            work_dir = "s3_animation/%s%s" % (unique_id, ANIMATION_FOLDER)
+            os.makedirs(work_dir, exist_ok=True)
+
+            # pull down animation/cropped_image.yaml from s3
+            cropped_image_yaml = interim_store.read_bytes(f'{unique_id}/animation', "cropped_image.yaml")
+            sketch_cfg_path = os.path.join(work_dir, "cropped_image.yaml")
+            with open(sketch_cfg_path, 'wb') as w:
+                w.write(cropped_image_yaml)
+
+            # pull down animation/cropped_image_mask.png from s3 
+            cropped_image_mask = interim_store.read_bytes(f'{unique_id}/animation', "cropped_image_mask.png")
+            cropped_image_path = os.path.join(work_dir, "cropped_image_mask.png")
+            with open(cropped_image_path, 'wb') as w:
+                w.write(cropped_image_mask)
+
+
+            # pull down "cropped_image.png" from s3 
+            cropped_image_png = interim_store.read_bytes(f'{unique_id}/animation', "cropped_image.png")
+            cropped_png_path = os.path.join(work_dir, "cropped_image.png")
+            with open(cropped_png_path, 'wb') as w:
+                w.write(cropped_image_png)
+
+            # verify animation/ARAP_Sketch.pickle exists, if True, return object
+            if interim_store.exists(f'{unique_id}/animation', "ARAP_Sketch.pickle") == True:
+                ARAP_pickle_loc = interim_store.read_bytes(f'{unique_id}/animation', "ARAP_Sketch.pickle")
+                ARAP_pickle_loc_path = os.path.join(work_dir, "ARAP_Sketch.pickle")
+                with open(ARAP_pickle_loc_path, 'wb') as w:
+                    w.write(ARAP_pickle_loc)
+
+            video_output_path = os.path.join(work_dir, f'{animation_type}.mp4')
+
+            motion_cfg_path = f'/home/animation-server/animate/Data/motion_configs/{animation_type}.yaml'
+            sketch_animate.main_server.video_from_cfg(sketch_cfg_path, motion_cfg_path, video_output_path)
+            
+            with open(video_output_path, 'rb') as f:
+                    videobytes =  f.read()
+                    
+            if not interim_store.exists(unique_id, "video_id.txt"):
+                interim_store.write_bytes(unique_id, "video_id.txt", video_id)
+                logging.info("Generated Video ID: %s for Image Id: %s", video_id, unique_id)
+            
+            video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes)
+
+        return make_response(video_id, 200)
+
+    except Exception as e:
+        app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
+        app.log_exception(e)
+        return make_response("1", 500)
+
+'''    try:
         if not os.path.exists(video_output_path):
             motion_cfg_path = f'/home/animation-server/animate/Data/motion_configs/{animation_type}.yaml'
             character_cfg_path = f'{UPLOAD_FOLDER}/{unique_id}/animation/cropped_image.yaml'
@@ -76,5 +148,4 @@ def generate_animation():
     except Exception as e:
         app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
         app.log_exception(e)
-        return make_response("1", 500)
-
+        return make_response("1", 500)'''

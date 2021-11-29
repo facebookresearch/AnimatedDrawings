@@ -4,11 +4,16 @@ services:
   sketch_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.sketch_api
       target: rig_runtime
+      args:
+        - BUILD_CONFIG=${BUILD_CONFIG}
     ports:
       - 5000:5000
     volumes:
+      - type: bind
+        source: ./rig
+        target: /home/model-server/rig
       - type: bind
         source: ./tmp/video
         target: /home/model-server/rig/server/flask/videos
@@ -17,16 +22,20 @@ services:
         target: /home/model-server/rig/server/flask/uploads # TODO fix path
       - type: bind
         source: ./tmp/consents
-        target: /home/model-server/rig/server/flask/consent_given_upload_copies
+        target: /home/model-server/rig/server/flask/consents
+    
     environment:
-      REACT_APP_API_HOST: http://localhost:5000
+      - DETECTRON2_ENDPOINT=${DETECTRON2_ENDPOINT}
+      - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
+      - ANIMATION_ENDPOINT=${ANIMATION_ENDPOINT}
+      - ENABLE_UPLOAD=1
     networks:
       ap-net: {}
 
   detectron2_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.detectron_runtime
       target: detectron2_runtime
     networks:
       ap-net:
@@ -56,8 +65,15 @@ services:
       context: .
       dockerfile: Dockerfile.animation
       target: animation_runtime
+      args:
+        - BUILD_CONFIG=${BUILD_CONFIG}
+        - USER_ID=${USER_ID} \
+        - GROUP_ID=${GROUP_ID}
     # command: /home/animation-server/animate/flask/run.sh
     volumes:
+      - type: bind
+        source: ./animate
+        target: /home/animation-server/animate
       - type: bind
         source: ./tmp/video
         target: /home/animation-server/animate/flask/videos # TODO fix path

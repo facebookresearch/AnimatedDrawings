@@ -1,6 +1,8 @@
 import os
-if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
-        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
+from util import use_opengl
+import shutil
+
+if use_opengl():
     from OpenGL import GL
     import glfw
 else:
@@ -9,28 +11,45 @@ else:
 import cv2
 import numpy as np
 from SceneManager.base_manager import BaseManager
-import logging
 from pathlib import Path
 import time
 import ffmpeg
+import multiprocessing as mp
+from util import use_opengl
+from time_manager import TimeManager_Render
+from transferrer import Transferrer_Render
 
 
 class RenderManager(BaseManager):
 
-    def __init__(self, cfg=None, width=1080, height=1080):
+    def __init__(self, cfg=None, width=720, height=720):
         assert cfg is not None
+
         self.cfg = cfg
         self.width = width
         self.height = height
 
-        self.mode = 'RENDER'
-        self.video_fps = 18
+        if use_opengl():
+            self._initialize_opengl(self.width, self.height)
+        else:
+            self._initialize_mesa(self.width, self.height)
 
-        self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
+        super().__init__(cfg)
+
+        self.time_manager = None  # Transferrer_Render must be init prior- length of mocap sequence needed
+
+        self.mode = 'RENDER'
+        self.BVH_fps = 30  # cached motion files are all at 30 fps
+
+        if self.cfg['OUTPUT_PATH'].endswith('.mp4'):
+            self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
+        else:
+            vid_name = self.cfg['BVH_PATH'].split('/')[-1]
+            self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH'])) / f'{vid_name}.mp4'
 
         self.video_working_dir = Path('./video_work_dir/' + self.out_file.parent.name)
         self.video_working_dir.mkdir(parents=True, exist_ok=True)
-        self.intermediary_out_file = Path(self.video_working_dir)/f'{time.time()}.mp4'
+        self.intermediary_out_file = self.video_working_dir / (str(time.time()) + '.mp4')
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
         self.frames_written = 0
@@ -40,88 +59,95 @@ class RenderManager(BaseManager):
         self.ctx = None
         self.buffer = None
 
-        if 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and \
-        os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL':
-            self._initialize_opengl(self.width, self.height)  # uncomment, comment line above if no mesa available
-        else:
-            self._initialize_mesa(self.width, self.height)
-
-        super().__init__(cfg)
-
     def prep_video_writer(self):
 
         os.makedirs(self.out_file.parent, exist_ok=True)
 
-        if self.intermediary_out_file.exists():
-            Path.unlink(self.intermediary_out_file)
-
-        # cv2.videowriter can't use h264 to create mpegs,
-        # so we're rendering with mp4v and later coverting to h264
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.video_fps, (self.width, self.height))
-
-
-    def run(self):
-        self.time_manager.initialize_time()
-
-        logging.info('starting render run')
-        while not self._scene_is_finished():
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-
-            self._update_transferrer_cameras()
-
-            self._adjust_sketch()
-
-            self._render_view()
-
-            self._update()
-
-            self._write_to_buffer()
-
-        logging.info('render run completed')
-
-        self.video_writer.release()
-
-        self.convert_to_h264()
-
-    def convert_to_h264(self):
-
-        # delete old video file if exists
         if self.out_file.exists():
             Path.unlink(self.out_file)
 
-        # mirror if cfg says so
+        fourcc = cv2.VideoWriter_fourcc(*'x264')
+        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.BVH_fps, (self.width, self.height))
+
+    def run(self):
+
+        def do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=False):
+            pointer = 0
+
+            while not finished[0] or not finished[1] or not finished[2] or written[pointer+1]:
+                if not written[pointer+1]:
+                    time.sleep(0.001)
+                    continue
+
+                mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
+                mesh_np = np.array(mesh_vs, dtype='float32')
+                order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
+                self._render_view_mp(mesh_np, order, mirror)
+                pointer += 1
+
+        p_count = 3
+        frame_size = 5 * self.sketch.nVertices
+        arr_len = frame_size * self.cfg['RENDERED_FRAME_UPPER_LIMIT']
+        vert_arr = mp.Array('f', arr_len)  # vertex info needed for rendering goes here
+        finished = mp.Array('b', p_count) # array keeping track of whether a subprocess has finished yet
+        written = mp.Array('b', arr_len)  # array keeping track of whether a frame has had its verts written yet
+
+        sub_ps = []
+        for idx, _ in enumerate(range(p_count)):
+            p = mp.Process(target=self._compute_mesh_vertex_locs, args=(idx, p_count, vert_arr, frame_size, written, finished, self.sketch))
+            sub_ps.append(p)
+
+        [p.start() for p in sub_ps]
+
+        do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=False)
+
+        [p.join() for p in sub_ps]
+
         if self.cfg['MIRROR_CONCAT']:
-            mirror_fn = Path(str(self.intermediary_out_file)+'_r.mp4')
+            do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=True)
 
-            ffmpeg.input(str(self.intermediary_out_file), r=18).hflip().output(str(mirror_fn), vcodec='h264').run()
-            ffmpeg.concat(ffmpeg.input(self.intermediary_out_file, r=18), ffmpeg.input(str(mirror_fn), r=18)).output(str(self.out_file), vcodec='h264').run()
+        self.video_writer.release()
 
-            # clean up
-            Path.unlink(self.intermediary_out_file)
-            Path.unlink(mirror_fn)
-            Path.rmdir(self.video_working_dir)
+        shutil.move(self.intermediary_out_file, self.out_file)
+        Path.rmdir(self.video_working_dir)
 
-        else:
-            # convert to h264
-            ffmpeg.input(str(self.intermediary_out_file), r=18).output(str(self.out_file), vcodec='h264').run()
+    def create_transferrer_render(self):
+        self.transferrer = Transferrer_Render(self, self.cfg)
+        self.transferrer.set_motion_scale_factor(self.sketch)
+        self.transferrer.prep_root_pos()
 
-            # clean up
-            Path.unlink(self.intermediary_out_file)
-            Path.rmdir(self.video_working_dir)
+    def create_timemanager_render(self):
+        self.time_manager = TimeManager_Render(self.cfg)
 
+        frame_count = self.transferrer.rots.shape[0]
+        self.time_manager.set_bvh_frame_count(frame_count)
 
-    def _write_to_buffer(self):
-        # TODO: Joints pop between first and second frame. This is transferrer bug, but for now throw away first frame
-        if not self.frames_written == 0:
-            GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
-            self.video_writer.write(self.frame_data[::-1,:,:])
+    def _write_to_buffer(self, mirror=False):
+        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
+        frame = self.frame_data[::-1, :, :]
+        if mirror:
+            frame = frame[:, ::-1, :]
+        self.video_writer.write(frame)
         self.frames_written += 1
 
+    def _adjust_sketch(self):
+        cur_bvh_frame = self.time_manager.get_current_bvh_frame()
+        cur_scene_frame = self.time_manager.cur_scene_frame
+        self.transferrer.retarget(self.sketch, cur_bvh_frame, cur_scene_frame)
 
-    def _render_view(self):
+    def _compute_mesh_vertex_locs(self, p_num, p_tot, vert_arr, frame_size, written, finished, sketch):
+        frame_idx = p_num % p_tot
+        while not self._scene_is_finished(frame_idx):
+            self.transferrer.retarget(sketch, frame_idx % self.time_manager.bvh_frame_count, frame_idx)
+            mv = sketch._arap_solve_render_mp()
+            vert_arr[frame_idx*frame_size:(frame_idx+1)*frame_size] = mv.flatten()
+            written[frame_idx] = True
+            frame_idx += p_tot
+        finished[p_num] = True
+        return
+
+    def _render_preamble(self):
         camera, bottom, left, width, height = self.camera_manager.free_camera, 0, 0, self.width, self.height
-
         GL.glViewport(left, bottom, width, height)  # set viewport
 
         view = self.camera_manager.get_view_matrix(camera)
@@ -133,9 +159,21 @@ class RenderManager(BaseManager):
             viewPos_loc = GL.glGetUniformLocation(self.shader_ids[key], "viewPos")
             GL.glUniform3fv(viewPos_loc, 1, view_pos)
 
+    def _render_view_mp(self, mesh_vertices, order, mirror=False):
+        self._render_preamble()
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        self.sketch.render_order = order
+
+        camera = self.camera_manager.free_camera
         for drawable in self.drawables:
             if camera.is_drawable_visible_in_camera(drawable):
-                drawable.draw(shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
+                if str(type(drawable)) == "<class 'Shapes.ARAP_Sketch.ARAP_Sketch'>":
+                    drawable.draw_render_mp(mesh_vertices, shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
+                else:
+                    drawable.draw(shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
+
+        self._write_to_buffer(mirror)
 
     def _initialize_mesa(self, width: int, height: int):
 

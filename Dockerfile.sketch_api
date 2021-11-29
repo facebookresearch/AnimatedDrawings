@@ -1,0 +1,98 @@
+# syntax = docker/dockerfile:1.2
+
+ARG BUILD_IMAGE=continuumio/miniconda3
+ARG PYTHON_VERSION=3.8
+ARG BUILD_CONFIG=release
+
+FROM ${BUILD_IMAGE} as build
+
+ENV PYTHONUNBUFFERED TRUE
+ENV CONDA_ALWAYS_COPY=true
+
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    ca-certificates \
+    curl \
+    zsh \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/* 
+
+
+
+# ####################
+# Sketch API - Build
+# ####################
+FROM build as rig_build
+
+RUN --mount=type=cache,target=/opt/conda/pkgs conda create  --name flask python=3.7 -y
+# Activate new shell with "flask" conda env
+SHELL ["conda", "run", "-n", "flask", "/bin/bash", "-c"]
+RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
+    pip install flask flask_cors gunicorn imutils==0.5.4 opencv-python==4.5.3.56 requests boto3 \ 
+    && conda install conda-pack scikit-image==0.18.1
+
+# Use conda-pack to create a standalone enviornment
+# in /venv:
+RUN conda-pack -n flask -o /tmp/env.tar 
+RUN mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
+    rm /tmp/env.tar
+
+# We've put venv in same path it'll be in final image,
+# so now fix up paths:
+RUN /venv/bin/conda-unpack
+
+
+
+# ####################
+# Sketch API - Runtime
+###################### 
+FROM ubuntu:18.04 AS common_runtime
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    # RUN \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    ca-certificates \
+    python3-opengl \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/* 
+
+RUN useradd -m model-server 
+USER model-server
+WORKDIR /home/model-server
+
+# Copy /venv from the previous stage:
+COPY --from=rig_build /venv /venv
+
+RUN mkdir -p /home/model-server/tmp \ 
+    && mkdir -p /home/model-server/rig \
+    && mkdir -p /home/model-server/rig/server \
+    && mkdir -p /home/model-server/rig/server/in \
+    && mkdir -p /home/model-server/rig/server/out 
+
+ENV TEMP=/home/model-server/tmp
+ENV PATH /venv/bin/:${PATH}
+
+
+
+WORKDIR /home/model-server/rig/server/flask 
+RUN mkdir uploads && mkdir output_predictions && mkdir consent_given_upload_copies
+
+EXPOSE 5000
+
+FROM common_runtime as development_runtime
+CMD [ "sleep", "infinity" ]
+
+FROM development_runtime as profile_runtime
+
+FROM common_runtime as release_runtime
+# Only copy for relase builds
+COPY --chown=model-server:model-server rig rig/
+CMD [ "./run.sh" ]
+
+FROM ${BUILD_CONFIG}_runtime as rig_runtime
+

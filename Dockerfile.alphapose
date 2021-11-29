@@ -14,6 +14,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,t
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
+    sudo \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/* 
@@ -115,13 +116,18 @@ FROM ubuntu:18.04 AS runtime_base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
+    sudo \
     default-jre \
     curl \
+    python3-pip \
+    vim \
     && rm -rf /var/lib/apt/lists/* 
 
+RUN pip3 install boto3
+RUN pip3 install awscli
 RUN useradd -m ap-server 
 USER ap-server
-WORKDIR /home/ap-server
+WORKDIR /home/ap-server/
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
@@ -140,7 +146,9 @@ FROM runtime_base AS runtime_test
 # ```
 RUN "./torchserve_ap/scripts/docker_test.sh"
 
-
 FROM runtime_base AS alphapose_runtime
-CMD [ "./torchserve_ap/torchserve_start.sh" ]
+
+# Downloads MAR File from S3 Bucket
+# RUN bash "./torchserve_ap/download_mar.sh"
+CMD [ "./torchserve_ap/torchserve_start.sh"]
 

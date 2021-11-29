@@ -1,7 +1,21 @@
 import os
+import re
 import subprocess, json
+from typing import NewType
 import cv2
 from pathlib import Path
+import numpy as np 
+import boto3
+import base64
+import requests
+import json 
+
+import storage_service
+
+interim_store = storage_service.get_interim_store()
+
+
+DETECTRON2_ENDPOINT = os.environ.get("DETECTRON2_ENDPOINT")
 
 def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, padding=0):
 
@@ -52,12 +66,14 @@ def get_bounding_box_from_torchserve_response(response_json, input_img, orig_dim
 
     return {'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2}
 
-def image_resize(input_img_path, largest_dim = 400, inter = cv2.INTER_AREA):
 
-    resized_path = os.path.join(str(Path(input_img_path).parent), 'small_d2_image.png')
+def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
+    
+    # READ image.png S3 OBJECT as BYTES
 
-    image = cv2.imread(input_img_path)
-
+    image_obj = interim_store.read_bytes(unique_id, 'image.png')
+    image = cv2.imdecode(np.asarray(bytearray(image_obj)), cv2.IMREAD_COLOR)
+  
     (h, w) = image.shape[:2]
 
     if h >= w:
@@ -66,35 +82,40 @@ def image_resize(input_img_path, largest_dim = 400, inter = cv2.INTER_AREA):
         max_dim = w
 
     if max_dim <= largest_dim:
-        cv2.imwrite(resized_path, image)
-        return resized_path, (h, w), (h, w)
+
+        #PUT image OBJECT to S3
+     
+        interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(image))
+        image = image
+        # return image as bytes
+        return image, (h, w), (h, w), image
 
     scale = largest_dim  / max_dim
 
     reduced_size = (int( h * scale), int(w * scale))
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
+    
+    interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(resized_img))
+    
+    #return resized_img as bytes
+    return resized_img, (h, w), reduced_size, image
 
-    cv2.imwrite(resized_path, resized_img)
+def detect_humanoids(unique_id):
 
-    return resized_path, (h, w), reduced_size
+    resized_img, orig_dims, small_dims, input_img = image_resize(unique_id)
 
+    _, resized_img_buf  = cv2.imencode('.png', resized_img)
 
-def detect_humanoids(work_dir):
-    input_img_path = os.path.join(work_dir, 'image.png')
+    response = requests.post(url=DETECTRON2_ENDPOINT, data=resized_img_buf.tobytes())
 
-    resized_img_path, orig_dims, small_dims = image_resize(input_img_path)
-
-    cmd = f"curl -X POST http://detectron2_server:5911/predictions/D2_humanoid_detector -T {resized_img_path}"
-
-    response_json = json.loads(subprocess.check_output(cmd.split(' ')))
-
-    input_img = cv2.imread(input_img_path)
-    bb = get_bounding_box_from_torchserve_response(response_json, input_img, orig_dims, small_dims, 25)
-
-    with open(os.path.join(work_dir, 'bb.json'), 'w') as f:
-        json.dump(bb, f)
-
+    bb_response = response.json()
+    bb = get_bounding_box_from_torchserve_response(bb_response, input_img, orig_dims, small_dims, 25)
+    
+    # Serializing json  
+    json_object = json.dumps(bb, indent = 4) 
+    interim_store.write_bytes(unique_id, "bb.json", bytearray(json_object, "ascii"))
+    
     cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
+    interim_store.write_bytes(unique_id, 'cropped_image.png', storage_service.np_to_png_bytes(cropped_img))
 
-    cv2.imwrite(os.path.join(work_dir, 'cropped_image.png'), cropped_img)

@@ -8,62 +8,55 @@ git submodule init && git submodule update
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
-3. Build the Docker Image using buildx
+# Sketch Rig Build / Run
 
-```
-docker buildx build --file Dockerfile -t sketch:dev .
-```
+```shell
+DOCKER_BUILDKIT=1 docker build -f Dockerfile.sketch_api --build-arg BUILD_CONFIG=development -t sketch_api .
 
-4. Create a network for the images to communicate
 
-```
-docker network create --driver bridge ap-net
-```
 
-4. Launch the docker Container
-
-```
-docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
--e REACT_APP_API_HOST=http://localhost:5000 \
---mount type=bind,src="$(pwd)"/videos,dst=/app/out/public/videos \
---network ap-net \
-sketch:dev
+docker run -p 5000:5000 --rm --env-file .env.aws-dev \
+--mount type=bind,src="$(pwd)"/rig,dst=/home/model-server/rig \
+--mount type=bind,src="$(pwd)"/tmp/uploads,dst=/home/model-server/rig/server/flask/uploads \
+ -t sketch_api:latest
 ```
 
-where
+3. create your own .env environment. Copy from .env.default
 
-| option                                               | effect                                                     |
-| ---------------------------------------------------- | ---------------------------------------------------------- |
-| -p 5000:5000                                         | maps port 5000 on the container to the host's port 5000    |
-| --name                                               | instance name                                              |
-| -rm                                                  | ??                                                         |
-| -a STDOUT                                            | attach to stdout                                           |
-| --mount type=bind,src=\<source\>,dst=\<destination\> | bind local "source" folder to the container "destination". |
-| --network                                            | The network to join between images.                        |
-
-OR to build and run in one step
-
-```
-docker buildx build --file Dockerfile -t sketch:dev . \
-&& docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
--e REACT_APP_API_HOST=http://localhost:5000 \
---mount type=bind,src="$(pwd)"/videos,dst=/app/out/public/videos \
---network ap-net \
-sketch:dev
+4. Create an Open CV Build
+``` shell
+docker build -f Dockerfile.opencv -t opencv:4.3.0 .
 ```
 
-# Step 2. Alpha Pose Docker Build.
+5. Kick off a development build user docker-compose
 
-## Build the Alpha Pose Torchserve image.
+``` shell
+docker-compose \
+    -f docker-compose.development.yml \
+    build \
+    --build-arg USER_ID=$(id -u) \
+    --build-arg GROUP_ID=$(id -g) 
+```
 
-Note: This is run from the project root.
+6. Run the container
 
 ```
-docker buildx build -f Dockerfile.alphapose -t alphapose:dev .
+docker-compose \
+-f docker-compose.development.yml \
+up 
 ```
 
-## Run the new image
+7. Single Build and run command (optional)
 
 ```
-docker run -a STDOUT -a STDERR --network ap-net --name alphapose_server --expose 5912 --rm alphapose:dev
+docker-compose \
+    -f docker-compose.development.yml \
+    build \
+    --build-arg USER_ID=$(id -u) \
+    --build-arg GROUP_ID=$(id -g)
+&&
+docker-compose     \
+-f docker-compose.development.yml     \
+up
 ```
+

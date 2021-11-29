@@ -1,0 +1,35 @@
+# syntax = docker/dockerfile:1.2
+# Standalone AWS to deploy the web app to an s3 bucket
+
+# ####################
+#  Web App - Build
+# ####################
+FROM node:16.8.0 as builder
+WORKDIR /usr/src/app
+COPY ui/www/package.json ui/www/yarn.lock ./
+RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/src/app/node_modules \
+    yarn
+COPY ui/www ./
+RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/src/app/node_modules \
+    yarn build
+
+# Setup up dynamically created Environment config
+COPY ui/www/.env .
+COPY ui/www/env.sh .
+RUN chmod +x ./env.sh
+RUN ./env.sh
+RUN cp env-config.js build/
+
+
+# ####################
+#  Web App - S3 deploy
+###################### 
+#Create a new container from a linux base image that has the aws-cli installed
+FROM mesosphere/aws-cli
+
+#Using the alias defined for the first container, copy the contents of the build folder to this container
+COPY --from=builder /usr/src/app/build .
+
+#Set the default command of this container to push the files from the working directory of this container to our s3 bucket 
+CMD ["s3", "sync", "./", "s3://dev-demo-sketch-www"] 
+
