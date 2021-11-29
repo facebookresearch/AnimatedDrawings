@@ -3,7 +3,7 @@ import numpy as np
 import s3_object
 import cv2
 
-USE_AWS = os.environ.get("USE_AWS") == 1
+USE_AWS = os.environ.get("USE_AWS") == '1'
 
 
 class aws_storage_service:
