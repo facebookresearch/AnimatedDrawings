@@ -14,7 +14,6 @@ export default function HomeFooter({ uuid, setShowModal }: props) {
           About This Demo
         </Nav.Link>
         <Nav.Link
-          // href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=Preload Step [No ID]`}
           href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=${
               uuid !== "" ? uuid : "Preload Step [No ID]"
             }`}
