@@ -93,16 +93,7 @@ def upload_image():
     upload_enabled = os.environ.get("ENABLE_UPLOAD")
     if upload_enabled is None or upload_enabled != '1':
         return make_response("Uploading Images is currently forbidden", 403)
-        
-    
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+
 
     file = request.files['file']
 
