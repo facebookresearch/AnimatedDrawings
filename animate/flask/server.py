@@ -5,6 +5,7 @@ sys.path.insert(0, '..')
 import sketch_animate.main_server
 import s3_object
 import storage_service
+import uuid
 # Uncomment the following lines to enable functiontrace
 # import functiontrace
 # functiontrace.trace()
@@ -26,8 +27,6 @@ if gunicorn_logger:
 
 @app.route('/healthy', methods=['POST', 'HEAD', 'GET'])
 def healthy():
-    #status_code = app.Response(status=200)
-    #return status_code
 	
     return {'message': 'Healthy'} 
    
@@ -79,8 +78,14 @@ def generate_animation():
         'wave_hello_3',
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
+    
+    video_id = None
+    if interim_store.exists(unique_id, "video_id.txt"):
+        video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
+    else:
+        video_id = uuid.uuid4().hex;
 
-    video_output_path = video_store.exists(unique_id, f'{animation_type}.mp4')
+    video_output_path = video_store.exists(video_id, f'{animation_type}.mp4')
     try:
         if video_output_path != True:
             work_dir = "s3_animation/%s%s" % (unique_id, ANIMATION_FOLDER)
@@ -106,8 +111,8 @@ def generate_animation():
                 w.write(cropped_image_png)
 
             # verify animation/ARAP_Sketch.pickle exists, if True, return object
-            if UPLOAD_BUCKET.verify_subdir_object(unique_id, ANIMATION_FOLDER, "ARAP_Sketch.pickle") == True:
-                ARAP_pickle_loc = UPLOAD_BUCKET.get_subdir_object_bytes(unique_id, ANIMATION_FOLDER, "ARAP_Sketch.pickle")
+            if interim_store.exists(f'{unique_id}/animation', "ARAP_Sketch.pickle") == True:
+                ARAP_pickle_loc = interim_store.read_bytes(f'{unique_id}/animation', "ARAP_Sketch.pickle")
                 ARAP_pickle_loc_path = os.path.join(work_dir, "ARAP_Sketch.pickle")
                 with open(ARAP_pickle_loc_path, 'wb') as w:
                     w.write(ARAP_pickle_loc)
@@ -119,10 +124,14 @@ def generate_animation():
             
             with open(video_output_path, 'rb') as f:
                     videobytes =  f.read()
+                    
+            if not interim_store.exists(unique_id, "video_id.txt"):
+                interim_store.write_bytes(unique_id, "video_id.txt", video_id)
+                logging.info("Generated Video ID: %s for Image Id: %s", video_id, unique_id)
             
-            video_store.write_bytes(unique_id, f'{animation_type}.mp4', videobytes)
+            video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes)
 
-        return make_response("0", 200)
+        return make_response(video_id, 200)
 
     except Exception as e:
         app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
