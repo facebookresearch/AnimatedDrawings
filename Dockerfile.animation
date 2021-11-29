@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs \
     pip install -r requirements.txt  \
     # Add the following line to enable functiontrace.
     # && pip install functiontrace \
-    && pip install flask flask_cors gunicorn  \ 
+    && pip install flask flask_cors gunicorn boto3 \ 
     && pip install ffmpeg-python==0.2.0 \
     && pip install shapely==1.7.1 \
     && conda install -c conda-forge conda-pack
@@ -154,7 +154,7 @@ COPY --chown=animation-server:animation-server animate animate/
 # Define the default command.
 
 
-FROM common_runtime as develoment_runtime
+FROM common_runtime as development_runtime
 
 ARG USER_ID
 ARG GROUP_ID
@@ -165,7 +165,7 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID  animation-server
 USER animation-server
 
 #  don't need to copy the code as it'll be mounted on the local volume
-FROM develoment_runtime as profile_runtime
+FROM development_runtime as profile_runtime
 
 
 FROM ${BUILD_CONFIG}_runtime as animation_runtime

@@ -10,6 +10,9 @@ services:
       - 5000:5000
     volumes:
       - type: bind
+        source: ./rig
+        target: /home/model-server/rig
+      - type: bind
         source: ./tmp/video
         target: /home/model-server/rig/server/flask/videos
       - type: bind
@@ -19,14 +22,16 @@ services:
         source: ./tmp/consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
     environment:
-      REACT_APP_API_HOST: http://localhost:5000
+      - DETECTRON2_ENDPOINT=${DETECTRON2_ENDPOINT}
+      - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
+      - ANIMATION_ENDPOINT=${ANIMATION_ENDPOINT}
     networks:
       ap-net: {}
 
   detectron2_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.detectron_runtime
       target: detectron2_runtime
     networks:
       ap-net:

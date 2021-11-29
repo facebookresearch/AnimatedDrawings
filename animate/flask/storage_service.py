@@ -60,7 +60,7 @@ def get_video_store():
     if USE_AWS:
         return aws_storage_service('dev-demo-sketch-out-animations')
     else:
-        return file_storage_service('video')
+        return file_storage_service('videos')
 
 
 def np_to_png_bytes(DATA):
