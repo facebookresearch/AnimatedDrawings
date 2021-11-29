@@ -453,9 +453,10 @@ def get_animation():
 
     data = {'uuid':unique_id, 'animation_type':animation_type}
     response = requests.post(url=ANIMATION_ENDPOINT, data=data)
+    
+    video_id = response.text
     # TODO at some point we need to return just the url of mp4 file. Not the whole file
-    video_bytes = video_store.read_bytes(unique_id, f'{animation_type}.mp4')
-
+    video_bytes = video_store.read_bytes(video_id, f'{animation_type}.mp4')
     io_buf = io.BytesIO(video_bytes)
     return send_file(io_buf, download_name=f'{animation_type}.mp4')
 
