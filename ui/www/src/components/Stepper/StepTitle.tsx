@@ -14,7 +14,7 @@ const titles = [
   {
     step: 2,
     firstLine: "Finding the",
-    secondLine: "human-like",
+    secondLine: "human-like ",
     thirdLine: "character",
   },
   {

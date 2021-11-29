@@ -70,7 +70,7 @@ const HomePage = () => {
             </Row>
           </Container>
         </div>
-        <HomeFooter setShowModal={setShowModal} />
+        <HomeFooter uuid={'[No ID] - Preload feedback'} setShowModal={setShowModal} />
         <AboutModal showModal={showModal} setShowModal={setShowModal} />
       </div>
     </>

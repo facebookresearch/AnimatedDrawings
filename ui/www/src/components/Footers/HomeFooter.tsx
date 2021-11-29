@@ -2,10 +2,11 @@ import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
 
 interface props {
+  uuid?: string;
   setShowModal: (res: boolean) => void;
 }
 
-export default function HomeFooter({ setShowModal }: props) {
+export default function HomeFooter({ uuid, setShowModal }: props) {
   return (
     <Navbar expand="sm" bg="transparent" className="align-items-start">
       <Nav className="mr-auto">
@@ -13,7 +14,10 @@ export default function HomeFooter({ setShowModal }: props) {
           About This Demo
         </Nav.Link>
         <Nav.Link
-          href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=Preload Step [No ID]`}
+          // href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=Preload Step [No ID]`}
+          href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=${
+              uuid !== "" ? uuid : "Preload Step [No ID]"
+            }`}
           target="_blank"
           rel="noreferrer"
           className="text-primary"

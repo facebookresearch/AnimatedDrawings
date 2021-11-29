@@ -3,13 +3,11 @@ import { Container, Row, Col } from "react-bootstrap";
 import Canvas from "../components/Canvas/Canvas";
 import StepsContainer from "../components/Stepper/StepsContainer";
 import useDrawingStore from "../hooks/useDrawingStore";
-import useStepperStore from "../hooks/useStepperStore";
 import AboutModal from "../components/Modals/AboutModal";
-import MainFooter from "../components/Footers/MainFooter";
+import HomeFooter from "../components/Footers/HomeFooter";
 
 const MainPage = () => {
   const { uuid } = useDrawingStore();
-  const { currentStep } = useStepperStore();
   const [showModal, setShowModal] = useState(false);
   return (
     <div className="main-content bg-main">
@@ -44,7 +42,7 @@ const MainPage = () => {
           </Row>
         </Container>
       </div>
-      <MainFooter uuid={uuid} showAll={currentStep === 5} setShowModal={setShowModal}/>
+      <HomeFooter uuid={uuid} setShowModal={setShowModal}/>
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );
