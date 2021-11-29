@@ -2,6 +2,7 @@
 
 ARG BUILD_IMAGE=continuumio/miniconda3
 ARG PYTHON_VERSION=3.8
+ARG BUILD_CONFIG=release
 
 FROM ${BUILD_IMAGE} as build
 
@@ -116,7 +117,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/s
 # ####################
 # Sketch 2 - Runtime
 ###################### 
-FROM ubuntu:18.04 AS rig_runtime
+FROM ubuntu:18.04 AS common_runtime
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked \
     # RUN \
@@ -152,6 +153,12 @@ RUN mkdir uploads && mkdir output_predictions && mkdir consent_given_upload_copi
 EXPOSE 5000
 
 
+FROM common_runtime as development_runtime
+
+FROM common_runtime as release_runtime
+
+# Only copy for relase builds
+
 # ####################
 # Flask Web App  
 ###################### 
@@ -161,6 +168,7 @@ COPY --chown=model-server:model-server ui/www/env.sh .
 RUN chmod +x env.sh
 COPY --from=build-deps-yarn --chown=model-server:model-server /usr/src/app/build /home/model-server/rig/server/flask/static
 
+FROM ${BUILD_CONFIG}_runtime as rig_runtime
 
 # Define the default command.
 CMD [ "./run.sh" ]

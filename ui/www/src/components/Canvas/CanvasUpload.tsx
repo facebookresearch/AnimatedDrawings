@@ -196,6 +196,8 @@ const CanvasUpload = () => {
     }
   };
 
+  const enableUpload = window._env_.ENABLE_UPLOAD === '1';
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -247,7 +249,7 @@ const CanvasUpload = () => {
               />
             </button>
           ) : (
-            <button className="buttons large-button" onClick={upload}>
+            <button className="buttons large-button" onClick={upload} disabled={!enableUpload} >
               <i className="bi bi-image-fill mr-2" /> Upload
             </button>
           )}

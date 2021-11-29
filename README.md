@@ -23,99 +23,40 @@ docker run -p 5000:5000 --rm --env-file .env.aws-dev \
 
 3. create your own .env environment. Copy from .env.default
 
-4. Kick off a development build user docker-compose
-
+4. Create an Open CV Build
+``` shell
+docker build -f Dockerfile.opencv -t opencv:4.3.0 .
 ```
+
+5. Kick off a development build user docker-compose
+
+``` shell
 docker-compose \
-    --env-file .env.aws-dev
     -f docker-compose.development.yml \
     build \
     --build-arg USER_ID=$(id -u) \
-    --build-arg GROUP_ID=$(id -g) \
+    --build-arg GROUP_ID=$(id -g) 
 ```
 
-5. Run the container
+6. Run the container
 
 ```
 docker-compose \
 -f docker-compose.development.yml \
-up \
+up 
 ```
 
-6. Single Build and run command (optional)
+7. Single Build and run command (optional)
 
 ```
 docker-compose \
-    --env-file .env.profile \
     -f docker-compose.development.yml \
     build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g)
 &&
 docker-compose     \
---env-file .env.profile  \
 -f docker-compose.development.yml     \
 up
 ```
 
-# OLD Instructions [DEPRECATED]
-
-3. Build the Docker Image using buildx
-
-```
-docker buildx build --file Dockerfile -t sketch:dev .
-```
-
-4. Create a network for the images to communicate
-
-```
-docker network create --driver bridge ap-net
-```
-
-4. Launch the docker Container
-
-```
-docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
--e REACT_APP_API_HOST=http://localhost:5000 \
---mount type=bind,src="$(pwd)"/videos,dst=/app/out/public/videos \
---network ap-net \
-sketch:dev
-```
-
-where
-
-| option                                               | effect                                                     |
-| ---------------------------------------------------- | ---------------------------------------------------------- |
-| -p 5000:5000                                         | maps port 5000 on the container to the host's port 5000    |
-| --name                                               | instance name                                              |
-| -rm                                                  | ??                                                         |
-| -a STDOUT                                            | attach to stdout                                           |
-| --mount type=bind,src=\<source\>,dst=\<destination\> | bind local "source" folder to the container "destination". |
-| --network                                            | The network to join between images.                        |
-
-OR to build and run in one step
-
-```
-docker buildx build --file Dockerfile -t sketch:dev . \
-&& docker run -p 5000:5000 --name sketch_server --rm -a STDOUT \
--e REACT_APP_API_HOST=http://localhost:5000 \
---mount type=bind,src="$(pwd)"/videos,dst=/app/out/public/videos \
---network ap-net \
-sketch:dev
-```
-
-# Step 2. Alpha Pose Docker Build.
-
-## Build the Alpha Pose Torchserve image.
-
-Note: This is run from the project root.
-
-```
-docker buildx build -f Dockerfile.alphapose -t alphapose:dev .
-```
-
-## Run the new image
-
-```
-docker run -a STDOUT -a STDERR --network ap-net --name alphapose_server --expose 5912 --rm alphapose:dev
-```

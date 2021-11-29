@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile.sketch_api
       target: rig_runtime
+      args:
+        - BUILD_CONFIG=${BUILD_CONFIG}
     ports:
       - 5000:5000
     volumes:
@@ -21,10 +23,12 @@ services:
       - type: bind
         source: ./tmp/consents
         target: /home/model-server/rig/server/flask/consent_given_upload_copies
+    
     environment:
       - DETECTRON2_ENDPOINT=${DETECTRON2_ENDPOINT}
       - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
       - ANIMATION_ENDPOINT=${ANIMATION_ENDPOINT}
+      - ENABLE_UPLOAD=1
     networks:
       ap-net: {}
 

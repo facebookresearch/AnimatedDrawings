@@ -105,14 +105,13 @@ def generate_animation():
             with open(cropped_png_path, 'wb') as w:
                 w.write(cropped_image_png)
 
-            # verify animation/ARAP_sketch.pickle exists, if True, return object
-            if interim_store.exists(f'{unique_id}/animation', "ARAP_sketch.pickle") == True:
-                ARAP_pickle_loc = interim_store.read_bytes(f'{unique_id}/animation', "ARAP_sketch.pickle")
-                ARAP_pickle_loc_path = os.path.join(work_dir, "ARAP_sketch.pickle")
+            # verify animation/ARAP_Sketch.pickle exists, if True, return object
+            if UPLOAD_BUCKET.verify_subdir_object(unique_id, ANIMATION_FOLDER, "ARAP_Sketch.pickle") == True:
+                ARAP_pickle_loc = UPLOAD_BUCKET.get_subdir_object_bytes(unique_id, ANIMATION_FOLDER, "ARAP_Sketch.pickle")
+                ARAP_pickle_loc_path = os.path.join(work_dir, "ARAP_Sketch.pickle")
                 with open(ARAP_pickle_loc_path, 'wb') as w:
                     w.write(ARAP_pickle_loc)
 
-            # verify animation/ARAP_sketch.pickle exists, if True, return object
             video_output_path = os.path.join(work_dir, f'{animation_type}.mp4')
 
             motion_cfg_path = f'/home/animation-server/animate/Data/motion_configs/{animation_type}.yaml'
