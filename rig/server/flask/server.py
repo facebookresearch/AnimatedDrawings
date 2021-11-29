@@ -83,6 +83,11 @@ resource_set_form = '''<!doctype html>
     <input type="submit" value="Upload">
     </form>
     '''
+    
+@app.route('/healthy', methods=['POST', 'HEAD', 'GET'])
+def healthy():
+	
+    return {'message': 'Healthy'} 
 
 ##############################################
 # initial image upload call
