@@ -8,6 +8,15 @@ git submodule init && git submodule update
 
 2. Copy the model weights to the local root. see [rig/README.md](rig/README.md)
 
+
+# Sketch Rig Build / Run
+
+``` shell
+DOCKER_BUILDKIT=1 docker build -t sketch_api .
+docker run -p 5000:5000 --rm --env-file .env.aws-dev -t sketch_api:latest 
+```
+
+
 3. create your own .env environment. Copy from .env.default
 
 4. Create an Open CV Build

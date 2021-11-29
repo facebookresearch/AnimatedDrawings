@@ -85,7 +85,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs conda create  --name flask python=
 # Activate new shell with "flask" conda env
 SHELL ["conda", "run", "-n", "flask", "/bin/bash", "-c"]
 RUN --mount=type=cache,target=/opt/conda/pkgs --mount=type=cache,target=/root/.cache/pip \
-    pip install flask flask_cors gunicorn imutils==0.5.4 opencv-python==4.5.3.56 \ 
+    pip install flask flask_cors gunicorn imutils==0.5.4 opencv-python==4.5.3.56 requests boto3 \ 
     && conda install conda-pack scikit-image==0.18.1
 
 # Use conda-pack to create a standalone enviornment
