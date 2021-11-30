@@ -24,11 +24,8 @@ const SharingPage = () => {
             </Col>
           </Row>
         </Container>
-        <div
-          className="home-footer-credits text-center py-2"
-          onClick={() => setShowModal(true)}
-        >
-          <h4>ABOUT THIS DEMO</h4>
+        <div className="home-footer-credits text-center py-2">
+          <h4>FACEBOOK AI RESEARCH</h4>
         </div>
       </div>
       <SharingFooter setShowModal={setShowModal} />
