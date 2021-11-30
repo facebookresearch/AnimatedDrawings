@@ -15,6 +15,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
   const history = useHistory();
   const [videoDownload, setVideoDownload] = useState("");
   const [showWarning, setShowWarning] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>();
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -27,7 +28,11 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
     const fetchAnimation = async () => {
       try {
         await getAnimation(uuid, animationType, (data) => {
-          loadVideoBlob(data as string);
+          // loadVideoBlob(data as string);
+          let videoId = data as string;
+          setVideoUrl(
+            `http://localhost:5000/video/${videoId}/${animationType}.mp4`
+          );
         });
       } catch (error) {
         console.log(error);
@@ -90,21 +95,27 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
           <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
           <div className="video_box">
-            <video id="videoPlayer" autoPlay muted loop></video>
+            <video id="videoPlayer" autoPlay muted loop src={videoUrl}></video>
           </div>
         )}
       </div>
 
       <Row className="justify-content-center mt-3">
         <Col lg={6} md={6} xs={12}>
-          <Button block size="lg" variant="primary" className="py-lg-3 mt-lg-3 my-1" href="/">
+          <Button
+            block
+            size="lg"
+            variant="primary"
+            className="py-lg-3 mt-lg-3 my-1"
+            href="/"
+          >
             Create your Animation
           </Button>
         </Col>
         <Col lg={6} md={6} xs={12} className="text-center">
           <a
             download="animation.mp4"
-            href={videoDownload}
+            href={videoDownload} // TODO Figure out how to download the video. Maybe a direct download
             target="_blank"
             rel="noreferrer"
           >

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -27,11 +27,13 @@ const CanvasAnimation = () => {
     setAnimationFiles,
   } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
-  const { isLoading, getAnimation } = useDrawingApi((err) => {
+  const errorHandler = useCallback((err) => {
     console.log(err);
-  });
+  }, []);
+  const { isLoading, getAnimation } = useDrawingApi(errorHandler);
   const location = useLocation();
   const [showModal, setModal] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>();
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -42,62 +44,26 @@ const CanvasAnimation = () => {
    */
   useEffect(() => {
     const fetchAnimation = async () => {
-      setRenderingVideo(true)
+      setRenderingVideo(true);
+      setVideoUrl("");
       await getAnimation(uuid, animationType, (data) => {
-        loadVideoBlob(data as string);
+        let videoId = data as string;
+        setVideoUrl(
+          `http://localhost:5000/video/${videoId}/${animationType}.mp4`
+        );
       });
-      setRenderingVideo(false)
+      setRenderingVideo(false);
     };
     fetchAnimation();
     return () => {};
   }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadVideoBlob = (data: string) => {
-    var reader = new FileReader();
-
-    if (data !== null && data !== undefined) {
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result;
-        if (dataUrl && typeof dataUrl === "string") {
-          const videoPlayer = document.getElementById("videoPlayer");
-
-          if (videoPlayer && videoPlayer instanceof HTMLVideoElement) {
-            videoPlayer.onerror = (e) => {
-              debugger;
-              console.log("Error in Video Player", e, videoPlayer.error);
-              // TODO Show Error.
-              throw e;
-            };
-            videoPlayer.src = dataUrl;
-            videoPlayer.loop = true;
-            videoPlayer.load();
-            videoPlayer.onloadeddata = function () {
-              videoPlayer.play();
-            };
-          }
-        }
-      };
-
-      var filesArray: File[] = [
-        new File([data], "animation.mp4", {
-          type: "video/mp4",
-          lastModified: Date.now(),
-        }),
-      ];
-
-      var blob = new Blob([data], { type: "video/mp4" });
-      setVideoDownload(URL.createObjectURL(blob));
-      setAnimationFiles(filesArray);
-      reader.readAsDataURL(blob);
-    }
-  };
 
   const handleShare = () => {
     let data = {
       url: `${window.location.href}${location.search}`,
       title: "Animation",
       text: "Check this kid's drawing animation",
-      files: animationFiles,
+      files: animationFiles, // TODO Looks like we're sharing the downloaded file here. Need to check if it works for a URL. If not we may need to download the video first.
     };
     if (
       typeof navigator.share === "function"
@@ -120,7 +86,9 @@ const CanvasAnimation = () => {
 
   // Create fullscreen video
   const toggleFullScreen = () => {
-    const videoPlayer = document.getElementById("videoPlayer") as HTMLVideoElement;
+    const videoPlayer = document.getElementById(
+      "videoPlayer"
+    ) as HTMLVideoElement;
     if (videoPlayer && videoPlayer.requestFullScreen) {
       videoPlayer.requestFullScreen();
     } else if (videoPlayer && videoPlayer.webkitRequestFullScreen) {
@@ -146,6 +114,7 @@ const CanvasAnimation = () => {
               muted
               loop
               playsInline
+              src={videoUrl}
             ></video>
             <div className="custom-controls">
               <div className="fullscreen-btn" onClick={toggleFullScreen}>
@@ -159,7 +128,7 @@ const CanvasAnimation = () => {
       <Row className="justify-content-center mt-3">
         <Col lg={2} md={2} xs={3}>
           <Button
-            block     
+            block
             size="lg"
             variant="outline-primary"
             className="py-lg-3 mt-lg-3 my-1"
@@ -199,9 +168,7 @@ const CanvasAnimation = () => {
                   aria-hidden="true"
                 />
               ) : (
-                <>
-                  Download
-                </>
+                <>Download</>
               )}
             </Button>
           </a>
