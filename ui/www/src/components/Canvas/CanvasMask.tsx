@@ -7,9 +7,9 @@ import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import { EmptyLoader } from "../Loader";
 import BoundingBoxStage from "./BoundingBoxStage";
-import { MaskPlaceHolder }  from "./MaskStage";
+import MaskStage from "./MaskStage";
 import { Position } from "./PoseEditor";
-import DrawingSegmentationModal from "../Modals/DrawingSegmentationModal";
+import MaskingToolbar from "./MaskingToolbar";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -97,7 +97,7 @@ const mapJointsToPose = (joints: object) => {
   };
 };
 
-const calculateRatio2 = (
+const bbRatio = (
   canvasWidth: number,
   canvasHeight: number,
   oW: number,  //Original image width
@@ -135,7 +135,6 @@ const CanvasMask = () => {
   const { isLoading,   getBoundingBox, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
   const [ imgScale, setImgScale ] = useState(1);
-  const [ showModal, setModal] = useState(false);
   const [ isFetching, setIsFetching ] = useState(true)
   const [ iWidth, setImageWidth ] = useState(0);
   const [ iHeight, setImageHeight ] = useState(0);
@@ -162,7 +161,7 @@ const CanvasMask = () => {
           }
         };
 
-        const ratio = calculateRatio2(
+        const ratio = bbRatio(
           canvasWindow.current?.offsetWidth -20,
           canvasWindow.current?.offsetHeight -20,
           originalDimension.width,
@@ -213,8 +212,8 @@ const CanvasMask = () => {
     const fetchMask = async () => {
       try {
         const ratio = calculateRatio(
-          canvasWindow.current?.offsetWidth -20,
-          canvasWindow.current?.offsetHeight -20,
+          canvasWindow.current?.offsetWidth - 45, // Toolbar Offset
+          canvasWindow.current?.offsetHeight - 45, // Toolbar Offset
           croppedImgDimensions.width,
           croppedImgDimensions.height
         );  
@@ -314,8 +313,8 @@ const CanvasMask = () => {
   return (
     <>
       <div className="canvas-wrapper">
-        <div className="blue-box d-none d-lg-block"/>
-        <div ref={canvasWindow} className="canvas-background loader">
+        <div className="blue-box d-none d-lg-block" />
+        <div ref={canvasWindow} className="canvas-background-p-0 loader">
           {isFetching ? (
             <>
               <BoundingBoxStage
@@ -328,29 +327,20 @@ const CanvasMask = () => {
             </>
           ) : (
             <>
-              <MaskPlaceHolder
-                scale={imgScale}
-                canvasWidth={croppedImgDimensions.width}
-                canvasHeight={croppedImgDimensions.height}
-                ref={layerRef}
-              />
+              <div className="mask-tool-wrapper">
+                <MaskStage
+                  scale={imgScale}
+                  canvasWidth={croppedImgDimensions.width}
+                  canvasHeight={croppedImgDimensions.height}
+                  ref={layerRef}
+                />
+                <MaskingToolbar />
+              </div>
               {isLoading && <EmptyLoader />}
             </>
           )}
         </div>
         <Row className="justify-content-center mt-3">
-          <Col lg={2} md={2} xs={12}>
-            <Button
-              block
-              className="py-lg-3 mt-lg-3"
-              variant="info"
-              onClick={() => {
-                setModal(true);
-              }}
-            >    
-              Fix
-            </Button>
-          </Col>
           <Col lg={5} md={5} xs={12}>
             <Button
               block
@@ -388,12 +378,6 @@ const CanvasMask = () => {
           </Col>
         </Row>
       </div>
-      <DrawingSegmentationModal
-        showModal={showModal}
-        croppedImgDimensions={croppedImgDimensions}
-        imgScale={imgScale}
-        handleModal={() => setModal(!showModal)}
-      />
     </>
   );
 };

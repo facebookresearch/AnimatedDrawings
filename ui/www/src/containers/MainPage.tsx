@@ -23,7 +23,7 @@ const MainPage = () => {
           <Row className="align-items-center justify-content-center py-2 px-lg-2">
             <Col
               lg={6}
-              md={10}
+              md={12}
               sm={12}
               xs={12}
               className="order-lg-2 mb-2 justify-content-center"
@@ -32,7 +32,7 @@ const MainPage = () => {
             </Col>
             <Col
               lg={6}
-              md={10}
+              md={12}
               sm={12}
               xs={12}
               className="order-lg-1 ml-auto mr-auto align-self-start px-3"

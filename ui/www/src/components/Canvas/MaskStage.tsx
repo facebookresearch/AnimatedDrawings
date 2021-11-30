@@ -54,7 +54,7 @@ export const MaskPlaceHolder = forwardRef(
     const { lines } = useMaskingStore();
     
     return (
-      <div className="test-fade">
+      <div className="ml-auto mr-auto">
         <Stage
           width={canvasWidth * scale}
           height={canvasHeight * scale}
@@ -85,7 +85,7 @@ export const MaskPlaceHolder = forwardRef(
             />
           </Layer>
         </Stage>
-      </div>
+        </div>
     );
   }
 );
@@ -133,7 +133,7 @@ const MaskStage = React.forwardRef(
     };
 
     return (
-      <div className="test-fade">
+      <div className="ml-auto mr-auto">
         <Stage
           width={canvasWidth * scale}
           height={canvasHeight * scale}

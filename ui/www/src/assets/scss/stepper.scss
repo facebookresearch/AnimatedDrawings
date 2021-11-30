@@ -1,6 +1,7 @@
 .stepper-wrapper {
   position: relative;
   width: 486px;
+  max-width: 486px;
   max-height: 620px;
   justify-content: center;
   align-items: flex-start;
@@ -36,6 +37,7 @@
   .stepper-wrapper {
     width: 100%;
     max-height: 100%;
+    max-width: 350px;
     margin: auto;
     border-radius: 16px;
     padding: 15px;
@@ -51,6 +53,27 @@
     box-shadow: none;
   }
 }
+
+// Tablets Landscape
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    .stepper-wrapper {
+      max-width: 400px;
+    }
+}
+
+@media only screen 
+  and (min-device-width: 1024px) 
+  and (max-device-width: 1366px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    .stepper-wrapper {
+      max-width: 410px;
+    }
+  }
 
 
 .step-actions-container-animation {
@@ -121,6 +144,37 @@
     }
   }
 }
+
+// Tablets Landscape
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+  .stepper-wrapper-horizontal{
+    .step-progress-block {
+      width: 40px;
+    }
+    .step-progress-block-current {
+      width: 160px;
+    }
+  }
+}
+
+@media only screen 
+  and (min-device-width: 1024px) 
+  and (max-device-width: 1366px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    .stepper-wrapper-horizontal{
+      .step-progress-block {
+        width: 40px;
+      }
+      .step-progress-block-current {
+        width: 160px;
+      }
+    }
+  }
 
 /**************************/
 /*** Examples Carousel ****/
