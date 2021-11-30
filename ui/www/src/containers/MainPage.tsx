@@ -5,7 +5,6 @@ import StepsContainer from "../components/Stepper/StepsContainer";
 import useDrawingStore from "../hooks/useDrawingStore";
 import useStepperStore from "../hooks/useStepperStore";
 import AboutModal from "../components/Modals/AboutModal";
-import CookieConsent from "react-cookie-consent";
 
 const MainPage = () => {
   const { uuid } = useDrawingStore();
@@ -70,23 +69,6 @@ const MainPage = () => {
         )}
       </div>
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
-      <CookieConsent
-        style={{ padding: "12px", backgroundColor: "white", color: "black", fontSize:"14px" }}
-        overlay
-        disableButtonStyles
-        enableDeclineButton
-        buttonText="Accept"
-        declineButtonText="Decline"
-        cookieName="animated_drawings"
-        containerClasses="cookie-container2"
-        buttonWrapperClasses="buttons-wrapper"
-        buttonClasses="btn btn-primary accept-button"
-        declineButtonClasses="btn btn-secondary decline-button"
-      >
-        This demo uses cookies to enhance the user experience, collect
-        information about how you interact with our website and allow us to
-        remember you.
-      </CookieConsent>
     </div>
   );
 };
