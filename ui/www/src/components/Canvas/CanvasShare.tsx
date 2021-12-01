@@ -29,11 +29,7 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
   useEffect(() => {
     const fetchAnimation = async () => {
       try {
-        // await getAnimation(uuid, animationType, (data) => {
-        // loadVideoBlob(data as string);
-        // let videoId = data as string;
         setVideoUrl(`${VIDEO_URL}/${videoId}/${animationType}.mp4`);
-        // });
       } catch (error) {
         console.log(error);
         setShowWarning(true);
