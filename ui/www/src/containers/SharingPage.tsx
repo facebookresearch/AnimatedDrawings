@@ -6,7 +6,7 @@ import AboutModal from "../components/Modals/AboutModal";
 import SharingFooter from "../components/Footers/SharingFooter";
 
 const SharingPage = () => {
-  const { uuid, type } = useParams<{ uuid: string; type: string }>();
+  const { videoId, type } = useParams<{ videoId: string; type: string }>();
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -20,7 +20,7 @@ const SharingPage = () => {
         <Container fluid="md" className="mt-3 align-content-center">
           <Row className="align-items-center justify-content-center py-2 mt-1 px-lg-2">
             <Col lg={8} md={12} sm={12} className="mb-2 mx-2 pl-lg-0">
-              <CanvasShare uuid={uuid} animationType={type} />
+              <CanvasShare videoId={videoId} animationType={type} />
             </Col>
           </Row>
         </Container>

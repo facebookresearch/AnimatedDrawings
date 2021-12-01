@@ -3,18 +3,21 @@ import { useHistory } from "react-router";
 import { Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 
+const VIDEO_URL = window._env_.VIDEO_URL;
+
 interface Props {
-  uuid: string;
+  videoId: string;
   animationType: string;
 }
 
-const CanvasShare = ({ uuid, animationType }: Props) => {
+const CanvasShare = ({ videoId, animationType }: Props) => {
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
   });
   const history = useHistory();
   const [videoDownload, setVideoDownload] = useState("");
   const [showWarning, setShowWarning] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>();
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -26,9 +29,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
   useEffect(() => {
     const fetchAnimation = async () => {
       try {
-        await getAnimation(uuid, animationType, (data) => {
-          loadVideoBlob(data as string);
-        });
+        setVideoUrl(`${VIDEO_URL}/${videoId}/${animationType}.mp4`);
       } catch (error) {
         console.log(error);
         setShowWarning(true);
@@ -36,38 +37,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
     };
     fetchAnimation();
     return () => {};
-  }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadVideoBlob = (data: string) => {
-    var reader = new FileReader();
-
-    if (data !== null && data !== undefined) {
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result;
-        if (dataUrl && typeof dataUrl === "string") {
-          const videoPlayer = document.getElementById("videoPlayer");
-
-          if (videoPlayer && videoPlayer instanceof HTMLVideoElement) {
-            videoPlayer.onerror = (e) => {
-              debugger;
-              console.log("Error in Video Player", e, videoPlayer.error);
-              setShowWarning(true);
-            };
-            videoPlayer.src = dataUrl;
-            videoPlayer.loop = true;
-            videoPlayer.load();
-            videoPlayer.onloadeddata = function () {
-              videoPlayer.play();
-            };
-          }
-        }
-      };
-
-      var blob = new Blob([data], { type: "video/mp4" });
-      setVideoDownload(URL.createObjectURL(blob));
-      reader.readAsDataURL(blob);
-    }
-  };
+  }, [videoId, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="canvas-wrapper">
@@ -90,21 +60,27 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
           <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
           <div className="video_box">
-            <video id="videoPlayer" autoPlay muted loop></video>
+            <video id="videoPlayer" autoPlay muted loop src={videoUrl}></video>
           </div>
         )}
       </div>
 
       <Row className="justify-content-center mt-3">
         <Col lg={6} md={6} xs={12}>
-          <Button block size="lg" variant="primary" className="py-lg-3 mt-lg-3 my-1" href="/">
+          <Button
+            block
+            size="lg"
+            variant="primary"
+            className="py-lg-3 mt-lg-3 my-1"
+            href="/"
+          >
             Create your Animation
           </Button>
         </Col>
         <Col lg={6} md={6} xs={12} className="text-center">
           <a
             download="animation.mp4"
-            href={videoDownload}
+            href={videoDownload} // TODO Figure out how to download the video. Maybe a direct download
             target="_blank"
             rel="noreferrer"
           >

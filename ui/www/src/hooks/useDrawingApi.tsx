@@ -79,7 +79,6 @@ export function useDrawingApi(onError: (error: Error) => void) {
     uuid: string,
     onResult: (result: any) => void
   ) {
-
     const form = new FormData();
     if (uuid) {
       form.set("uuid", uuid);
@@ -197,10 +196,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
     if (uuid) {
       form.set("uuid", uuid);
     }
-    await invokePost(ApiPath.GetAnimation, form, onResult, {
-      ...DEFAULT_CONFIG,
-      responseType: "arraybuffer",
-    });
+    await invokePost(ApiPath.GetAnimation, form, onResult);
   };
 
   return {
