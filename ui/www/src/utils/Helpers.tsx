@@ -55,3 +55,24 @@ export const calculateRatio = (
     return canvasWidth / oW;
   }
 };
+
+/**
+ * Returns a cookie value given a name.
+ * @param {String} cookieName 
+ * @returns 
+ */
+export const getCookie = (cookieName: string) => {
+  let name = cookieName + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}

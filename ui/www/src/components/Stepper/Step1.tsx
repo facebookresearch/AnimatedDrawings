@@ -5,9 +5,6 @@ const Step1 = () => {
   return (
     <>
       <div className="step-actions-container bottom-shadow">
-        <h2 className="step-title">
-          Upload a <span className="text-info">drawing</span>
-        </h2>
         <p>
           Upload a drawing of a <span className="bold">single human-like character</span>, where the
           arms and legs don’t overlap the body (see examples below).{" "}

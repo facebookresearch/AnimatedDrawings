@@ -40,7 +40,7 @@
 
 .home-page {
   position: relative;
-  height: 100vh;
+  height: 95vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,6 +60,13 @@
     line-height: 28px;
     text-align: center;
     font-weight: normal;
+  }
+  .subtitle {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: $font-family-md;
+    letter-spacing: 0.2em;
+    color: #1B4978;
   }
 }
 
@@ -115,7 +122,7 @@
   .video-contain {
     width: 460px;
     height: 271px;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
   }
   .gif-shadow-div {
@@ -130,47 +137,20 @@
 }
 
 .home-footer {
-  position: absolute;
-  bottom: 0%;
   cursor: pointer;
-  color: #1B4978;
   font-family: $font-family-md;
-  h4 {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-  }
-  h3 {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-  }
 }
 
 .home-footer-credits {
   position: absolute;
   bottom: 0%;
-  left: 4%;
   font-family: $font-family-md;
-  color: #1B4978;
+  color: $primary;
+  z-index: 9;
+  cursor: pointer;
   .rg-1{
     letter-spacing: 0.05em;
   }
-  h4 {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-  }
-}
-
-.footer-report-content {
-  position: absolute;
-  bottom: 0%;
-  right: 4%;
-  cursor: pointer;
-  color: #1B4978;
-  font-family: $font-family-md;
-  text-transform: uppercase;
   h4 {
     font-size: 14px;
     font-weight: 700;
@@ -251,19 +231,9 @@
     }
   }
 
-  .home-footer {
-    bottom: 10%;
-  }
-
   .home-footer-credits {
-    bottom: 0%;
+    bottom: 10%;
     text-align: center;
-  }
-
-  .footer-report-content {
-    bottom: 13%;
-    left: auto;
-    right: auto;
   }
 
   .wr-about-1 {
@@ -292,11 +262,8 @@
     position: relative;
     height: 1000px;
   }
-  .home-footer {
-    bottom: 10%;
-  }
   .home-footer-credits {
-    bottom: 0%;
+    bottom: 5%;
     text-align: center;
   }
 }
@@ -315,13 +282,9 @@
 }
 
 .feedback-wrapper {
-  position: absolute;
-  top:0;
-  right:0;
-  padding: 1rem;
   color: $primary;
   cursor: pointer;
-  h4 {
+  a {
     font-family: $font-family-md;
     font-size: 14px;
     font-weight: 700;
@@ -383,27 +346,22 @@
   }
 }
 
-.col-left {
-  overflow: auto;  
-}
-
 .col-right {
   padding: 1rem;
   overflow: auto;
 }
 
 .main-page-footer {
-  position: absolute;
-  bottom: 0%;
-  cursor: pointer;
-  color: #1B4978;
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: $primary;
   font-family: $font-family-md;
-  h4 {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-  }
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
 }
+
 
 .modal-title {
     font-size: 24px;
@@ -566,7 +524,7 @@
 }
 
 .share-page {
-  min-height: 100vh; /* height of the browser viewport */
+  min-height: 95vh; /* height of the browser viewport */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -576,4 +534,21 @@
   .share-page {
     align-content: flex-start;
   }
+}
+
+/************************/
+/**** Cookie Consent ****/
+/************************/
+
+.buttons-wrapper {
+  justify-content: end;
+  text-align: right;
+}
+
+.accept-button {
+  margin: 5px
+}
+
+.decline-button {
+  margin: 5px; 
 }

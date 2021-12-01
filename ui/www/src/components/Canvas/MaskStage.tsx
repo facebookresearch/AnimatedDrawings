@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, forwardRef } from "react";
 import { Stage, Layer, Line, Image } from "react-konva";
 import useImage from "use-image";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -8,6 +8,12 @@ interface imgProps {
   urlImg: string | any;
   height: number;
   width: number;
+}
+
+interface MaskStageProps {
+  scale: number;
+  canvasWidth: number;
+  canvasHeight: number
 }
 
 const MaskImage = ({ urlImg, height, width }: imgProps) => {
@@ -42,8 +48,54 @@ const DrawingImage = ({ urlImg, height, width }: imgProps) => {
  * Use forwardRef to send the layer ref to the parent component.
  * this is the mask sent to the server.
  */
+export const MaskPlaceHolder = forwardRef(
+  ({ scale, canvasWidth, canvasHeight }: MaskStageProps, ref: any) => {
+    const { imageUrlPose, imageUrlMask } = useDrawingStore();
+    const { lines } = useMaskingStore();
+    
+    return (
+      <div className="ml-auto mr-auto">
+        <Stage
+          width={canvasWidth * scale}
+          height={canvasHeight * scale}
+          scale={{ x: scale, y: scale }}
+        >
+          <Layer ref={ref}>
+            <MaskImage
+              urlImg={imageUrlMask}
+              height={canvasHeight}
+              width={canvasWidth}
+            />
+            {lines.map((line: any, i: number) => (
+              <Line
+                key={i}
+                points={line.points}
+                stroke={line.tool === "eraser" ? "dark" : "white"}
+                strokeWidth={line.penSize}
+                tension={0.5}
+                lineCap="round"
+              />
+            ))}
+          </Layer>
+          <Layer>
+            <DrawingImage
+              urlImg={imageUrlPose}
+              height={canvasHeight}
+              width={canvasWidth}
+            />
+          </Layer>
+        </Stage>
+        </div>
+    );
+  }
+);
+
+/**
+ * Use forwardRef to send the layer ref to the parent component.
+ * this is the mask sent to the server.
+ */
 const MaskStage = React.forwardRef(
-  ({ scale, canvasWidth, canvasHeight }: any, ref: any) => {
+  ({ scale, canvasWidth, canvasHeight }: MaskStageProps, ref: any) => {
     const isDrawing = useRef(false);
     const { imageUrlPose, imageUrlMask } = useDrawingStore();
     const {
@@ -76,44 +128,49 @@ const MaskStage = React.forwardRef(
       isDrawing.current = false;
     };
 
+    const onMouseLeave = () => {
+      isDrawing.current = false;
+    };
+
     return (
-      <div className="test-fade">
-      <Stage
-        width={canvasWidth * scale}
-        height={canvasHeight * scale}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onTouchMove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        onTouchEnd={handleMouseUp}
-        scale={{ x: scale, y: scale }}
-      >
-        <Layer ref={ref}>
-          <MaskImage
-            urlImg={imageUrlMask}
-            height={canvasHeight}
-            width={canvasWidth}
-          />
-          {lines.map((line: any, i: number) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={line.tool === "eraser" ? "dark" : "white"}
-              strokeWidth={line.penSize}
-              tension={0.5}
-              lineCap="round"
+      <div className="mx-auto my-auto">
+        <Stage
+          width={canvasWidth * scale}
+          height={canvasHeight * scale}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          onMousemove={handleMouseMove}
+          onTouchMove={handleMouseMove}
+          onMouseup={handleMouseUp}
+          onTouchEnd={handleMouseUp}
+          onMouseLeave={onMouseLeave}
+          scale={{ x: scale, y: scale }}
+        >
+          <Layer ref={ref}>
+            <MaskImage
+              urlImg={imageUrlMask}
+              height={canvasHeight}
+              width={canvasWidth}
             />
-          ))}
-        </Layer>
-        <Layer>
-          <DrawingImage
-            urlImg={imageUrlPose}
-            height={canvasHeight}
-            width={canvasWidth}
-          />
-        </Layer>
-      </Stage>
+            {lines.map((line: any, i: number) => (
+              <Line
+                key={i}
+                points={line.points}
+                stroke={line.tool === "eraser" ? "dark" : "white"}
+                strokeWidth={line.penSize}
+                tension={0.5}
+                lineCap="round"
+              />
+            ))}
+          </Layer>
+          <Layer>
+            <DrawingImage
+              urlImg={imageUrlPose}
+              height={canvasHeight}
+              width={canvasWidth}
+            />
+          </Layer>
+        </Stage>
       </div>
     );
   }
