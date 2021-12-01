@@ -3,12 +3,14 @@ import { useHistory } from "react-router";
 import { Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 
+const VIDEO_URL = window._env_.VIDEO_URL;
+
 interface Props {
-  uuid: string;
+  videoId: string;
   animationType: string;
 }
 
-const CanvasShare = ({ uuid, animationType }: Props) => {
+const CanvasShare = ({ videoId, animationType }: Props) => {
   const { isLoading, getAnimation } = useDrawingApi((err) => {
     console.log(err);
   });
@@ -27,13 +29,11 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
   useEffect(() => {
     const fetchAnimation = async () => {
       try {
-        await getAnimation(uuid, animationType, (data) => {
-          // loadVideoBlob(data as string);
-          let videoId = data as string;
-          setVideoUrl(
-            `http://localhost:5000/video/${videoId}/${animationType}.mp4`
-          );
-        });
+        // await getAnimation(uuid, animationType, (data) => {
+        // loadVideoBlob(data as string);
+        // let videoId = data as string;
+        setVideoUrl(`${VIDEO_URL}/${videoId}/${animationType}.mp4`);
+        // });
       } catch (error) {
         console.log(error);
         setShowWarning(true);
@@ -41,38 +41,7 @@ const CanvasShare = ({ uuid, animationType }: Props) => {
     };
     fetchAnimation();
     return () => {};
-  }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadVideoBlob = (data: string) => {
-    var reader = new FileReader();
-
-    if (data !== null && data !== undefined) {
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result;
-        if (dataUrl && typeof dataUrl === "string") {
-          const videoPlayer = document.getElementById("videoPlayer");
-
-          if (videoPlayer && videoPlayer instanceof HTMLVideoElement) {
-            videoPlayer.onerror = (e) => {
-              debugger;
-              console.log("Error in Video Player", e, videoPlayer.error);
-              setShowWarning(true);
-            };
-            videoPlayer.src = dataUrl;
-            videoPlayer.loop = true;
-            videoPlayer.load();
-            videoPlayer.onloadeddata = function () {
-              videoPlayer.play();
-            };
-          }
-        }
-      };
-
-      var blob = new Blob([data], { type: "video/mp4" });
-      setVideoDownload(URL.createObjectURL(blob));
-      reader.readAsDataURL(blob);
-    }
-  };
+  }, [videoId, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="canvas-wrapper">

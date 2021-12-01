@@ -7,6 +7,8 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 
+const VIDEO_URL = window._env_.VIDEO_URL;
+
 declare global {
   interface Element {
     requestFullScreen?(): void /* W3C API */;
@@ -34,6 +36,7 @@ const CanvasAnimation = () => {
   const location = useLocation();
   const [showModal, setModal] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>();
+  const [videoId, setVideoId] = useState<string>();
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -47,10 +50,8 @@ const CanvasAnimation = () => {
       setRenderingVideo(true);
       setVideoUrl("");
       await getAnimation(uuid, animationType, (data) => {
-        let videoId = data as string;
-        setVideoUrl(
-          `http://localhost:5000/video/${videoId}/${animationType}.mp4`
-        );
+        setVideoId(data as string);
+        setVideoUrl(`${VIDEO_URL}/${data as string}/${animationType}.mp4`);
       });
       setRenderingVideo(false);
     };
@@ -80,7 +81,7 @@ const CanvasAnimation = () => {
   };
 
   const getShareLink = () => {
-    let shareLink = `${window.location.origin}/share/${uuid}/${animationType}`;
+    let shareLink = `${window.location.origin}/share/${videoId}/${animationType}`;
     return shareLink;
   };
 

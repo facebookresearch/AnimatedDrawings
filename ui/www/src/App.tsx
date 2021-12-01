@@ -20,7 +20,7 @@ function App() {
         <Route path="/canvas">
           <MainPage />
         </Route>
-        <Route path="/share/:uuid/:type">
+        <Route path="/share/:videoId/:type">
           <SharingPage />
         </Route>
         <Redirect from="*" to="/" />
