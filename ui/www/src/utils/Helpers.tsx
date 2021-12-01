@@ -44,7 +44,7 @@ export const calculateRatio = (
   oH: number 
 ) => {
   if (Math.min(canvasHeight, canvasHeight) > Math.max(oW, oH)) {
-    return 1.15; // MaxCanvas / MaskImg
+    return 1;
   } else if (oH >= oW && canvasHeight >= canvasWidth) {
     return canvasHeight / oH;
   } else if (oH < oW && canvasHeight >= canvasWidth) {

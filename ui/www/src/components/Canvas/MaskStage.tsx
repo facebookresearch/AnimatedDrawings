@@ -133,7 +133,7 @@ const MaskStage = React.forwardRef(
     };
 
     return (
-      <div className="ml-auto mr-auto">
+      <div className="mx-auto my-auto">
         <Stage
           width={canvasWidth * scale}
           height={canvasHeight * scale}
