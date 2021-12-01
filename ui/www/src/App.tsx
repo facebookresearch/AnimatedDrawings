@@ -9,6 +9,7 @@ import "./assets/scss/root.scss";
 import MainPage from "./containers/MainPage";
 import SharingPage from "./containers/SharingPage";
 import HomePage from "./containers/HomePage";
+import CookieBanner from "./components/Banners/CookieBanner";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         </Route>
         <Redirect from="*" to="/" />
       </Switch>
+      <CookieBanner />
     </Router>
   );
 }

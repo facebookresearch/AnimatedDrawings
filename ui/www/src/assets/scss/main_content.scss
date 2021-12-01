@@ -535,3 +535,20 @@
     align-content: flex-start;
   }
 }
+
+/************************/
+/**** Cookie Consent ****/
+/************************/
+
+.buttons-wrapper {
+  justify-content: end;
+  text-align: right;
+}
+
+.accept-button {
+  margin: 5px
+}
+
+.decline-button {
+  margin: 5px; 
+}

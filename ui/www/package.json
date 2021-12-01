@@ -20,6 +20,7 @@
     "konva": "^8.1.4",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.0",
+    "react-cookie-consent": "^6.4.1",
     "react-dom": "^17.0.2",
     "react-image-file-resizer": "^0.4.7",
     "react-konva": "^17.0.2-5",
