@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import classnames from "classnames";
 import { Row, Col, Button, Spinner } from "react-bootstrap";
 import { resizedataURL, calculateRatio } from "../../utils/Helpers";
 import useDrawingStore from "../../hooks/useDrawingStore";
@@ -10,8 +9,7 @@ import { EmptyLoader } from "../Loader";
 import BoundingBoxStage from "./BoundingBoxStage";
 import MaskStage from "./MaskStage";
 import { Position } from "./PoseEditor";
-import SegmentationHelpModal from "../Modals/SegmentationHelpModal";
-import UndoIcon from "../../assets/customIcons/undo.svg";
+import MaskingToolbar from "./MaskingToolbar";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -99,7 +97,7 @@ const mapJointsToPose = (joints: object) => {
   };
 };
 
-const calculateRatio2 = (
+const bbRatio = (
   canvasWidth: number,
   canvasHeight: number,
   oW: number,  //Original image width
@@ -131,19 +129,12 @@ const CanvasMask = () => {
     setPose,
   } = useDrawingStore();
   const {
-    tool,
-    penSize,
-    lines,
     setMaskBase64,
-    setTool,
-    setPenSize,
     setLines,
   } = useMaskingStore();
   const { isLoading,   getBoundingBox, getMask, getCroppedImage, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
   const [ imgScale, setImgScale ] = useState(1);
-  const [ showTools, setShowTools ] = useState(false)
-  const [ showModal, setModal] = useState(false);
   const [ isFetching, setIsFetching ] = useState(true)
   const [ iWidth, setImageWidth ] = useState(0);
   const [ iHeight, setImageHeight ] = useState(0);
@@ -170,7 +161,7 @@ const CanvasMask = () => {
           }
         };
 
-        const ratio = calculateRatio2(
+        const ratio = bbRatio(
           canvasWindow.current?.offsetWidth -20,
           canvasWindow.current?.offsetHeight -20,
           originalDimension.width,
@@ -221,8 +212,8 @@ const CanvasMask = () => {
     const fetchMask = async () => {
       try {
         const ratio = calculateRatio(
-          canvasWindow.current?.offsetWidth -20,
-          canvasWindow.current?.offsetHeight -20,
+          canvasWindow.current?.offsetWidth - 45, // Toolbar Offset
+          canvasWindow.current?.offsetHeight - 45, // Toolbar Offset
           croppedImgDimensions.width,
           croppedImgDimensions.height
         );  
@@ -319,134 +310,11 @@ const CanvasMask = () => {
     }
   };
 
-  const handleReset = () => {
-    if (!lines.length) {
-      return;
-    }
-    setLines([]);
-  };
-
-  const handleUndo = () => {
-    if (!lines.length) {
-      return;
-    }
-    let newLines = lines.slice(0, -1);
-    setLines(newLines);
-  };
-
   return (
     <>
       <div className="canvas-wrapper">
-        <div className="blue-box-2 d-none d-lg-block"></div>
-        {!showTools ? (
-          <Row className="justify-content-center px-3 mb-0">
-            <Col sm={8} className="text-right">
-              <Button
-                block
-                variant="info"
-                className="py-lg-3 my-3"
-                onClick={() => {
-                  setModal(true);
-                  setShowTools(true);
-                }}
-              >
-                <i className="bi bi-palette-fill mr-2" />
-                Fix
-              </Button>
-            </Col>
-          </Row>
-        ) : (
-          <Row className="mb-3 mx-0 tools-wrapper">
-            <Col>
-              <Row>
-                <button
-                  className={classnames(
-                    "sm-button-icon border border-dark mr-2",
-                    {
-                      "bg-primary text-white": tool === "pen",
-                    }
-                  )}
-                  onClick={() => setTool("pen")}
-                >
-                  <i className="bi bi-pencil-fill" />
-                </button>
-                <button
-                  className={classnames(
-                    "sm-button-icon border border-dark mr-2",
-                    {
-                      "bg-primary text-white": tool === "eraser",
-                    }
-                  )}
-                  onClick={() => setTool("eraser")}
-                >
-                  <i className="bi bi-eraser-fill" />
-                </button>
-                <div className="pens-wrapper border border-dark">
-                  <form className="pens">
-                    <label className="label0 d-none d-lg-block">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value={3}
-                        checked={penSize === 3}
-                        onChange={() => setPenSize(3)}
-                      />
-                      <span></span>
-                    </label>
-                    <label className="label1">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value={5}
-                        checked={penSize === 5}
-                        onChange={() => setPenSize(5)}
-                      />
-                      <span></span>
-                    </label>
-                    <label className="label2">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value={15}
-                        checked={penSize === 15}
-                        onChange={() => setPenSize(15)}
-                      />
-                      <span></span>
-                    </label>
-                    <label className="label3">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value={26}
-                        checked={penSize === 26}
-                        onChange={() => setPenSize(26)}
-                      />
-                      <span></span>
-                    </label>
-                  </form>
-                </div>
-              </Row>
-            </Col>
-            <Col>
-              <Row className="justify-content-end">
-                <button
-                  className="sm-button-icon border border-dark mr-2"
-                  onClick={handleUndo}
-                >
-                  <img src={UndoIcon} alt="icon" />
-                </button>
-
-                <button
-                  className="md-button-reset border border-dark p-0"
-                  onClick={handleReset}
-                >
-                  Reset mask
-                </button>
-              </Row>
-            </Col>
-          </Row>
-        )}
-        <div ref={canvasWindow} className="canvas-background loader">
+        <div className="blue-box d-none d-lg-block" />
+        <div ref={canvasWindow} className="canvas-background-p-0 loader">
           {isFetching ? (
             <>
               <BoundingBoxStage
@@ -459,12 +327,15 @@ const CanvasMask = () => {
             </>
           ) : (
             <>
-              <MaskStage
-                scale={imgScale}
-                canvasWidth={croppedImgDimensions.width}
-                canvasHeight={croppedImgDimensions.height}
-                ref={layerRef}
-              />
+              <div className="mask-tool-wrapper">
+                <MaskStage
+                  scale={imgScale}
+                  canvasWidth={croppedImgDimensions.width}
+                  canvasHeight={croppedImgDimensions.height}
+                  ref={layerRef}
+                />
+                <MaskingToolbar />
+              </div>
               {isLoading && <EmptyLoader />}
             </>
           )}
@@ -507,11 +378,6 @@ const CanvasMask = () => {
           </Col>
         </Row>
       </div>
-      <SegmentationHelpModal
-        showModal={showModal}
-        handleModal={() => setModal(!showModal)}
-        title={"HOW TO FIX"}
-      />
     </>
   );
 };

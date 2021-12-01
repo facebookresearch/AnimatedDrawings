@@ -131,9 +131,6 @@ const Step7 = () => {
         "bottom-shadow": group === "all",
       })}
     >
-      <h1 className="step-title ml-2">
-        Add <span className="text-info">Animation</span>
-      </h1>
       <p className="ml-2">
         Choose one of the motions below to see your character perform it!
       </p>
@@ -176,7 +173,7 @@ const Step7 = () => {
         </Button>
       </Row>
 
-      <Row className="px-0 m-0 mt-4">{renderGroup()}</Row>
+      <Row className="px-0 m-0 mt-2">{renderGroup()}</Row>
     </div>
   );
 };

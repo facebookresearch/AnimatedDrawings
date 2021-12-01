@@ -78,6 +78,7 @@
   margin-top: 0.3em
 }
 
+/* Mobile */ 
 @media screen and (max-width: 576px) {
   .pens-wrapper {
     width: 80px;
@@ -112,5 +113,125 @@
   .label3 {
     margin-left: 0.3em;
     margin-top: 0.28em
+  }
+}
+
+/* Mobile Landscape */
+@media only screen 
+  and (device-width: 812px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .pens-wrapper {
+      width: 80px;
+      height: 30px;
+      border-radius: 10px;
+      padding: 3px;
+    }
+    .pens {  
+        label {
+            font-weight: 200;
+            span {
+                &:before {
+                    width: 0.75em;
+                    height: 0.75em;
+                    margin-right: auto;
+                    margin-left: 0.25em;
+                }
+            }
+        }
+    }
+    
+    .label1 {
+      margin-right: 0.3em;
+      margin-top: 0.28em
+    }
+    .label2 {
+      margin-right: 0.3em;
+      margin-top: 0.28em
+    }
+    .label3 {
+      margin-left: 0.3em;
+      margin-top: 0.28em
+    }
+  }
+
+/* Tablets */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: landscape) 
+and (-webkit-min-device-pixel-ratio: 1) {
+  .pens-wrapper {
+    width: 100px;
+    height: 30px;
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .pens {  
+      label {
+          font-weight: 200;
+          span {
+              &:before {
+                  width: 0.75em;
+                  height: 0.75em;
+                  margin-right: auto;
+                  margin-left: 0.25em;
+              }
+          }
+          
+      }
+  }
+  .label0 {
+    display: none;
+  }
+  .label1 {
+    margin-right: 0.3em;
+    margin-top: 0.28em
+  }
+  .label2 {
+    margin-right: 0.3em;
+    margin-top: 0.28em
+  }
+  .label3 {
+    margin-left: 0.3em;
+    margin-top: 0.28em;
+  }
+}
+
+/* Tablets: Portrait iPad Pro */
+@media only screen 
+and (min-device-width: 1024px) 
+and (orientation: portrait) 
+and (-webkit-min-device-pixel-ratio: 2) {
+  .pens-wrapper {
+    width: 100px;
+    height: 30px;
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .pens {  
+      label {
+          font-weight: 200;
+          span {
+              &:before {
+                  width: 0.75em;
+                  height: 0.75em;
+                  margin-right: auto;
+                  margin-left: 0.25em;
+              }
+          }
+      }
+  }
+  .label1 {
+    margin-right: 0.3em;
+    margin-top: 0.28em
+  }
+  .label2 {
+    margin-right: 0.3em;
+    margin-top: 0.28em
+  }
+  .label3 {
+    margin-left: 0.3em;
+    margin-top: 0.28em;
   }
 }

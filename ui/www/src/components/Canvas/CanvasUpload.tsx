@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { Spinner, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
 import Resizer from "react-image-file-resizer";
 import heic2any from "heic2any";
@@ -239,7 +239,11 @@ const CanvasUpload = () => {
       {drawing === "" ? (
         <div className="mt-4">
           {compressing ? (
-            <button className="buttons large-button">
+            <Button
+              block
+              size="lg"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button"
+            >
               <Spinner
                 as="span"
                 animation="border"
@@ -247,11 +251,17 @@ const CanvasUpload = () => {
                 role="status"
                 aria-hidden="true"
               />
-            </button>
+            </Button>
           ) : (
-            <button className="buttons large-button" onClick={upload} disabled={!enableUpload} >
+            <Button
+              block
+              size="lg"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button"
+              disabled={!enableUpload}
+              onClick={upload}
+            >
               <i className="bi bi-image-fill mr-2" /> Upload
-            </button>
+            </Button>
           )}
         </div>
       ) : (
