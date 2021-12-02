@@ -10,6 +10,7 @@ import yaml
 import storage_service
 
 interim_store = storage_service.get_interim_store()
+video_store = storage_service.get_video_store()
 
 
 def prep_animation_files(unique_id):
@@ -30,7 +31,10 @@ def prep_animation_files(unique_id):
     #keypoint_json_loc = s3_object.get_object_bytes(unique_id, 'joint_locations.json')
 
     #uuid = unique_id.split('/')[-1]
-    #if uuid directory in video bucket exists, then delete
+    #if uuid directory in video bucket exists, then delete as the bb, mask or pose could have updated.
+    if interim_store.exists(unique_id, "video_id.txt"):
+        video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
+        video_store.delete_folder(video_id);
 
     assert interim_store.exists(unique_id, 'cropped_image.png') == True, f"Image not found: {unique_id}/cropped_image.png"
     
