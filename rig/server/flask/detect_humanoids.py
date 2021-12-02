@@ -82,12 +82,6 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
         max_dim = w
 
     if max_dim <= largest_dim:
-
-        #PUT image OBJECT to S3
-     
-        interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(image))
-        image = image
-        # return image as bytes
         return image, (h, w), (h, w), image
 
     scale = largest_dim  / max_dim
@@ -96,9 +90,6 @@ def image_resize(unique_id, largest_dim = 400, inter = cv2.INTER_AREA):
 
     resized_img = cv2.resize(image, (reduced_size[1], reduced_size[0]), interpolation = inter)
     
-    interim_store.write_bytes(unique_id, 'small_d2_image.png', storage_service.np_to_png_bytes(resized_img))
-    
-    #return resized_img as bytes
     return resized_img, (h, w), reduced_size, image
 
 def detect_humanoids(unique_id):

@@ -15,7 +15,7 @@ def detect_pose(unique_id):
     #uuid = work_dir.split('/')[-1]
     #img_pth = os.path.abspath(os.path.join(work_dir, 'gray_blur.png'))
     #pull form s3 as bytes
-    img_bytes = interim_store.read_bytes(unique_id, 'gray_blur.png')
+    img_bytes = interim_store.read_bytes(unique_id, 'cropped_image.png')
 
     response_json = requests.post(url=ALPHAPOSE_ENDPOINT, data={'uuid': unique_id, 'image':img_bytes})
 
