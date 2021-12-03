@@ -13,6 +13,7 @@ import logging
 import requests
 import base64
 import cv2
+import re
 
 import detect_humanoids
 import detect_pose
@@ -522,7 +523,6 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-import re
 def is_valid_uuid(uuid):
     regex = re.compile('^[a-f0-9]{32}$', re.I)
     return bool(regex.fullmatch(uuid))
