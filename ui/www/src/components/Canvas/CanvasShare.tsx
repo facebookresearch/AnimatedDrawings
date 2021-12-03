@@ -21,8 +21,8 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
-   * given the current uuid and animationType params.
-   * The component will only rerender when the uuid or animationType dependency changes.
+   * given a videoId and animationType params.
+   * The component will only rerender when the videoId or animationType dependency changes.
    * exhaustive-deps eslint warning is disable as no more dependencies are really necesary as side effects.
    * In contrast, including other function dependencies will trigger infinite loop rendereing.
    */
@@ -51,7 +51,7 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
         >
           <Alert.Heading>
             <span className="text-weight">Oh snap!</span> You got an error, this
-            link is broken. You can still make your own animation.
+            link is broken or the content is no longer available. You can still make your own animation.
           </Alert.Heading>
         </Alert>
       )}
