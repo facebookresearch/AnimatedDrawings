@@ -61,7 +61,7 @@ const HomePage = () => {
                 <Button
                   block
                   size="lg"
-                  className="px-4 py-2 py-lg-3"
+                  className="px-4 py-2 py-lg-3 shadow-button"
                   onClick={() => history.push("/canvas")}
                 >
                   Get Started
