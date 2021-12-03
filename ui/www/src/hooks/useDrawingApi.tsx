@@ -199,6 +199,27 @@ export function useDrawingApi(onError: (error: Error) => void) {
     await invokePost(ApiPath.GetAnimation, form, onResult);
   };
 
+  // Get the video file
+  const getVideoFile = async function (
+    videoId: string,
+    animation: string,
+    onResult: (result: any) => void
+  ) {
+    try {
+      setIsLoading(true);
+      const result = await axios.get(
+        `${apiHost}/video/${videoId}/${animation}.mp4`,
+        { ...DEFAULT_CONFIG, responseType: "blob" }
+      );
+      onResult(result.data);
+    } catch (error) {
+      console.log(error);
+      onError(error as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     uploadImage,
@@ -211,5 +232,6 @@ export function useDrawingApi(onError: (error: Error) => void) {
     getAnimation,
     getMask,
     setMask,
+    getVideoFile
   };
 }
