@@ -13,6 +13,7 @@ import logging
 import requests
 import base64
 import cv2
+import re
 
 import detect_humanoids
 import detect_pose
@@ -211,6 +212,8 @@ def get_bounding_box_coordinates():
         return  resource_request_form.format(resource_type='Bounding Box Coordinates')
 
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
 
     bb = interim_store.read_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
@@ -229,6 +232,9 @@ def set_bounding_box_coordinates():
                 )
 
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     interim_store.write_bytes(unique_id, "bb.json", "")
     if interim_store.exists(unique_id, "bb.json") == False:
         return redirect(request.url)
@@ -265,6 +271,9 @@ def get_mask():
         return resource_request_form.format(resource_type='Mask')
     
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if interim_store.exists(unique_id, "mask.png") == False:
         return redirect(request.url)
     mask =  storage_service.png_bytes_to_np(interim_store.read_bytes(unique_id, "mask.png"))
@@ -283,7 +292,11 @@ def set_mask():
                 input_type='file',
                 resource_name='file'
                 )
+
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if interim_store.exists(unique_id, "mask.png") == False:
         return redirect(request.url)
 
@@ -311,6 +324,8 @@ def get_joint_locations():
         return resource_request_form.format(resource_type='Joint Locations JSON')
     
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
 
     if interim_store.exists(unique_id, "joint_locations.json") == False:
         return redirect(request.url)
@@ -324,6 +339,9 @@ def set_joint_locations():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']) and a valid json with updated joint locations (request.form['joint_location_json']).
     Overwrites existing joint_locations.json and returns the new json"""
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if request.method != 'POST':
         return resource_set_form.format(
                 resource_type='Joint Locations JSON',
@@ -356,6 +374,9 @@ def set_joint_locations():
 def get_image():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']). Returns the original, full size image associated with that uuid"""
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if request.method != 'POST':
         return resource_request_form.format('Full Image')
 
@@ -372,7 +393,10 @@ def get_cropped_image():
     if request.method != 'POST':
         return  resource_request_form.format(resource_type='Cropped Image')
 
-    unique_id = request.form['uuid']    
+    unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if interim_store.exists(unique_id, "cropped_image.png") == False:
         return redirect(request.url)
 
@@ -388,6 +412,9 @@ def get_animation():
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
 
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     if interim_store.exists(unique_id, "image.png") == False:
         return redirect(request.url)
 
@@ -484,6 +511,9 @@ def set_consent_answer():
 
     # TODO uncomment this after calls to set_consent_answer and upload_image are reversed
     unique_id = request.form['uuid']
+    if not is_valid_uuid(unique_id):
+        return make_response('invalid uuid', 400)
+
     consent_response = request.form['consent_response']
     consent_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
     return make_response("", 200)
@@ -492,7 +522,11 @@ def set_consent_answer():
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-        
+
+def is_valid_uuid(uuid):
+    regex = re.compile('^[a-f0-9]{32}$', re.I)
+    return bool(regex.fullmatch(uuid))
+
 
 
 
