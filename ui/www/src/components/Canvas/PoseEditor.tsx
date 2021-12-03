@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { isTouch } from "../../utils/Helpers";
 
 export interface Position {
   x: number;
@@ -33,6 +34,7 @@ interface Props {
 }
 
 interface LineProps extends React.SVGProps<SVGLineElement> {}
+
 const Line = (props: LineProps) => {
   return <line {...props} />;
 };
@@ -50,6 +52,7 @@ interface CirclePosition extends Position {
   active: false;
   offset: Position;
 }
+
 const Circle = ({
   cx,
   cy,
@@ -77,12 +80,29 @@ const Circle = ({
     },
     [setPositionRaw, onPositionUpdate]
   );
-  const handlePointerDown = (e: React.PointerEvent<SVGCircleElement>) => {
+
+  const handlePointerDown = (
+    e: React.PointerEvent<SVGCircleElement> | React.TouchEvent
+  ) => {
+    e.preventDefault();
     const el = (e.target as Element)!;
     const bbox = (e.target as Element)!.getBoundingClientRect();
-    const x = e.clientX - bbox.left;
-    const y = e.clientY - bbox.top;
-    el.setPointerCapture(e.pointerId);
+
+    /**
+     * Checkes whether the event is triggered from a touch event e,g mobile.
+     * respond only to the first touch of index 0.
+     */
+    let xcoord = isTouch(e) ? e.targetTouches[0].clientX : e.clientX;
+    let ycoord = isTouch(e) ? e.targetTouches[0].clientY : e.clientY;
+
+    const x = xcoord - bbox.left;
+    const y = ycoord - bbox.top;
+
+    // Checks for pointer events on desktop, no in touch events.
+    if (window.PointerEvent && !isTouch(e)) {
+      el.setPointerCapture(e.pointerId);
+    }
+
     setPosition({
       ...position,
       active: true,
@@ -92,10 +112,23 @@ const Circle = ({
       },
     });
   };
-  const handlePointerMove = (e: React.PointerEvent<SVGCircleElement>) => {
+
+  const handlePointerMove = (
+    e: React.PointerEvent<SVGCircleElement> | React.TouchEvent
+  ) => {
+    e.preventDefault();
     const bbox = (e.target! as Element)!.getBoundingClientRect();
-    const x = e.clientX - bbox.left;
-    const y = e.clientY - bbox.top;
+
+    /**
+     * Checkes whether the event is triggered from a touch event e,g. mobile.
+     * respond only to the first touch of index 0.
+     */
+    let xcoord = isTouch(e) ? e.targetTouches[0].clientX : e.clientX;
+    let ycoord = isTouch(e) ? e.targetTouches[0].clientY : e.clientY;
+
+    const x = xcoord - bbox.left;
+    const y = ycoord - bbox.top;
+
     const movePosition = {
       ...position,
       x: position.x - (position.offset.x - x),
@@ -111,13 +144,18 @@ const Circle = ({
       setPosition(movePosition);
     }
   };
+
   const handlePointerEnter = () => {
     onHover(true);
   };
+
   const handlePointerLeave = () => {
     onHover(false);
   };
-  const handlePointerUp = (e: React.PointerEvent<SVGCircleElement>) => {
+
+  const handlePointerUp = (
+    e: React.PointerEvent<SVGCircleElement> | React.TouchEvent<SVGCircleElement>
+  ) => {
     setPosition({
       ...position,
       active: false,
@@ -133,6 +171,9 @@ const Circle = ({
       onPointerMove={handlePointerMove}
       onPointerOut={handlePointerLeave}
       onPointerEnter={handlePointerEnter}
+      onTouchStart={handlePointerDown}
+      onTouchMove={handlePointerMove}
+      onTouchEnd={handlePointerUp}
       {...props}
       fill={position.active ? "#3D92C7" : "#0E2D52"}
     />
@@ -146,10 +187,6 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
 
-  //const [debug, setDebug] = useState(true);
-  //const padding = 20;
-  //const yStep = (imageHeight - padding) / 7;
-  //const xStep = (imageWidth - padding) / 8;
   const mapX = (unit: number) => unit; // * xStep + imageWidth / 2;
   const mapY = (unit: number) => unit; // * yStep + padding;
   const unmapX = (coord: number) => coord; //(coord - imageWidth / 2) / xStep;
@@ -177,7 +214,7 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
     <div className="pose-wrapper div-fade">
       {hoveredJoint ? (
         <div className="tooltip-pose">
-          {hoveredJoint?.replace("l_", "left ")?.replace("r_", "right ")?.replace("_", " ")?.replace("nose","head center")}
+          {hoveredJoint?.replace("left_", "Left ")?.replace("right_", "Right ")?.replace("_", " ")?.replace("nose","Head center")}
         </div>
       ) : <div className="tooltip-pose">Adjust by dragging the points</div>}
       <svg

@@ -429,8 +429,16 @@
 /*** Canvas Pose ***/
 /*******************/
 
+.canvas-pose {
+  touch-action: pinch-zoom;
+  user-select: none;
+  // background-color:#C0C0C0
+}
+
 .pose-wrapper {
   position: relative;
+  text-align: center;
+  justify-content: center;
   svg line {
     pointer-events: none;
   }
@@ -441,14 +449,14 @@
 }
 
 .tooltip-pose {
-  position: absolute;
-  background-color: $dark;
+  width: fit-content;
+  margin: auto;
+  background-color: rgba(14, 45, 82, 0.75);
   color: $white;
   border: none;
   padding: 3px 8px;
-  z-index: 0;
-  top: -7%;
-  left: 0;
+  text-align: center;
+  justify-content: center;
   font-size: 0.8em;
   border-radius: 5px;
   animation: pop 0.2s ease-out 1;
