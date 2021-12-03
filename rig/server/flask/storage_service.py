@@ -1,4 +1,4 @@
-import os
+import os, shutil
 import numpy as np
 import s3_object
 import cv2
@@ -23,6 +23,9 @@ class aws_storage_service:
     def exists(self, unique_id, file_name):
         return self.store.verify_object(unique_id, file_name)
     
+    def delete_folder(self, unique_id):
+        return self.store.delete_directory(unique_id)
+    
 class file_storage_service:
     
     def __init__(self, root):
@@ -42,6 +45,11 @@ class file_storage_service:
            
     def exists(self, unique_id, file_name):
         return os.path.exists(os.path.join(self.root_dir, unique_id, file_name))
+    
+    def delete_folder(self, unique_id):
+        folder = os.path.join(self.root_dir, unique_id)
+        if os.path.exists(folder): # delete old video files if they exist
+            shutil.rmtree(folder)
 
 
 def get_interim_store():
