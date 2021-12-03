@@ -76,3 +76,11 @@ DOCKER_BUILDKIT=1 docker-compose -f docker-compose.aws-dev.yml build \
 # Compiling Individual images
 
 Individual images can be built and run independently. Please refer to the compose files for the necessary config settings.
+
+## e.g. detectron
+
+```shell
+docker build -f Dockerfile.detectron_runtime -t detectron2:0.0.1 .
+
+docker run --mount type=bind,source="$(pwd)/torchserve_d2/model_store",target=/home/model-server/model_store --rm -it -p 5911 detectron2:0.0.1
+```
