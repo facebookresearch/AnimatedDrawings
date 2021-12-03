@@ -76,3 +76,12 @@ export const getCookie = (cookieName: string) => {
   }
   return "";
 }
+
+/**
+ * Helper function to validate whether a given event is of type TouchEvent.
+ * @param e 
+ * @returns boolean
+ */
+export const isTouch = (e: React.TouchEvent | React.PointerEvent): e is React.TouchEvent => {
+  return e.nativeEvent instanceof TouchEvent;
+}

@@ -44,8 +44,8 @@ const CanvasPose = () => {
     const fetchMask = async () => {
       try {
         const ratio = calculateRatio(
-          canvasWindow.current?.offsetWidth - 20,
-          canvasWindow.current?.offsetHeight - 20,
+          canvasWindow.current?.offsetWidth - 40,
+          canvasWindow.current?.offsetHeight - 40,
           croppedImgDimensions.width,
           croppedImgDimensions.height
         );
@@ -94,7 +94,7 @@ const CanvasPose = () => {
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
-      <div ref={canvasWindow} className="canvas-background">
+      <div ref={canvasWindow} className="canvas-background canvas-pose">
         {pose && (
           <PoseEditor
             imageUrl={imageUrlPose}

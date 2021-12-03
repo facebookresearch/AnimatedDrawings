@@ -19,7 +19,7 @@ const HomePage = () => {
                   ANIMATED <span className="text-info">DRAWINGS</span>
                 </h2>
 
-                <h4 className="subtitle">PRESENTED BY FACEBOOK AI RESEARCH</h4>
+                <h4 className="subtitle">PRESENTED BY META AI RESEARCH</h4>
               </Col>
             </Row>
             <Row className="justify-content-center">
@@ -61,7 +61,7 @@ const HomePage = () => {
                 <Button
                   block
                   size="lg"
-                  className="px-4 py-2 py-lg-3"
+                  className="px-4 py-2 py-lg-3 shadow-button"
                   onClick={() => history.push("/canvas")}
                 >
                   Get Started
