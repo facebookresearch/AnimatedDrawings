@@ -5,6 +5,10 @@ import cv2
 
 USE_AWS = os.environ.get("USE_AWS") == '1'
 
+AWS_S3_INTERIM_BUCKET = os.environ.get("AWS_S3_INTERIM_BUCKET")
+AWS_S3_CONSENTS_BUCKET = os.environ.get("AWS_S3_CONSENTS_BUCKET")
+AWS_S3_VIDEOS_BUCKET = os.environ.get("AWS_S3_VIDEOS_BUCKET")
+
 
 class aws_storage_service:
 
@@ -54,19 +58,19 @@ class file_storage_service:
 
 def get_interim_store():
     if USE_AWS:
-        return aws_storage_service('dev-demo-sketch-out-interim-files')
+        return aws_storage_service(AWS_S3_INTERIM_BUCKET)
     else:
         return file_storage_service('uploads')
     
 def get_consent_store():
     if USE_AWS:
-        return aws_storage_service('dev-demo-sketch-out-consents')
+        return aws_storage_service(AWS_S3_CONSENTS_BUCKET)
     else:
         return file_storage_service('consents')
 
 def get_video_store():
     if USE_AWS:
-        return aws_storage_service('dev-demo-sketch-out-animations')
+        return aws_storage_service(AWS_S3_VIDEOS_BUCKET)
     else:
         return file_storage_service('videos')
 
