@@ -4,7 +4,6 @@ import imageCompression from "browser-image-compression";
 import Resizer from "react-image-file-resizer";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
-import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
@@ -15,7 +14,6 @@ type Base64 = Opaque<string, "base64">;
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
-  const { setCurrentStep } = useStepperStore();
   const {
     drawing,
     newCompressedDrawing,
@@ -24,12 +22,7 @@ const CanvasUpload = () => {
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
-  const {
-    isLoading,
-    uploadImage,
-    setConsentAnswer,
-  } = useDrawingApi((err) => {});
-
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
@@ -176,24 +169,14 @@ const CanvasUpload = () => {
   };
 
   /**
-   * Upload image when user click on next, check for a cached waiver response.
-   * "waiver_res". If not response is found open the waiver modal.
-   * Otherwise skip the waiver step.
+   * Upload image when clicking on next,
    */
   const handleNext = async () => {
-    let waiver_res = sessionStorage.getItem("waiver_res");
     try {
       await uploadImage(newCompressedDrawing, (data) => {
         setUuid(data as string);
-        if (!waiver_res) {
-          setShowWaiver(true);
-        } else {
-          let res = parseInt(waiver_res);
-          setConsentAnswer(data, res, () => {
-            setCurrentStep(2);
-          });
-        }
       });
+      setShowWaiver(true);
     } catch (error) {
       console.log(error);
     }

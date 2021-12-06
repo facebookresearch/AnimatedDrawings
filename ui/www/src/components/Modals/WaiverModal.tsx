@@ -14,14 +14,17 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
   const { uuid } = useDrawingStore();
   const { isLoading, setConsentAnswer } = useDrawingApi((err) => {});
 
+  /**
+   * Send waiver response to server.
+   * 1 as aggree, and 0 as disagree
+   * @param res boolean response.
+   */
   const handleNext = async (res: boolean) => {
     let response = res ? 1 : 0;
     try {
-      setAgreeTerms(res)
-      sessionStorage.setItem('waiver_res', response.toString());
+      setAgreeTerms(res);
       await setConsentAnswer(uuid, response, () => {
         setShowModal(false);
-        console.log(response)
       });
       setCurrentStep(2);
     } catch (error) {
@@ -35,7 +38,9 @@ const WaiverModal = ({ showModal, setShowModal }: modalProps) => {
         <div className="waiver-step-container-wrap">
           <div className="main-content bg-waiver">
             <div className="navbar-title-waiver">
-              <h2>ANIMATED <span className="text-info">DRAWINGS</span></h2>
+              <h2>
+                ANIMATED <span className="text-info">DRAWINGS</span>
+              </h2>
             </div>
             <div className="share-page">
               <WaiverStep
