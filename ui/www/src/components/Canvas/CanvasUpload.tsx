@@ -246,7 +246,7 @@ const CanvasUpload = () => {
               disabled={!enableUpload}
               onClick={upload}
             >
-              <i className="bi bi-image-fill mr-2" /> Upload
+              <i className="bi bi-image-fill mr-2" /> Upload Photo
             </Button>
           )}
         </div>
