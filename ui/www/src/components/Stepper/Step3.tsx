@@ -5,23 +5,24 @@ import image_3 from "../../assets/drawings_examples/step4/image_3.png";
 
 const Step3 = () => {
   return (
-    <div className="step-actions-container bottom-shadow">
+    <div className="step-actions-container custom-scrollbar">
       <p>
         We’ve separated the character from the background, and highlighted it.
-        Did we get the entire character? Did we include things that aren’t part
-        of the character? If so, use the tools to fix it.
       </p>
+      <p className="bold" style={{ letterSpacing: "0.2em" }}>
+        CHECKLIST
+      </p>
+      <ul className="d-list pl-2">
+        <li>If the body parts of your character are not highlighted, use the pen and eraser tools to fix it.</li>
+        <li>If the arms or legs are stuck together, use the eraser tool to separate them</li>
+        <li>If everything looks fine, hit 'Next'.</li>
+      </ul>
       <div className="drawing-example-wrapper mt-1">
         <img src={image_1} alt="img1_step4" />
       </div>
-      <br />
       <div className="drawing-example-wrapper">
         <img src={image_2} alt="img2_step4" />
       </div>
-      <p>
-        If the limbs are stuck together, please erase the mask to separate them.
-        See the example below:
-      </p>
       <div className="drawing-example-wrapper mt-2">
         <img src={image_3} alt="img3_step4" />
       </div>

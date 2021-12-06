@@ -29,7 +29,7 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
               </Button>
             </Col>
           </Row>
-          <div className="waiver-step-container">
+          <div className="waiver-step-container custom-scrollbar">
             <h2>
               Would you like to <br className="d-none d-lg-block" />
               <span className="text-info">help our research?</span>
