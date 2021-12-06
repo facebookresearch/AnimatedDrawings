@@ -3,6 +3,7 @@ import { useState } from "react";
 import {} from "../EnvConfig";
 
 const apiHost = window._env_.REACT_APP_API_HOST;
+const videoHost = window._env_.VIDEO_URL;
 
 export function useDrawingApi(onError: (error: Error) => void) {
   const [isLoading, setIsLoading] = useState(false);
@@ -208,7 +209,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
     try {
       setIsLoading(true);
       const result = await axios.get(
-        `${apiHost}/video/${videoId}/${animation}.mp4`,
+        `${videoHost}/${videoId}/${animation}.mp4`,
         { ...DEFAULT_CONFIG, responseType: "blob" }
       );
       onResult(result.data);

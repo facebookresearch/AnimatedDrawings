@@ -15,7 +15,7 @@ const HomePage = () => {
           <Container className="align-content-center home-info">
             <Row className="justify-content-center">
               <Col lg={6} md={6} sm={6} className="text-center mb-4">
-                <h2 className="mb-3">
+                <h2 className="mb-1">
                   ANIMATED <span className="text-info">DRAWINGS</span>
                 </h2>
 
