@@ -15,9 +15,7 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
       <Row className="align-items-center justify-content-center">
         <Col lg={6} md={12} sm={12} className="ml-auto mr-auto">
           <Row>
-            <Col>
-      
-            </Col>
+            <Col></Col>
             <Col className="text-right">
               <Button
                 size="sm"
@@ -29,10 +27,10 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
               </Button>
             </Col>
           </Row>
-          <div className="waiver-step-container">
+          <div className="waiver-step-container custom-scrollbar">
             <h2>
               Would you like to <br className="d-none d-lg-block" />
-              <span className="text-info">help our research?</span>
+              help our research?
             </h2>
             <p className="bold">Granting permission is totally optional.</p>
             <p>
@@ -101,7 +99,17 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
             </p>
           </div>
           <Row className="justify-content-center px-3">
-            <Col lg={6} md={4} xs={12}>
+            <Col lg={6} md={4} xs={12} className="order-lg-2 text-center">
+              <Button
+                block
+                size="lg"
+                className="py-3 my-2"
+                onClick={() => handleNext(true)}
+              >
+                Agree
+              </Button>
+            </Col>
+            <Col lg={6} md={4} xs={12} className="order-lg-1">
               <Button
                 block
                 size="lg"
@@ -110,16 +118,6 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
                 onClick={() => handleNext(false)}
               >
                 Disagree
-              </Button>
-            </Col>
-            <Col lg={6} md={4} xs={12} className="text-center">
-              <Button
-                block
-                size="lg"
-                className="py-3 my-2"
-                onClick={() => handleNext(true)}
-              >
-                Agree
               </Button>
             </Col>
           </Row>

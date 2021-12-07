@@ -7,30 +7,22 @@ import example6 from "../assets/drawings_examples/example6.png";
 
 const ExamplesCarousel = () => {
   return (
-    <div className="horizontal-scrolling">
-      <ul className="hs full">
-        <li className="item">
-          <div className="drawing-example-wrapper">
-            <img alt="example 3" src={example3} />
-          </div>
-        </li>
-        <li className="item">
-          <div className="drawing-example-wrapper">
-            <img alt="example 4" src={example4} />
-          </div>
-        </li>
-        <li className="item">
-          <div className="drawing-example-wrapper">
-            <img alt="example 5" src={example5} />
-          </div>
-        </li>
-        <li className="item">
-          <div className="drawing-example-wrapper">
-            <img alt="example 6" src={example6} />
-          </div>
-        </li>
-      </ul>
-    </div>
+    <>
+      <div className="grid-precanned-imgs">
+        <div className="md-grid-item" onClick={() => {}}>
+          <img src={example3} alt="" />
+        </div>
+        <div className="md-grid-item" onClick={() => {}}>
+          <img src={example4} alt="" />
+        </div>
+        <div className="md-grid-item" onClick={() => {}}>
+          <img src={example5} alt="" />
+        </div>
+        <div className="md-grid-item" onClick={() => {}}>
+          <img src={example6} alt="" />
+        </div>
+      </div>
+    </>
   );
 };
 
