@@ -1,0 +1,16 @@
+version: "3.0"
+
+services:
+ 
+  #DETECRON2 MODEL
+  detectron2_model:
+    image: 790537050551.dkr.ecr.us-east-2.amazonaws.com/ml_devops_modelzoo_repo
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: ml-devops-logs
+        awslogs-create-group: "true"
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: ml-devops-detectron2-logs
+    ports:
+      - "5911:5911"
