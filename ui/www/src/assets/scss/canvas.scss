@@ -181,7 +181,7 @@
   height: 60px;
   cursor: pointer;
   font-size: 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: transparent;
   text-align: center;
   color: $white;
@@ -193,7 +193,7 @@
   width: 126px;
   height: 48px;
   border: 1px solid;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: $white;
   color: $dark;
   margin: 0 2px;
@@ -218,14 +218,14 @@
   display: inline-block;
   width: 18%; 
   background-color: $white;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .md-button-right {
   display: inline-block;
   width: 79%;
   background-color: $primary;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 /* Mobile */
