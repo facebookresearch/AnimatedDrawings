@@ -14,7 +14,10 @@ RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/s
     yarn build
 
 # Setup up dynamically created Environment config
-COPY ui/www/.env .
+# COPY ui/www/.env .
+RUN echo REACT_APP_API_HOST=${SKETCH_API_ENDPOINT} > .env \
+    && echo REACT_APP_VIDEO_URL=${VIDEO_CDN_URL} >> .env \
+    && echo ENABLE_UPLOAD=${ENABLE_UPLOAD} >> .env 
 COPY ui/www/env.sh .
 RUN chmod +x ./env.sh
 RUN ./env.sh
@@ -31,5 +34,5 @@ FROM mesosphere/aws-cli
 COPY --from=builder /usr/src/app/build .
 
 #Set the default command of this container to push the files from the working directory of this container to our s3 bucket 
-CMD ["s3", "sync", "./", "s3://dev-demo-sketch-www"] 
+CMD ["s3", "sync", "./", "s3://${AWS_S3_WWW_BUCKET_URL}"] 
 
