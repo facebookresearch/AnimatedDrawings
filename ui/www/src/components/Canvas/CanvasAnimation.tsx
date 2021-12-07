@@ -5,6 +5,7 @@ import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
+import ShareIcon from "../../assets/customIcons/nav_share.svg";
 
 const VIDEO_URL = window._env_.VIDEO_URL;
 
@@ -150,55 +151,19 @@ const CanvasAnimation = () => {
         )}
       </div>
 
-      <Row className="justify-content-center mt-3">
-        <Col lg={2} md={2} xs={3}>
+      <Row className="justify-content-center mt-3 px-1">
+        <Col lg={4} md={4} xs={4} className="px-2">
           <Button
             block
             size="lg"
-            variant="outline-primary"
-            className="py-lg-3 mt-lg-3 my-1"
-            onClick={() => setCurrentStep(currentStep - 1)}
-          >
-            Fix
-          </Button>
-        </Col>
-        <Col lg={5} md={5} xs={4}>
-          <Button
-            block
-            size="lg"
-            className="py-3 mt-3 d-none d-lg-block shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 shadow-button"
             disabled={isLoading}
             href="/canvas"
           >
-            Create new drawing
+            <i className="bi bi-plus-lg mr-lg-2" /> Drawing
           </Button>
-          <a
-            download="animation.mp4"
-            href={videoDownload}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button
-              block
-              size="lg"
-              className="py-lg-3 mt-lg-3 my-1 d-inline-block d-none d-sm-none"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              ) : (
-                <>Download</>
-              )}
-            </Button>
-          </a>
         </Col>
-        <Col lg={5} md={5} xs={4}>
+        <Col lg={4} md={4} xs={4} className="px-2">
           <Button
             block
             size="lg"
@@ -217,9 +182,20 @@ const CanvasAnimation = () => {
               />
             ) : (
               <>
-                <i className="bi bi-share-fill mr-1" /> Share
+                <img src={ShareIcon} alt="" className="mr-1" /> Share
               </>
             )}
+          </Button>
+        </Col>
+        <Col lg={4} md={4} xs={4} className="px-2">
+          <Button
+            block
+            size="lg"
+            variant="outline-primary"
+            className="py-lg-3 mt-lg-3 my-1"
+            onClick={() => setCurrentStep(currentStep - 1)}
+          >
+            Fix
           </Button>
         </Col>
       </Row>
