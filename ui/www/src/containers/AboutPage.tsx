@@ -14,8 +14,8 @@ const AboutPage = () => {
               <p>
                 Children’s drawings have a wonderful inventiveness, energy, and
                 variety. We focus on the consequence of all that variety in
-                their drawings of humans as we develop an algorithm to bring
-                them to life through automatic animation.
+                their drawings of human figures as we develop an algorithm to
+                bring them to life through automatic animation.
               </p>
               <br />
               <p>
@@ -26,15 +26,16 @@ const AboutPage = () => {
               <br />
               <p>
                 Built by Jesse Smith, Jessica Hodgins, Somya Jain, Sahir Gomez,
-                Somayan Chakrabarti, Clarence Edmondson III, Qingyuan Zheng, and friends at
-                Facebook AI Research.
+                Somayan Chakrabarti, Clarence Edmondson III, Christopher
+                Gustave, Kristin Cooke, Qingyuan Zheng, Yifei Li, and friends at
+                Meta AI Research.
               </p>
             </Col>
           </Row>
         </Container>
       </div>
       <div className="wr-about-1" onClick={() => history.push("/")}>
-        <i className="bi bi-x-lg h1"/>
+        <i className="bi bi-x-lg h1" />
       </div>
     </div>
   );
