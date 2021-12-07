@@ -10,6 +10,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
 
   enum ApiPath {
     UploadImage = "upload_image",
+    SetPreCannedImage = "copy_preapproved_image",
 
     SetConsentAnswer = "set_consent_answer",
     GetBoundingBox = "get_bounding_box_coordinates",
@@ -58,6 +59,18 @@ export function useDrawingApi(onError: (error: Error) => void) {
       form.append("file", file);
     }
     await invokePost(ApiPath.UploadImage, form, onResult);
+  };
+
+  // Use a pre canned image file
+  const setPreCannedImage = async function (
+    image_name: string,
+    onResult: (result: any) => void
+  ) {
+    const form = new FormData();
+    if (image_name) {
+      form.append("image_name", image_name);
+    }
+    await invokePost(ApiPath.SetPreCannedImage, form, onResult);
   };
 
   // Set Consent Answer
@@ -224,6 +237,7 @@ export function useDrawingApi(onError: (error: Error) => void) {
   return {
     isLoading,
     uploadImage,
+    setPreCannedImage,
     setConsentAnswer,
     getBoundingBox,
     setBoundingBox,

@@ -589,15 +589,15 @@ def not_found(e):
     return send_file(resource_dir / "index.html")
 
 @app.route("/terms")
-def about_route():
+def terms_route():
     return send_file(resource_dir / "index.html")
 
 @app.route("/privacy")
-def about_route():
+def privacy_route():
     return send_file(resource_dir / "index.html")
 
 @app.route("/cookies")
-def about_route():
+def cookies_route():
     return send_file(resource_dir / "index.html")
 
 @app.route("/canvas")
