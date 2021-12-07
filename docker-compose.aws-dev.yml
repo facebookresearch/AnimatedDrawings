@@ -98,6 +98,15 @@ services:
         awslogs-group: dev-demo-sketch-log-group
         awslogs-stream: dev-demo-sketch-animation-logs
 
+  www_deploy:
+    build:
+      context: .
+      dockerfile: Dockerfile.www
+      args:
+        - SKETCH_API_ENDPOINT=${SKETCH_API_ENDPOINT}
+        - VIDEO_CDN_URL=${VIDEO_CDN_URL} 
+        - ENABLE_UPLOAD=${ENABLE_UPLOAD}
+
 
 # Network created by default between services
 networks:
