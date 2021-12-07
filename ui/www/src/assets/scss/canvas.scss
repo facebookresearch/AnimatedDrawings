@@ -420,9 +420,10 @@
 }
 .tools-wrapper {
   padding: 6px 6px;
-  background-color: $secondary;
-  border-radius: 10px;
-  // box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+  background-color: $white;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
 }
 
 /*******************/

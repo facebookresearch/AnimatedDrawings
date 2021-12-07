@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useLocation } from "react-router";
 import { Row, Col, Button, Spinner } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
@@ -19,24 +18,17 @@ declare global {
 }
 
 const CanvasAnimation = () => {
-  const {
-    uuid,
-    videoDownload,
-    animationType,
-    animationFiles,
-    setRenderingVideo,
-    setVideoDownload,
-    setAnimationFiles,
-  } = useDrawingStore();
+  const { uuid, animationType, setRenderingVideo } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
   const errorHandler = useCallback((err) => {
     console.log(err);
   }, []);
-  const { isLoading, getAnimation } = useDrawingApi(errorHandler);
-  const location = useLocation();
+  const { isLoading, getAnimation, getVideoFile } = useDrawingApi(errorHandler);
+  const [videoDownload, setVideoDownload] = useState("");
+  const [animationFiles, setAnimationFiles] = useState<File[]>([]);
   const [showModal, setModal] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string>();
-  const [videoId, setVideoId] = useState<string>();
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [videoId, setVideoId] = useState<string>("");
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -47,24 +39,55 @@ const CanvasAnimation = () => {
    */
   useEffect(() => {
     const fetchAnimation = async () => {
-      setRenderingVideo(true);
-      setVideoUrl("");
-      await getAnimation(uuid, animationType, (data) => {
-        setVideoId(data as string);
-        setVideoUrl(`${VIDEO_URL}/${data as string}/${animationType}.mp4`);
-      });
-      setRenderingVideo(false);
+      try {
+        setRenderingVideo(true);
+        setVideoUrl("");
+
+        await getAnimation(uuid, animationType, (data) => {
+          setVideoId(data as string);
+          setVideoUrl(`${VIDEO_URL}/${data as string}/${animationType}.mp4`);
+          // Get the video file to share and download.
+          getVideoFile(data, animationType, (data) => {
+            let reader = new window.FileReader();
+            reader.readAsDataURL(data);
+            reader.onload = function () {
+              let videoDataUrl = reader.result as string;
+              setVideoDownload(videoDataUrl);
+            };
+            setShareableFile(data);
+          });
+        });
+
+        setRenderingVideo(false);
+      } catch (error) {
+        console.log(error);
+      }
     };
+
     fetchAnimation();
     return () => {};
   }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /**
+   * Updates the animationFiles state as an array of files, required for he navigator share API.
+   * @param data video blob
+   */
+  const setShareableFile = (data: string) => {
+    let filesArray: File[] = [
+      new File([data], "animation.mp4", {
+        type: "video/mp4",
+        lastModified: Date.now(),
+      }),
+    ];
+    setAnimationFiles(filesArray);
+  };
+
   const handleShare = () => {
     let data = {
-      url: `${window.location.href}${location.search}`,
+      url: `${window.location.origin}/share/${videoId}/${animationType}`,
       title: "Animation",
       text: "Check this kid's drawing animation",
-      files: animationFiles, // TODO Looks like we're sharing the downloaded file here. Need to check if it works for a URL. If not we may need to download the video first.
+      files: animationFiles,
     };
     if (
       typeof navigator.share === "function"
@@ -76,6 +99,7 @@ const CanvasAnimation = () => {
         .catch((error) => console.log("Error sharing", error));
     } else {
       console.log("Your device does not support sharing");
+      // Use the share modal when on desktop.
       setModal(true);
     }
   };

@@ -3,6 +3,7 @@ import { useState } from "react";
 import {} from "../EnvConfig";
 
 const apiHost = window._env_.REACT_APP_API_HOST;
+const videoHost = window._env_.VIDEO_URL;
 
 export function useDrawingApi(onError: (error: Error) => void) {
   const [isLoading, setIsLoading] = useState(false);
@@ -199,6 +200,27 @@ export function useDrawingApi(onError: (error: Error) => void) {
     await invokePost(ApiPath.GetAnimation, form, onResult);
   };
 
+  // Get the video file
+  const getVideoFile = async function (
+    videoId: string,
+    animation: string,
+    onResult: (result: any) => void
+  ) {
+    try {
+      setIsLoading(true);
+      const result = await axios.get(
+        `${videoHost}/${videoId}/${animation}.mp4`,
+        { ...DEFAULT_CONFIG, responseType: "blob" }
+      );
+      onResult(result.data);
+    } catch (error) {
+      console.log(error);
+      onError(error as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     uploadImage,
@@ -211,5 +233,6 @@ export function useDrawingApi(onError: (error: Error) => void) {
     getAnimation,
     getMask,
     setMask,
+    getVideoFile
   };
 }

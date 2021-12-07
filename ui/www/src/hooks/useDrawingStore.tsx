@@ -10,12 +10,10 @@ type DrawingState = {
   croppedImgDimensions : any;
   pose: Pose;
   boundingBox: BoundingBox;
-  videoDownload: string;
   animationType: AnimationType;
   renderingVideo: boolean;
   imageUrlPose?: string; // Cropped Image
   imageUrlMask?: string; // Mask Image
-  animationFiles: File[];
   setDrawing: (imported: any) => void;
   setNewCompressedDrawing: (file: File) => void;
   setOriginalDimensions: (data: any) => void;
@@ -23,12 +21,10 @@ type DrawingState = {
   setCroppedImgDimensions: (data: any) => void;
   setPose: (n_pose: Pose) => void;
   setBox: (dimensions: any) => void;
-  setVideoDownload: (url: string) => void;
   setAnimationType: (ani_type: any) => void;
   setRenderingVideo : (state: boolean) => void;
   setImageUrlPose: (url: string | any) => void;
   setImageUrlMask: (url: string | any) => void;
-  setAnimationFiles: (files: File[]) => void;
 };
 
 enum AnimationType {
@@ -50,12 +46,10 @@ const useDrawingStore = create<DrawingState>((set) => ({
   croppedImgDimensions: { width: 0, height: 0 },
   pose: { nodes: [], edges: [] },
   boundingBox: { x: 200, width: 100, y: 200, height: 100, id: "1" },
-  videoDownload: "",
   animationType: AnimationType.RunJump,
   renderingVideo: false,
   imageUrlPose: undefined,
   imageUrlMask: undefined,
-  animationFiles: [],
   setDrawing: (imported) => set(() => ({ drawing: imported })),
   setNewCompressedDrawing: (file) =>
     set(() => ({ newCompressedDrawing: file })),
@@ -65,12 +59,10 @@ const useDrawingStore = create<DrawingState>((set) => ({
     set(() => ({ croppedImgDimensions: data })),
   setPose: (n_pose) => set(() => ({ pose: n_pose })),
   setBox: (newBB) => set(() => ({ boundingBox: newBB })),
-  setVideoDownload: (url) => set(() => ({ videoDownload: url })),
   setAnimationType: (ani_type) => set(() => ({ animationType: ani_type })),
   setRenderingVideo: (rendering) => set(() => ({ renderingVideo: rendering })),
   setImageUrlPose: (url) => set(() => ({ imageUrlPose: url })),
   setImageUrlMask: (url) => set(() => ({ imageUrlMask: url })),
-  setAnimationFiles: (files) => set(() => ({ animationFiles: files })),
 }));
 
 export default useDrawingStore;

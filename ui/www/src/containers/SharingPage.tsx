@@ -24,9 +24,6 @@ const SharingPage = () => {
             </Col>
           </Row>
         </Container>
-        <div className="home-footer-credits text-center py-2">
-          <h4>FACEBOOK AI RESEARCH</h4>
-        </div>
       </div>
       <SharingFooter setShowModal={setShowModal} />
       <AboutModal showModal={showModal} setShowModal={setShowModal} />

@@ -4,7 +4,6 @@ import imageCompression from "browser-image-compression";
 import Resizer from "react-image-file-resizer";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
-import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
@@ -15,7 +14,6 @@ type Base64 = Opaque<string, "base64">;
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
-  const { setCurrentStep } = useStepperStore();
   const {
     drawing,
     newCompressedDrawing,
@@ -24,12 +22,7 @@ const CanvasUpload = () => {
     setNewCompressedDrawing,
     setOriginalDimensions,
   } = useDrawingStore();
-  const {
-    isLoading,
-    uploadImage,
-    setConsentAnswer,
-  } = useDrawingApi((err) => {});
-
+  const { isLoading, uploadImage } = useDrawingApi((err) => {});
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
@@ -63,9 +56,9 @@ const CanvasUpload = () => {
   /**
    * Compress function implements the main logic of all possible escenarios
    * when uploading images of drawings.
-   * 1. Check if ianmge is a .heic file being upload from desktop and is not rotated.
-   * 2. When the file is in .heic format and is rotated.
-   * 3. When the image is not a .heic file, and the exif orientation is not rotated.
+   * 1. Check if an image is a .heic file being upload from desktop and is not rotated.
+   * 2. Images in jpeg, png, not exif rotation.
+   * 3. The exif orientation captured in mobile camera.
    * @param e 
    * @returns
    */
@@ -78,17 +71,20 @@ const CanvasUpload = () => {
       useWebWorker: true,
     };
     try {
-      const exif_rotation = await imageCompression.getExifOrientation(file); // First check if the image has EXIF orientation metadata.
+      const exif_rotation = await imageCompression.getExifOrientation(file); // First check the image EXIF orientation metadata.
 
       // Check if the file is in HEIC format for desktop.
       if (file.type === "image/heic" && exif_rotation !== 6) {
         const heicURL = URL.createObjectURL(file);
         convertHeicformat(heicURL);
-      } else if (file.type === "image/heic" && exif_rotation === 6) {
-        // Check for orientation tag equals to 6
+      } else if (
+        (file.type === "image/jpeg" || file.type === "image/png") &&
+        exif_rotation !== 6
+      ) {
         setCompressing(true);
-        const imgUrl = (await formatExif(file)) as Base64;
-        let newFile = new File([imgUrl], "animation.png", {
+        const compressedFile = await imageCompression(file, options);
+        const imgUrl = URL.createObjectURL(compressedFile);
+        let newFile = new File([compressedFile], "animation.png", {
           type: "image/png",
           lastModified: new Date().getTime(),
         });
@@ -106,11 +102,11 @@ const CanvasUpload = () => {
         setNewCompressedDrawing(newFile);
         setDrawing(imgUrl);
         setCompressing(false);
-      } else if (file.type !== "image/heic" && exif_rotation !== 6) {
+      } else if (exif_rotation === 6) {
+        // Check for orientation tag equals to 6, photos taken from phone.
         setCompressing(true);
-        const compressedFile = await imageCompression(file, options);
-        const imgUrl = URL.createObjectURL(compressedFile);
-        let newFile = new File([compressedFile], "animation.png", {
+        const imgUrl = (await formatExif(file)) as Base64;
+        let newFile = new File([imgUrl], "animation.png", {
           type: "image/png",
           lastModified: new Date().getTime(),
         });
@@ -173,24 +169,14 @@ const CanvasUpload = () => {
   };
 
   /**
-   * Upload image when user click on next, check for a cached waiver response.
-   * "waiver_res". If not response is found open the waiver modal.
-   * Otherwise skip the waiver step.
+   * Upload image when clicking on next,
    */
   const handleNext = async () => {
-    let waiver_res = sessionStorage.getItem("waiver_res");
     try {
       await uploadImage(newCompressedDrawing, (data) => {
         setUuid(data as string);
-        if (!waiver_res) {
-          setShowWaiver(true);
-        } else {
-          let res = parseInt(waiver_res);
-          setConsentAnswer(data, res, () => {
-            setCurrentStep(2);
-          });
-        }
       });
+      setShowWaiver(true);
     } catch (error) {
       console.log(error);
     }
@@ -260,7 +246,7 @@ const CanvasUpload = () => {
               disabled={!enableUpload}
               onClick={upload}
             >
-              <i className="bi bi-image-fill mr-2" /> Upload
+              <i className="bi bi-image-fill mr-2" /> Upload Photo
             </Button>
           )}
         </div>
