@@ -3,6 +3,7 @@ import { useHistory } from "react-router";
 import { Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import ShareModal from "../Modals/ShareModal";
+import ShareIcon from "../../assets/customIcons/nav_share.svg";
 
 const VIDEO_URL = window._env_.VIDEO_URL;
 
@@ -150,7 +151,14 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
                 aria-hidden="true"
               />
             ) : (
-              <>Share</>
+              <>
+                <img
+                  src={ShareIcon}
+                  alt=""
+                  className="mr-1"
+                />
+                Share
+              </>
             )}
           </Button>
         </Col>

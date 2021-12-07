@@ -588,7 +588,15 @@ def index_resource():
 def not_found(e):
     return send_file(resource_dir / "index.html")
 
-@app.route("/about")
+@app.route("/terms")
+def about_route():
+    return send_file(resource_dir / "index.html")
+
+@app.route("/privacy")
+def about_route():
+    return send_file(resource_dir / "index.html")
+
+@app.route("/cookies")
 def about_route():
     return send_file(resource_dir / "index.html")
 
