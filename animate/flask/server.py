@@ -6,14 +6,13 @@ import sketch_animate.main_server
 import s3_object
 import storage_service
 import uuid
+import shutil
 # Uncomment the following lines to enable functiontrace
 # import functiontrace
 # functiontrace.trace()
 
 interim_store = storage_service.get_interim_store()
 video_store = storage_service.get_video_store()
-
-ANIMATION_FOLDER = "/animation/"
 
 app = Flask(__name__)
 
@@ -88,7 +87,7 @@ def generate_animation():
     video_output_path = video_store.exists(video_id, f'{animation_type}.mp4')
     try:
         if video_output_path != True:
-            work_dir = "s3_animation/%s%s" % (unique_id, ANIMATION_FOLDER)
+            work_dir = f'tmp_video_workdirs/{unique_id}'
             os.makedirs(work_dir, exist_ok=True)
 
             # pull down animation/cropped_image.yaml from s3
@@ -130,6 +129,8 @@ def generate_animation():
                 logging.info("Generated Video ID: %s for Image Id: %s", video_id, unique_id)
             
             video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes)
+
+            shutil.rmtree(work_dir)
 
         return make_response(video_id, 200)
 
