@@ -1,10 +1,6 @@
 # syntax = docker/dockerfile:1.2
 # Standalone AWS to deploy the web app to an s3 bucket
 
-# ARG AWS_S3_WWW_BUCKET
-# ARG SKETCH_API_ENDPOINT
-# ARG VIDEO_CDN_URL
-# ARG ENABLE_UPLOAD
 
 
 # ####################
@@ -12,7 +8,6 @@
 # ####################
 FROM node:16.8.0 as builder
 
-ARG AWS_S3_WWW_BUCKET
 ARG SKETCH_API_ENDPOINT
 ARG VIDEO_CDN_URL
 ARG ENABLE_UPLOAD
