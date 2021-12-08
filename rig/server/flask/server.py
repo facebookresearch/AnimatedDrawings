@@ -128,31 +128,24 @@ def upload_image():
 def copy_preapproved_image():
     """ Expects a POST request with a string identifying the preapproved_image to copy (request.form['image_name']).
     Creates a copy of the image, returns a unique id that can be used to reference it in the future."""
+
     img_name = request.form['image_name']
     if img_name not in ['example3.png', 'example4.jpg', 'example5.png', 'example6.png']:
         return make_response(f"image name not in preapproved image names: {img_name}", 500)
 
     unique_id = uuid.uuid4().hex
-    # #work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)  #: remove this after switching to S3
-    # #os.makedirs(work_dir, exist_ok=False)  # : remove this after switching to S3
-    # s3_object.write_object(unique_id, "", "")
 
-
-    ## ** verify whats going on here
-    # TODO Read the pre-approved image an kick off workflow
-    
     src = f'./preapproved_imgs/{img_name}'
-    s3_object.write_object("/preapproved_imgs/", img_name)
-    
-    
-    #dst = os.path.join(work_dir, 'image.png')  # TODO: remove this after switching to S3
-    #shutil.copy(src, dst)  # TODO: replace this with call to S3 once Chris's changes have been merged
+    with open(src, 'rb') as f:
+        img_bytes =  f.read()
+    interim_store.write_bytes(unique_id, "image.png", img_bytes)
 
     detect_humanoids.detect_humanoids(unique_id)
 
     crop_from_bb.crop_from_bb(unique_id)
 
     return make_response(unique_id, 200)
+
 
 ##############################################
 # At the request of upper management, adding in this function to run the entire pipeline
