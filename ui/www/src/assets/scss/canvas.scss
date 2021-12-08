@@ -194,6 +194,7 @@
   height: 48px;
   border: 1px solid;
   border-radius: 8px;
+  border-color: $primary;
   background-color: $white;
   color: $dark;
   margin: 0 2px;
@@ -211,6 +212,8 @@
   cursor: pointer;
   text-align: center;
   border-radius: 10px;
+  border: 1px solid;
+  border-color: $primary;
   color: $dark;
 }
 
@@ -234,6 +237,7 @@
     height: 30px;
     width: 70px;
     font-size: 9px;
+    border-radius: 8px;
   }
   .sm-button-icon {
     display: flex;
@@ -241,12 +245,13 @@
     align-items: center;
     width: 30px;
     height: 30px;
-    border-radius: 10px;
+    border-radius: 8px;
   }
   .sm-button {
     width: 25%; 
     height: 40px;
     font-size: 14px;
+    border-radius: 8px;
   }
   .md-button-right {
     width: 70%; 
@@ -430,11 +435,17 @@
   flex-direction: column;
 }
 .tools-wrapper {
-  padding: 6px 6px;
+  padding: 14px 14px;
   background-color: $white;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.35);
+}
+
+@media screen and (max-width: 576px) {
+  .tools-wrapper {
+    padding: 6px 6px;
+  }
 }
 
 /*******************/

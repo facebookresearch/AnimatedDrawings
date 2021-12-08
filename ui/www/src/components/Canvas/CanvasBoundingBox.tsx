@@ -167,7 +167,7 @@ const CanvasBoundingBox = () => {
         />
       </div>
       <Row className="justify-content-center mt-3">
-        <Col lg={6} md={6} xs={12} className="order-lg-2 text-center">
+        <Col lg={6} md={6} xs={12} className="order-md-2 text-center">
           <Button
             block
             size="lg"
@@ -190,7 +190,7 @@ const CanvasBoundingBox = () => {
             )}
           </Button>
         </Col>
-        <Col lg={6} md={6} xs={12} className="order-lg-1">
+        <Col lg={6} md={6} xs={12} className="order-md-1">
           <Button
             block
             size="lg"

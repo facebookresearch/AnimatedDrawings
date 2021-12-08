@@ -7,7 +7,9 @@
 .pens-wrapper {
   width: 130px;
   height: 48px;
+  border: 1px solid;
   border-radius: 10px;
+  border-color: $primary;
   background-color: white;
   justify-content: center;
   align-items: center;
@@ -51,7 +53,7 @@
                 margin-right: auto;
                 margin-left: 0.1em;
                 transition: 0.25s ease;
-                box-shadow: inset 0 0 0 0.125em $black;
+                box-shadow: inset 0 0 0 0.125em $primary;
             }
         }
     }
@@ -83,7 +85,7 @@
   .pens-wrapper {
     width: 80px;
     height: 30px;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 3px;
   }
   .pens {  
@@ -104,21 +106,21 @@
   }
   .label1 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label2 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label3 {
     margin-left: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
 }
 
 /* Mobile Landscape */
 @media only screen 
-  and (device-width: 812px) 
+  and (max-device-width: 812px) 
   and (orientation: landscape) 
   and (-webkit-min-device-pixel-ratio: 2) {
     .pens-wrapper {
@@ -143,15 +145,15 @@
     
     .label1 {
       margin-right: 0.3em;
-      margin-top: 0.28em
+      margin-top: 0.3em
     }
     .label2 {
       margin-right: 0.3em;
-      margin-top: 0.28em
+      margin-top: 0.3em
     }
     .label3 {
       margin-left: 0.3em;
-      margin-top: 0.28em
+      margin-top: 0.3em
     }
   }
 
@@ -186,15 +188,15 @@ and (-webkit-min-device-pixel-ratio: 1) {
   }
   .label1 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label2 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label3 {
     margin-left: 0.3em;
-    margin-top: 0.28em;
+    margin-top: 0.3em;
   }
 }
 
@@ -224,14 +226,14 @@ and (-webkit-min-device-pixel-ratio: 2) {
   }
   .label1 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label2 {
     margin-right: 0.3em;
-    margin-top: 0.28em
+    margin-top: 0.3em
   }
   .label3 {
     margin-left: 0.3em;
-    margin-top: 0.28em;
+    margin-top: 0.3em;
   }
 }
