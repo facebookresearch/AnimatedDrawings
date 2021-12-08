@@ -77,6 +77,3 @@ def detect_humanoids(unique_id):
     # Serializing json  
     json_object = json.dumps(bb, indent = 4) 
     interim_store.write_bytes(unique_id, "bb.json", bytearray(json_object, "ascii"))
-    
-    cropped_img = input_img[bb['y1']:bb['y2'], bb['x1']:bb['x2'], :]
-    interim_store.write_bytes(unique_id, 'cropped_image.png', storage_service.np_to_png_bytes(cropped_img))
