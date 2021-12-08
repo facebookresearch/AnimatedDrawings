@@ -12,7 +12,7 @@ const titles = [
   },
   {
     step: 2,
-    title: "Finding the human-like character",
+    title: "Finding the character",
   },
   {
     step: 3,

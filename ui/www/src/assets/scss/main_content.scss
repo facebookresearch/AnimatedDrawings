@@ -447,7 +447,7 @@
 
 .bg-waiver {
   position: relative;
-  background-image: url('../backgrounds/Waiverscreen.jpg');
+  background-image: url('../backgrounds/Defaultscreen.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -503,7 +503,7 @@
     align-items:flex-start
   }
   .waiver-step-container{
-    height: 50vh;
+    height: 60vh;
     h2 {  
       font-size: 24px;
     }
@@ -533,6 +533,114 @@
 @media screen and (max-width: 576px) {
   .share-page {
     align-content: flex-start;
+  }
+}
+
+/****************************/
+/**** Miscellaneous Pages ***/
+/****************************/
+
+.terms-page {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  h2 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 64px;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-size: 24px;
+    line-height: 28px;
+    text-align: center;
+    font-weight: normal;
+  }
+  a {
+    font-weight: 600;
+    font-family: $font-family-md;
+  }
+}
+
+.ad-logo-title {
+  cursor: pointer;
+  padding: 1em;
+  h2 {
+    font-size: 24px;
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-weight: bold;
+    color: $primary;
+    letter-spacing: 0.005px;
+    text-transform: uppercase;
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 576px) {
+  .terms-page {
+    h3 {
+      font-size: 16px;
+      line-height: 20px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+  }
+  .ad-logo-title {
+    h2 {
+      font-size: 20px;
+    }
+  }
+}
+
+/* Tablets */
+@media (min-width: 576px) and (max-width: 1024px)  {
+  .terms-page {
+    position: relative;
+    height: 1000px;
+  }
+}
+
+/****************************/
+/***** About Modal/Page *****/
+/****************************/
+
+.about-text-container {
+  padding: 10px;
+  width: 100%;
+  height: 80vh;
+  max-width: 550px;
+  overflow: auto;
+  margin-bottom: 20px;
+  h2 {
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1B4978;
+  }
+  .bold {
+    font-family: $font-family-md;
+    font-weight: bold;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .about-text-container{
+    height: 100vh;
+    h2 {  
+      font-size: 24px;
+    }
   }
 }
 
