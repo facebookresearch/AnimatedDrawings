@@ -1,29 +1,34 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-import { Container, Row, Col } from "react-bootstrap";
+import { Navbar, Nav, Container, Row, Col } from "react-bootstrap";
 
 const AboutPage = () => {
-  const history = useHistory();
   return (
-    <div className="main-content bg-about" id="about">
-      <div className="about-page">
-        <Container className="align-content-center">
-          <Row className="justify-content-center">
-            <Col lg={6} md={10} xs={12}>
-              <h2 className="mb-3 text-center">ABOUT THIS DEMO</h2>
+    <div className="main-content bg-about">
+      <Navbar bg="transparent">
+        <Navbar.Brand href="/">
+          <div className="ad-logo-title">
+            <h2 className="mb-3">
+              ANIMATED <span className="text-info">DRAWINGS</span>
+            </h2>
+          </div>
+        </Navbar.Brand>
+      </Navbar>
+      <div className="terms-page mb-2">
+        <Container>
+          <Row className="justify-content-center mt-2">
+            <Col lg={7} md={10} xs={12} className="about-single-page">
+              <h2 className="mb-4 text-center">ABOUT THIS DEMO</h2>
               <p>
                 Children’s drawings have a wonderful inventiveness, energy, and
                 variety. We focus on the consequence of all that variety in
                 their drawings of human figures as we develop an algorithm to
                 bring them to life through automatic animation.
               </p>
-              <br />
               <p>
                 {" "}
                 This demo builds upon <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noreferrer" className="bold">Detectron2</a> and <a href="https://github.com/MVIG-SJTU/AlphaPose" target="_blank" rel="noreferrer">AlphaPose</a>.
                 Motion capture data comes from the <a href="http://mocap.cs.cmu.edu/" target="_blank" rel="noreferrer">CMU Graphics Motion Capture Lab</a> and <a href="https://www.mixamo.com/" target="_blank" rel="noreferrer">Mixamo</a>.
               </p>
-              <br />
               <p>
                 Built by Jesse Smith, Jessica Hodgins, Somya Jain, Sahir Gomez,
                 Somayan Chakrabarti, Clarence Edmondson III, Christopher
@@ -89,13 +94,71 @@ const AboutPage = () => {
                 animation may be used, released, or published for any of the
                 following purposes:
               </p>
+              <ul className="d-list pl-2">
+                <li>
+                  To train a model to better identify, segment, and place
+                  joints on hand drawn characters;
+                </li>
+                <li>To ensure quality annotations by human viewers;</li>
+                <li>As part of an academic research paper or video;</li>
+                <li>
+                  As part of a publicly available database for researchers
+                  to develop creativity tools for children; and/or
+                </li>
+                <li>
+                  As part of future initiatives to encourage additional
+                  image collection.
+                </li>
+              </ul>
+              <p>
+                If you consent to contributing your or your child’s
+                drawing for further research, the purposes set forth above
+                are the only research-related purposes for which we will
+                use the contributed drawing.
+              </p>
             </Col>
           </Row>
         </Container>
       </div>
-      <div className="wr-about-1" onClick={() => history.push("/")}>
-        <i className="bi bi-x-lg h1" />
-      </div>
+      <Navbar expand="sm" bg="transparent" className="align-items-start">
+        <Nav className="mr-auto">
+          <Nav.Link
+            href={`https://docs.google.com/forms/d/e/1FAIpQLSfynXUEVc0YvSYGXN3BCFjl7uNthyEkxqibsNHn3pqA_Wt8Hg/viewform?entry.1387562397=Preload Step [No ID]`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary"
+          >
+            Feedback
+            <i className="bi bi-info-circle-fill ml-2 h3"></i>
+          </Nav.Link>
+        </Nav>
+        <Nav className="text-right">
+          <Nav.Link
+            href="/privacy"
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary"
+          >
+            Privacy Policy
+          </Nav.Link>
+          <Nav.Link
+            href="/terms"
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary"
+          >
+            Terms
+          </Nav.Link>
+          <Nav.Link
+            href="/cookies"
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary"
+          >
+            Cookies
+          </Nav.Link>
+        </Nav>
+      </Navbar>
     </div>
   );
 };
