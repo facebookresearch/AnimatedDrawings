@@ -2,7 +2,7 @@ import React from "react";
 import { Spinner } from "react-bootstrap";
 import example3 from "../assets/drawings_examples/example3.png";
 import example4 from "../assets/drawings_examples/example4.jpg";
-import example5 from "../assets/drawings_examples/example5.png";
+import example5 from "../assets/drawings_examples/example5.jpg";
 import example6 from "../assets/drawings_examples/example6.png";
 import { useDrawingApi } from "../hooks/useDrawingApi";
 import useDrawingStore from "../hooks/useDrawingStore";
@@ -19,7 +19,7 @@ const ExamplesCarousel = () => {
         return example3;
       case "example4.jpg":
         return example4;
-      case "example5.png":
+      case "example5.jpg":
         return example5;
       case "example6.png":
         return example6;
@@ -93,7 +93,7 @@ const ExamplesCarousel = () => {
           <img
             src={example5}
             alt=""
-            onClick={() => handlePreCannedImage("example5.png")}
+            onClick={() => handlePreCannedImage("example5.jpg")}
           />
         )}
       </div>

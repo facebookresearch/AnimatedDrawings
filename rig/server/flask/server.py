@@ -130,7 +130,7 @@ def copy_preapproved_image():
     Creates a copy of the image, returns a unique id that can be used to reference it in the future."""
 
     img_name = request.form['image_name']
-    if img_name not in ['example3.png', 'example4.jpg', 'example5.png', 'example6.png']:
+    if img_name not in ['example3.png', 'example4.jpg', 'example5.jpg', 'example6.png']:
         return make_response(f"image name not in preapproved image names: {img_name}", 500)
 
     unique_id = uuid.uuid4().hex
