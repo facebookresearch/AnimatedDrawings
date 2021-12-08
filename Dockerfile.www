@@ -2,6 +2,13 @@
 # Standalone AWS to deploy the web app to an s3 bucket
 
 
+# ####################
+#  Build and Deploy in 1 step - execute the following comnmand
+# ####################
+
+# DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest build www_deploy && DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest up www_deploy
+
+
 
 # ####################
 #  Web App - Build
