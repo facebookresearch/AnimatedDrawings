@@ -9,7 +9,7 @@ import useDrawingStore from "../hooks/useDrawingStore";
 import useStepperStore from "../hooks/useStepperStore";
 
 const ExamplesCarousel = () => {
-  const { isLoading, setPreCannedImage } = useDrawingApi((err) => {});
+  const { isLoading, setPreCannedImage, setConsentAnswer } = useDrawingApi((err) => {});
   const { setUuid, setDrawing, setOriginalDimensions } = useDrawingStore();
   const { setCurrentStep } = useStepperStore();
 
@@ -52,6 +52,7 @@ const ExamplesCarousel = () => {
 
       await setPreCannedImage(image_name, (data) => {
         setUuid(data as string);
+        setConsentAnswer(data, 0, () => {}) // here set up the consent to disagree always, as not user images are being used.
       });
 
       setDrawing(imageDataUrl);
