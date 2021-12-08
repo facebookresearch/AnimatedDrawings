@@ -116,6 +116,11 @@
     align-items: center;
     margin-top: 1em;
   } 
+  li::marker {
+    align-items: center;
+    text-align: center !important;
+    text-align-last: center !important;
+  }
 }
 
 .step-counter {

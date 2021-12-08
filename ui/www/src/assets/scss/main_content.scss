@@ -609,6 +609,41 @@
   }
 }
 
+/****************************/
+/***** About Modal/Page *****/
+/****************************/
+
+.about-text-container {
+  padding: 10px;
+  width: 100%;
+  height: 80vh;
+  max-width: 550px;
+  overflow: auto;
+  margin-bottom: 20px;
+  h2 {
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1B4978;
+  }
+  .bold {
+    font-family: $font-family-md;
+    font-weight: bold;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .about-text-container{
+    height: 100vh;
+    h2 {  
+      font-size: 24px;
+    }
+  }
+}
+
 /************************/
 /**** Cookie Consent ****/
 /************************/
