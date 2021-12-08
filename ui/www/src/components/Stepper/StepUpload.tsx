@@ -1,7 +1,7 @@
 import React from "react";
 import ExamplesCarousel from "../ExamplesCarousel";
 
-const Step1 = () => {
+const StepUpload = () => {
   return (
     <div className="step-actions-container custom-scrollbar">
       <p>
@@ -41,4 +41,4 @@ const Step1 = () => {
   );
 };
 
-export default Step1;
+export default StepUpload;

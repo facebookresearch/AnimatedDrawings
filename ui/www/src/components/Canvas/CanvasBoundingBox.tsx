@@ -166,7 +166,7 @@ const CanvasBoundingBox = () => {
           imageHeight={iHeight}
         />
       </div>
-      <Row className="justify-content-center mt-3">
+      <Row className="justify-content-center mt-3 pb-1">
         <Col lg={6} md={6} xs={12} className="order-md-2 text-center">
           <Button
             block

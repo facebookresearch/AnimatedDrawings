@@ -2,7 +2,7 @@ import React from "react";
 import image_1 from "../../assets/drawings_examples/step5/image_1.png";
 import image_2 from "../../assets/drawings_examples/step5/image_2.png";
 
-const Step5 = () => {
+const StepPose = () => {
   return (
     <div className="step-actions-container custom-scrollbar">
       <p>
@@ -34,4 +34,4 @@ const Step5 = () => {
   );
 };
 
-export default Step5;
+export default StepPose;
