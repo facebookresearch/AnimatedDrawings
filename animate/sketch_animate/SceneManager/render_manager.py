@@ -47,9 +47,7 @@ class RenderManager(BaseManager):
             vid_name = self.cfg['BVH_PATH'].split('/')[-1]
             self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH'])) / f'{vid_name}.mp4'
 
-        self.video_working_dir = Path('./video_work_dir/' + self.out_file.parent.name)
-        self.video_working_dir.mkdir(parents=True, exist_ok=True)
-        self.intermediary_out_file = self.video_working_dir / (str(time.time()) + '.mp4')
+        self.video_working_dir = self.out_file.parent
 
         self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
         self.frames_written = 0
@@ -67,7 +65,7 @@ class RenderManager(BaseManager):
             Path.unlink(self.out_file)
 
         fourcc = cv2.VideoWriter_fourcc(*'x264')
-        self.video_writer = cv2.VideoWriter(str(self.intermediary_out_file), fourcc, self.BVH_fps, (self.width, self.height))
+        self.video_writer = cv2.VideoWriter(str(self.out_file), fourcc, self.BVH_fps, (self.width, self.height))
 
     def run(self):
 
@@ -108,8 +106,6 @@ class RenderManager(BaseManager):
 
         self.video_writer.release()
 
-        shutil.move(self.intermediary_out_file, self.out_file)
-        Path.rmdir(self.video_working_dir)
 
     def create_transferrer_render(self):
         self.transferrer = Transferrer_Render(self, self.cfg)
