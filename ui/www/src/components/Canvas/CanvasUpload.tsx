@@ -223,7 +223,7 @@ const CanvasUpload = () => {
       />
 
       {drawing === "" ? (
-        <div className="mt-4">
+        <div className="mt-4 pb-1">
           {compressing ? (
             <Button
               block
@@ -251,7 +251,7 @@ const CanvasUpload = () => {
           )}
         </div>
       ) : (
-        <div className="mt-4 text-center">
+        <div className="mt-4 pb-1 text-center">
           <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
             Retake
           </button>

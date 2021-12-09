@@ -106,20 +106,8 @@ const CanvasPose = () => {
         )}
       </div>
 
-      <Row className="justify-content-center mt-3">
-        <Col lg={5} md={5} xs={12}>
-          <Button
-            block
-            size="lg"
-            variant="outline-primary"
-            className="py-lg-3 mt-lg-3 my-1"
-            disabled={isLoading}
-            onClick={() => handleClick("previous")}
-          >
-            Previous
-          </Button>
-        </Col>
-        <Col lg={5} md={5} xs={12} className="text-center">
+      <Row className="justify-content-center mt-3 pb-1">
+        <Col lg={6} md={6} xs={12} className="order-md-2 text-center">
           <Button
             block
             size="lg"
@@ -140,6 +128,18 @@ const CanvasPose = () => {
                 Next <i className="bi bi-arrow-right ml-1" />{" "}
               </>
             )}
+          </Button>
+        </Col>
+        <Col lg={6} md={6} xs={12} className="order-md-1">
+          <Button
+            block
+            size="lg"
+            variant="outline-primary"
+            className="py-lg-3 mt-lg-3 my-1"
+            disabled={isLoading}
+            onClick={() => handleClick("previous")}
+          >
+            Previous
           </Button>
         </Col>
       </Row>

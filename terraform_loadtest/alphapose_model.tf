@@ -40,7 +40,7 @@ resource "aws_alb_listener" "alphapose_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "alphapose_ecs_service" {
-  name        = "${var.alphapose_service_name}-update"
+  name        = "${var.alphapose_service_name}-deploy"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.alpha_service.arn
@@ -67,7 +67,7 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "alpha_service" {
-  family = "alphapose-tf-update"
+  family = "alphapose-tf"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -106,7 +106,7 @@ resource "aws_ecs_task_definition" "alpha_service" {
 
 resource "aws_appautoscaling_target" "alphapose_target" {
   max_capacity = 10
-  min_capacity = 5
+  min_capacity = 2
   resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.alphapose_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"

@@ -61,7 +61,7 @@ resource "aws_ecs_service" "animation_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "animation_task_definition" {
-  family = "animation-task-definition-update"
+  family = "animation-td-update"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "animation_task_definition" {
 
 resource "aws_appautoscaling_target" "animation_asg_target" {
   max_capacity = 10
-  min_capacity = 5
+  min_capacity = 2
   resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.animation_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"

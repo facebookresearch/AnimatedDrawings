@@ -30,7 +30,7 @@ ANIMATION_ENDPOINT = os.environ.get("ANIMATION_ENDPOINT")
 
 video_store = storage_service.get_video_store()
 interim_store = storage_service.get_interim_store()
-consent_store = storage_service.get_consent_store()
+# consent_store = storage_service.get_consent_store()
 
 
 
@@ -128,31 +128,24 @@ def upload_image():
 def copy_preapproved_image():
     """ Expects a POST request with a string identifying the preapproved_image to copy (request.form['image_name']).
     Creates a copy of the image, returns a unique id that can be used to reference it in the future."""
+
     img_name = request.form['image_name']
-    if img_name not in ['example3.png', 'example4.jpg', 'example5.png', 'example6.png']:
+    if img_name not in ['example3.png', 'example4.jpg', 'example5.jpg', 'example6.png']:
         return make_response(f"image name not in preapproved image names: {img_name}", 500)
 
     unique_id = uuid.uuid4().hex
-    # #work_dir = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)  #: remove this after switching to S3
-    # #os.makedirs(work_dir, exist_ok=False)  # : remove this after switching to S3
-    # s3_object.write_object(unique_id, "", "")
 
-
-    ## ** verify whats going on here
-    # TODO Read the pre-approved image an kick off workflow
-    
     src = f'./preapproved_imgs/{img_name}'
-    s3_object.write_object("/preapproved_imgs/", img_name)
-    
-    
-    #dst = os.path.join(work_dir, 'image.png')  # TODO: remove this after switching to S3
-    #shutil.copy(src, dst)  # TODO: replace this with call to S3 once Chris's changes have been merged
+    with open(src, 'rb') as f:
+        img_bytes =  f.read()
+    interim_store.write_bytes(unique_id, "image.png", img_bytes)
 
     detect_humanoids.detect_humanoids(unique_id)
 
     crop_from_bb.crop_from_bb(unique_id)
 
     return make_response(unique_id, 200)
+
 
 ##############################################
 # At the request of upper management, adding in this function to run the entire pipeline
@@ -425,20 +418,7 @@ def get_animation():
     ### record annotations if consent is given ###
     #with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
-    consent_response = bool(int(consent_store.read_bytes(unique_id, "consent_response.txt")))
-    print("passed consent")
-    #TODO: @Chris, can you write us a function in s3_object to copy a subdirectory from one S3 bucket to another?
-    # e.g. copy <ITERIM_S3_BUCKET>/<uuid> subdir and contents to <CONSENT_GIVEN_S3_BUCKET>/<uuid>? That needs to occur here.
-    if consent_response:
-        assert False
-        # src = work_dir
-        # dst = os.path.join(CONSENT_GIVEN_SAVE_DIR, unique_id)
-
-        # if os.path.isdir(dst):
-        #     shutil.rmtree(dst)
-
-        # shutil.copytree(src, dst)
-
+    consent_response = bool(int(interim_store.read_bytes(unique_id, "consent_response.txt")))
 
     animation_type = request.form['animation']
     print("RUNNING ASSERT")
@@ -519,7 +499,7 @@ def set_consent_answer():
         return make_response('invalid uuid', 400)
 
     consent_response = request.form['consent_response']
-    consent_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
+    interim_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
     return make_response("", 200)
 
 
@@ -592,8 +572,16 @@ def index_resource():
 def not_found(e):
     return send_file(resource_dir / "index.html")
 
-@app.route("/about")
-def about_route():
+@app.route("/terms")
+def terms_route():
+    return send_file(resource_dir / "index.html")
+
+@app.route("/privacy")
+def privacy_route():
+    return send_file(resource_dir / "index.html")
+
+@app.route("/cookies")
+def cookies_route():
     return send_file(resource_dir / "index.html")
 
 @app.route("/canvas")

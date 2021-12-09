@@ -32,7 +32,7 @@ resource "aws_alb_listener" "sketch_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
-  name        = "${var.sketch_service_name}_${var.environment}"
+  name        = "${var.sketch_service_name}_deploy"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.sketch_task_definition.arn
@@ -59,7 +59,7 @@ resource "aws_ecs_service" "sketch_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family = "${var.sketch_service_name}-task-definition-${var.environment}"
+  family = "${var.sketch_service_name}-td-${var.environment}"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -132,7 +132,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
   max_capacity = 10
-  min_capacity = 5
+  min_capacity = 2
   resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"

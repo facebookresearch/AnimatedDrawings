@@ -4,10 +4,14 @@ import { Row, Button } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import AnimationTypes from "../../utils/AnimationTypes";
 
-const Step7 = () => {
+const StepAnimation = () => {
   const { animationType, renderingVideo, setAnimationType } = useDrawingStore();
   const [group, setGroup] = useState("all");
 
+  /**
+   * Generate an object with the animations grouped 
+   * by its group key: dance, funny, jumps, walks.
+   */
   const groups = AnimationTypes.reduce((r, a) => {
     r[a.group] = r[a.group] || [];
     r[a.group].push(a);
@@ -126,56 +130,63 @@ const Step7 = () => {
   };
 
   return (
-    <div
-      className={classnames("step-actions-container-animation", {
-        "bottom-shadow": group === "all",
-      })}
-    >
-      <p className="ml-2">
-        Choose one of the motions below to see your character perform it!
-      </p>
+    <div className="animations-wrapper">
+      <div
+        className={classnames("step-animation-instructions", {
+          "custom-scrollbar": group === "all",
+        })}
+      >
+        <p className="ml-2">
+          Choose one of the motions below to see your character perform it!
+        </p>
 
-      <Row className="px-0 m-0 ml-lg-2 nav-pills">
-        <Button
-          variant={group === "all" ? "primary" : "outline-primary"}
-          size="sm"
-          onClick={() => setGroup("all")}
-        >
-          ALL
-        </Button>
-        <Button
-          variant={group === "dance" ? "primary" : "outline-primary"}
-          size="sm"
-          onClick={() => setGroup("dance")}
-        >
-          DANCE
-        </Button>
-        <Button
-          variant={group === "funny" ? "primary" : "outline-primary"}
-          size="sm"
-          onClick={() => setGroup("funny")}
-        >
-          FUNNY
-        </Button>
-        <Button
-          variant={group === "jumps" ? "primary" : "outline-primary"}
-          size="sm"
-          onClick={() => setGroup("jumps")}
-        >
-          JUMPING
-        </Button>
-        <Button
-          variant={group === "walks" ? "primary" : "outline-primary"}
-          size="sm"
-          onClick={() => setGroup("walks")}
-        >
-          WALKING
-        </Button>
-      </Row>
-
-      <Row className="px-0 m-0 mt-2">{renderGroup()}</Row>
+        <Row className="px-0 m-0 ml-lg-2 nav-pills">
+          <Button
+            variant={group === "all" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={() => setGroup("all")}
+          >
+            ALL
+          </Button>
+          <Button
+            variant={group === "dance" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={() => setGroup("dance")}
+          >
+            DANCE
+          </Button>
+          <Button
+            variant={group === "funny" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={() => setGroup("funny")}
+          >
+            FUNNY
+          </Button>
+          <Button
+            variant={group === "jumps" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={() => setGroup("jumps")}
+          >
+            JUMPING
+          </Button>
+          <Button
+            variant={group === "walks" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={() => setGroup("walks")}
+          >
+            WALKING
+          </Button>
+        </Row>
+      </div>
+      <div
+        className={classnames("step-actions-container-animation", {
+          "custom-scrollbar": group === "all",
+        })}
+      >
+        <Row className="px-0 m-0 mt-2">{renderGroup()}</Row>
+      </div>
     </div>
   );
 };
 
-export default Step7;
+export default StepAnimation;
