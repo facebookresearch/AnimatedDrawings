@@ -1,6 +1,6 @@
 ## ANIMATION API TARGET GROUP / HEALTH CHECK/ PORT CONFIGURATION
 resource "aws_alb_target_group" "animation_tg" {
-  name        = "ANIMATION-FARGATE-TG-${var.environment}"
+  name        = "animation-tg-${var.environment}"
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
@@ -34,11 +34,11 @@ resource "aws_alb_listener" "animation_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "animation_ecs_service" {
-  name        = "${var.animation_service_name}-${var.environment}"
+  name        = "${var.animation_service_name}-image"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_task_definition.arn
-  desired_count   = 4
+  desired_count   = var.desired_count
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
@@ -61,7 +61,7 @@ resource "aws_ecs_service" "animation_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "animation_task_definition" {
-  family = "animation-taskdefinition"
+  family = "animation-task-definition-update"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -73,7 +73,7 @@ resource "aws_ecs_task_definition" "animation_task_definition" {
   container_definitions = jsonencode([
     {
       "name"      = "${var.animation_container_name}"
-      "image"     = "${var.animation_image}"
+      "image"     = "${aws_ecr_repository.animation_repo.repository_url}:latest"
       "essential" = true
       "portMappings" = [
         {
@@ -121,7 +121,7 @@ resource "aws_appautoscaling_target" "animation_asg_target" {
 }
 
 resource "aws_appautoscaling_policy" "animation_requests" {
-  name               = "detectron_requets_policy"
+  name               = "animation_requets_policy"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.animation_asg_target.resource_id
   scalable_dimension = aws_appautoscaling_target.animation_asg_target.scalable_dimension
@@ -140,7 +140,7 @@ resource "aws_appautoscaling_policy" "animation_requests" {
 }
 
 resource "aws_appautoscaling_policy" "animation_memory" {
-  name               = "detectron_memory_policy"
+  name               = "animation_memory_policy"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.animation_asg_target.resource_id
   scalable_dimension = aws_appautoscaling_target.animation_asg_target.scalable_dimension
@@ -156,7 +156,7 @@ resource "aws_appautoscaling_policy" "animation_memory" {
 }
 
 resource "aws_appautoscaling_policy" "animation_cpu" {
-  name = "detectron_cpu_policy"
+  name = "animation_cpu_policy"
   policy_type = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.animation_asg_target.resource_id
   scalable_dimension = aws_appautoscaling_target.animation_asg_target.scalable_dimension

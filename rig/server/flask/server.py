@@ -408,13 +408,17 @@ def get_cropped_image():
 def get_animation():
     """ Expects a POST request with a pre-existing uuid in accompanying form (request.form['uuid']), as well as an a string specifying the motion within the animation (request.form['animation']).
     Currently, supports 32 types of animations, but others may be added later. Returns the mp4 video of that character doing the requested motion"""
+    print("inside get_animation call")
     if request.method != 'POST':
         return resource_set_form.format(resource_type='Animation', input_type='text', resource_name='animation')
+    animation_type = request.form['animation']
+    print(animation_type)
 
     unique_id = request.form['uuid']
+    print(unique_id)
     if not is_valid_uuid(unique_id):
         return make_response('invalid uuid', 400)
-
+        
     if interim_store.exists(unique_id, "image.png") == False:
         return redirect(request.url)
 
@@ -422,7 +426,7 @@ def get_animation():
     #with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
     consent_response = bool(int(consent_store.read_bytes(unique_id, "consent_response.txt")))
-
+    print("passed consent")
     #TODO: @Chris, can you write us a function in s3_object to copy a subdirectory from one S3 bucket to another?
     # e.g. copy <ITERIM_S3_BUCKET>/<uuid> subdir and contents to <CONSENT_GIVEN_S3_BUCKET>/<uuid>? That needs to occur here.
     if consent_response:
@@ -437,7 +441,7 @@ def get_animation():
 
 
     animation_type = request.form['animation']
-
+    print("RUNNING ASSERT")
     assert animation_type in [
         'box_jump',
         'boxing',

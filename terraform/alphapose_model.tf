@@ -38,7 +38,7 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ml_devops_cluster.id
   task_definition = aws_ecs_task_definition.alpha_service.arn
-  desired_count   = 4
+  desired_count   = var.desired_count
   deployment_minimum_healthy_percent = 2
 
   network_configuration {

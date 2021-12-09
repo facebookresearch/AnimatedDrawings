@@ -149,6 +149,6 @@ RUN "./torchserve_ap/scripts/docker_test.sh"
 FROM runtime_base AS alphapose_runtime
 
 # Downloads MAR File from S3 Bucket
-# RUN bash "./torchserve_ap/download_mar.sh"
+RUN bash "./torchserve_ap/download_mar.sh"
 CMD [ "./torchserve_ap/torchserve_start.sh"]
-
+#CMD [ "sleep", "infinity"]

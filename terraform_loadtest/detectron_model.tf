@@ -1,6 +1,6 @@
 ## DETECRON MODEL TARGET GROUP / HEALTH CHECK/ PORT CONFIGURATION
 resource "aws_alb_target_group" "detectron_tg" {
-  name        = "Detctron-Fargate-TG-${var.environment}"
+  name        = "detectron-tg-${var.environment}"
   port        = 5911
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
@@ -29,8 +29,8 @@ resource "aws_alb_listener" "http" {
   }
 }
 
-resource "aws_alb_target_group" "model_management_tg" {
-  name        = "ml-managementapi-tg-${var.environment}"
+resource "aws_alb_target_group" "detectron_management_tg" {
+  name        = "detectron-mgmt-tg-${var.environment}"
   port        = 4500
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
@@ -48,14 +48,14 @@ resource "aws_alb_target_group" "model_management_tg" {
   }
 }
 
-resource "aws_alb_listener" "management_listener" {
+resource "aws_alb_listener" "detectron_management_listener" {
   load_balancer_arn = aws_lb.ecs_cluster_alb.id
   port              = 4500
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.model_management_tg.arn
+    target_group_arn = aws_alb_target_group.detectron_management_tg.arn
   }
 }
 
@@ -66,8 +66,8 @@ resource "aws_ecs_service" "detectron_ecs_service" {
   name        = "${var.detectron_service_name}-${var.environment}"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.ml_service.arn
-  desired_count   = 4
+  task_definition = aws_ecs_task_definition.detectron_task_definition.arn
+  desired_count   = var.desired_count
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
@@ -83,7 +83,7 @@ resource "aws_ecs_service" "detectron_ecs_service" {
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.model_management_tg.arn
+    target_group_arn = aws_alb_target_group.detectron_management_tg.arn
     container_name   = var.detectron_container_name
     container_port   = 4500
   }
@@ -98,8 +98,8 @@ resource "aws_cloudwatch_log_group" "log_group" {
 }
 
 
-resource "aws_ecs_task_definition" "ml_service" {
-  family = "mldevops-zoo-api"
+resource "aws_ecs_task_definition" "detectron_task_definition" {
+  family = "detectron_task_def"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -111,7 +111,7 @@ resource "aws_ecs_task_definition" "ml_service" {
   container_definitions = jsonencode([
     {
       "name"      = "${var.detectron_container_name}"
-      "image"     = "${var.detectron_image}"
+      "image"     = "${aws_ecr_repository.detectron_repo.repository_url}:latest"
       "essential" = true
       "portMappings" = [
         {

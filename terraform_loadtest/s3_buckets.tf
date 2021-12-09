@@ -1,11 +1,3 @@
-#qa-demo-sketch-in-model-store
-#qa-demo-sketch-out-animations with CDN, CDN DNS is VIDEO_URL in env-config.js
-#qa-demo-sketch-out-consents
-#qa-demo-sketch-out-interim-files
-#qa-demo-sketch-www
-
-
-
 # WWW BUCKET and CDN 
 resource "aws_s3_bucket" "www" {
 

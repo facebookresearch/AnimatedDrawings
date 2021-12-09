@@ -71,7 +71,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
   container_definitions = jsonencode([
     {
       "name"      = "${var.sketch_container_name}"
-      "image"     = "${var.sketch_image}"
+      "image"     = "${aws_ecr_repository.sketch_repo.repository_url}:latest"
       "essential" = true
       "portMappings" = [
         {

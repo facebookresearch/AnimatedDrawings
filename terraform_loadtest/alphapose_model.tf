@@ -40,7 +40,7 @@ resource "aws_alb_listener" "alphapose_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "alphapose_ecs_service" {
-  name        = "${var.alphapose_service_name}-${var.environment}"
+  name        = "${var.alphapose_service_name}-update"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.alpha_service.arn
@@ -67,7 +67,7 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "alpha_service" {
-  family = "alphapose-task-definition-${var.environment}"
+  family = "alphapose-tf-update"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -79,7 +79,7 @@ resource "aws_ecs_task_definition" "alpha_service" {
   container_definitions = jsonencode([
     {
       "name"      = "${var.alphapose_container_name}"
-      "image"     = "${var.alphapose_image}"
+      "image"     = "${aws_ecr_repository.alphapose_repo.repository_url}:latest"
       "essential" = true
       "portMappings" = [
         {

@@ -68,11 +68,11 @@ variable "alphapose_service_name" {
 }
 
 variable "animation_service_name" {
-  default     = "animation_update"
+  default     = "animation_update_deploy"
 }
 
 variable "sketch_service_name" {
-  default     = "sketch_update"
+  default     = "sketch_update_image"
 }
 
 variable "detectron_image" {
@@ -91,7 +91,9 @@ variable "sketch_image" {
   default = "790537050551.dkr.ecr.us-east-2.amazonaws.com/sketch_api:latest"
 }
 
-
+variable "desired_count" {
+  default = 2
+}
 
 variable "target_capacity" {
   default = "2"
