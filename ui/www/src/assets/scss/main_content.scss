@@ -206,21 +206,23 @@
   .gif-wrapper {
     position: relative;
     width: 340px;
-    height: 207px;
+    height: 208px;
     margin: auto;
     .gif-div {
       position: absolute;
       left: 0%;
       bottom: 0%;
-      width: 316px;
-      height: 195px;
-      padding: 8px;
+      width: 318px;
+      height: 196px;
+      padding: 6px;
     }
     .video-contain {
-      width: 300px;
-      height: 179px;
-      border-radius: 10px;
+      width: 306px;
+      height: 184px;
       overflow: hidden;
+      border-radius: 16px;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
     .gif-shadow-div {
       position: absolute;
