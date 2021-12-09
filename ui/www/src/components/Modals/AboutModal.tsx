@@ -11,7 +11,7 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
     <Fragment>
       {showModal ? (
         <div className="waiver-step-container-wrap">
-          <div className="main-content bg-about">
+          <div className="main-content bg-home">
             <div className="about-page">
               <Container className="align-content-center">
                 <Row className="justify-content-center">
