@@ -30,7 +30,7 @@ ANIMATION_ENDPOINT = os.environ.get("ANIMATION_ENDPOINT")
 
 video_store = storage_service.get_video_store()
 interim_store = storage_service.get_interim_store()
-consent_store = storage_service.get_consent_store()
+# consent_store = storage_service.get_consent_store()
 
 
 
@@ -414,7 +414,7 @@ def get_animation():
     ### record annotations if consent is given ###
     #with open(os.path.join(work_dir, 'consent_response.txt'), 'r') as f:
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
-    consent_response = bool(int(consent_store.read_bytes(unique_id, "consent_response.txt")))
+    consent_response = bool(int(interim_store.read_bytes(unique_id, "consent_response.txt")))
 
     animation_type = request.form['animation']
 
@@ -495,7 +495,7 @@ def set_consent_answer():
         return make_response('invalid uuid', 400)
 
     consent_response = request.form['consent_response']
-    consent_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
+    interim_store.write_bytes(unique_id, 'consent_response.txt', consent_response)
     return make_response("", 200)
 
 

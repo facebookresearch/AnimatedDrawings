@@ -68,19 +68,9 @@ WORKDIR /home/model-server
 # Copy /venv from the previous stage:
 COPY --from=rig_build /venv /venv
 
-RUN mkdir -p /home/model-server/tmp \ 
-    && mkdir -p /home/model-server/rig \
-    && mkdir -p /home/model-server/rig/server \
-    && mkdir -p /home/model-server/rig/server/in \
-    && mkdir -p /home/model-server/rig/server/out 
-
-ENV TEMP=/home/model-server/tmp
 ENV PATH /venv/bin/:${PATH}
 
 
-
-WORKDIR /home/model-server/rig/server/flask 
-RUN mkdir uploads && mkdir output_predictions && mkdir consent_given_upload_copies
 
 EXPOSE 5000
 
@@ -92,7 +82,9 @@ FROM development_runtime as profile_runtime
 FROM common_runtime as release_runtime
 # Only copy for relase builds
 COPY --chown=model-server:model-server rig rig/
-CMD [ "./run.sh" ]
+
 
 FROM ${BUILD_CONFIG}_runtime as rig_runtime
 
+WORKDIR /home/model-server/rig/server/flask 
+CMD [ "./run.sh" ]
