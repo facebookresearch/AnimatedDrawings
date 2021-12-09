@@ -19,7 +19,7 @@ export default function CookiesPolicyPage() {
       <div className="terms-page mb-2">
         <Container className="">
           <Row className="justify-content-center mt-2">
-            <Col lg={10} md={10} xs={11}>
+            <Col lg={10} md={10} xs={12}>
               <h2 className="mb-4 text-center">Cookies Policy</h2>
               <p>
                 Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do
