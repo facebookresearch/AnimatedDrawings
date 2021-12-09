@@ -77,6 +77,8 @@
   and (-webkit-min-device-pixel-ratio: 1) {
     .stepper-wrapper {
       max-width: 400px;
+      max-height: 500px;
+      overflow: hidden
     }
 }
 
@@ -87,8 +89,6 @@
   and (-webkit-min-device-pixel-ratio: 1) {
     .stepper-wrapper {
       max-width: 410px;
-      max-height: 500px;
-      overflow: hidden
     }
   }
 
