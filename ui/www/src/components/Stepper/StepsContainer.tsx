@@ -1,10 +1,10 @@
 import React from "react";
 import useStepperStore from "../../hooks/useStepperStore";
-import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-import Step5 from "./Step5";
-import Step6 from "./Step6";
+import StepUpload from "./StepUpload";
+import StepBoundingBox from "./StepBoundingBox";
+import StepMask from "./StepMask";
+import StepPose from "./StepPose";
+import StepAnimation from "./StepAnimation";
 import StepTitle from "./StepTitle";
 import StepTracker from "./StepTracker";
 
@@ -16,15 +16,15 @@ const StepsContainer = () => {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <Step1 />;
+        return <StepUpload />;
       case 2:
-        return <Step2 />;
+        return <StepBoundingBox />;
       case 3:
-        return <Step3 />;
+        return <StepMask />;
       case 4:
-        return <Step5 />;
+        return <StepPose />;
       case 5:
-        return <Step6 />;
+        return <StepAnimation />;
       default:
         return [];
     }

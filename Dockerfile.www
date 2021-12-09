@@ -30,7 +30,11 @@ RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/s
 # Setup up dynamically created Environment config
 # COPY ui/www/.env .
 RUN echo REACT_APP_API_HOST=${SKETCH_API_ENDPOINT} > .env \
+<<<<<<< HEAD
     && echo REACT_APP_VIDEO_URL=${VIDEO_CDN_URL} >> .env \
+=======
+    && echo VIDEO_URL=${VIDEO_CDN_URL} >> .env \
+>>>>>>> origin/deploy_intern
     && echo ENABLE_UPLOAD=${ENABLE_UPLOAD} >> .env 
 COPY ui/www/env.sh .
 RUN chmod +x ./env.sh

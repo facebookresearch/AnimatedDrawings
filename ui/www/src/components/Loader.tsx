@@ -23,7 +23,7 @@ export const EmptyLoader = () => {
 export const Loader = ({ drawingURL, showText }: props) => {
   return (
     <div className="custom-loader">   
-      {showText && <p>Your animation should be ready soon!</p>}
+      {showText && <div className="text-background">Your animation should be ready soon!</div>}
       <svg width="100%" height="100%" viewBox="0 0 200 200">
         <image href={drawingURL} height="100%" width="100%" preserveAspectRatio="xMidYMid meet"/>
         {drawingURL !== "" ? <image href={drawingURL} height="100%" width="100%"/> : null}

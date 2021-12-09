@@ -35,7 +35,7 @@ export default function SharingFooter({ uuid, setShowModal }: props) {
       </Nav>
       <Nav className="text-right">
         <Nav.Link
-          href="https://www.facebook.com/about/privacy/"
+          href="/privacy"
           target="_blank"
           rel="noreferrer"
           className="text-primary"
@@ -43,7 +43,7 @@ export default function SharingFooter({ uuid, setShowModal }: props) {
           Privacy Policy
         </Nav.Link>
         <Nav.Link
-          href="https://www.facebook.com/policies_center"
+          href="/terms"
           target="_blank"
           rel="noreferrer"
           className="text-primary"
@@ -51,7 +51,7 @@ export default function SharingFooter({ uuid, setShowModal }: props) {
           Terms
         </Nav.Link>
         <Nav.Link
-          href="https://www.facebook.com/policies/cookies/"
+          href="/cookies"
           target="_blank"
           rel="noreferrer"
           className="text-primary"

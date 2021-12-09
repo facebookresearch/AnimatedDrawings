@@ -34,7 +34,7 @@ const MaskingToolbar = () => {
       <Col>
         <Row>
           <button
-            className={classnames("sm-button-icon border border-dark mr-2", {
+            className={classnames("sm-button-icon mr-2", {
               "bg-primary text-white": tool === "pen",
             })}
             onClick={() => setTool("pen")}
@@ -42,14 +42,14 @@ const MaskingToolbar = () => {
             <i className="bi bi-pencil-fill" />
           </button>
           <button
-            className={classnames("sm-button-icon border border-dark mr-2", {
+            className={classnames("sm-button-icon mr-2", {
               "bg-primary text-white": tool === "eraser",
             })}
             onClick={() => setTool("eraser")}
           >
             <i className="bi bi-eraser-fill" />
           </button>
-          <div className="pens-wrapper border border-dark">
+          <div className="pens-wrapper">
             <form className="pens">
               <label className="label0 d-none d-md-block">
                 <input
@@ -98,14 +98,14 @@ const MaskingToolbar = () => {
       <Col>
         <Row className="justify-content-end">
           <button
-            className="sm-button-icon border border-dark mr-2"
+            className="sm-button-icon mr-2"
             onClick={handleUndo}
           >
             <img src={UndoIcon} alt="icon" />
           </button>
 
           <button
-            className="md-button-reset border border-dark p-0"
+            className="md-button-reset p-0"
             onClick={handleReset}
           >
             Reset mask
