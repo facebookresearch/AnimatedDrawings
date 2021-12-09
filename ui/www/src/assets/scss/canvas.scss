@@ -427,6 +427,11 @@
 /*** Canvas Mask ***/
 /*******************/
 
+.canvas-mask {
+  touch-action: pinch-zoom;
+  user-select: none;
+}
+
 .mask-tool-wrapper {
   display: flex;
   height: 100%;

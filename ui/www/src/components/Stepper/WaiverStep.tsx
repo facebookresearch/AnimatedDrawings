@@ -32,7 +32,7 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
               Would you like to <br className="d-none d-lg-block" />
               help our research?
             </h2>
-            <br/>
+            <br />
             <p>
               Thanks for your interest in our Animated Drawings demo (“Demo”).
               It is still a work in progress and, to make it more robust, we

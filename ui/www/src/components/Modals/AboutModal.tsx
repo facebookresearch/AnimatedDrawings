@@ -45,21 +45,21 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                     <p>
                       To use the Demo, you’ll need to upload an image of your or
                       your child’s drawing. Later, you’ll have the option to
-                      contribute the resulting animation to a public dataset,
-                      but you can use the Demo without contributing the
-                      animation. In order to use the Demo, you don’t need a
-                      Facebook account and we don’t collect any information that
-                      identifies you or your child. We collect technical
-                      information about your browser or device, including
-                      through the use of cookies, but we use that information
-                      only to provide the tool and for analytics purposes to see
-                      how individuals interact on our website.
+                      contribute the image to a public dataset, but you can use
+                      the Demo without contributing the image. In order to use
+                      the Demo, you don’t need a Facebook account and we don’t
+                      collect any information that identifies you or your child.
+                      We collect technical information about your browser or
+                      device, including through the use of cookies, but we use
+                      that information only to provide the tool and for
+                      analytics purposes to see how individuals interact with
+                      our website.
                     </p>
                     <p>
                       When you upload an image of your or your child’s drawing,
                       we will retain the image for a short period of time, after
                       which it will be permanently deleted if you do not agree
-                      to contribute it to a public dataset.
+                      to contribute it to a public dataset
                     </p>
                     <p>
                       After an animation is created from a drawing by you or
@@ -68,7 +68,7 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                       social media platforms. If you choose to share your
                       generated animation on social media, then the privacy
                       policy of the operator(s) of the applicable social media
-                      platform(s) will apply to your sharing of the animation.
+                      platform(s) will apply to your sharing of the animation
                     </p>
                     <p>
                       If you choose to provide us with feedback about the Demo,
@@ -78,8 +78,8 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                     </p>
                     <p>
                       If you choose to contribute your or your child’s drawing
-                      and resulting animation to our public data set, the image
-                      will not be stored with any personal information.
+                      to our public data set, the image will not be stored with
+                      any personal information
                       <span className="bold">
                         {" "}
                         We will not associate contributed drawings with your
@@ -94,9 +94,9 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                     </p>
                     <p>
                       If you consent to contributing your or your child’s
-                      drawing and resulting animation to further research, the
-                      drawing and animation may be used, released, or published
-                      for any of the following purposes:
+                      drawing and your interactions with the demo to further
+                      research, the drawing and interactions may be used,
+                      released, or published for any of the following purposes:
                     </p>
                     <ul className="d-list pl-2">
                       <li>

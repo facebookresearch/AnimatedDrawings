@@ -59,7 +59,7 @@ export default function TermsPage() {
                 will not allow a child to use the Demo; and (e) the Materials do
                 not contain any information that could be used to identify you
                 or a child who created such Materials (such as your or the
-                child’s name, address or age)
+                child’s name, address or age).
               </p>
               <p>
                 3. You grant to Meta and its affiliated companies, licensees and
@@ -96,7 +96,7 @@ export default function TermsPage() {
                 platforms. If you elect to share the Animation on any such
                 social media platforms, your use of the Animation is subject to
                 any additional terms, conditions and policies applicable to such
-                platforms
+                platforms.
               </p>
             </Col>
           </Row>
