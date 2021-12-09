@@ -20,6 +20,7 @@ services:
       - AWS_S3_CONSENTS_BUCKET=${AWS_S3_CONSENTS_BUCKET}
       - AWS_S3_VIDEOS_BUCKET=${AWS_S3_VIDEOS_BUCKET}
       - USE_AWS=1
+      - ENABLE_UPLOAD=${ENABLE_UPLOAD}
     networks:
       ap-net: {}
     logging:
@@ -38,10 +39,10 @@ services:
       ap-net:
         aliases:
           - detectron2_server # name of network to other services in docker
-    volumes:
-      - type: volume
-        source: dev-demo-sketch-in-model-store
-        target: /home/model-server/model_store
+    # volumes:
+    #   - type: volume
+    #     source: dev-demo-sketch-in-model-store
+    #     target: /home/model-server/model_store
     logging:
       driver: awslogs
       options:
