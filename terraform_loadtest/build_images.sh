@@ -20,12 +20,11 @@ ANIMATION_CONTAINER_NAME=$(terraform output --json | jq -r .animation_container_
 SKETCH_ECR=$(terraform output --json  | jq -r .sketch_ecr.value)
 SKETCH_CONTAINER_NAME=$(terraform output --json | jq -r .sketch_container_name.value)
 
-
 # Authenticate into ECR
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
 
 # Push and Build Detectron Image
-DOCKER_BUILDKIT=1 docker build -t $DETECTRON_CONTAINER_NAME:latest -f ../Dockerfile.detectron_runtime ..
+DOCKER_BUILDKIT=1 docker build -t $DETECTRON_CONTAINER_NAME:latest  -f ../Dockerfile.detectron_runtime ..
 docker tag $DETECTRON_CONTAINER_NAME:latest $DETECTRON_ECR
 docker push $DETECTRON_ECR:latest
 
@@ -40,6 +39,6 @@ docker tag $ANIMATION_CONTAINER_NAME:latest $ANIMATION_ECR
 docker push $ANIMATION_ECR:latest
 
 # Push and Build Sketch Image 
-DOCKER_BUILDKIT=1 docker build -t $SKETCH_CONTAINER_NAME:latest -f ../Dockerfile.sketch_api ..
+DOCKER_BUILDKIT=1 docker build -t $SKETCH_CONTAINER_NAME:latest -e ENABLE_UPLOAD=1  -f ../Dockerfile.sketch_api ..
 docker tag $SKETCH_CONTAINER_NAME:latest $SKETCH_ECR
 docker push $SKETCH_ECR:latest

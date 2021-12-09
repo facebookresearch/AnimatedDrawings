@@ -1,7 +1,7 @@
 
 #DETECTRON ECR REPO
 resource "aws_ecr_repository" "detectron_repo" {
-  name                 = "detectron_image_repo_qa"
+  name                 = "detectron_image_repo_${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "detectron_repo" {
 
 }
 
-resource "aws_ecr_repository_policy" "detectron-ecr-policy" {
+resource "aws_ecr_repository_policy" "detectron_ecr_policy" {
   repository = aws_ecr_repository.detectron_repo.name
   policy = jsonencode({
     Version = "2012-10-17"
@@ -66,7 +66,7 @@ resource "aws_ecr_lifecycle_policy" "detectron_lifecycle_polcy" {
 
 #ALPHAPOSE ECR REPO
 resource "aws_ecr_repository" "alphapose_repo" {
-  name                 = "alphapose_image_repo_qa"
+  name                 = "alphapose_image_repo_${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -79,7 +79,7 @@ resource "aws_ecr_repository" "alphapose_repo" {
 
 }
 
-resource "aws_ecr_repository_policy" "alphapose-ecr-policy" {
+resource "aws_ecr_repository_policy" "alphapose_ecr_policy" {
   repository = aws_ecr_repository.alphapose_repo.name
   policy = jsonencode({
     Version = "2012-10-17"
@@ -131,7 +131,7 @@ resource "aws_ecr_lifecycle_policy" "alphapose_lifecycle_polcy" {
 
 #ANIMATION API ECR REPO
 resource "aws_ecr_repository" "animation_repo" {
-  name                 = "animation_image_repo_qa"
+  name                 = "animation_image_repo_${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -196,7 +196,7 @@ resource "aws_ecr_lifecycle_policy" "animation_lifecycle_polcy" {
 
 #SKETCH API ECR REPO
 resource "aws_ecr_repository" "sketch_repo" {
-  name                 = "sketch_image_repo_qa"
+  name                 = "sketch_image_repo_${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -209,7 +209,7 @@ resource "aws_ecr_repository" "sketch_repo" {
 
 }
 
-resource "aws_ecr_repository_policy" "sketch-ecr-policy" {
+resource "aws_ecr_repository_policy" "sketch_ecr_policy" {
   repository = aws_ecr_repository.sketch_repo.name
   policy = jsonencode({
     Version = "2012-10-17"
@@ -257,11 +257,3 @@ resource "aws_ecr_lifecycle_policy" "sketch_lifecycle_polcy" {
     }]
   })
 }
-
-
-#resource "null_resource" "build_images" {
-   
- #  provisioner "local-exec" {
- #   command = "./build_detectron.sh ${aws_ecr_repository.detectron_repo.name}"
- # }
-#}
