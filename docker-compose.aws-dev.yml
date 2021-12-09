@@ -76,7 +76,7 @@ services:
       target: animation_runtime
       args:
         - BUILD_CONFIG=${BUILD_CONFIG}
-        - USER_ID=${USER_ID} 
+        - USER_ID=${USER_ID}
         - GROUP_ID=${GROUP_ID}
     environment:
       - AWS_S3_INTERIM_BUCKET=${AWS_S3_INTERIM_BUCKET}
@@ -103,15 +103,15 @@ services:
       context: .
       dockerfile: Dockerfile.www
       args:
+        - AWS_S3_WWW_BUCKET=${AWS_S3_WWW_BUCKET}
         - SKETCH_API_ENDPOINT=${SKETCH_API_ENDPOINT}
-        - VIDEO_CDN_URL=${VIDEO_CDN_URL} 
+        - VIDEO_CDN_URL=${VIDEO_CDN_URL}
         - ENABLE_UPLOAD=${ENABLE_UPLOAD}
-
 
 # Network created by default between services
 networks:
   ap-net:
-  
+
 volumes:
   dev-demo-sketch-in-model-store:
     external: true

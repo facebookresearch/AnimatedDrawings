@@ -1,10 +1,24 @@
 # syntax = docker/dockerfile:1.2
 # Standalone AWS to deploy the web app to an s3 bucket
 
+
+# ####################
+#  Build and Deploy in 1 step - execute the following comnmand
+# ####################
+
+# DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest build www_deploy && DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest up www_deploy
+
+
+
 # ####################
 #  Web App - Build
 # ####################
 FROM node:16.8.0 as builder
+
+ARG SKETCH_API_ENDPOINT
+ARG VIDEO_CDN_URL
+ARG ENABLE_UPLOAD
+
 WORKDIR /usr/src/app
 COPY ui/www/package.json ui/www/yarn.lock ./
 RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/src/app/node_modules \
@@ -28,11 +42,17 @@ RUN cp env-config.js build/
 #  Web App - S3 deploy
 ###################### 
 #Create a new container from a linux base image that has the aws-cli installed
-FROM mesosphere/aws-cli
+FROM amazon/aws-cli
+
+ARG AWS_S3_WWW_BUCKET
+ENV AWS_S3_WWW_BUCKET_URL s3://${AWS_S3_WWW_BUCKET}
 
 #Using the alias defined for the first container, copy the contents of the build folder to this container
 COPY --from=builder /usr/src/app/build .
 
 #Set the default command of this container to push the files from the working directory of this container to our s3 bucket 
-CMD ["s3", "sync", "./", "s3://${AWS_S3_WWW_BUCKET_URL}"] 
+# Override enrypoint as the json array mode does not support using env vars
+# see https://docs.docker.com/engine/reference/builder/#cmd
+ENTRYPOINT /usr/local/bin/aws s3 sync ./ $AWS_S3_WWW_BUCKET_URL
+
 
