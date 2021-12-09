@@ -12,6 +12,7 @@ const ExamplesCarousel = () => {
   const { isLoading, setPreCannedImage, setConsentAnswer } = useDrawingApi((err) => {});
   const { setUuid, setDrawing, setOriginalDimensions } = useDrawingStore();
   const { setCurrentStep } = useStepperStore();
+  const [imgSelection, setImgSelection] = React.useState<string>("")
 
   const selectImgFile = (image_name: string) => {
     switch (image_name) {
@@ -34,7 +35,9 @@ const ExamplesCarousel = () => {
    * @param image_name
    */
   const handlePreCannedImage = async (image_name: string) => {
+    setImgSelection(image_name)
     let img_file = selectImgFile(image_name);
+    let uuid_data = "";
     try {
       const res = await fetch(img_file);
       const blob = await res.blob();
@@ -52,10 +55,11 @@ const ExamplesCarousel = () => {
 
       await setPreCannedImage(image_name, (data) => {
         setUuid(data as string);
-        setConsentAnswer(data, 0, () => {}) // here set up the consent to disagree always, as not user images are being used.
+        uuid_data = data;
+        setDrawing(imageDataUrl);
       });
-
-      setDrawing(imageDataUrl);
+      // Set up the consent to disagree always, not user images are being used.
+      await setConsentAnswer(uuid_data, 0, () => {});
       setCurrentStep(2);
     } catch (error) {
       console.log(error);
@@ -65,7 +69,7 @@ const ExamplesCarousel = () => {
   return (
     <div className="grid-precanned-imgs">
       <div className="md-grid-item">
-        {isLoading ? (
+        {isLoading && imgSelection === "example3.png" ? (
           <Spinner animation="grow" variant="primary" />
         ) : (
           <img
@@ -76,7 +80,7 @@ const ExamplesCarousel = () => {
         )}
       </div>
       <div className="md-grid-item">
-        {isLoading ? (
+        {isLoading && imgSelection === "example4.jpg"  ? (
           <Spinner animation="grow" variant="primary" />
         ) : (
           <img
@@ -87,7 +91,7 @@ const ExamplesCarousel = () => {
         )}
       </div>
       <div className="md-grid-item">
-        {isLoading ? (
+        {isLoading && imgSelection === "example5.jpg"  ? (
           <Spinner animation="grow" variant="primary" />
         ) : (
           <img
@@ -98,7 +102,7 @@ const ExamplesCarousel = () => {
         )}
       </div>
       <div className="md-grid-item">
-        {isLoading ? (
+        {isLoading && imgSelection === "example6.png"  ? (
           <Spinner animation="grow" variant="primary" />
         ) : (
           <img
