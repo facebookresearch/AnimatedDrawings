@@ -15,7 +15,7 @@ const HomePage = () => {
           <Container className="align-content-center home-info">
             <Row className="justify-content-center">
               <Col lg={6} md={6} sm={6} className="text-center mb-4">
-                <h2 className="mb-1">
+                <h2 className="mb-0">
                   ANIMATED <span className="text-info">DRAWINGS</span>
                 </h2>
 
@@ -57,7 +57,7 @@ const HomePage = () => {
               </Col>
             </Row>
             <Row className="justify-content-center">
-              <Col lg={3} md={4} className="text-center">
+              <Col lg={3} md={4} xs={8} className="text-center">
                 <Button
                   block
                   size="lg"

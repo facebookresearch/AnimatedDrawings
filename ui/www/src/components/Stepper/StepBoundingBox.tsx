@@ -2,7 +2,7 @@ import React from "react";
 import image_1 from "../../assets/drawings_examples/step3/image_1.png";
 import image_2 from "../../assets/drawings_examples/step3/image_2.png";
 
-const Step2 = () => {
+const StepBoundingBox = () => {
   return (
     <div className="step-actions-container custom-scrollbar">
       <p>
@@ -26,4 +26,4 @@ const Step2 = () => {
   );
 };
 
-export default Step2;
+export default StepBoundingBox;

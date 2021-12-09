@@ -4,10 +4,14 @@ import { Row, Button } from "react-bootstrap";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import AnimationTypes from "../../utils/AnimationTypes";
 
-const Step7 = () => {
+const StepAnimation = () => {
   const { animationType, renderingVideo, setAnimationType } = useDrawingStore();
   const [group, setGroup] = useState("all");
 
+  /**
+   * Generate an object with the animations grouped 
+   * by its group key: dance, funny, jumps, walks.
+   */
   const groups = AnimationTypes.reduce((r, a) => {
     r[a.group] = r[a.group] || [];
     r[a.group].push(a);
@@ -185,4 +189,4 @@ const Step7 = () => {
   );
 };
 
-export default Step7;
+export default StepAnimation;

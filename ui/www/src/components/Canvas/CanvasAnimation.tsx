@@ -151,12 +151,12 @@ const CanvasAnimation = () => {
         )}
       </div>
 
-      <Row className="justify-content-center mt-3 px-1">
+      <Row className="justify-content-center mt-3 px-1 pb-1">
         <Col lg={4} md={4} xs={4} className="px-2">
           <Button
             block
             size="lg"
-            className="py-lg-3 mt-lg-3 my-1 shadow-button"
+            className="py-lg-3 mt-lg-3 my-1 px-0 shadow-button"
             disabled={isLoading}
             href="/canvas"
           >

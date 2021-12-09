@@ -3,7 +3,7 @@ import image_1 from "../../assets/drawings_examples/step4/image_1.png";
 import image_2 from "../../assets/drawings_examples/step4/image_2.png";
 import image_3 from "../../assets/drawings_examples/step4/image_3.png";
 
-const Step3 = () => {
+const StepMask = () => {
   return (
     <div className="step-actions-container custom-scrollbar">
       <p>
@@ -30,4 +30,4 @@ const Step3 = () => {
   );
 };
 
-export default Step3;
+export default StepMask;
