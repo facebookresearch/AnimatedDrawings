@@ -114,7 +114,12 @@ const WaiverStep = ({ showModal, isLoading, setShowModal, handleNext }: Props) =
             </p>
             <p>
               5. For additional information, please see{" "}
-              <a href="/" target="_blank" rel="noreferrer" className="bold">
+              <a
+                href="/about"
+                target="_blank"
+                rel="noreferrer"
+                className="bold"
+              >
                 “About This Demo”
               </a>
             </p>

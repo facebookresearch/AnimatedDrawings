@@ -638,9 +638,26 @@
   }
 }
 
+.about-single-page {
+  h2 {
+    font-family: $font-family-headings;
+    font-style: normal;
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1B4978;
+  }
+}
+
 @media screen and (max-width: 576px) {
   .about-text-container{
     height: 100vh;
+    h2 {  
+      font-size: 24px;
+    }
+  }
+  .about-single-page {
     h2 {  
       font-size: 24px;
     }

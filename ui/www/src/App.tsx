@@ -12,6 +12,7 @@ import HomePage from "./containers/HomePage";
 import TermsPage from "./containers/TermsPage";
 import PrivacyPolicyPage from "./containers/PrivacyPolicyPage";
 import CookiePolicyPage from "./containers/CookiePolicyPage";
+import AboutPage from "./containers/AboutPage";
 import CookieBanner from "./components/Banners/CookieBanner";
 
 function App() {
@@ -35,6 +36,9 @@ function App() {
         </Route>
         <Route path="/cookies">
           <CookiePolicyPage />
+        </Route>
+        <Route path="/about">
+          <AboutPage />
         </Route>
         <Redirect from="*" to="/" />
       </Switch>
