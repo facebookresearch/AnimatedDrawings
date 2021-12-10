@@ -39,7 +39,7 @@ class RenderManager(BaseManager):
         self.time_manager = None  # Transferrer_Render must be init prior- length of mocap sequence needed
 
         self.mode = 'RENDER'
-        self.BVH_fps = 30  # cached motion files are all at 30 fps
+        self.BVH_fps = 18  # cached motion files are all at 30 fps, but play at 18fps to look like flipbook
 
         if self.cfg['OUTPUT_PATH'].endswith('.mp4'):
             self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH']))
@@ -67,6 +67,9 @@ class RenderManager(BaseManager):
         fourcc = cv2.VideoWriter_fourcc(*'x264')
         self.video_writer = cv2.VideoWriter(str(self.out_file), fourcc, self.BVH_fps, (self.width, self.height))
 
+    def _is_frame_rendered(self, frame_idx):
+        return frame_idx % 2
+
     def run(self):
 
         def do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=False):
@@ -77,10 +80,12 @@ class RenderManager(BaseManager):
                     time.sleep(0.001)
                     continue
 
-                mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
-                mesh_np = np.array(mesh_vs, dtype='float32')
-                order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
-                self._render_view_mp(mesh_np, order, mirror)
+                if self._is_frame_rendered(pointer):
+                    mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
+                    mesh_np = np.array(mesh_vs, dtype='float32')
+                    order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
+                    self._render_view_mp(mesh_np, order, mirror)
+
                 pointer += 1
 
         p_count = 3
@@ -134,11 +139,15 @@ class RenderManager(BaseManager):
     def _compute_mesh_vertex_locs(self, p_num, p_tot, vert_arr, frame_size, written, finished, sketch):
         frame_idx = p_num % p_tot
         while not self._scene_is_finished(frame_idx):
-            self.transferrer.retarget(sketch, frame_idx % self.time_manager.bvh_frame_count, frame_idx)
-            mv = sketch._arap_solve_render_mp()
-            vert_arr[frame_idx*frame_size:(frame_idx+1)*frame_size] = mv.flatten()
-            written[frame_idx] = True
-            frame_idx += p_tot
+            if self._is_frame_rendered(frame_idx):
+                self.transferrer.retarget(sketch, frame_idx % self.time_manager.bvh_frame_count, frame_idx)
+                mv = sketch._arap_solve_render_mp()
+                vert_arr[frame_idx*frame_size:(frame_idx+1)*frame_size] = mv.flatten()
+                written[frame_idx] = True
+                frame_idx += p_tot
+            else:
+                written[frame_idx] = True
+                frame_idx += p_tot
         finished[p_num] = True
         return
 

@@ -458,11 +458,23 @@
     cursor: pointer;
     font-family: $font-family-md;
   }
+  .replay-wrapper {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 5; 
+  }
 }
 
 /*******************/
 /*** Canvas Mask ***/
 /*******************/
+
+.canvas-mask {
+  touch-action: pinch-zoom;
+  user-select: none;
+}
 
 .mask-tool-wrapper {
   display: flex;

@@ -8,10 +8,6 @@ services:
       target: rig_runtime
     ports:
       - 5000:5000
-    volumes:
-      - type: bind
-        source: ./rig
-        target: /home/model-server/rig
     environment:
       - DETECTRON2_ENDPOINT=${DETECTRON2_ENDPOINT}
       - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
@@ -20,6 +16,7 @@ services:
       - AWS_S3_CONSENTS_BUCKET=${AWS_S3_CONSENTS_BUCKET}
       - AWS_S3_VIDEOS_BUCKET=${AWS_S3_VIDEOS_BUCKET}
       - USE_AWS=1
+      - ENABLE_UPLOAD=${ENABLE_UPLOAD}
     networks:
       ap-net: {}
     logging:
@@ -72,21 +69,15 @@ services:
   animation_server:
     build:
       context: .
-      dockerfile: Dockerfile.animation
+      dockerfile: Dockerfile.animation-opencv
       target: animation_runtime
       args:
         - BUILD_CONFIG=${BUILD_CONFIG}
-        - USER_ID=${USER_ID} 
-        - GROUP_ID=${GROUP_ID}
     environment:
       - AWS_S3_INTERIM_BUCKET=${AWS_S3_INTERIM_BUCKET}
       - AWS_S3_CONSENTS_BUCKET=${AWS_S3_CONSENTS_BUCKET}
       - AWS_S3_VIDEOS_BUCKET=${AWS_S3_VIDEOS_BUCKET}
       - USE_AWS=1
-    volumes:
-      - type: bind
-        source: ./animate
-        target: /home/animation-server/animate
     networks:
       ap-net:
         aliases:
@@ -98,11 +89,19 @@ services:
         awslogs-group: dev-demo-sketch-log-group
         awslogs-stream: dev-demo-sketch-animation-logs
 
+  www_deploy:
+    build:
+      context: .
+      dockerfile: Dockerfile.www
+      args:
+        - AWS_S3_WWW_BUCKET=${AWS_S3_WWW_BUCKET}
+        - SKETCH_API_ENDPOINT=${SKETCH_API_ENDPOINT}
+        - VIDEO_CDN_URL=${VIDEO_CDN_URL}
+        - ENABLE_UPLOAD=${ENABLE_UPLOAD}
 
 # Network created by default between services
 networks:
   ap-net:
-  
 volumes:
   dev-demo-sketch-in-model-store:
     external: true

@@ -23,6 +23,8 @@ class s3_object:
 
     def verify_object(self, PREFIX, OBJECTNAME):
         list_objects = s3_client.list_objects(Bucket=self.BUCKET, Prefix=PREFIX+"/", Delimiter='/')
+        if (not list_objects) or ('Contents' not in list_objects):
+            return False
         list_objects = [i['Key'] for i in list_objects['Contents']]       
         if PREFIX+"/%s" % OBJECTNAME  in list_objects:
             return True
