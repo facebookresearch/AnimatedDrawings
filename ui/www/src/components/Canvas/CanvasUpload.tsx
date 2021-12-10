@@ -26,6 +26,7 @@ const CanvasUpload = () => {
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [showDialog, setShowDialog] = useState(true)
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -186,15 +187,20 @@ const CanvasUpload = () => {
 
   const LegalDialog = () => (
     <div className="legal-dialog">
-      <p>
-        By clicking "Upload" and “Next” and uploading your drawing to the demo,
-        you agree (1) that you are at least 18 years old (or the age of majority
-        in the jurisdiction in which you are accessing the demo) and (2) to be
-        bound by the{" "}
-        <a href="/terms" target="_blank" rel="noreferrer">
-          Animated Drawing Supplemental Terms of Service.
-        </a>
-      </p>
+      <div className="content-wrapper">
+        <p>
+          By clicking "Upload" and “Next” and uploading your drawing to the
+          demo, you agree (1) that you are at least 18 years old (or the age of
+          majority in the jurisdiction in which you are accessing the demo) and
+          (2) to be bound by the{" "}
+          <a href="/terms" target="_blank" rel="noreferrer">
+            Animated Drawing Supplemental Terms of Service.
+          </a>
+        </p>
+      </div>
+      <div onClick={() => setShowDialog(false)}>
+        <i className="bi bi-x-lg h6" />
+      </div>
     </div>
   );
 
@@ -265,7 +271,7 @@ const CanvasUpload = () => {
               </Button>
             )}
           </div>
-          <LegalDialog/>     
+          {showDialog && <LegalDialog />}
         </div>
       ) : (
         <div className="upload-buttons-wrapper">
@@ -294,7 +300,7 @@ const CanvasUpload = () => {
               )}
             </Button>
           </div>
-          <LegalDialog/>
+          {showDialog && <LegalDialog />}
         </div>
       )}
 

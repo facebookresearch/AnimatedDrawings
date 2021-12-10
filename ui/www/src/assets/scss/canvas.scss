@@ -344,11 +344,20 @@
   padding-bottom: 0;
   border-radius: 10px;
   max-height: 4.5em;
-  p {
-    font-size: 0.65em;
+  .content-wrapper {
+    max-width: 98%;
+    p {
+      font-size: 0.61em;
+    }
+    a {
+      text-decoration: underline;
+    }
   }
-  a {
-    text-decoration: underline;
+  i {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
   }
 }
 
@@ -360,6 +369,9 @@
     bottom: 0;
     height: auto;
     overflow: auto;
+    p {
+      font-size: 0.6em;
+    }
   }
 }
 
