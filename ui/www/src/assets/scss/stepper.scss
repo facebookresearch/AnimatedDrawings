@@ -77,6 +77,8 @@
   and (-webkit-min-device-pixel-ratio: 1) {
     .stepper-wrapper {
       max-width: 400px;
+      max-height: 500px;
+      overflow: hidden
     }
 }
 
@@ -223,7 +225,10 @@
 
 .md-grid-item {
   background-color: $white;
+  display: flex;
   text-align: center;
+  align-content: center;
+  justify-content: center;
   width: 180px;
   height: 180px;
   padding: 0;
@@ -235,6 +240,9 @@
     max-width: 100%;
     max-height: 100%;
     border-radius: 10px;
+  }
+  div {
+    align-self: center;
   }
 }
 

@@ -94,6 +94,33 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
     return shareLink;
   };
 
+  // Create fullscreen video
+  const toggleFullScreen = () => {
+    const videoPlayer = document.getElementById(
+      "videoPlayer"
+    ) as HTMLVideoElement;
+    if (videoPlayer && videoPlayer.requestFullScreen) {
+      videoPlayer.requestFullScreen();
+    } else if (videoPlayer && videoPlayer.webkitRequestFullScreen) {
+      videoPlayer.webkitRequestFullScreen();
+    } else if (videoPlayer && videoPlayer.mozRequestFullScreen) {
+      videoPlayer.mozRequestFullScreen();
+    } else if (videoPlayer && videoPlayer.webkitEnterFullScreen) {
+      videoPlayer.webkitEnterFullScreen(); // IOS Mobile edge case
+    }
+  };
+
+  /**
+   * Play function, to be called when clicking or taping on canvas,
+   * fallback for browsers that don't support autoplay.
+   */
+  const playVideo = () => {
+    const videoPlayer = document.getElementById(
+      "videoPlayer"
+    ) as HTMLVideoElement;
+    videoPlayer.play()
+  }
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -116,7 +143,20 @@ const CanvasShare = ({ videoId, animationType }: Props) => {
           <Spinner animation="border" role="status" aria-hidden="true" />
         ) : (
           <div className="video_box">
-            <video id="videoPlayer" autoPlay muted loop src={videoUrl}></video>
+            <video
+              id="videoPlayer"
+              autoPlay
+              muted
+              loop
+              playsInline
+              src={videoUrl}
+            ></video>
+            <div className="replay-wrapper" onClick={playVideo}/>
+            <div className="custom-controls">
+              <div className="fullscreen-btn" onClick={toggleFullScreen}>
+                <i className="bi bi-arrows-fullscreen text-dark h3" />
+              </div>
+            </div>
           </div>
         )}
       </div>
