@@ -80,11 +80,12 @@ class RenderManager(BaseManager):
                     time.sleep(0.001)
                     continue
 
-                mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
-                mesh_np = np.array(mesh_vs, dtype='float32')
-                order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
                 if self._is_frame_rendered(pointer):
+                    mesh_vs = vert_arr[pointer*frame_size:(pointer+1)*frame_size]
+                    mesh_np = np.array(mesh_vs, dtype='float32')
+                    order = self.transferrer.ords[pointer % self.time_manager.bvh_frame_count]
                     self._render_view_mp(mesh_np, order, mirror)
+
                 pointer += 1
 
         p_count = 3
