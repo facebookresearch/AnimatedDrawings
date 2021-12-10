@@ -26,6 +26,7 @@ const CanvasUpload = () => {
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [showDialog, setShowDialog] = useState(true)
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -184,6 +185,25 @@ const CanvasUpload = () => {
 
   const enableUpload = window._env_.ENABLE_UPLOAD === '1';
 
+  const LegalDialog = () => (
+    <div className="legal-dialog">
+      <div className="content-wrapper">
+        <p>
+          By clicking "Upload" and “Next” and uploading your drawing to the
+          demo, you agree (1) that you are at least 18 years old (or the age of
+          majority in the jurisdiction in which you are accessing the demo) and
+          (2) to be bound by the{" "}
+          <a href="/terms" target="_blank" rel="noreferrer">
+            Animated Drawing Supplemental Terms of Service.
+          </a>
+        </p>
+      </div>
+      <div onClick={() => setShowDialog(false)}>
+        <i className="bi bi-x-lg h6" />
+      </div>
+    </div>
+  );
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -223,57 +243,64 @@ const CanvasUpload = () => {
       />
 
       {drawing === "" ? (
-        <div className="mt-4 pb-1">
-          {compressing ? (
-            <Button
-              block
-              size="lg"
-              className="py-lg-3 mt-lg-3 my-1 shadow-button"
-            >
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            </Button>
-          ) : (
-            <Button
-              block
-              size="lg"
-              className="py-lg-3 mt-lg-3 my-1 shadow-button"
-              disabled={!enableUpload}
-              onClick={upload}
-            >
-              <i className="bi bi-image-fill mr-2" /> Upload Photo
-            </Button>
-          )}
+        <div className="upload-buttons-wrapper">
+          <div className="mt-4 pb-1">
+            {compressing ? (
+              <Button
+                block
+                size="lg"
+                className="py-lg-3 mt-lg-3 my-1 shadow-button"
+              >
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              </Button>
+            ) : (
+              <Button
+                block
+                size="lg"
+                className="py-lg-3 mt-lg-3 my-1 shadow-button"
+                disabled={!enableUpload}
+                onClick={upload}
+              >
+                <i className="bi bi-image-fill mr-2" /> Upload Photo
+              </Button>
+            )}
+          </div>
+          {showDialog && <LegalDialog />}
         </div>
       ) : (
-        <div className="mt-4 pb-1 text-center">
-          <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
-            Retake
-          </button>
-          <button
-            className="buttons md-button-right ml-1"
-            disabled={isLoading || compressing}
-            onClick={() => handleNext()}
-          >
-            {isLoading || compressing ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-              <>
-                Next <i className="bi bi-arrow-right px-2" />
-              </>
-            )}
-          </button>
+        <div className="upload-buttons-wrapper">
+          <div className="mt-3 mt-lg-2 pb-1">
+            <Button size="lg" variant="light" className="py-lg-3 mt-lg-3 my-1 mr-1 sm-button" onClick={upload}>
+              Retake
+            </Button>
+            <Button
+              size="lg"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button md-button-right ml-1"
+              disabled={isLoading || compressing}
+              onClick={() => handleNext()}
+            >
+              {isLoading || compressing ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  Next <i className="bi bi-arrow-right px-2" />
+                </>
+              )}
+            </Button>
+          </div>
+          {showDialog && <LegalDialog />}
         </div>
       )}
 

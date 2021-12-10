@@ -78,10 +78,12 @@
     .stepper-wrapper {
       max-width: 400px;
       max-height: 500px;
-      overflow: hidden
+      overflow: auto;
+      padding: 18px;
     }
 }
 
+// Large Tablets Portrait
 @media only screen 
   and (min-device-width: 1024px) 
   and (max-device-width: 1366px) 
@@ -188,10 +190,10 @@
   and (-webkit-min-device-pixel-ratio: 1) {
   .stepper-wrapper-horizontal{
     .step-progress-block {
-      width: 40px;
+      width: 50px;
     }
     .step-progress-block-current {
-      width: 160px;
+      width: 180px;
     }
   }
 }
@@ -267,6 +269,32 @@
     padding: 0;
     border-radius: 10px;
   }
+}
+
+/* Tablets: Portrait iPad Pro */
+@media only screen 
+  and (min-device-width: 1024px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .grid-precanned-imgs {
+      max-width: 340px;
+    }
+    .md-grid-item {
+      width: 150px;
+      height: 150px;
+    }
+}
+
+/* Tablets: Medium Landscape*/
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    .md-grid-item {
+      width: 140px;
+      height: 140px;
+    }
 }
 
 /******************************/

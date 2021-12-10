@@ -218,17 +218,11 @@
 }
 
 .sm-button {
-  display: inline-block;
   width: 18%; 
-  background-color: $white;
-  border-radius: 10px;
 }
 
 .md-button-right {
-  display: inline-block;
   width: 79%;
-  background-color: $primary;
-  border-radius: 8px;
 }
 
 /* Mobile */
@@ -249,14 +243,9 @@
   }
   .sm-button {
     width: 25%; 
-    height: 40px;
-    font-size: 14px;
-    border-radius: 8px;
   }
   .md-button-right {
     width: 70%; 
-    height: 40px;
-    font-size: 14px;
   }
 }
 
@@ -280,13 +269,9 @@
     }
     .sm-button {
       width: 25%; 
-      height: 40px;
-      font-size: 14px;
     }
     .md-button-right {
-      width: 70%; 
-      height: 40px;
-      font-size: 14px;
+      width: 70%;    
     }
 }
 
@@ -310,13 +295,9 @@
     }
     .sm-button {
       width: 25%; 
-      height: 40px;
-      font-size: 14px;
     }
     .md-button-right {
       width: 70%; 
-      height: 40px;
-      font-size: 14px;
     }
   }
 
@@ -340,13 +321,69 @@
     }
     .sm-button {
       width: 25%; 
-      height: 40px;
-      font-size: 14px;
     }
     .md-button-right {
       width: 70%; 
-      height: 40px;
-      font-size: 14px;
+    }
+  }
+
+/**************************/
+/*** Small Legal Dialog ***/
+/**************************/
+
+.upload-buttons-wrapper {
+  position: relative;
+}
+
+.legal-dialog {
+  position: absolute;
+  z-index: 2;
+  bottom: -75px;
+  background-color: $secondary;
+  padding: 8px;
+  padding-bottom: 0;
+  border-radius: 10px;
+  max-height: 4.5em;
+  .content-wrapper {
+    max-width: 98%;
+    p {
+      font-size: 0.61em;
+    }
+    a {
+      text-decoration: underline;
+    }
+  }
+  i {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 768px) {
+ .legal-dialog {
+    position: relative;
+    padding: 6px;
+    bottom: 0;
+    height: auto;
+    overflow: auto;
+    p {
+      font-size: 0.6em;
+    }
+  }
+}
+
+/* Mobile Landscape */
+@media only screen 
+  and (max-device-width: 812px) 
+  and (orientation: landscape) 
+  and (-webkit-min-device-pixel-ratio: 2) {
+    .legal-dialog {
+      position: relative;
+      padding: 6px;
+      bottom: 0;
     }
   }
 
