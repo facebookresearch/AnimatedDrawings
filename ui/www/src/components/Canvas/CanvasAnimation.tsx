@@ -126,6 +126,17 @@ const CanvasAnimation = () => {
     }
   };
 
+  /**
+   * Play function, to be called when clicking or taping on canvas,
+   * fallback for browsers that don't support autoplay.
+   */
+  const playVideo = () => {
+    const videoPlayer = document.getElementById(
+      "videoPlayer"
+    ) as HTMLVideoElement;
+    videoPlayer.play()
+  }
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -142,6 +153,7 @@ const CanvasAnimation = () => {
               playsInline
               src={videoUrl}
             ></video>
+            <div className="replay-wrapper" onClick={playVideo}/>
             <div className="custom-controls">
               <div className="fullscreen-btn" onClick={toggleFullScreen}>
                 <i className="bi bi-arrows-fullscreen text-dark h3" />
