@@ -504,6 +504,9 @@
 .canvas-pose {
   touch-action: pinch-zoom;
   user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   // background-color:#C0C0C0
 }
 
