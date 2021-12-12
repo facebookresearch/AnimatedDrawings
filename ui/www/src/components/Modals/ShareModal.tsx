@@ -93,7 +93,7 @@ const ShareModal = ({
             <EmailShareButton
               url={shareLink}
               subject={"Check this kid's drawing animation."}
-              body="body"
+              body="Animated Drawings by META AI Research."
               className="mr-2"
             >
               <img src={EmailIcon} alt="icon" />
