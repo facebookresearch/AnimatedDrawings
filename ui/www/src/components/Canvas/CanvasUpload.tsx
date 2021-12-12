@@ -1,16 +1,12 @@
 import React, { useRef, useState } from "react";
 import { Spinner, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
-import Resizer from "react-image-file-resizer";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
 import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
-
-type Opaque<T, K extends string> = T & { __typename: K }; //make typscript support base64
-type Base64 = Opaque<string, "base64">;
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -32,27 +28,6 @@ const CanvasUpload = () => {
     e.preventDefault();
     inputFile.current.click();
   };
-
-  /**
-   * A helper function to resize images from mobile camera.
-   * @param file receives an image file.
-   * @returns
-   */
-  const formatExif = (file: File) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        3000,
-        3000,
-        "png",
-        1000,
-        0,
-        (uri) => {
-          resolve(uri);
-        },
-        "base64"
-      );
-    });
 
   /**
    * Compress function implements the main logic of all possible escenarios
@@ -105,12 +80,8 @@ const CanvasUpload = () => {
         setCompressing(false);
       } else if (exif_rotation === 6) {
         // Check for orientation tag equals to 6, photos taken from phone.
-        setCompressing(true);
-        const imgUrl = (await formatExif(file)) as Base64;
-        let newFile = new File([imgUrl], "animation.png", {
-          type: "image/png",
-          lastModified: new Date().getTime(),
-        });
+        setCompressing(true);    
+        const imgUrl = URL.createObjectURL(file)
 
         const tempImage = new Image();
         if (imgUrl !== null && imgUrl !== undefined) tempImage.src = imgUrl;
@@ -122,7 +93,7 @@ const CanvasUpload = () => {
           });
         };
 
-        setNewCompressedDrawing(newFile);
+        setNewCompressedDrawing(file);
         setDrawing(imgUrl);
         setCompressing(false);
       }
