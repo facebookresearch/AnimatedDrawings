@@ -204,10 +204,12 @@
 }
 
 .sm-button-icon {
-  display: inline-block;
+  display: flex;
   height: 48px;
   width: 48px;
   font-size: 16px;
+  justify-content: center;
+  align-items: center;
   background-color: $white;
   cursor: pointer;
   text-align: center;
@@ -343,7 +345,7 @@
   padding: 8px;
   padding-bottom: 0;
   border-radius: 10px;
-  max-height: 4.5em;
+  max-height: 4.4em;
   .content-wrapper {
     max-width: 98%;
     p {
@@ -504,6 +506,9 @@
 .canvas-pose {
   touch-action: pinch-zoom;
   user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   // background-color:#C0C0C0
 }
 

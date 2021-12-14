@@ -84,7 +84,6 @@ const Circle = ({
   const handlePointerDown = (
     e: React.PointerEvent<SVGCircleElement> | React.TouchEvent
   ) => {
-    e.preventDefault();
     const el = (e.target as Element)!;
     const bbox = (e.target as Element)!.getBoundingClientRect();
 
@@ -116,7 +115,6 @@ const Circle = ({
   const handlePointerMove = (
     e: React.PointerEvent<SVGCircleElement> | React.TouchEvent
   ) => {
-    e.preventDefault();
     const bbox = (e.target! as Element)!.getBoundingClientRect();
 
     /**
@@ -267,9 +265,9 @@ const PoseEditor = ({ imageUrl, maskUrl, pose, scale, isLoading, setPose }: Prop
               cy={mapY(node.position.y)}
               strokeWidth="2"
               stroke="white"
-              r="4"
-              imgWidth={imageWidth * scale}
-              imgHeight={imageHeight * scale}
+              r={5}
+              imgWidth={imageWidth}
+              imgHeight={imageHeight}
               onPositionUpdate={(pos) => {
                 const newPos = { x: unmapX(pos.x), y: unmapY(pos.y) };
 
