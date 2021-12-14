@@ -97,11 +97,13 @@ const MaskingToolbar = () => {
       </Col>
       <Col>
         <Row className="justify-content-end">
-          <button
-            className="sm-button-icon mr-2"
-            onClick={handleUndo}
-          >
-             <object data={UndoIcon} type="image/svg+xml" aria-label="undo_icon"></object>         
+          <button className="sm-button-icon mr-2" onClick={handleUndo}>
+            <object
+              data={UndoIcon}
+              type="image/svg+xml"
+              aria-label="undo_icon"
+              style={{ pointerEvents: "none" }}
+            ></object>
           </button>
 
           <button

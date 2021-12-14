@@ -20,9 +20,9 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                     <p>
                       Children’s drawings have a wonderful inventiveness,
                       energy, and variety. We focus on the consequence of all
-                      that variety in their drawings of humans as we develop an
-                      algorithm to bring them to life through automatic
-                      animation.
+                      that variety in their drawings of human figures as we
+                      develop an algorithm to bring them to life through
+                      automatic animation.
                     </p>
                     <br />
                     <p> This demo builds upon <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noreferrer" className="bold"> Detectron2</a> and 
@@ -34,7 +34,8 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                     <p>
                       Built by Jesse Smith, Jessica Hodgins, Somya Jain, Sahir
                       Gomez, Somayan Chakrabarti, Clarence Edmondson III,
-                      Qingyuan Zheng, and friends at Meta AI Research.
+                      Christopher Gustave, Kristin Cooke, Qingyuan Zheng, Yifei
+                      Li and friends at Meta AI Research.
                     </p>
                     <hr />
                     <p>
