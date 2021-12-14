@@ -26,8 +26,9 @@ const StepUpload = () => {
             href="https://transparency.fb.com/policies/community-standards/"
             target="_blank"
             rel="noreferrer"
+            style={{ textDecoration: "underline" }}
           >
-            <span className="bold">community standards</span>
+            community standards
           </a>
           ), or drawings that infringe on the copyrights of others.
         </li>

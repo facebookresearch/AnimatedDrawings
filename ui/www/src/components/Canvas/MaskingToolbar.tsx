@@ -101,7 +101,7 @@ const MaskingToolbar = () => {
             className="sm-button-icon mr-2"
             onClick={handleUndo}
           >
-            <img src={UndoIcon} alt="icon" />
+             <object data={UndoIcon} type="image/svg+xml" aria-label="undo_icon"></object>         
           </button>
 
           <button

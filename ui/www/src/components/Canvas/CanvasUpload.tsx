@@ -1,16 +1,12 @@
 import React, { useRef, useState } from "react";
 import { Spinner, Button } from "react-bootstrap";
 import imageCompression from "browser-image-compression";
-import Resizer from "react-image-file-resizer";
 import heic2any from "heic2any";
 import useDrawingStore from "../../hooks/useDrawingStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
 import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
-
-type Opaque<T, K extends string> = T & { __typename: K }; //make typscript support base64
-type Base64 = Opaque<string, "base64">;
 
 const CanvasUpload = () => {
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -26,32 +22,12 @@ const CanvasUpload = () => {
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [showDialog, setShowDialog] = useState(true)
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
     inputFile.current.click();
   };
-
-  /**
-   * A helper function to resize images from mobile camera.
-   * @param file receives an image file.
-   * @returns
-   */
-  const formatExif = (file: File) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        3000,
-        3000,
-        "png",
-        1000,
-        0,
-        (uri) => {
-          resolve(uri);
-        },
-        "base64"
-      );
-    });
 
   /**
    * Compress function implements the main logic of all possible escenarios
@@ -104,12 +80,8 @@ const CanvasUpload = () => {
         setCompressing(false);
       } else if (exif_rotation === 6) {
         // Check for orientation tag equals to 6, photos taken from phone.
-        setCompressing(true);
-        const imgUrl = (await formatExif(file)) as Base64;
-        let newFile = new File([imgUrl], "animation.png", {
-          type: "image/png",
-          lastModified: new Date().getTime(),
-        });
+        setCompressing(true);    
+        const imgUrl = URL.createObjectURL(file)
 
         const tempImage = new Image();
         if (imgUrl !== null && imgUrl !== undefined) tempImage.src = imgUrl;
@@ -121,7 +93,7 @@ const CanvasUpload = () => {
           });
         };
 
-        setNewCompressedDrawing(newFile);
+        setNewCompressedDrawing(file);
         setDrawing(imgUrl);
         setCompressing(false);
       }
@@ -184,6 +156,25 @@ const CanvasUpload = () => {
 
   const enableUpload = window._env_.ENABLE_UPLOAD === '1';
 
+  const LegalDialog = () => (
+    <div className="legal-dialog">
+      <div className="content-wrapper">
+        <p>
+          By clicking "Upload" and “Next” and uploading your drawing to the
+          demo, you agree (1) that you are at least 18 years old (or the age of
+          majority in the jurisdiction in which you are accessing the demo) and
+          (2) to be bound by the{" "}
+          <a href="/terms" target="_blank" rel="noreferrer">
+            Animated Drawing Supplemental Terms of Service.
+          </a>
+        </p>
+      </div>
+      <div onClick={() => setShowDialog(false)}>
+        <i className="bi bi-x-lg h6" />
+      </div>
+    </div>
+  );
+
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
@@ -223,57 +214,64 @@ const CanvasUpload = () => {
       />
 
       {drawing === "" ? (
-        <div className="mt-4 pb-1">
-          {compressing ? (
-            <Button
-              block
-              size="lg"
-              className="py-lg-3 mt-lg-3 my-1 shadow-button"
-            >
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            </Button>
-          ) : (
-            <Button
-              block
-              size="lg"
-              className="py-lg-3 mt-lg-3 my-1 shadow-button"
-              disabled={!enableUpload}
-              onClick={upload}
-            >
-              <i className="bi bi-image-fill mr-2" /> Upload Photo
-            </Button>
-          )}
+        <div className="upload-buttons-wrapper">
+          <div className="mt-4 pb-1">
+            {compressing ? (
+              <Button
+                block
+                size="lg"
+                className="py-lg-3 mt-lg-3 my-1 shadow-button"
+              >
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              </Button>
+            ) : (
+              <Button
+                block
+                size="lg"
+                className="py-lg-3 mt-lg-3 my-1 shadow-button"
+                disabled={!enableUpload}
+                onClick={upload}
+              >
+                <i className="bi bi-image-fill mr-2" /> Upload Photo
+              </Button>
+            )}
+          </div>
+          {showDialog && <LegalDialog />}
         </div>
       ) : (
-        <div className="mt-4 pb-1 text-center">
-          <button className="buttons sm-button mr-1 text-dark" onClick={upload}>
-            Retake
-          </button>
-          <button
-            className="buttons md-button-right ml-1"
-            disabled={isLoading || compressing}
-            onClick={() => handleNext()}
-          >
-            {isLoading || compressing ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-              <>
-                Next <i className="bi bi-arrow-right px-2" />
-              </>
-            )}
-          </button>
+        <div className="upload-buttons-wrapper">
+          <div className="mt-3 mt-lg-2 pb-1">
+            <Button size="lg" variant="light" className="py-lg-3 mt-lg-3 my-1 mr-1 sm-button" onClick={upload}>
+              Retake
+            </Button>
+            <Button
+              size="lg"
+              className="py-lg-3 mt-lg-3 my-1 shadow-button md-button-right ml-1"
+              disabled={isLoading || compressing}
+              onClick={() => handleNext()}
+            >
+              {isLoading || compressing ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  Next <i className="bi bi-arrow-right px-2" />
+                </>
+              )}
+            </Button>
+          </div>
+          {showDialog && <LegalDialog />}
         </div>
       )}
 
