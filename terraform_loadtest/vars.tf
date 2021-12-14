@@ -127,26 +127,32 @@ variable "video_bucket" {
   default = "loadtest-demo-sketch-out-animations"
 }
 
-variable "primary_hosted_zone_id" {
+variable "private_hosted_zone_id" {
   type = string
 }
 
 
-variable "primary_hosted_zone" {
+variable "primary_dns_name" {
   default = ".dev.metademolab.com"
 }
 
-#variable = "ami_id" {
-#  default = "ami-0a39b734183d5c064"
-#}
-
-
+variable "ami_id" {
+  default = "ami-08e0b00e3616220d8"
+}
 
 variable "instance_type" {
-  default = "g4dn.4xlarge"
+  default = "c5.4xlarge"
   
 }
 
 variable "key_pair" {
   default = "detectron-ecs-gpu"
+}
+
+variable "public_hosted_zone_id" {
+  type = string
+}
+
+variable "sketch_api_cert_arn" {
+  type = string
 }

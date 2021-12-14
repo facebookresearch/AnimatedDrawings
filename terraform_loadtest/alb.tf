@@ -10,6 +10,14 @@ resource "aws_lb" "ecs_cluster_alb" {
   enable_deletion_protection = false
 }
 
+resource "aws_route53_record" "private_api" {
+  zone_id = var.private_hosted_zone_id
+  name    = "${var.environment}-cluster-api${var.primary_dns_name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_lb.ecs_cluster_alb.dns_name]
+}
+
 resource "aws_security_group" "ecs_cluster_alb_sg" {
   name   = "ecs-cluster-alb-sg-${var.environment}"
   vpc_id = local.vpc_id
@@ -84,14 +92,4 @@ resource "aws_security_group" "ecs_cluster_service_sg" {
    to_port          = 0
    cidr_blocks      = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_lb" "ec2_cluster_alb" {
-  name               = "cluster-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = ["sg-0c9000062b58977f0", aws_security_group.ecs_cluster_alb_sg.id]
-  subnets            = var.subnets
-
-  enable_deletion_protection = false
 }

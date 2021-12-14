@@ -1,10 +1,10 @@
 resource "aws_iam_instance_profile" "ec2_ecs_instance_profile" {
-  name = "gpu_profile"
+  name = "animation_ecs_cluster_instance_profile"
   role = aws_iam_role.ec2_ecs_instance_role.name
 }
 
 resource "aws_iam_role" "ec2_ecs_instance_role" {
-  name = "${var.environment}_ec2_instance_role"
+  name = "${var.environment}_animation_ec2_instance_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -37,7 +37,7 @@ resource "aws_iam_role" "ec2_ecs_instance_role" {
           "Service" : "ec2.amazonaws.com"
         },
         "Action" : "sts:AssumeRole"
-      },
+      }
     ]
   })
 
@@ -45,7 +45,7 @@ resource "aws_iam_role" "ec2_ecs_instance_role" {
 
 ## TASK ROLE POLICY
 resource "aws_iam_policy" "ec2_ecs_role_policy" {
-  name        = "${var.environment}_ec2_ecs_role_policy"
+  name        = "animation_ec2_ecs_policy"
   description = "Necessary DevOps Permissions for Maintenance and Testing. ECS Full Access is needed to maintain, test, monitor Fargate Clusters"
 
   # Terraform's "jsonencode" function converts a
@@ -56,6 +56,13 @@ resource "aws_iam_policy" "ec2_ecs_role_policy" {
       {
         Action = [
           "ec2:*",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+      {
+        Action = [
+          "ecr:*",
         ],
         Effect   = "Allow",
         Resource = "*",
@@ -86,14 +93,14 @@ resource "aws_iam_policy" "ec2_ecs_role_policy" {
   })
 }
 
-resource "aws_iam_policy_attachment" "ec2_instance-policy-attach" {
-  name       = "ec2_instance-policy-attachment"
+resource "aws_iam_policy_attachment" "animation-instance-policy-attach" {
+  name       = "animation-ec2-instance-attachment"
   roles      = [aws_iam_role.ec2_ecs_instance_role.name]
   policy_arn = aws_iam_policy.ec2_ecs_role_policy.arn
 }
 
-resource "aws_iam_policy_attachment" "ec2-container-service" {
-  name       = "ec2-container-service-policy-attachment"
+resource "aws_iam_policy_attachment" "animation-ec2-container-service" {
+  name       = "animation-container-instance-attachment"
   roles      = [aws_iam_role.ec2_ecs_instance_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
@@ -102,8 +109,8 @@ resource "aws_iam_policy_attachment" "ec2-container-service" {
 
 
 resource "aws_launch_configuration" "ec2_launch_config" {
-  name_prefix                 = "${var.environment}"
-  image_id                    = "ami-08e0b00e3616220d8"
+  name_prefix                 = "animation-ecs-ec2-launch-config"
+  image_id                    = var.ami_id
   instance_type               = var.instance_type
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.ec2_ecs_instance_profile.name
@@ -116,18 +123,19 @@ resource "aws_launch_configuration" "ec2_launch_config" {
     volume_type = "gp3"
   }
 
-  user_data = "${file("user_data.sh")}"
+  #user_data = "${file("user_data.sh")}"
+  user_data            = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.ecs_cluster.name} >> /etc/ecs/ecs.config"
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
-  name = var.application_name
+resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
+  name = "cluster-instance-cp"
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.detect_ec2_ecs_asg.arn
+    auto_scaling_group_arn         = aws_autoscaling_group.animation_ec2_ecs_asg.arn
     managed_termination_protection = "DISABLED"
 
     managed_scaling {
@@ -139,15 +147,15 @@ resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
   }
 }
 
-resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
-  name                      = "detectron-ec2-gpu"
+resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
+  name                      = "animation-ecs-ec2-asg"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
   min_size                  = 1
   max_size                  = 3
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
-  desired_capacity          = 1
+  desired_capacity          = var.target_capacity
   vpc_zone_identifier       = var.subnets == [] ? var.subnets[0].ids : var.subnets
   wait_for_capacity_timeout = "3m"
 
@@ -157,7 +165,7 @@ resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
 
   tag {
     key                 = "Name"
-    value               ="detectron-ecs-ec2"
+    value               = "${var.environment}-ecs-ec2"
     propagate_at_launch = true
   }
 
@@ -165,65 +173,5 @@ resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
     key                 = "AmazonECSManaged"
     value               = ""
     propagate_at_launch = true
-  }
-}
-
-resource "aws_appautoscaling_target" "detect_ec2_target" {
-  max_capacity = 10
-  min_capacity = 2
-  resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.detectron_ec2_service.name}"
-  scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace = "ecs"
-}
-
-resource "aws_appautoscaling_policy" "gpu_requests" {
-  name               = "detectron_requets_policy"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.detect_ec2_target.resource_id
-  scalable_dimension = aws_appautoscaling_target.detect_ec2_target.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.detect_ec2_target.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    target_value       = 1000
-    disable_scale_in   = false
-    scale_in_cooldown  = 300
-    scale_out_cooldown = 300
-    predefined_metric_specification {
-      predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = "${aws_lb.ec2_cluster_alb.arn_suffix}/${aws_alb_target_group.detectron_ec2_tg.arn_suffix}"
-    }
-  }
-}
-
-
-resource "aws_appautoscaling_policy" "gpu_memory" {
-  name               = "detectron_memory_policy"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.detect_ec2_target.resource_id
-  scalable_dimension = aws_appautoscaling_target.detect_ec2_target.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.detect_ec2_target.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
-    }
-
-    target_value       = 80
-  }
-}
-
-resource "aws_appautoscaling_policy" "gpu_cpu" {
-  name = "detectron_cpu_policy"
-  policy_type = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.detect_ec2_target.resource_id
-  scalable_dimension = aws_appautoscaling_target.detect_ec2_target.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.detect_ec2_target.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-    }
-
-    target_value = 60
   }
 }
