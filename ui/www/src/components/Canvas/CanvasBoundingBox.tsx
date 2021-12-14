@@ -4,6 +4,7 @@ import useDrawingStore from "../../hooks/useDrawingStore";
 import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import BoundingBoxStage from "./BoundingBoxStage";
+import { EmptyLoader } from "../Loader";
 
 export interface BoundingBox {
   x: number;
@@ -40,16 +41,21 @@ const CanvasBoundingBox = () => {
     boundingBox,
     setBox,
     setCroppedImgDimensions,
+    setImageUrlPose,
+    setImageUrlMask,
   } = useDrawingStore();
   const {
     isLoading,
     getBoundingBox,
     setBoundingBox,
+    getMask, 
+    getCroppedImage,
   } = useDrawingApi((err) => {});
 
   const [iWidth, setImageWidth] = useState(0);
   const [iHeight, setImageHeight] = useState(0);
   const [imgRatio, setImgRatio] = useState(0);
+  const [fetching, setIsFetching] = useState(false)
 
   /**
    * When the components mounts, invokes API to fetch json bounding box coordinates.
@@ -107,7 +113,7 @@ const CanvasBoundingBox = () => {
     if (uuid !== "") fetchBB();
 
     return () => {};
-  }, [uuid, canvasWindow.current]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uuid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClick = async (clickType: string) => {
     try {
@@ -116,6 +122,7 @@ const CanvasBoundingBox = () => {
       }
       //Send new bounding box attributes.
       if (clickType === "next") {
+        setIsFetching(true)
         let xOffset = canvasWindow.current?.offsetWidth / 2 - iWidth / 2;
         let yOffset = canvasWindow.current?.offsetHeight / 2 - iHeight / 2;
         const coordinates = {
@@ -144,6 +151,30 @@ const CanvasBoundingBox = () => {
         await setBoundingBox(uuid!, coordinates, () => {
           console.log("Bounding box loaded.");
         });
+
+        // Get mask for next step
+        await getMask(uuid!, (data) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(data);
+          reader.onload = function () {
+            let imageDataUrl = reader.result; // base64
+            setImageUrlMask(imageDataUrl);
+          };
+        });
+
+        // Get croppped image for next step which is displayed in the background.
+        await getCroppedImage(uuid!, (data) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(data);
+          reader.onload = function () {
+            let imageDataUrl = reader.result;
+            setImageUrlPose(imageDataUrl);
+          };
+        });
+
+        setIsFetching(false)
+
+        // Finally move to next step.
         setCurrentStep(currentStep + 1);
       }
 
@@ -152,19 +183,21 @@ const CanvasBoundingBox = () => {
       }
     } catch (err) {
       console.log(err);
+      setIsFetching(false)
     }
   };
 
   return (
     <div className="canvas-wrapper">
       <div className="blue-box d-none d-lg-block"></div>
-      <div ref={canvasWindow} className="canvas-background">
+      <div ref={canvasWindow} className="canvas-background loader">
         <BoundingBoxStage
           canvasWidth={canvasWindow.current?.offsetWidth}
           canvasHeight={canvasWindow.current?.offsetHeight}
           imageWidth={iWidth}
           imageHeight={iHeight}
         />
+        {fetching && <EmptyLoader />}
       </div>
       <Row className="justify-content-center mt-3 pb-1">
         <Col lg={6} md={6} xs={12} className="order-md-2 text-center">
