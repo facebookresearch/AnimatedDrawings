@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile.sketch_api
       target: rig_runtime
+      args:
+        - BUILD_CONFIG=${BUILD_CONFIG}
     ports:
       - 5000:5000
     environment:
@@ -19,52 +21,48 @@ services:
       - ENABLE_UPLOAD=${ENABLE_UPLOAD}
     networks:
       ap-net: {}
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: us-east-2
-        awslogs-group: dev-demo-sketch-log-group
-        awslogs-stream: dev-demo-sketch-www-logs
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: us-east-2
+    #     awslogs-group: dev-demo-sketch-log-group
+    #     awslogs-stream: dev-demo-sketch-www-logs
 
   detectron2_server:
     build:
       context: .
       dockerfile: Dockerfile.detectron_runtime
       target: detectron2_runtime
+    ports:
+      - 5911:5911
+      - 8081:8081
+      - 8082:8082
     networks:
       ap-net:
         aliases:
           - detectron2_server # name of network to other services in docker
-    # volumes:
-    #   - type: volume
-    #     source: dev-demo-sketch-in-model-store
-    #     target: /home/model-server/model_store
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: us-east-2
-        awslogs-group: dev-demo-sketch-log-group
-        awslogs-stream: dev-demo-sketch-detectron2-logs
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: us-east-2
+    #     awslogs-group: dev-demo-sketch-log-group
+    #     awslogs-stream: dev-demo-sketch-detectron2-logs
 
   alphapose_server:
     build:
       context: .
       dockerfile: Dockerfile.alphapose
       target: alphapose_runtime
-    # volumes:
-    #   - type: volume
-    #     source: dev-demo-sketch-in-model-store
-    #     target: /home/ap-server/model_store
     networks:
       ap-net:
         aliases:
           - alphapose_server # name of network to other services in docker
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: us-east-2
-        awslogs-group: dev-demo-sketch-log-group
-        awslogs-stream: dev-demo-sketch-alphapose-logs
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: us-east-2
+    #     awslogs-group: dev-demo-sketch-log-group
+    #     awslogs-stream: dev-demo-sketch-alphapose-logs
 
   animation_server:
     build:
@@ -84,12 +82,12 @@ services:
       ap-net:
         aliases:
           - animation_server
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: us-east-2
-        awslogs-group: dev-demo-sketch-log-group
-        awslogs-stream: dev-demo-sketch-animation-logs
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: us-east-2
+    #     awslogs-group: dev-demo-sketch-log-group
+    #     awslogs-stream: dev-demo-sketch-animation-logs
 
   www_deploy:
     build:
@@ -104,6 +102,3 @@ services:
 # Network created by default between services
 networks:
   ap-net:
-# volumes:
-#   dev-demo-sketch-in-model-store:
-#     external: true

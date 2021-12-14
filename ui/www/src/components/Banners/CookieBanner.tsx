@@ -19,7 +19,7 @@ const CookieBanner = () => {
       This demo uses cookies to enhance the user experience, and allow us to
       remember you. To find out more about the cookies we use, see our{" "}
       <a
-        href="https://www.facebook.com/policies/cookies/"
+        href="https://www.facebook.com/about/privacy/"
         target="_blank"
         rel="noreferrer"
       >

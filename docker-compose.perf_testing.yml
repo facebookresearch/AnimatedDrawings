@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  test_helper_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.perf_testing
+      args:
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
+    ports:
+      - 9000:9000
+      - 5678:5678
+    volumes:
+      - type: bind
+        source: ./perf_testing
+        target: /home/test-helper-server
+    environment:
+      - USE_AWS=1
+      - AWS_S3_INTERIM_BUCKET=dev-demo-sketch-out-interim-files

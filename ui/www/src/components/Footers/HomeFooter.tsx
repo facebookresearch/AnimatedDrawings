@@ -27,7 +27,7 @@ export default function HomeFooter({ uuid, setShowModal }: props) {
       </Nav>
       <Nav className="text-right">
         <Nav.Link
-          href="/privacy"
+          href="https://www.facebook.com/about/privacy/"
           target="_blank"
           rel="noreferrer"
           className="text-primary"
@@ -43,7 +43,7 @@ export default function HomeFooter({ uuid, setShowModal }: props) {
           Terms
         </Nav.Link>
         <Nav.Link
-          href="/cookies"
+          href="https://www.facebook.com/policies/cookies/"
           target="_blank"
           rel="noreferrer"
           className="text-primary"
