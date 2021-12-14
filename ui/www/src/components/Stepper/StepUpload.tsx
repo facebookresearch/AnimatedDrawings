@@ -5,7 +5,7 @@ const StepUpload = () => {
   return (
     <div className="step-actions-container custom-scrollbar">
       <p>
-        Upload a drawing of a <span className="bold">ONE</span> character, where
+        Upload a drawing of <span className="bold">ONE</span> character, where
         the arms and legs don’t overlap the body (see examples below).{" "}
       </p>
       <p className="bold" style={{ letterSpacing: "0.2em" }}>
