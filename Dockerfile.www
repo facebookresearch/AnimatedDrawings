@@ -6,7 +6,7 @@
 #  Build and Deploy in 1 step - execute the following comnmand
 # ####################
 
-# DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest build www_deploy && DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-loadtest up www_deploy
+# DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-beta build www_deploy .&& DOCKER_BUILDKIT=1 docker-compose  -f docker-compose.aws-dev.yml --env-file .env.aws-beta up www_deploy
 
 
 

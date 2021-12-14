@@ -71,6 +71,8 @@ services:
       target: animation_runtime
       args:
         - BUILD_CONFIG=${BUILD_CONFIG}
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
     environment:
       - AWS_S3_INTERIM_BUCKET=${AWS_S3_INTERIM_BUCKET}
       - AWS_S3_CONSENTS_BUCKET=${AWS_S3_CONSENTS_BUCKET}
