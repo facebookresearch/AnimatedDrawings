@@ -14,7 +14,7 @@ provider "aws" {
 
 
 resource "aws_s3_bucket" "tf_remote_state" {
-  bucket = "sketch-prod-terraform-s3-backend"
+  bucket = "sketch-beta-terraform-s3-backend"
   lifecycle {
     prevent_destroy = true
   }
@@ -35,10 +35,18 @@ resource "aws_s3_bucket" "tf_remote_state" {
 
 resource "aws_dynamodb_table" "tf_remote_state_locking" {
   hash_key = "LockID"
-  name = "sketch-prod-terraform-s3-backend-locking"
+  name = "sketch-beta-terraform-s3-backend-locking"
   attribute {
     name = "LockID"
     type = "S"
   }
   billing_mode = "PAY_PER_REQUEST"
+}
+
+
+data "aws_vpc" "default" {
+  default = true
+}
+locals {
+  vpc_id = "${data.aws_vpc.default.id}"
 }

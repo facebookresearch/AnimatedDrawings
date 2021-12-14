@@ -87,7 +87,7 @@ resource "aws_iam_policy" "task_role_policy" {
 }
 
 resource "aws_iam_policy_attachment" "devops-policy-attach" {
-  name       = "ec2-instance-policy-attachment-${var.environment}"
+  name       = "ec2-instance-policy-attachment"
   roles      = [aws_iam_role.devops_role.name]
   policy_arn = aws_iam_policy.task_role_policy.arn
 }

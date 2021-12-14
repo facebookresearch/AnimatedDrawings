@@ -55,13 +55,9 @@ output "animation_api_dns" {
 } 
 
 output "sketch_api_dns" {
-  value = "${aws_route53_record.sketch_api.name}"
+  value = "${aws_lb.ecs_cluster_alb.dns_name}"
 } 
 
 output "video_dns" {
-  value = "${aws_route53_record.video.name}"
-} 
-
-output "www_dns" {
-  value = "${aws_route53_record.www.name}"
+  value = "${aws_cloudfront_distribution.video_distribution.domain_name}"
 } 

@@ -1,11 +1,12 @@
 ## SKETCH API TARGET GROUP / HEALTH CHECK/ PORT CONFIGURATION
 
 resource "aws_alb_target_group" "sketch_tg" {
-  name        = "SKETCH-FARGATE-TG-${var.environment}"
+  name        = "sketch-tg-${var.environment}"
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
   target_type = "ip"
+  
 
 
   health_check {
@@ -23,6 +24,7 @@ resource "aws_alb_listener" "sketch_listener" {
   load_balancer_arn = aws_lb.ecs_cluster_alb.id
   port              = 443
   protocol          = "HTTPS"
+  certificate_arn		=	var.sketch_api_cert_arn
 
   default_action {
     type             = "forward"
@@ -32,11 +34,11 @@ resource "aws_alb_listener" "sketch_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
-  name        = "${var.sketch_service_name}_deploy"
+  name        = "${var.sketch_service_name}"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.sketch_task_definition.arn
-  desired_count   = 4
+  desired_count   = var.desired_count
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
@@ -59,7 +61,7 @@ resource "aws_ecs_service" "sketch_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family = "${var.sketch_service_name}-td-${var.environment}"
+  family = "${var.sketch_service_name}-task-def"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -86,15 +88,15 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
                 },
                 {
                     "name": "DETECTRON2_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:5911/predictions/D2_humanoid_detector"
+                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.detectron_port}${var.detectron_path}"
                 },
                 {
                     "name": "ALPHAPOSE_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:5912/predictions/alphapose"
+                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.alphapose_port}${var.alphapose_path}"
                 },
                 {
                     "name": "ANIMATION_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:5000/generate_animation"
+                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.animation_port}${var.animation_path}"
                 },
                 {
                     "name": "AWS_S3_INTERIM_BUCKET",

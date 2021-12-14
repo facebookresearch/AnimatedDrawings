@@ -156,7 +156,9 @@ resource "aws_ecr_repository_policy" "animation-ecr-policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.instance_iam_role}"
+            "${var.instance_iam_role}",
+            "arn:aws:iam::223420189915:role/beta_ec2_instance_role",
+            "arn:aws:iam::223420189915:role/beta_ECS_TASK_ROLE"
           ]
         },
         "Action" : [
