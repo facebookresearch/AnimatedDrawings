@@ -20,15 +20,36 @@ resource "aws_alb_target_group" "sketch_tg" {
 }
 
 resource "aws_alb_listener" "sketch_listener" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.id
+  load_balancer_arn = aws_lb.sketch_public_loadbalancer.id
   port              = 443
   protocol          = "HTTPS"
-
+  certificate_arn		=	var.sketch_api_cert_arn
+  
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.sketch_tg.arn
   }
 }
+
+resource "aws_lb" "sketch_public_loadbalancer" {
+  name               = "cluster-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-0c9000062b58977f0", aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}
+
+
+resource "aws_route53_record" "sketch_public" {
+  zone_id = var.public_hosted_zone_id
+  name    = "sketch-public-api${var.primary_dns_name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_lb.sketch_public_loadbalancer.dns_name]
+}
+
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
@@ -152,7 +173,7 @@ resource "aws_appautoscaling_policy" "sketch_requests" {
     scale_out_cooldown = 300
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = "${aws_lb.ecs_cluster_alb.arn_suffix}/${aws_alb_target_group.sketch_tg.arn_suffix}"
+      resource_label         = "${aws_lb.sketch_public_loadbalancer.arn_suffix}/${aws_alb_target_group.sketch_tg.arn_suffix}"
     }
   }
 }
