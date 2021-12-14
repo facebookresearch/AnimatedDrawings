@@ -35,10 +35,10 @@ services:
       ap-net:
         aliases:
           - detectron2_server # name of network to other services in docker
-    volumes:
-      - type: volume
-        source: dev-demo-sketch-in-model-store
-        target: /home/model-server/model_store
+    # volumes:
+    #   - type: volume
+    #     source: dev-demo-sketch-in-model-store
+    #     target: /home/model-server/model_store
     logging:
       driver: awslogs
       options:
@@ -51,10 +51,10 @@ services:
       context: .
       dockerfile: Dockerfile.alphapose
       target: alphapose_runtime
-    volumes:
-      - type: volume
-        source: dev-demo-sketch-in-model-store
-        target: /home/ap-server/model_store
+    # volumes:
+    #   - type: volume
+    #     source: dev-demo-sketch-in-model-store
+    #     target: /home/ap-server/model_store
     networks:
       ap-net:
         aliases:
@@ -104,6 +104,6 @@ services:
 # Network created by default between services
 networks:
   ap-net:
-volumes:
-  dev-demo-sketch-in-model-store:
-    external: true
+# volumes:
+#   dev-demo-sketch-in-model-store:
+#     external: true
