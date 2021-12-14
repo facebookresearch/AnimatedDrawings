@@ -34,7 +34,7 @@ resource "aws_alb_listener" "animation_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "animation_ecs_service" {
-  name        = "${var.animation_service_name}-image"
+  name        = "${var.animation_service_name}-env"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_task_definition.arn
@@ -61,7 +61,7 @@ resource "aws_ecs_service" "animation_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "animation_task_definition" {
-  family = "animation-td-update"
+  family = "animation-td-env"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -83,8 +83,12 @@ resource "aws_ecs_task_definition" "animation_task_definition" {
       ]
       "environment": [
                 {
-                    "name": "ENABLE_UPLOAD",
-                    "value": "1"
+                    "name": "AWS_S3_INTERIM_BUCKET",
+                    "value": "${aws_s3_bucket.interim.id}"
+                },
+                {
+                    "name": "AWS_S3_CONSENTS_BUCKET",
+                    "value": "${aws_s3_bucket.consents.id}"
                 },
                 {
                     "name": "AWS_S3_VIDEOS_BUCKET",

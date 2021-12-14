@@ -38,6 +38,10 @@ variable "sketch_container_name" {
     default = "sketch_api_container"
 }
 
+variable "detectron_gpu_container_name" {
+    default = "detectron_gpu_api_container"
+}
+
 variable "autoscale_enabled" {
   description = "Setup autoscale."
   default     = "true"
@@ -121,4 +125,28 @@ variable "consents_bucket" {
 
 variable "video_bucket" {
   default = "loadtest-demo-sketch-out-animations"
+}
+
+variable "primary_hosted_zone_id" {
+  type = string
+}
+
+
+variable "primary_hosted_zone" {
+  default = ".dev.metademolab.com"
+}
+
+#variable = "ami_id" {
+#  default = "ami-0a39b734183d5c064"
+#}
+
+
+
+variable "instance_type" {
+  default = "g4dn.4xlarge"
+  
+}
+
+variable "key_pair" {
+  default = "detectron-ecs-gpu"
 }

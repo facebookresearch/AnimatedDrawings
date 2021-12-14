@@ -85,3 +85,13 @@ resource "aws_security_group" "ecs_cluster_service_sg" {
    cidr_blocks      = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_lb" "ec2_cluster_alb" {
+  name               = "cluster-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-0c9000062b58977f0", aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}

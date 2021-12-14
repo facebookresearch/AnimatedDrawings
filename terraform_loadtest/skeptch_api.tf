@@ -32,7 +32,7 @@ resource "aws_alb_listener" "sketch_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
-  name        = "${var.sketch_service_name}_deploy"
+  name        = "${var.sketch_service_name}_new_image"
   launch_type = "FARGATE"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.sketch_task_definition.arn
@@ -59,7 +59,7 @@ resource "aws_ecs_service" "sketch_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family = "${var.sketch_service_name}-td-${var.environment}"
+  family = "${var.sketch_service_name}-new-image"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096

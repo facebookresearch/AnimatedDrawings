@@ -26,7 +26,8 @@ resource "aws_ecr_repository_policy" "detectron_ecr_policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.sketch_instance_arn}"
+            "${var.sketch_instance_arn}",
+            "${aws_iam_role.ec2_ecs_instance_role.arn}" #GPU IAM ROLE
           ]
         },
         "Action" : [
@@ -62,6 +63,13 @@ resource "aws_ecr_lifecycle_policy" "detectron_lifecycle_polcy" {
     }]
   })
 }
+
+
+
+
+
+
+
 
 
 #ALPHAPOSE ECR REPO

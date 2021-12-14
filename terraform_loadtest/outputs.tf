@@ -12,6 +12,10 @@ output "alphapose_ecr" {
 
 output "sketch_ecr" {
   value = aws_ecr_repository.sketch_repo.repository_url
+}
+
+output "detectron_gpu_ecr" {
+  value = aws_ecr_repository.detectron_gpu_repo.repository_url
 } 
  
 output "devops_role" {
@@ -42,6 +46,10 @@ output "animation_container_name" {
 
 output "sketch_container_name" {
   value = var.sketch_container_name
+}
+
+output "detectron_gpu_container_name" {
+  value = var.detectron_gpu_container_name
 }
 
 output "detectron_model_dns" {
