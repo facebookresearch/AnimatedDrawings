@@ -1,0 +1,37 @@
+# syntax = docker/dockerfile:1.2
+
+
+# The runtime-stage image; we can use Debian as the
+# base image since the Conda env also includes Python
+# for us.
+FROM continuumio/miniconda3 
+
+ENV PYTHONUNBUFFERED TRUE
+
+
+ARG USER_ID
+ARG GROUP_ID
+
+
+RUN --mount=type=cache,target=/opt/conda/pkgs \
+    --mount=type=cache,target=/root/.cache/pip \
+    # Add the following line to enable functiontrace.
+    # && pip install functiontrace \
+    pip install flask flask_cors boto3 numpy opencv-python-headless debugpy
+
+
+run mkdir -p /home/test-helper-server/flask
+# Copy the the storage service so we can use 
+WORKDIR /home/test-helper-server
+
+COPY  animate/flask/s3_object.py  flask/
+COPY  animate/flask/storage_service.py  flask/
+
+
+WORKDIR /home/test-helper-server/flask
+
+ENV FLASK_ENV=development
+
+# From https://dev.to/pacheco/dockerize-a-flask-app-and-debug-with-vscode-34i1
+CMD [ "python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "flask", "run", "--host=0.0.0.0", "--port=9000", "--no-debugger"]
+# CMD [ "sleep", "infinity" ]

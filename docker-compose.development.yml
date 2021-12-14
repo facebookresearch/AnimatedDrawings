@@ -37,6 +37,10 @@ services:
       context: .
       dockerfile: Dockerfile.detectron_runtime
       target: detectron2_runtime
+    ports:
+      - 5911:5911
+      - 8081:8081
+      - 8082:8082
     networks:
       ap-net:
         aliases:
