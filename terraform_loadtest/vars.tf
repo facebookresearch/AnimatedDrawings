@@ -10,16 +10,15 @@ variable "environment" {
 
 variable "sketch_instance_arn" {
   type    = string
-  default = "arn:aws:iam::790537050551:role/iam-role-dev-demo-sketch-out-animations-write"
 }
 
 
 variable "security_groups" {
-  default = ["sg-0c9000062b58977f0", "sg-0e15f3169ff2af367"]
+  type = string
 }
 
 variable "subnets" {
-  default = ["subnet-97fcd7db", "subnet-9daf6ce0", "subnet-d039b3bb"]
+  type = string
 }
 
 variable "detectron_container_name" {
@@ -75,22 +74,6 @@ variable "sketch_service_name" {
   default = "sketch_service"
 }
 
-variable "detectron_image" {
-  default = "790537050551.dkr.ecr.us-east-2.amazonaws.com/ml_devops_modelzoo_repo:latest"
-}
-
-variable "alphapose_image" {
-  default = "790537050551.dkr.ecr.us-east-2.amazonaws.com/alphapose_runtime:latest"
-}
-
-variable "animation_image" {
-  default = "790537050551.dkr.ecr.us-east-2.amazonaws.com/animation_model:latest"
-}
-
-variable "sketch_image" {
-  default = "790537050551.dkr.ecr.us-east-2.amazonaws.com/sketch_api:latest"
-}
-
 variable "desired_count" {
   default = 2
 }
@@ -129,7 +112,7 @@ variable "private_hosted_zone_id" {
 
 
 variable "primary_dns_name" {
-  default = ".dev.metademolab.com"
+  type = string
 }
 
 variable "animation_ami_id" {
