@@ -121,6 +121,7 @@ resource "aws_route53_record" "video" {
   records = [aws_cloudfront_distribution.video_distribution.domain_name]
 }
 
+# API ENDPOINTS IN PRIVATE
 resource "aws_route53_record" "private_api" {
   zone_id = var.private_hosted_zone_id
   name    = "${var.environment}-cluster-api${var.primary_dns_name}"
@@ -129,6 +130,8 @@ resource "aws_route53_record" "private_api" {
   records = [aws_lb.ecs_cluster_alb.dns_name]
 }
 
+
+# SKETCH PUBLIC
 resource "aws_route53_record" "sketch_public" {
   zone_id = var.public_hosted_zone_id
   name    = "sketch-public-api${var.primary_dns_name}"

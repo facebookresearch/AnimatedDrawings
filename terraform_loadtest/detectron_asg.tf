@@ -151,7 +151,7 @@ resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
   }
 
   tag {
-    key                 = "loadtes"
+    key                 = "loadtest"
     value               = ""
     propagate_at_launch = true
   }
