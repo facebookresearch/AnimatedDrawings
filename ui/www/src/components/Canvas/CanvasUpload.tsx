@@ -22,7 +22,6 @@ const CanvasUpload = () => {
   const [showWaiver, setShowWaiver] = useState(false);
   const [converting, setConvertingHeic] = useState(false);
   const [compressing, setCompressing] = useState(false);
-  const [showDialog, setShowDialog] = useState(true)
 
   const upload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -169,9 +168,6 @@ const CanvasUpload = () => {
           </a>
         </p>
       </div>
-      <div onClick={() => setShowDialog(false)}>
-        <i className="bi bi-x-lg h6" />
-      </div>
     </div>
   );
 
@@ -242,7 +238,7 @@ const CanvasUpload = () => {
               </Button>
             )}
           </div>
-          {showDialog && <LegalDialog />}
+          <LegalDialog />
         </div>
       ) : (
         <div className="upload-buttons-wrapper">
@@ -271,7 +267,7 @@ const CanvasUpload = () => {
               )}
             </Button>
           </div>
-          {showDialog && <LegalDialog />}
+          <LegalDialog />
         </div>
       )}
 

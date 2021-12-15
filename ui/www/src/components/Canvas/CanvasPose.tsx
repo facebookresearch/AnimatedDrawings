@@ -25,6 +25,7 @@ const CanvasPose = () => {
     pose,
     setPose,
     setImageUrlMask,
+    setAnimationType,
   } = useDrawingStore();
   const { currentStep, setCurrentStep } = useStepperStore();
   const { isLoading, getMask, setJointLocations } = useDrawingApi((err) => {
@@ -81,6 +82,7 @@ const CanvasPose = () => {
         await setJointLocations(uuid!, joints, () => {
           console.log("New joints location set.");
         });
+        setAnimationType("dance002");
         setCurrentStep(currentStep + 1);
       }
       if (clickType === "previous") {

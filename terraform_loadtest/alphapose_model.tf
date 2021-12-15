@@ -1,10 +1,3 @@
-data "aws_vpc" "default" {
-  default = true
-} 
-locals {
-  vpc_id = "${data.aws_vpc.default.id}"
-} 
-
 resource "aws_alb_target_group" "alphapose_tg" {
   name        = "alphapose-${var.environment}-tg"
   port        = 5912
@@ -40,18 +33,18 @@ resource "aws_alb_listener" "alphapose_listener" {
 
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "alphapose_ecs_service" {
-  name        = "${var.alphapose_service_name}-deploy"
-  launch_type = "FARGATE"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.alpha_service.arn
-  desired_count   = 4
+  name                               = var.alphapose_service_name
+  launch_type                        = "FARGATE"
+  cluster                            = aws_ecs_cluster.ecs_cluster.id
+  task_definition                    = aws_ecs_task_definition.alpha_service.arn
+  desired_count                      = 4
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
-      security_groups  = var.security_groups
-      subnets          = var.subnets
-      assign_public_ip = true
-    }
+    security_groups  = var.security_groups
+    subnets          = var.subnets
+    assign_public_ip = true
+  }
 
   load_balancer {
     target_group_arn = aws_alb_target_group.alphapose_tg.arn
@@ -60,21 +53,21 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
   }
 
   lifecycle {
-   ignore_changes = [task_definition]
- }
+    ignore_changes = [task_definition]
+  }
 
 }
 
 
 resource "aws_ecs_task_definition" "alpha_service" {
-  family = "alphapose-tf"
-  network_mode = "awsvpc"
+  family                   = "alphapose-task-definition"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
   memory                   = 30720
   execution_role_arn       = aws_iam_role.task_execution_role.arn
   task_role_arn            = aws_iam_role.devops_role.arn
-  
+
 
   container_definitions = jsonencode([
     {
@@ -87,13 +80,13 @@ resource "aws_ecs_task_definition" "alpha_service" {
           "hostPort"      = 5912
         }
       ]
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-region": "us-east-2",
-          "awslogs-group": "${aws_cloudwatch_log_group.log_group.name}",
-          "awslogs-create-group": "true",
-          "awslogs-stream-prefix": "${var.alphapose_container_name}-logs"
+      "logConfiguration" : {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-region" : "us-east-2",
+          "awslogs-group" : "${aws_cloudwatch_log_group.log_group.name}",
+          "awslogs-create-group" : "true",
+          "awslogs-stream-prefix" : "${var.alphapose_container_name}-logs"
         }
       }
 
@@ -105,11 +98,11 @@ resource "aws_ecs_task_definition" "alpha_service" {
 #ALPHAPOSE AUTOSCALING
 
 resource "aws_appautoscaling_target" "alphapose_target" {
-  max_capacity = 10
-  min_capacity = 2
-  resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.alphapose_ecs_service.name}"
+  max_capacity       = 10
+  min_capacity       = 2
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.alphapose_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace = "ecs"
+  service_namespace  = "ecs"
 }
 
 resource "aws_appautoscaling_policy" "alphapose_requests" {
@@ -143,13 +136,13 @@ resource "aws_appautoscaling_policy" "alphapose_memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value       = 80
+    target_value = 80
   }
 }
 
 resource "aws_appautoscaling_policy" "alphapose_cpu" {
-  name = "alphapose_cpu_policy_${var.environment}"
-  policy_type = "TargetTrackingScaling"
+  name               = "alphapose_cpu_policy_${var.environment}"
+  policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.alphapose_target.resource_id
   scalable_dimension = aws_appautoscaling_target.alphapose_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.alphapose_target.service_namespace

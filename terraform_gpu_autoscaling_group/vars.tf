@@ -36,3 +36,13 @@ variable "key_pair" {
 variable "region" {
   default = "us-east-2"
 }
+
+
+variable "private_hosted_zone_id" {
+  type = string
+}
+
+
+variable "primary_dns_name" {
+  default = ".dev.metademolab.com"
+}

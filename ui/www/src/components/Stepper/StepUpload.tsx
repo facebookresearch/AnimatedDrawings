@@ -33,6 +33,9 @@ const StepUpload = () => {
           ), or drawings that infringe on the copyrights of others.
         </li>
       </ul>
+      <p className="bold" style={{ letterSpacing: "0.2em" }}>
+        SAMPLE DRAWINGS
+      </p>
       <p>
         Feel free to try the demo by clicking on one of the following example
         images.

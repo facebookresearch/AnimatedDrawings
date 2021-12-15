@@ -10,6 +10,16 @@ resource "aws_lb" "gpu_asg_alb" {
   enable_deletion_protection = false
 }
 
+
+resource "aws_route53_record" "private_api" {
+  zone_id = var.private_hosted_zone_id
+  name    = "detectron-asg-api${var.primary_dns_name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_lb.gpu_asg_alb.dns_name]
+}
+
+
 resource "aws_security_group" "gpu_asg_alb_sg" {
   name   = "gpu-alb-sg-${var.environment}"
   vpc_id = local.vpc_id

@@ -317,4 +317,17 @@
   }
 }
 
+.bb-samples-wrapper {
+  display: flex;
+  width: 100%;
+  div {
+    flex: 50%;
+    padding: 10px;
+  }
+  img {
+    width: 100%;
+    border-radius: 10px;
+  }
+}
+
 
