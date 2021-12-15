@@ -50,6 +50,8 @@ resource "aws_ecs_service" "sketch_ecs_service" {
   desired_count                      = 4
   deployment_minimum_healthy_percent = 2
 
+  force_new_deployment = true
+
   network_configuration {
     security_groups  = [aws_security_group.ecs_cluster_alb_sg.id]
     subnets          = var.subnets
@@ -118,6 +120,14 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
         {
           "name" : "AWS_S3_VIDEOS_BUCKET",
           "value" : "${aws_s3_bucket.video.id}"
+        },
+        {
+          "name" : "SKETCH_API_WSGI_WORKERS",
+          "value" : "1"
+        },
+        {
+          "name" : "SKETCH_API_WSGI_THREADS",
+          "value" : "100"
         },
         {
           "name" : "USE_AWS",

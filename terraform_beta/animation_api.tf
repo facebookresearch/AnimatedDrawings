@@ -91,6 +91,14 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
           "value" : "${aws_s3_bucket.video.id}"
         },
         {
+          "name" : "ANIMATE_WSGI_WORKERS",
+          "value" : "33"
+        },
+        {
+          "name" : "ANIMATE_WSGI_THREADS",
+          "value" : "1"
+        },
+        {
           "name" : "USE_AWS",
           "value" : "1"
         }
