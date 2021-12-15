@@ -63,7 +63,9 @@ resource "aws_cloudfront_distribution" "www_distribution" {
 resource "aws_cloudfront_origin_access_identity" "video_OAI" {
 }
 
+
 # VIDEO CDN
+
 resource "aws_cloudfront_distribution" "video_distribution" {
   origin {
 
@@ -78,6 +80,7 @@ resource "aws_cloudfront_distribution" "video_distribution" {
   aliases = ["beta-sketch-video.metademolab.com"]
   // All values are defaults from the AWS console.
   default_cache_behavior {
+    
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
     allowed_methods        = ["GET", "HEAD"]
@@ -87,6 +90,7 @@ resource "aws_cloudfront_distribution" "video_distribution" {
     min_ttl          = 0
     default_ttl      = 86400
     max_ttl          = 31536000
+    response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
 
     forwarded_values {
       query_string = false
