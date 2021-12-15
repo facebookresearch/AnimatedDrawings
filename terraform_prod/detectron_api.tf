@@ -12,8 +12,8 @@ resource "aws_alb_target_group" "detectron_ec2_tg" {
     interval            = "30"
     protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
-    unhealthy_threshold = "3"
+    timeout             = "5"
+    unhealthy_threshold = "5"
     path                = "/ping"
   }
 }
@@ -33,11 +33,11 @@ resource "aws_alb_listener" "detectron_http" {
 
 #ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "detectron_ec2_service" {
-  name                               = "detectron_service_deploy"
+  name                               = "detectron_service_production"
   launch_type                        = "EC2"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.detect_ec2_task_definition.arn
-  desired_count                      = 2
+  desired_count                      = 3
   deployment_minimum_healthy_percent = 2
   force_new_deployment = true
 
@@ -62,7 +62,7 @@ resource "aws_ecs_service" "detectron_ec2_service" {
 
 
 resource "aws_ecs_task_definition" "detect_ec2_task_definition" {
-  family                   = "detectron_task_def"
+  family                   = "detectron_task_definition_production"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "5 vCPU"

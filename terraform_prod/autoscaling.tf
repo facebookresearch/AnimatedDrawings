@@ -142,7 +142,7 @@ resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
 resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
   name                      = "detectron-ec2-gpu-${var.environment}"
   launch_configuration      = aws_launch_configuration.gpu_launch_config.name
-  min_size                  = 1
+  min_size                  = 3
   max_size                  = 3
   health_check_type         = "EC2"
   health_check_grace_period = 0

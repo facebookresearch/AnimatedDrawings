@@ -29,7 +29,7 @@ sudo usermod -aG docker $USER
 sudo mkdir -p /etc/ecs && sudo touch /etc/ecs/ecs.config
 
 sudo bash -c 'cat <<'EOF' > /etc/ecs/ecs.config
-ECS_CLUSTER=prod_cluster
+ECS_CLUSTER=production_cluster
 ECS_ENABLE_GPU_SUPPORT=true
 ECS_NVIDIA_RUNTIME=nvidia
 ECS_DATADIR=/data

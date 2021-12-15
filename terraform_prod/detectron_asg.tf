@@ -98,6 +98,14 @@ resource "aws_iam_policy_attachment" "ec2-container-service" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+resource "aws_iam_policy_attachment" "ecr-registy-service" {
+  name       = "gpu-asg-registry-${var.environment}"
+  roles      = [aws_iam_role.detectron_asg_instance_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+}
+
+
+
 
 
 

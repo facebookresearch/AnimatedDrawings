@@ -32,7 +32,7 @@ resource "aws_alb_listener" "http_ec2" {
 
 
 resource "aws_ecs_service" "animation_ec2_service" {
-  name            = "animation_service_deploy"
+  name            = "animation_service"
   launch_type     = "EC2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_ec2_task_definition.arn
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "animation_ec2_service" {
 }
 
 resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
-  family                   = "animation_task_def"
+  family                   = "animation_task_definition"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "2 vCPU"

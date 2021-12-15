@@ -19,7 +19,7 @@ resource "aws_cloudfront_distribution" "www_distribution" {
     response_page_path = "/index.html"
   }
 
-  aliases = ["prod-sketch.metademolab.com"]
+  aliases = ["sketch.metademolab.com"]
 
   enabled             = true
   default_root_object = "index.html"
@@ -76,7 +76,7 @@ resource "aws_cloudfront_distribution" "video_distribution" {
 
   enabled = true
   aliases = ["prod-sketch-video.metademolab.com"]
-  // All values are defaults from the AWS console.
+  
   default_cache_behavior {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
@@ -112,7 +112,7 @@ resource "aws_cloudfront_distribution" "video_distribution" {
 
 resource "aws_route53_record" "www" {
   zone_id = var.public_hosted_zone_id
-  name    = "${var.environment}-sketch${var.primary_dns_name}"
+  name    = "sketch${var.primary_dns_name}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_cloudfront_distribution.www_distribution.domain_name]
