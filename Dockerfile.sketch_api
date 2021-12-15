@@ -70,12 +70,9 @@ COPY --from=rig_build /venv /venv
 
 ENV PATH /venv/bin/:${PATH}
 
-
-
 EXPOSE 5000
 
 FROM common_runtime as development_runtime
-CMD [ "sleep", "infinity" ]
 
 FROM development_runtime as profile_runtime
 
@@ -83,8 +80,9 @@ FROM common_runtime as release_runtime
 # Only copy for relase builds
 COPY --chown=model-server:model-server rig rig/
 
-
 FROM ${BUILD_CONFIG}_runtime as rig_runtime
 
 WORKDIR /home/model-server/rig/server/flask 
+# TODO @chris this should an env var correct?
+ENV ENABLE_UPLOAD=1
 CMD [ "./run.sh" ]

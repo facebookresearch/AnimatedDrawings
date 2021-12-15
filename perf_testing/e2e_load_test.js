@@ -1,0 +1,49 @@
+import http from "k6/http";
+import { sleep } from "k6";
+import { check } from "k6";
+
+import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
+
+import {
+  uploadImage,
+  setConsentAnswer,
+  getBoundingBox,
+  setBoundingBox,
+  getMask,
+  getJointLocations,
+  setJointLocations,
+  getAnimation,
+} from "./sketch_api_calls.js";
+
+const imageFile = open("./data/image.png", "b");
+const USER_SLEEP = 15;
+
+const HOST = "https://sketch-loadtest.dev.metademolab.com";
+
+export default function () {
+  // Step 1. Upload Image
+  const uuid = uploadImage(imageFile);
+  console.log("UUID", uuid);
+
+  // Step 2. Set Consent
+  sleep(USER_SLEEP);
+  setConsentAnswer(uuid);
+
+  // Step 3. Get Bounding box
+  const boundingBox = getBoundingBox(uuid);
+  const newboundingBox = setBoundingBox(uuid, boundingBox);
+  sleep(USER_SLEEP);
+
+  // Step 4. Get Mask
+  const mask = getMask(uuid);
+  sleep(USER_SLEEP);
+
+  // Step 5. get Pose
+  const jointLocations = getJointLocations(uuid);
+  const setjointLocations = setJointLocations(uuid, jointLocations);
+  sleep(USER_SLEEP);
+
+  // Step 6. get Get Animation
+  getAnimation(uuid, "running_jump");
+  sleep(USER_SLEEP);
+}

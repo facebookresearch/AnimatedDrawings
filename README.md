@@ -66,11 +66,11 @@ Developing on a AWS works the same as above only `DOCKER_BUILDKIT=1` must be use
 The necessary config changes are captured in [docker-compose.aws-dev.yml](docker-compose.aws-dev.yml) and [.env.aws-dev](.env.aws-dev)
 
 ```
-DOCKER_BUILDKIT=1 docker-compose -f docker-compose.aws-dev.yml build \
-    --env-file .env.aws-dev \
+DOCKER_BUILDKIT=1 docker-compose -f docker-compose.aws-dev.yml --env-file .env.aws-dev \
+    build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g)
-&& docker-compose -f docker-compose.aws.dev.yml --env-file .env.aws-dev \ up
+&& docker-compose -f docker-compose.aws-dev.yml --env-file .env.aws-dev up
 ```
 
 # Compiling Individual images

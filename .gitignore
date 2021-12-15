@@ -1,3 +1,14 @@
+# Local .terraform directories
+**/.terraform/*
+
+**/.terraform*
+**/.terraform.*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+
 detectron2_weights.pth
 alphapose_weights.pth
 
