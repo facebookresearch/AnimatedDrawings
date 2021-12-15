@@ -572,14 +572,6 @@ def not_found(e):
 def terms_route():
     return send_file(resource_dir / "index.html")
 
-@app.route("/privacy")
-def privacy_route():
-    return send_file(resource_dir / "index.html")
-
-@app.route("/cookies")
-def cookies_route():
-    return send_file(resource_dir / "index.html")
-
 @app.route("/about")
 def about_route():
     return send_file(resource_dir / "index.html")

@@ -1,6 +1,6 @@
 import React from "react";
-import image_1 from "../../assets/drawings_examples/step5/image_1.png";
-import image_2 from "../../assets/drawings_examples/step5/image_2.png";
+import image_1 from "../../assets/drawings_examples/step4/image_1.png";
+import Step4Gif from "../../assets/drawings_examples/step4/Step4.gif";
 
 const StepPose = () => {
   return (
@@ -10,7 +10,7 @@ const StepPose = () => {
         look like:
       </p>
       <div className="drawing-example-wrapper my-3">
-        <img src={image_1} alt="img1_step5" />
+        <img src={image_1} alt="img1_step4" style={{ width: "50%" }} />
       </div>
       <p className="bold" style={{ letterSpacing: "0.2em" }}>
         CHECKLIST
@@ -20,11 +20,9 @@ const StepPose = () => {
           If your character doesn't have any arms, drag the elbows and wrist
           joints far away from the character and it can still be animated:
         </li>
-        <li>If everything looks fine, hit 'Next'.</li>
       </ul>
-
       <div className="drawing-example-wrapper">
-        <img src={image_2} alt="img2_step5" />
+        <img src={Step4Gif} alt="gif_step4" />
       </div>
       <p>
         In the next step, we’ll use the segmentation mask and these joints
