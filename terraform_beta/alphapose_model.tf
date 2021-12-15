@@ -41,7 +41,7 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
-    security_groups  = var.security_groups
+    security_groups  = [aws_security_group.ecs_cluster_alb_sg.id]
     subnets          = var.subnets
     assign_public_ip = true
   }
