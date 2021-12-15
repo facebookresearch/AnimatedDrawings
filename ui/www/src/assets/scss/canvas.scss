@@ -547,3 +547,18 @@
     opacity: 1;
   }
 }
+
+/********************/
+/*** Canvas Error ***/
+/********************/
+
+.error-message-div {
+  width: 100%;
+  padding: 2em;
+  h2 {
+    font-family: $font-family-md;
+    font-weight: 700;
+    color: #1B4978;
+    font-size: 1.85em
+  }
+}
