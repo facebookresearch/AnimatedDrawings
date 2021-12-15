@@ -20,10 +20,18 @@ declare global {
 
 const CanvasAnimation = () => {
   const { uuid, animationType, setRenderingVideo } = useDrawingStore();
-  const { currentStep, setCurrentStep } = useStepperStore();
+  const { currentStep, setError, setCurrentStep } = useStepperStore();
+
   const errorHandler = useCallback((err) => {
-    console.log(err);
-  }, []);
+    let isSubscribed = true
+    if (isSubscribed) {
+      setError(err.response.status);
+      console.log(err);
+    }
+   
+    return () => {isSubscribed = false}
+  }, [setError]);
+  
   const { isLoading, getAnimation, getVideoFile } = useDrawingApi(errorHandler);
   const [videoDownload, setVideoDownload] = useState("");
   const [animationFiles, setAnimationFiles] = useState<File[]>([]);

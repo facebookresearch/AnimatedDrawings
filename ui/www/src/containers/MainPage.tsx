@@ -3,12 +3,20 @@ import { Container, Row, Col } from "react-bootstrap";
 import Canvas from "../components/Canvas/Canvas";
 import StepsContainer from "../components/Stepper/StepsContainer";
 import useDrawingStore from "../hooks/useDrawingStore";
+import useStepperStore from "../hooks/useStepperStore";
 import AboutModal from "../components/Modals/AboutModal";
 import HomeFooter from "../components/Footers/HomeFooter";
+import ErrorPage from "./ErrorPage";
 
 const MainPage = () => {
   const { uuid } = useDrawingStore();
+  const { errorCode } = useStepperStore();
   const [showModal, setShowModal] = useState(false);
+
+  if (errorCode !== 0) {
+    return <ErrorPage />;
+  }
+  
   return (
     <div className="main-content bg-main">
       <div className="navbar-title">
