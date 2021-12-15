@@ -137,3 +137,33 @@ resource "aws_s3_bucket_public_access_block" "consents_block" {
   block_public_policy     = true
   restrict_public_buckets = true
 }
+
+resource "aws_s3_bucket" "model" {
+
+  bucket = var.model_store_bucket
+  acl    = "private"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AddPerm",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : ["*"]
+        }
+        "Action" : ["s3:GetObject"],
+        "Resource" : ["arn:aws:s3:::${var.model_store_bucket}/*"]
+      }
+    ],
+  })
+
+}
+
+resource "aws_s3_bucket_public_access_block" "model_block" {
+  bucket = aws_s3_bucket.model.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+}
