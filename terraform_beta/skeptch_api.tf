@@ -35,7 +35,7 @@ resource "aws_lb" "sketch_public_loadbalancer" {
   name               = "cluster-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = ["sg-0c9000062b58977f0", aws_security_group.ecs_cluster_alb_sg.id]
+  security_groups    = [aws_security_group.ecs_cluster_alb_sg.id]
   subnets            = var.subnets
 
   enable_deletion_protection = false

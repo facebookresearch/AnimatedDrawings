@@ -20,7 +20,7 @@ resource "aws_alb_target_group" "animation_ec2_tg" {
 
 resource "aws_alb_listener" "http_ec2" {
   load_balancer_arn = aws_lb.ecs_cluster_alb.id
-  port              = 80
+  port              = 5000
   protocol          = "HTTP"
 
   default_action {
@@ -32,7 +32,7 @@ resource "aws_alb_listener" "http_ec2" {
 
 
 resource "aws_ecs_service" "animation_ec2_service" {
-  name            = "animation_service"
+  name            = "animation_service_deploy"
   launch_type     = "EC2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_ec2_task_definition.arn

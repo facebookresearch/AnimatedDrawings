@@ -33,11 +33,11 @@ resource "aws_alb_listener" "detectron_http" {
 
 #ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "detectron_ec2_service" {
-  name                               = "detectron_service"
+  name                               = "detectron_service_deploy"
   launch_type                        = "EC2"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.detect_ec2_task_definition.arn
-  desired_count                      = 3
+  desired_count                      = 2
   deployment_minimum_healthy_percent = 2
   force_new_deployment = true
 

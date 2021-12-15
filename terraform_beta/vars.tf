@@ -79,7 +79,7 @@ variable "target_capacity" {
 }
 
 variable "application_name" {
-  default = "detectron"
+  default = "sketch-kids-animation"
 }
 
 variable "www_domain_name" {
@@ -142,4 +142,12 @@ variable "detectron_instance_type" {
 
 variable "detectron_key_pair" {
   default = "detectron-ecs-gpu"
+}
+
+variable "PROFILE_ARN" {
+  type = string
+}
+
+variable "cloudfront_cert_arn" {
+  type = string
 }

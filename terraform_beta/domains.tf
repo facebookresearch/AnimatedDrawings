@@ -19,9 +19,10 @@ resource "aws_cloudfront_distribution" "www_distribution" {
     response_page_path = "/index.html"
   }
 
+  aliases = ["beta-sketch.metademolab.com"]
+
   enabled             = true
   default_root_object = "index.html"
-
   default_cache_behavior {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
@@ -53,6 +54,8 @@ resource "aws_cloudfront_distribution" "www_distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+    acm_certificate_arn = var.cloudfront_cert_arn
+    ssl_support_method = "sni-only"
   }
 }
 
@@ -72,7 +75,7 @@ resource "aws_cloudfront_distribution" "video_distribution" {
   }
 
   enabled = true
-
+  aliases = ["beta-sketch-video.metademolab.com"]
   // All values are defaults from the AWS console.
   default_cache_behavior {
     viewer_protocol_policy = "redirect-to-https"
@@ -101,6 +104,8 @@ resource "aws_cloudfront_distribution" "video_distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+    acm_certificate_arn = var.cloudfront_cert_arn
+    ssl_support_method = "sni-only"
   }
 }
 
@@ -121,20 +126,20 @@ resource "aws_route53_record" "video" {
   records = [aws_cloudfront_distribution.video_distribution.domain_name]
 }
 
-# API ENDPOINTS IN PRIVATE
+# API ENDPOINTS IN PRIVATE HOSTED ZONE
 resource "aws_route53_record" "private_api" {
   zone_id = var.private_hosted_zone_id
-  name    = "${var.environment}-cluster-api${var.primary_dns_name}"
+  name    = "${var.environment}-private-cluster-api${var.primary_dns_name}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_lb.ecs_cluster_alb.dns_name]
 }
 
 
-# SKETCH PUBLIC
+# SKETCH API DOMAIN NAME 
 resource "aws_route53_record" "sketch_public" {
   zone_id = var.public_hosted_zone_id
-  name    = "sketch-public-api${var.primary_dns_name}"
+  name    = "${var.environment}-sketch-api${var.primary_dns_name}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_lb.sketch_public_loadbalancer.dns_name]
