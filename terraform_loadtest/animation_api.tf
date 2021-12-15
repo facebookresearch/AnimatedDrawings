@@ -107,7 +107,6 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
       "placementConstraints" : [
           {
             "expression" : "attribute:ecs.instance-type  == c5.4xlarge",
-      #      "expression" : "attribute:ecs.ami-id ==ami-08e0b00e3616220d8",
             "type" : "memberOf"
         }]
 
