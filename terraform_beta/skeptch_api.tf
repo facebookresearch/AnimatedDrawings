@@ -1,12 +1,11 @@
 ## SKETCH API TARGET GROUP / HEALTH CHECK/ PORT CONFIGURATION
 
 resource "aws_alb_target_group" "sketch_tg" {
-  name        = "sketch-tg-${var.environment}"
+  name        = "SKETCH-FARGATE-TG-${var.environment}"
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
   target_type = "ip"
-  
 
 
   health_check {
@@ -21,10 +20,10 @@ resource "aws_alb_target_group" "sketch_tg" {
 }
 
 resource "aws_alb_listener" "sketch_listener" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.id
+  load_balancer_arn = aws_lb.sketch_public_loadbalancer.id
   port              = 443
   protocol          = "HTTPS"
-  certificate_arn		=	var.sketch_api_cert_arn
+  certificate_arn   = var.sketch_api_cert_arn
 
   default_action {
     type             = "forward"
@@ -32,20 +31,30 @@ resource "aws_alb_listener" "sketch_listener" {
   }
 }
 
+resource "aws_lb" "sketch_public_loadbalancer" {
+  name               = "cluster-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = ["sg-0c9000062b58977f0", aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}
+
 #ALPHAPOSE ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
-  name        = "${var.sketch_service_name}"
-  launch_type = "FARGATE"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.sketch_task_definition.arn
-  desired_count   = var.desired_count
+  name                               = var.sketch_service_name
+  launch_type                        = "FARGATE"
+  cluster                            = aws_ecs_cluster.ecs_cluster.id
+  task_definition                    = aws_ecs_task_definition.sketch_task_definition.arn
+  desired_count                      = 4
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
-      security_groups  = [aws_security_group.ecs_cluster_alb_sg.id, aws_security_group.ecs_cluster_service_sg.id]
-      subnets          = var.subnets
-      assign_public_ip = true
-    }
+    security_groups  = var.security_groups
+    subnets          = var.subnets
+    assign_public_ip = true
+  }
 
   load_balancer {
     target_group_arn = aws_alb_target_group.sketch_tg.arn
@@ -54,21 +63,21 @@ resource "aws_ecs_service" "sketch_ecs_service" {
   }
 
   lifecycle {
-   ignore_changes = [task_definition]
- }
+    ignore_changes = [task_definition]
+  }
 
 }
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family = "${var.sketch_service_name}-task-def"
-  network_mode = "awsvpc"
+  family                   = "sketch-api-task-definition"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
   memory                   = 30720
   execution_role_arn       = aws_iam_role.task_execution_role.arn
   task_role_arn            = aws_iam_role.devops_role.arn
-  
+
 
   container_definitions = jsonencode([
     {
@@ -81,47 +90,47 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
           "hostPort"      = 5000
         }
       ]
-       "environment": [
-                {
-                    "name": "ENABLE_UPLOAD",
-                    "value": "1"
-                },
-                {
-                    "name": "DETECTRON2_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.detectron_port}${var.detectron_path}"
-                },
-                {
-                    "name": "ALPHAPOSE_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.alphapose_port}${var.alphapose_path}"
-                },
-                {
-                    "name": "ANIMATION_ENDPOINT",
-                    "value": "http://${aws_lb.ecs_cluster_alb.dns_name}:${var.animation_port}${var.animation_path}"
-                },
-                {
-                    "name": "AWS_S3_INTERIM_BUCKET",
-                    "value": "${aws_s3_bucket.interim.id}"
-                },
-                {
-                    "name": "AWS_S3_CONSENTS_BUCKET",
-                    "value": "${aws_s3_bucket.consents.id}"
-                },
-                {
-                    "name": "AWS_S3_VIDEOS_BUCKET",
-                    "value": "${aws_s3_bucket.video.id}"
-                },
-                {
-                    "name": "USE_AWS",
-                    "value": "1"
-                }
-            ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-region": "us-east-2",
-          "awslogs-group": "${aws_cloudwatch_log_group.log_group.name}",
-          "awslogs-create-group": "true",
-          "awslogs-stream-prefix": "${var.sketch_container_name}-logs"
+      "environment" : [
+        {
+          "name" : "ENABLE_UPLOAD",
+          "value" : "1"
+        },
+        {
+          "name" : "DETECTRON2_ENDPOINT",
+          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5911/predictions/D2_humanoid_detector"
+        },
+        {
+          "name" : "ALPHAPOSE_ENDPOINT",
+          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5912/predictions/alphapose"
+        },
+        {
+          "name" : "ANIMATION_ENDPOINT",
+          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5000/generate_animation"
+        },
+        {
+          "name" : "AWS_S3_INTERIM_BUCKET",
+          "value" : "${aws_s3_bucket.interim.id}"
+        },
+        {
+          "name" : "AWS_S3_CONSENTS_BUCKET",
+          "value" : "${aws_s3_bucket.consents.id}"
+        },
+        {
+          "name" : "AWS_S3_VIDEOS_BUCKET",
+          "value" : "${aws_s3_bucket.video.id}"
+        },
+        {
+          "name" : "USE_AWS",
+          "value" : "1"
+        }
+      ],
+      "logConfiguration" : {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-region" : "us-east-2",
+          "awslogs-group" : "${aws_cloudwatch_log_group.log_group.name}",
+          "awslogs-create-group" : "true",
+          "awslogs-stream-prefix" : "${var.sketch_container_name}-logs"
         }
       }
 
@@ -133,11 +142,11 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 #SKETCH AUTOSCALING
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
-  max_capacity = 10
-  min_capacity = 2
-  resource_id = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
+  max_capacity       = 10
+  min_capacity       = 3
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace = "ecs"
+  service_namespace  = "ecs"
 }
 
 resource "aws_appautoscaling_policy" "sketch_requests" {
@@ -154,7 +163,7 @@ resource "aws_appautoscaling_policy" "sketch_requests" {
     scale_out_cooldown = 300
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = "${aws_lb.ecs_cluster_alb.arn_suffix}/${aws_alb_target_group.sketch_tg.arn_suffix}"
+      resource_label         = "${aws_lb.sketch_public_loadbalancer.arn_suffix}/${aws_alb_target_group.sketch_tg.arn_suffix}"
     }
   }
 }
@@ -171,13 +180,13 @@ resource "aws_appautoscaling_policy" "sketch_requests_memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value       = 80
+    target_value = 80
   }
 }
 
 resource "aws_appautoscaling_policy" "sketch_requests_cpu" {
-  name = "detectron_cpu_policy"
-  policy_type = "TargetTrackingScaling"
+  name               = "detectron_cpu_policy"
+  policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.sketch_asg_target.resource_id
   scalable_dimension = aws_appautoscaling_target.sketch_asg_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.sketch_asg_target.service_namespace
