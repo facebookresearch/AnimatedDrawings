@@ -29,6 +29,8 @@ services:
       - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
       - ANIMATION_ENDPOINT=${ANIMATION_ENDPOINT}
       - ENABLE_UPLOAD=1
+      - SKETCH_API_WSGI_WORKERS=${SKETCH_API_WSGI_WORKERS}
+      - SKETCH_API_WSGI_THREADS=${SKETCH_API_WSGI_THREADS}
     networks:
       ap-net: {}
 
@@ -71,8 +73,11 @@ services:
       target: animation_runtime
       args:
         - BUILD_CONFIG=${BUILD_CONFIG}
-        - USER_ID=${USER_ID} \
+        - USER_ID=${USER_ID} 
         - GROUP_ID=${GROUP_ID}
+    environment:
+        - ANIMATE_WSGI_WORKERS=${ANIMATE_WSGI_WORKERS}
+        - ANIMATE_WSGI_THREADS=${ANIMATE_WSGI_THREADS}
     # command: /home/animation-server/animate/flask/run.sh
     volumes:
       - type: bind
