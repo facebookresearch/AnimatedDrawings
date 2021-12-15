@@ -20,7 +20,8 @@ resource "aws_s3_bucket" "www" {
   })
 
   website {
-    #sredirect_all_requests_to = "https://${var.www_domain_name}"
+    
+    #redirect_all_requests_to = "https://${var.www_domain_name}"
     index_document = "index.html"
     error_document = "index.html"
   }
