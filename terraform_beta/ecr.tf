@@ -26,7 +26,7 @@ resource "aws_ecr_repository_policy" "detectron_ecr_policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.sketch_instance_arn}",
+            "${var.PROFILE_ARN}",
             "${aws_iam_role.ec2_ecs_instance_role.arn}" #GPU IAM ROLE
           ]
         },
@@ -99,7 +99,7 @@ resource "aws_ecr_repository_policy" "alphapose_ecr_policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.sketch_instance_arn}"
+            "${var.PROFILE_ARN}"
           ]
         },
         "Action" : [
@@ -164,7 +164,7 @@ resource "aws_ecr_repository_policy" "animation-ecr-policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.sketch_instance_arn}"
+            "${var.PROFILE_ARN}"
           ]
         },
         "Action" : [
@@ -229,7 +229,7 @@ resource "aws_ecr_repository_policy" "sketch_ecr_policy" {
           "AWS" : [
             "${aws_iam_role.devops_role.arn}",         #TASK EXECUTION IAM ROLE
             "${aws_iam_role.task_execution_role.arn}", #ML_DEVOPS IAM ROLE
-            "${var.sketch_instance_arn}"
+            "${var.PROFILE_ARN}"
           ]
         },
         "Action" : [
@@ -290,7 +290,7 @@ resource "aws_ecr_repository_policy" "detectron_gpu_ecr_policy" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "${var.sketch_instance_arn}",
+            "${var.PROFILE_ARN}",
             "${aws_iam_role.detectron_asg_instance_role.arn}" #GPU IAM ROLE
           ]
         },

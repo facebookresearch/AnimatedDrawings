@@ -12,17 +12,6 @@ provider "aws" {
   profile = var.PROFILE_ARN
 }
 
-
-terraform {
-  backend "s3" {
-    bucket         = "sketch-animation-terraform-s3-backend"
-    key            = "terraform/backend/terraform_aws.tfstate"
-    region         = "us-east-2"
-    dynamodb_table = "sketch-animation-terraform-s3-backend-locking"
-    encrypt        = true
-  }
-}
-
 data "aws_vpc" "default" {
   default = true
 }
