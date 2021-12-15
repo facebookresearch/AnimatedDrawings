@@ -87,7 +87,7 @@ resource "aws_iam_policy" "task_role_policy" {
 }
 
 resource "aws_iam_policy_attachment" "devops-policy-attach" {
-  name       = "ec2-instance-policy-attachment-${var.environment}"
+  name       = "ec2-instance-policy-attachment"
   roles      = [aws_iam_role.devops_role.name]
   policy_arn = aws_iam_policy.task_role_policy.arn
 }
@@ -153,14 +153,14 @@ resource "aws_iam_role" "task_execution_role" {
   }
 }
 resource "aws_iam_policy" "task_ecr_policy" {
-  name        = "task_ecr_policy_${var.environment}"
+  name = "task_ecr_policy_${var.environment}"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Action = [
-           "ecr:GetAuthorizationToken",
+          "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
@@ -175,8 +175,8 @@ resource "aws_iam_policy" "task_ecr_policy" {
 }
 
 resource "aws_iam_policy_attachment" "ecr_policy_attach" {
-  name  = "ecr-policy-attachment"
-  roles = [aws_iam_role.task_execution_role.name]
+  name       = "ecr-policy-attachment"
+  roles      = [aws_iam_role.task_execution_role.name]
   policy_arn = aws_iam_policy.task_ecr_policy.arn
 
 }
@@ -198,6 +198,10 @@ resource "aws_iam_policy_attachment" "TaskExecution_role_policy_attach" {
 
 }
 
+resource "aws_cloudwatch_log_group" "log_group" {
+  name = "/ecs/sketch-animation-${var.environment}"
+}
+
 ##  ECS CLUSTER
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "${var.environment}_cluster"
@@ -208,6 +212,4 @@ resource "aws_ecs_cluster" "ecs_cluster" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "log_group" {
-  name = "/ecs/ecs-${var.environment}"
-}
+
