@@ -110,13 +110,13 @@ resource "aws_iam_policy_attachment" "animation-ec2-container-service" {
 
 resource "aws_launch_configuration" "ec2_launch_config" {
   name_prefix                 = "animation-ecs-ec2-launch-config"
-  image_id                    = var.ami_id
-  instance_type               = var.instance_type
+  image_id                    = var.animation_ami_id
+  instance_type               = var.animation_instance_type
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.ec2_ecs_instance_profile.name
   security_groups             = ["${aws_security_group.ecs_cluster_service_sg.id}"]
   enable_monitoring           = true
-  key_name                    = var.key_pair
+  key_name                    = var.animation_key_pair
 
   root_block_device {
     volume_size = "500"
@@ -124,7 +124,7 @@ resource "aws_launch_configuration" "ec2_launch_config" {
   }
 
   #user_data = "${file("user_data.sh")}"
-  user_data            = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.ecs_cluster.name} >> /etc/ecs/ecs.config"
+  user_data = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.ecs_cluster.name} >> /etc/ecs/ecs.config"
 
   lifecycle {
     create_before_destroy = true
@@ -150,7 +150,7 @@ resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   name                      = "animation-ecs-ec2-asg"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 1
+  min_size                  = 3
   max_size                  = 3
   health_check_type         = "EC2"
   health_check_grace_period = 0

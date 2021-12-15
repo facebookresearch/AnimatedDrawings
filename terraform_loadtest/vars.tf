@@ -1,45 +1,45 @@
 variable "region" {
-    type        = string
-    default = "us-east-2"
+  type    = string
+  default = "us-east-2"
 }
 
 variable "environment" {
-    type        = string
-    default = "loadtest"
+  type    = string
+  default = "loadtest"
 }
 
 variable "sketch_instance_arn" {
-    type        = string
-    default = "arn:aws:iam::790537050551:role/iam-role-dev-demo-sketch-out-animations-write"
+  type    = string
+  default = "arn:aws:iam::790537050551:role/iam-role-dev-demo-sketch-out-animations-write"
 }
 
 
 variable "security_groups" {
-    default = ["sg-0c9000062b58977f0", "sg-0e15f3169ff2af367"]
+  default = ["sg-0c9000062b58977f0", "sg-0e15f3169ff2af367"]
 }
 
 variable "subnets" {
-    default = ["subnet-97fcd7db", "subnet-9daf6ce0", "subnet-d039b3bb"]
+  default = ["subnet-97fcd7db", "subnet-9daf6ce0", "subnet-d039b3bb"]
 }
 
 variable "detectron_container_name" {
-    default = "detectron_container"
+  default = "detectron_container"
 }
 
 variable "alphapose_container_name" {
-    default = "alphapose_container"
+  default = "alphapose_container"
 }
 
 variable "animation_container_name" {
-    default = "animation_container"
+  default = "animation_container"
 }
 
 variable "sketch_container_name" {
-    default = "sketch_api_container"
+  default = "sketch_api_container"
 }
 
 variable "detectron_gpu_container_name" {
-    default = "detectron_gpu_api_container"
+  default = "detectron_gpu_api_container"
 }
 
 variable "autoscale_enabled" {
@@ -54,29 +54,25 @@ variable "autoscale_rpm_enabled" {
 
 
 variable "service_desired_count" {
-  default     = 5
+  default = 5
 }
 
 
 variable "autoscale_max_capacity" {
-  default     = 10
+  default = 10
 }
 
-
-variable "detectron_service_name" {
-  default     = "detectron_service_Deploy"
-}
 
 variable "alphapose_service_name" {
-  default     = "alphapose_service"
+  default = "alphapose_service"
 }
 
 variable "animation_service_name" {
-  default     = "animation_update_deploy"
+  default = "animation_service"
 }
 
 variable "sketch_service_name" {
-  default     = "sketch_update_image"
+  default = "sketch_service"
 }
 
 variable "detectron_image" {
@@ -136,16 +132,16 @@ variable "primary_dns_name" {
   default = ".dev.metademolab.com"
 }
 
-variable "ami_id" {
+variable "animation_ami_id" {
   default = "ami-08e0b00e3616220d8"
 }
 
-variable "instance_type" {
+variable "animation_instance_type" {
   default = "c5.4xlarge"
-  
+
 }
 
-variable "key_pair" {
+variable "animation_key_pair" {
   default = "detectron-ecs-gpu"
 }
 
@@ -155,4 +151,16 @@ variable "public_hosted_zone_id" {
 
 variable "sketch_api_cert_arn" {
   type = string
+}
+
+variable "detectron_ami_id" {
+  default = "ami-0a39b734183d5c064"
+}
+
+variable "detectron_instance_type" {
+  default = "g4dn.2xlarge"
+}
+
+variable "detectron_key_pair" {
+  default = "detectron-asg-gpu"
 }

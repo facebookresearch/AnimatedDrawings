@@ -1,10 +1,10 @@
-resource "aws_iam_instance_profile" "ec2_ecs_instance_profile" {
-  name = "ecs_cluster_instance_profile"
-  role = aws_iam_role.ec2_ecs_instance_role.name
+resource "aws_iam_instance_profile" "detect_ec2_instance_profile" {
+  name = "gpu_profile_asg"
+  role = aws_iam_role.detectron_asg_instance_role.name
 }
 
-resource "aws_iam_role" "ec2_ecs_instance_role" {
-  name = "${var.environment}_ec2_ecs_instance_role"
+resource "aws_iam_role" "detectron_asg_instance_role" {
+  name = "${var.environment}_gpu_instance_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -37,15 +37,15 @@ resource "aws_iam_role" "ec2_ecs_instance_role" {
           "Service" : "ec2.amazonaws.com"
         },
         "Action" : "sts:AssumeRole"
-      }
+      },
     ]
   })
 
 }
 
 ## TASK ROLE POLICY
-resource "aws_iam_policy" "ec2_ecs_role_policy" {
-  name        = "ec2_ecs_policy"
+resource "aws_iam_policy" "detectron_asg_policy" {
+  name        = "${var.environment}_detectron_asg_policy"
   description = "Necessary DevOps Permissions for Maintenance and Testing. ECS Full Access is needed to maintain, test, monitor Fargate Clusters"
 
   # Terraform's "jsonencode" function converts a
@@ -56,13 +56,6 @@ resource "aws_iam_policy" "ec2_ecs_role_policy" {
       {
         Action = [
           "ec2:*",
-        ],
-        Effect   = "Allow",
-        Resource = "*",
-      },
-      {
-        Action = [
-          "ecr:*",
         ],
         Effect   = "Allow",
         Resource = "*",
@@ -94,70 +87,58 @@ resource "aws_iam_policy" "ec2_ecs_role_policy" {
 }
 
 resource "aws_iam_policy_attachment" "ec2_instance-policy-attach" {
-  name       = "ec2_instance-attachment"
-  roles      = [aws_iam_role.ec2_ecs_instance_role.name]
-  policy_arn = aws_iam_policy.ec2_ecs_role_policy.arn
+  name       = "gpu-asg-policy-attachment"
+  roles      = [aws_iam_role.detectron_asg_instance_role.name]
+  policy_arn = aws_iam_policy.detectron_asg_policy.arn
 }
 
 resource "aws_iam_policy_attachment" "ec2-container-service" {
-  name       = "ec2-ecs-attachment"
-  roles      = [aws_iam_role.ec2_ecs_instance_role.name]
+  name       = "gpu-asg-policy-attachment"
+  roles      = [aws_iam_role.detectron_asg_instance_role.name]
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
 
 
 
-resource "aws_launch_configuration" "ec2_launch_config" {
-  name_prefix                 = "ecs-ec2-launch-config"
-  image_id                    = var.ami_id
-  instance_type               = var.instance_type
+resource "aws_launch_configuration" "detect_ec2_launch_config" {
+  name_prefix                 = var.environment
+  image_id                    = var.detectron_ami_id
+  instance_type               = var.detectron_instance_type
   associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.ec2_ecs_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.detect_ec2_instance_profile.name
   security_groups             = ["${aws_security_group.ecs_cluster_service_sg.id}"]
   enable_monitoring           = true
-  key_name                    = var.key_pair
+  key_name                    = var.detectron_key_pair
 
   root_block_device {
     volume_size = "500"
     volume_type = "gp3"
   }
 
-  #user_data = "${file("user_data.sh")}"
-  user_data            = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.ecs_cluster.name} >> /etc/ecs/ecs.config"
+  user_data = <<EOF
+#!/bin/bash
+aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.us-east-2.amazonaws.com
+docker run -d --gpus all -p 5911:5911 ${local.account_id}.dkr.ecr.us-east-2.amazonaws.com/detectron_gpu_image_repo_loadtest:latest
+EOF
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
-  name = "cluster-instance-cp"
-
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.beta_ec2_ecs_asg.arn
-    managed_termination_protection = "DISABLED"
-
-    managed_scaling {
-      maximum_scaling_step_size = 1
-      minimum_scaling_step_size = 1
-      status                    = "ENABLED"
-      target_capacity           = 100
-    }
-  }
-}
-
-resource "aws_autoscaling_group" "beta_ec2_ecs_asg" {
-  name                      = "ecs-ec2-asg"
-  launch_configuration      = aws_launch_configuration.ec2_launch_config.name
+resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
+  name                      = "detectron-asg-gpu"
+  launch_configuration      = aws_launch_configuration.detect_ec2_launch_config.name
   min_size                  = 1
   max_size                  = 3
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
-  desired_capacity          = var.target_capacity
+  desired_capacity          = 2
   vpc_zone_identifier       = var.subnets == [] ? var.subnets[0].ids : var.subnets
   wait_for_capacity_timeout = "3m"
+  target_group_arns         = ["${aws_alb_target_group.detectron_ec2_tg.arn}"]
 
   lifecycle {
     ignore_changes = [desired_capacity]
@@ -165,13 +146,14 @@ resource "aws_autoscaling_group" "beta_ec2_ecs_asg" {
 
   tag {
     key                 = "Name"
-    value               = "${var.environment}-ecs-ec2"
+    value               = "DETECTRON-ASG-GPU"
     propagate_at_launch = true
   }
 
   tag {
-    key                 = "AmazonECSManaged"
+    key                 = "loadtes"
     value               = ""
     propagate_at_launch = true
   }
 }
+
