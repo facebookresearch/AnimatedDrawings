@@ -18,7 +18,7 @@ import {
 const imageFile = open("./data/image.png", "b");
 const USER_SLEEP = 15;
 
-const HOST = "https://sketch-loadtest.dev.metademolab.com";
+const HOST = "https://beta-sketch-api.metademolab.com";
 
 export default function () {
   // Step 1. Upload Image
