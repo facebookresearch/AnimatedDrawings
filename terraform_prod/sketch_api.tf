@@ -149,11 +149,11 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 }
 
 
-#SKETCH AUTOSCALING
+#ASG SKETCH FARGATE
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
-  max_capacity       = 30
-  min_capacity       = 10
+  max_capacity       = 100
+  min_capacity       = 30
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

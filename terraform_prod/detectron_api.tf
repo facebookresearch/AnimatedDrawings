@@ -37,7 +37,7 @@ resource "aws_ecs_service" "detectron_ec2_service" {
   launch_type                        = "EC2"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.detect_ec2_task_definition.arn
-  desired_count                      = 5
+  desired_count                      = 3
   deployment_minimum_healthy_percent = 2
   force_new_deployment = true
 
