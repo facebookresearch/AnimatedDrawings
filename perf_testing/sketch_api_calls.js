@@ -1,5 +1,6 @@
 import http from "k6/http";
 import { sleep } from "k6";
+import { Trend } from "k6/metrics";
 import { check } from "k6";
 
 import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
@@ -18,8 +19,16 @@ const ROUTES = {
   generate_animation: "generate_animation",
 };
 
+const uploadImageTrend = new Trend("upload_image");
+
 export function getRouteUrl(route) {
   return HOST + "/" + route;
+}
+
+export function testTimimgs(imageFile) {
+  uploadImageTrend.add(1000);
+  uploadImageTrend.add(2000);
+  uploadImageTrend.add(3000);
 }
 
 export function uploadImage(imageFile) {
@@ -28,6 +37,7 @@ export function uploadImage(imageFile) {
   };
 
   const res = http.post(getRouteUrl(ROUTES.upload_image), data);
+  uploadImageTrend.add(res.timings.waiting);
   check(res, {
     "uploadImage: is status 200": (r) => r.status === 200,
   });
@@ -262,12 +272,15 @@ export function generateAnimation(uuid, animation) {
     content_type: "text/plain",
   });
 
-
-  const res = http.post(getRouteUrl(ROUTES.generate_animation), formData.body(), {
-    headers: {
-      "Content-Type": "multipart/form-data; boundary=" + formData.boundary,
-    },
-  });
+  const res = http.post(
+    getRouteUrl(ROUTES.generate_animation),
+    formData.body(),
+    {
+      headers: {
+        "Content-Type": "multipart/form-data; boundary=" + formData.boundary,
+      },
+    }
+  );
   check(res, {
     "generateAnimation: is status 200": (r) => r.status === 200,
   });

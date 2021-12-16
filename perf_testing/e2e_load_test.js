@@ -13,10 +13,11 @@ import {
   getJointLocations,
   setJointLocations,
   getAnimation,
+  testTimimgs,
 } from "./sketch_api_calls.js";
 
 const imageFile = open("./data/image.png", "b");
-const USER_SLEEP = 15;
+const USER_SLEEP = 10;
 
 const HOST = "https://beta-sketch-api.metademolab.com";
 
