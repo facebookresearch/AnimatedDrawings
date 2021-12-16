@@ -130,7 +130,7 @@ EOF
 resource "aws_autoscaling_group" "detect_ec2_ecs_asg" {
   name                      = "detectron-asg-gpu"
   launch_configuration      = aws_launch_configuration.detect_ec2_launch_config.name
-  min_size                  = 1
+  min_size                  = 2
   max_size                  = 3
   health_check_type         = "EC2"
   health_check_grace_period = 0

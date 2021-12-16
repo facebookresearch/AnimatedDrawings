@@ -74,7 +74,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
-  memory                   = 30720
+  memory                   = 8000
   execution_role_arn       = aws_iam_role.task_execution_role.arn
   task_role_arn            = aws_iam_role.devops_role.arn
 
@@ -143,7 +143,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
   max_capacity       = 10
-  min_capacity       = 3
+  min_capacity       = 4
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

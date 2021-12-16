@@ -142,8 +142,8 @@ resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
 resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
   name                      = "detectron-ec2-gpu"
   launch_configuration      = aws_launch_configuration.gpu_launch_config.name
-  min_size                  = 1
-  max_size                  = 3
+  min_size                  = 5
+  max_size                  = 10
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
@@ -171,7 +171,7 @@ resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
 
 resource "aws_appautoscaling_target" "detect_gpu_target" {
   max_capacity       = 10
-  min_capacity       = 2
+  min_capacity       = 5
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.detectron_ec2_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

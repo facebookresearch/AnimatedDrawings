@@ -171,7 +171,7 @@ resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
 
 resource "aws_appautoscaling_target" "detect_gpu_target" {
   max_capacity       = 10
-  min_capacity       = 2
+  min_capacity       = 5
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.detectron_ec2_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

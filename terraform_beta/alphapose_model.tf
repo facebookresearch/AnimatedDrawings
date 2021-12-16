@@ -37,7 +37,7 @@ resource "aws_ecs_service" "alphapose_ecs_service" {
   launch_type                        = "FARGATE"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.alpha_service.arn
-  desired_count                      = 4
+  desired_count                      = 10
   deployment_minimum_healthy_percent = 2
 
   network_configuration {
@@ -98,8 +98,8 @@ resource "aws_ecs_task_definition" "alpha_service" {
 #ALPHAPOSE AUTOSCALING
 
 resource "aws_appautoscaling_target" "alphapose_target" {
-  max_capacity       = 10
-  min_capacity       = 2
+  max_capacity       = 20
+  min_capacity       = 10
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.alphapose_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
