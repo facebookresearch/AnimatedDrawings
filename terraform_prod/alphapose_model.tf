@@ -98,8 +98,8 @@ resource "aws_ecs_task_definition" "alpha_service" {
 #ALPHAPOSE AUTOSCALING
 
 resource "aws_appautoscaling_target" "alphapose_target" {
-  max_capacity       = 50
-  min_capacity       = 10
+  max_capacity       = 80
+  min_capacity       = 20
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.alphapose_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -113,13 +113,13 @@ resource "aws_appautoscaling_policy" "alphapose_requests" {
   service_namespace  = aws_appautoscaling_target.alphapose_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value       = 1000
+    target_value       = 100
     disable_scale_in   = false
     scale_in_cooldown  = 300
     scale_out_cooldown = 300
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = "${aws_lb.ecs_cluster_alb.arn_suffix}/${aws_alb_target_group.alphapose_tg.arn_suffix}"
+      resource_label         = "${aws_lb.alphapose_ecs_alb.arn_suffix}/${aws_alb_target_group.alphapose_tg.arn_suffix}"
     }
   }
 }

@@ -98,11 +98,18 @@ resource "aws_iam_policy_attachment" "gpu-container-service" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+resource "aws_iam_policy_attachment" "ecr-registy-service" {
+  name       = "gpu-asg-registry-${var.environment}"
+  roles      = [aws_iam_role.gpu_ecs_instance_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+}
+
+
 
 
 
 resource "aws_launch_configuration" "gpu_launch_config" {
-  name_prefix                 = var.environment
+  name_prefix                 = "detectron-gpu-${var.environment}"
   image_id                    = "ami-0a39b734183d5c064" 
   instance_type               = var.detectron_instance_type
   associate_public_ip_address = true
@@ -127,7 +134,7 @@ resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
   name = "detectron-${var.environment}_cp"
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.detect_ec2_ecs_asg.arn
+    auto_scaling_group_arn         = aws_autoscaling_group.detect_gpu_ecs_asg.arn
     managed_termination_protection = "DISABLED"
 
     managed_scaling {
@@ -142,12 +149,12 @@ resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
 resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
   name                      = "detectron-ec2-gpu-${var.environment}"
   launch_configuration      = aws_launch_configuration.gpu_launch_config.name
-  min_size                  = 3
-  max_size                  = 3
+  min_size                  = 2
+  max_size                  = 5
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
-  desired_capacity          = 1
+  desired_capacity          = 2
   vpc_zone_identifier       = var.subnets == [] ? var.subnets[0].ids : var.subnets
   wait_for_capacity_timeout = "3m"
   target_group_arns         = ["${aws_alb_target_group.detect_gpu_tg.arn}"]
@@ -185,13 +192,13 @@ resource "aws_appautoscaling_policy" "gpu_requests" {
   service_namespace  = aws_appautoscaling_target.detect_gpu_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value       = 1000
+    target_value       = 2000
     disable_scale_in   = false
     scale_in_cooldown  = 300
     scale_out_cooldown = 300
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = "${aws_lb.ecs_cluster_alb.arn_suffix}/${aws_alb_target_group.detectron_ec2_tg.arn_suffix}"
+      resource_label         = "${aws_lb.detectron_ecs_alb.arn_suffix}/${aws_alb_target_group.detectron_ec2_tg.arn_suffix}"
     }
   }
 }

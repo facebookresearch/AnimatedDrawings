@@ -118,7 +118,7 @@ resource "aws_security_group" "ecs_cluster_service_sg" {
 
 
 resource "aws_alb_target_group" "detect_gpu_tg" {
-  name        = "detectron-gpu-asg-tg"
+  name        = "detectron-gpu-asg-tg-${var.environment}"
   port        = 5911
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
