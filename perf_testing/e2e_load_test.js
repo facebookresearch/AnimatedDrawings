@@ -19,7 +19,7 @@ import {
 const imageFile = open("./data/image.png", "b");
 const USER_SLEEP = 10;
 
-const HOST = "https://beta-sketch-api.metademolab.com";
+const HOST = "https://production-sketch-api.metademolab.com";
 
 export const options = {
   stages: [
