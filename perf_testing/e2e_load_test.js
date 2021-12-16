@@ -13,12 +13,25 @@ import {
   getJointLocations,
   setJointLocations,
   getAnimation,
+  testTimimgs,
 } from "./sketch_api_calls.js";
 
 const imageFile = open("./data/image.png", "b");
-const USER_SLEEP = 15;
+const USER_SLEEP = 10;
 
-const HOST = "https://sketch-loadtest.dev.metademolab.com";
+const HOST = "https://beta-sketch-api.metademolab.com";
+
+export const options = {
+  stages: [
+    { duration: "1m", target: 50 },
+    { duration: "1m", target: 100 },
+    { duration: "1m", target: 150 },
+    { duration: "1m", target: 200 },
+    { duration: "1m", target: 250 },
+    { duration: "1m", target: 350 },
+    { duration: "1m", target: 450 },
+  ],
+};
 
 export default function () {
   // Step 1. Upload Image

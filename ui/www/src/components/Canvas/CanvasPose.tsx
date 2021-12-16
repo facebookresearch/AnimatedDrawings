@@ -82,7 +82,7 @@ const CanvasPose = () => {
         await setJointLocations(uuid!, joints, () => {
           console.log("New joints location set.");
         });
-        setAnimationType("dance002");
+        setAnimationType("running_jump");
         setCurrentStep(currentStep + 1);
       }
       if (clickType === "previous") {

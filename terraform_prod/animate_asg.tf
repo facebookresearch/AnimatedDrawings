@@ -4,7 +4,7 @@ resource "aws_iam_instance_profile" "ec2_ecs_instance_profile" {
 }
 
 resource "aws_iam_role" "ec2_ecs_instance_role" {
-  name = "${var.environment}_animation_ec2_instance_role-"
+  name = "${var.environment}_animation_ec2_instance_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -150,8 +150,8 @@ resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   name                      = "animation-ecs-ec2-asg-${var.environment}"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 3
-  max_size                  = 3
+  min_size                  = 5
+  max_size                  = 50
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30

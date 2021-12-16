@@ -1,5 +1,5 @@
 resource "aws_iam_instance_profile" "ec2_ecs_instance_profile" {
-  name = "animation_ecs_cluster_instance_profile"
+  name = "animation_ecs_cluster_instance_profile-${var.environment}"
   role = aws_iam_role.ec2_ecs_instance_role.name
 }
 
@@ -45,7 +45,7 @@ resource "aws_iam_role" "ec2_ecs_instance_role" {
 
 ## TASK ROLE POLICY
 resource "aws_iam_policy" "ec2_ecs_role_policy" {
-  name        = "animation_ec2_ecs_policy"
+  name        = "animation_ec2_ecs_policy-${var.environment}"
   description = "Necessary DevOps Permissions for Maintenance and Testing. ECS Full Access is needed to maintain, test, monitor Fargate Clusters"
 
   # Terraform's "jsonencode" function converts a
@@ -94,7 +94,7 @@ resource "aws_iam_policy" "ec2_ecs_role_policy" {
 }
 
 resource "aws_iam_policy_attachment" "animation-instance-policy-attach" {
-  name       = "animation-ec2-instance-attachment"
+  name       = "animation-ec2-instance-attachment-${var.environment}"
   roles      = [aws_iam_role.ec2_ecs_instance_role.name]
   policy_arn = aws_iam_policy.ec2_ecs_role_policy.arn
 }
@@ -109,7 +109,7 @@ resource "aws_iam_policy_attachment" "animation-ec2-container-service" {
 
 
 resource "aws_launch_configuration" "ec2_launch_config" {
-  name_prefix                 = "animation-ecs-ec2-launch-config"
+  name_prefix                 = "animation-ecs-ec2-launch-config-${var.environment}"
   image_id                    = var.animation_ami_id
   instance_type               = var.animation_instance_type
   associate_public_ip_address = true
@@ -132,7 +132,7 @@ resource "aws_launch_configuration" "ec2_launch_config" {
 }
 
 resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
-  name = "cluster-instance-cp"
+  name = "cluster-instance-cp-${var.environment}"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.animation_ec2_ecs_asg.arn
@@ -148,10 +148,10 @@ resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
 }
 
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
-  name                      = "animation-ecs-ec2-asg"
+  name                      = "animation-ecs-ec2-asg-${var.environment}"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 2
-  max_size                  = 3
+  min_size                  = 5
+  max_size                  = 50
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30

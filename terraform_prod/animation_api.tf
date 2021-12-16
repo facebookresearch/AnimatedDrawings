@@ -19,7 +19,7 @@ resource "aws_alb_target_group" "animation_ec2_tg" {
 }
 
 resource "aws_alb_listener" "http_ec2" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.id
+  load_balancer_arn = aws_lb.animation_ecs_alb.id
   port              = 5000
   protocol          = "HTTP"
 
@@ -32,11 +32,11 @@ resource "aws_alb_listener" "http_ec2" {
 
 
 resource "aws_ecs_service" "animation_ec2_service" {
-  name            = "animation_service"
+  name            = "animation_ecs_service-${var.environment}"
   launch_type     = "EC2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_ec2_task_definition.arn
-  desired_count   = 3
+  desired_count   = 5
   force_new_deployment = true
 
   placement_constraints {
@@ -58,11 +58,11 @@ resource "aws_ecs_service" "animation_ec2_service" {
 }
 
 resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
-  family                   = "animation_task_definition"
+  family                   = "animation_task_definition-${var.environment}"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
-  cpu                      = "2 vCPU"
-  memory                   = "5GB"
+  cpu                      = "10 vCPU"
+  memory                   = "10GB"
   task_role_arn            = aws_iam_role.devops_role.arn
   execution_role_arn       = aws_iam_role.task_execution_role.arn
 
@@ -91,6 +91,14 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
           "value" : "${aws_s3_bucket.video.id}"
         },
         {
+          "name" : "ANIMATE_WSGI_WORKERS",
+          "value" : "16"
+        },
+        {
+          "name" : "ANIMATE_WSGI_THREADS",
+          "value" : "2"
+        },
+        {
           "name" : "USE_AWS",
           "value" : "1"
         }
@@ -112,4 +120,66 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
 
     }
   ])
+}
+
+
+#ANIMATION AUTOSCALING
+
+resource "aws_appautoscaling_target" "animation_target" {
+  max_capacity       = 50
+  min_capacity       = 5
+  resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.animation_ec2_service.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "animation_requests" {
+  name               = "animation_requests_policy_${var.environment}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.animation_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.animation_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.animation_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = 66
+    disable_scale_in   = false
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
+    predefined_metric_specification {
+      predefined_metric_type = "ALBRequestCountPerTarget"
+      resource_label         = "${aws_lb.animation_ecs_alb.arn_suffix}/${aws_alb_target_group.animation_ec2_tg.arn_suffix}"
+    }
+  }
+}
+
+resource "aws_appautoscaling_policy" "animation_memory" {
+  name               = "animation_memory_policy_${var.environment}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.animation_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.animation_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.animation_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
+
+    target_value = 80
+  }
+}
+
+resource "aws_appautoscaling_policy" "animation_cpu" {
+  name               = "animation_cpu_policy_${var.environment}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.animation_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.animation_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.animation_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 60
+  }
 }
