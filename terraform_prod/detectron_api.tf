@@ -19,7 +19,7 @@ resource "aws_alb_target_group" "detectron_ec2_tg" {
 }
 
 resource "aws_alb_listener" "detectron_http" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.arn
+  load_balancer_arn = aws_lb.detectron_ecs_alb.arn
   port              = 4500
   protocol          = "HTTP"
 

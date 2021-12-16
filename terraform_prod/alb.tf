@@ -10,6 +10,37 @@ resource "aws_lb" "ecs_cluster_alb" {
   enable_deletion_protection = false
 }
 
+resource "aws_lb" "alphapose_ecs_alb" {
+  name               = "alphapose-alb-${var.environment}"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}
+
+resource "aws_lb" "detectron_ecs_alb" {
+  name               = "detectron-alb-${var.environment}"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}
+
+resource "aws_lb" "animation_ecs_alb" {
+  name               = "animation-alb-${var.environment}"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_cluster_alb_sg.id]
+  subnets            = var.subnets
+
+  enable_deletion_protection = false
+}
+
+
 resource "aws_security_group" "ecs_cluster_alb_sg" {
   name   = "ecs-cluster-alb-sg-${var.environment}"
   vpc_id = local.vpc_id

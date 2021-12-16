@@ -18,7 +18,7 @@ resource "aws_alb_target_group" "alphapose_tg" {
 }
 
 resource "aws_alb_listener" "alphapose_listener" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.id
+  load_balancer_arn = aws_lb.alphapose_ecs_alb.id
   port              = 5912
   protocol          = "HTTP"
 
