@@ -101,6 +101,7 @@ resource "aws_s3_bucket_public_access_block" "interim_block" {
 
   block_public_acls       = true
   block_public_policy     = true
+  ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
@@ -131,13 +132,15 @@ resource "aws_s3_bucket" "consents" {
 
 # CONSENTS BUCKET BLOCK
 resource "aws_s3_bucket_public_access_block" "consents_block" {
-  bucket = aws_s3_bucket.interim.id
+  bucket = aws_s3_bucket.consents.id
 
   block_public_acls       = true
   block_public_policy     = true
   restrict_public_buckets = true
 }
 
+
+# MODEL BUCKET
 resource "aws_s3_bucket" "model" {
 
   bucket = var.model_store_bucket

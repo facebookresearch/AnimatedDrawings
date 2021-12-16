@@ -155,7 +155,7 @@ resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
-  desired_capacity          = var.target_capacity
+  desired_capacity          = 30
   vpc_zone_identifier       = var.subnets == [] ? var.subnets[0].ids : var.subnets
   wait_for_capacity_timeout = "3m"
 
