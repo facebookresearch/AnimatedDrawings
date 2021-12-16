@@ -19,7 +19,7 @@ resource "aws_alb_target_group" "animation_ec2_tg" {
 }
 
 resource "aws_alb_listener" "http_ec2" {
-  load_balancer_arn = aws_lb.ecs_cluster_alb.id
+  load_balancer_arn = aws_lb.animation_ecs_alb.id
   port              = 5000
   protocol          = "HTTP"
 
