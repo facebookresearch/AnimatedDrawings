@@ -20,6 +20,16 @@ const ROUTES = {
 };
 
 const uploadImageTrend = new Trend("upload_image");
+const consentTrend = new Trend("set_consent_answer")
+const get_bounding_box_coordinates_trend = new Trend("get_bounding_box_coordinates"); 
+const set_bounding_box_coordinates_trend = new Trend("set_bounding_box_coordinates");
+const get_mask_trend = new Trend("get_mask");
+const set_mask_trend = new Trend("set_mask");
+const get_cropped_image_trend = new Trend("get_cropped_image");
+const get_joint_locations_json_trend = new Trend("get_joint_locations_json");
+const set_joint_locations_json_trend = new Trend("set_joint_locations_json");
+const get_animation_trend = new Trend("get_animation");
+const generate_animation_trend = new Trend("generate_animation");
 
 export function getRouteUrl(route) {
   return HOST + "/" + route;
@@ -66,6 +76,7 @@ export function setConsentAnswer(uuid) {
       },
     }
   );
+  consentTrend.add(res.timings.waiting);
   check(res, {
     "setConsentAnswer: is status 200": (r) => r.status === 200,
   });
@@ -87,6 +98,7 @@ export function getBoundingBox(uuid) {
       },
     }
   );
+  get_bounding_box_coordinates_trend.add(res.timings.waiting);
   check(res, {
     "getBoundingBox: is status 200": (r) => r.status === 200,
   });
@@ -114,6 +126,7 @@ export function setBoundingBox(uuid, boundingBox) {
       },
     }
   );
+  set_bounding_box_coordinates_trend.add(res.timings.waiting);
   check(res, {
     "setBoundingBox: is status 200": (r) => r.status === 200,
   });
@@ -134,6 +147,7 @@ export function getMask(uuid) {
       "Content-Type": "multipart/form-data; boundary=" + formData.boundary,
     },
   });
+  get_mask_trend.add(res.timings.waiting)
   check(res, {
     "getMask: is status 200": (r) => r.status === 200,
   });
@@ -155,6 +169,7 @@ export function setMask(uuid, maskFile) {
       "Content-Type": "multipart/form-data; boundary=" + formData.boundary,
     },
   });
+  set_mask_trend.add(res.timings.waiting)
   check(res, {
     "setMask: is status 200": (r) => r.status === 200,
   });
@@ -179,6 +194,7 @@ export function getCroppedImage(uuid) {
       },
     }
   );
+  get_cropped_image_trend.add(res.timings.waiting)
   check(res, {
     "getCroppedImage: is status 200": (r) => r.status === 200,
   });
@@ -203,6 +219,7 @@ export function getJointLocations(uuid) {
       },
     }
   );
+  get_joint_locations_json_trend.add(res.timings.waiting)
   check(res, {
     "getJointLocations: is status 200": (r) => r.status === 200,
   });
@@ -231,6 +248,7 @@ export function setJointLocations(uuid, joints) {
       },
     }
   );
+  set_joint_locations_json_trend.add(res.timings.waiting)
   check(res, {
     "setJointLocations: is status 200": (r) => r.status === 200,
   });
@@ -254,6 +272,7 @@ export function getAnimation(uuid, animation) {
       "Content-Type": "multipart/form-data; boundary=" + formData.boundary,
     },
   });
+  get_animation_trend.add(res.timings.waiting)
   check(res, {
     "getAnimation: is status 200": (r) => r.status === 200,
   });
@@ -281,6 +300,7 @@ export function generateAnimation(uuid, animation) {
       },
     }
   );
+  generate_animation_trend.add(res.timings.waiting)
   check(res, {
     "generateAnimation: is status 200": (r) => r.status === 200,
   });
