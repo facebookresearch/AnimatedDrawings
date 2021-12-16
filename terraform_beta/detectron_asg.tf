@@ -1,5 +1,5 @@
 resource "aws_iam_instance_profile" "gpu_ecs_instance_profile" {
-  name = "gpu_profile"
+  name = "gpu_profile-${var.environment}"
   role = aws_iam_role.gpu_ecs_instance_role.name
 }
 
@@ -131,7 +131,7 @@ resource "aws_launch_configuration" "gpu_launch_config" {
 }
 
 resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
-  name = var.application_name
+  name = "detectron-${var.environment}_cp"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.detect_gpu_ecs_asg.arn

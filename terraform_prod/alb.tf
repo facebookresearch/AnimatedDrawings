@@ -40,7 +40,6 @@ resource "aws_lb" "animation_ecs_alb" {
   enable_deletion_protection = false
 }
 
-
 resource "aws_security_group" "ecs_cluster_alb_sg" {
   name   = "ecs-cluster-alb-sg-${var.environment}"
   vpc_id = local.vpc_id

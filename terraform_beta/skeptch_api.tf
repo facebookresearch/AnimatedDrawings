@@ -1,7 +1,7 @@
 ## SKETCH API TARGET GROUP / HEALTH CHECK/ PORT CONFIGURATION
 
 resource "aws_alb_target_group" "sketch_tg" {
-  name        = "SKETCH-FARGATE-TG-${var.environment}"
+  name        = "sketch-api-tg-${var.environment}"
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = local.vpc_id
@@ -72,7 +72,7 @@ resource "aws_ecs_service" "sketch_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family                   = "sketch_threads"
+  family                   = "sketch-api-task-definition-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -160,7 +160,7 @@ resource "aws_appautoscaling_target" "sketch_asg_target" {
 }
 
 resource "aws_appautoscaling_policy" "sketch_requests" {
-  name               = "detectron_requets_policy"
+  name               = "alpahpose_requests_policy-${var.environment}"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.sketch_asg_target.resource_id
   scalable_dimension = aws_appautoscaling_target.sketch_asg_target.scalable_dimension

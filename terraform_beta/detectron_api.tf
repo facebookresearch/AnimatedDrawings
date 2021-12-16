@@ -33,7 +33,7 @@ resource "aws_alb_listener" "detectron_http" {
 
 #ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "detectron_ec2_service" {
-  name                               = "detectron_service_alb"
+  name                               = "detectron_service-${var.environment}"
   launch_type                        = "EC2"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.detect_ec2_task_definition.arn
@@ -62,7 +62,7 @@ resource "aws_ecs_service" "detectron_ec2_service" {
 
 
 resource "aws_ecs_task_definition" "detect_ec2_task_definition" {
-  family                   = "detectron_task_def_alb"
+  family                   = "detectron_task_definition-${var.environment}"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "5 vCPU"

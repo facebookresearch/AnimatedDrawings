@@ -4,7 +4,7 @@ resource "aws_iam_instance_profile" "ec2_ecs_instance_profile" {
 }
 
 resource "aws_iam_role" "ec2_ecs_instance_role" {
-  name = "${var.environment}_animation_ec2_instance_role-"
+  name = "${var.environment}_animation_ec2_instance_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

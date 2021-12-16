@@ -20,7 +20,7 @@ resource "aws_alb_target_group" "detectron_ec2_tg" {
 
 resource "aws_alb_listener" "detectron_http" {
   load_balancer_arn = aws_lb.detectron_ecs_alb.arn
-  port              = 4500
+  port              = 5911
   protocol          = "HTTP"
 
   default_action {
@@ -33,7 +33,7 @@ resource "aws_alb_listener" "detectron_http" {
 
 #ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "detectron_ec2_service" {
-  name                               = "detectron_service_production"
+  name                               = "detectron_service-${var.environment}"
   launch_type                        = "EC2"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.detect_ec2_task_definition.arn
@@ -62,7 +62,7 @@ resource "aws_ecs_service" "detectron_ec2_service" {
 
 
 resource "aws_ecs_task_definition" "detect_ec2_task_definition" {
-  family                   = "detectron_task_definition_production"
+  family                   = "detectron_task_definition-${var.environment}"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "5 vCPU"
