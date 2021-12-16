@@ -32,7 +32,7 @@ resource "aws_alb_listener" "sketch_listener" {
 }
 
 resource "aws_lb" "sketch_public_loadbalancer" {
-  name               = "cluster-alb"
+  name               = "sketch-alb-${var.environment}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ecs_cluster_alb_sg.id]
@@ -41,13 +41,13 @@ resource "aws_lb" "sketch_public_loadbalancer" {
   enable_deletion_protection = false
 }
 
-#ALPHAPOSE ECS SERVICE AND TASK DEFINITION
+#SKETCH ECS SERVICE AND TASK DEFINITION
 resource "aws_ecs_service" "sketch_ecs_service" {
-  name                               = var.sketch_service_name
+  name                               = "sketch_loadtest_threads"
   launch_type                        = "FARGATE"
   cluster                            = aws_ecs_cluster.ecs_cluster.id
   task_definition                    = aws_ecs_task_definition.sketch_task_definition.arn
-  desired_count                      = 10
+  desired_count                      = 2
   deployment_minimum_healthy_percent = 2
 
   force_new_deployment = true
@@ -72,7 +72,7 @@ resource "aws_ecs_service" "sketch_ecs_service" {
 
 
 resource "aws_ecs_task_definition" "sketch_task_definition" {
-  family                   = "sketch-api-task-definition"
+  family                   = "sketch_threads"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 4096
@@ -99,15 +99,15 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
         },
         {
           "name" : "DETECTRON2_ENDPOINT",
-          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5911/predictions/D2_humanoid_detector"
+          "value" : "http://${aws_lb.detectron_ecs_alb.dns_name}:5911/predictions/D2_humanoid_detector"
         },
         {
           "name" : "ALPHAPOSE_ENDPOINT",
-          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5912/predictions/alphapose"
+          "value" : "http://${aws_lb.alphapose_ecs_alb.dns_name}:5912/predictions/alphapose"
         },
         {
           "name" : "ANIMATION_ENDPOINT",
-          "value" : "http://${aws_lb.ecs_cluster_alb.dns_name}:5000/generate_animation"
+          "value" : "http://${aws_lb.animation_ecs_alb.dns_name}:5000/generate_animation"
         },
         {
           "name" : "AWS_S3_INTERIM_BUCKET",
@@ -123,16 +123,16 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
         },
         {
           "name" : "SKETCH_API_WSGI_WORKERS",
-          "value" : "1"
+          "value" : "9"
         },
         {
           "name" : "SKETCH_API_WSGI_THREADS",
-          "value" : "100"
+          "value" : "16"
         },
         {
           "name" : "USE_AWS",
           "value" : "1"
-        }
+        },
       ],
       "logConfiguration" : {
         "logDriver" : "awslogs",
@@ -153,7 +153,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
   max_capacity       = 30
-  min_capacity       = 10
+  min_capacity       = 2
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.sketch_ecs_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -167,7 +167,7 @@ resource "aws_appautoscaling_policy" "sketch_requests" {
   service_namespace  = aws_appautoscaling_target.sketch_asg_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value       = 1000
+    target_value       = 120
     disable_scale_in   = false
     scale_in_cooldown  = 300
     scale_out_cooldown = 300
