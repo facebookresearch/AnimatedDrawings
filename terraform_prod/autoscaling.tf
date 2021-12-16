@@ -124,7 +124,7 @@ resource "aws_launch_configuration" "gpu_launch_config" {
 }
 
 resource "aws_ecs_capacity_provider" "beta_ecs_cp" {
-  name = "${var.environment}_cp"
+  name = "detectron-${var.environment}_cp"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.detect_ec2_ecs_asg.arn

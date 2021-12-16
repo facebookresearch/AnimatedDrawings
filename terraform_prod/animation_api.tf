@@ -42,8 +42,6 @@ resource "aws_ecs_service" "animation_ec2_service" {
   placement_constraints {
     type       = "memberOf"
     expression = "attribute:ecs.instance-type  == c5.4xlarge"
-    type       = "distinctInstance"
-    expression = "attribute:ecs.instance-type  == c5.4xlarge"
   }
   
 
