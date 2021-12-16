@@ -291,7 +291,7 @@ resource "aws_ecr_repository_policy" "detectron_gpu_ecr_policy" {
         "Principal" : {
           "AWS" : [
             "${var.PROFILE_ARN}",
-            "${aws_iam_role.detectron_asg_instance_role.arn}" #GPU IAM ROLE
+            "${aws_iam_role.gpu_ecs_instance_role.arn}" #GPU IAM ROLE
           ]
         },
         "Action" : [
