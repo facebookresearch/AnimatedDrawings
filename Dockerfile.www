@@ -18,6 +18,7 @@ FROM node:16.8.0 as builder
 ARG SKETCH_API_ENDPOINT
 ARG VIDEO_CDN_URL
 ARG ENABLE_UPLOAD
+ARG REACT_APP_GOOGLE_ANALYTICS_ID
 
 WORKDIR /usr/src/app
 COPY ui/www/package.json ui/www/yarn.lock ./
@@ -31,8 +32,8 @@ RUN --mount=type=cache,target=/usr/src/app/.npm --mount=type=cache,target=/usr/s
 # COPY ui/www/.env .
 RUN echo REACT_APP_API_HOST=${SKETCH_API_ENDPOINT} > .env \
     && echo VIDEO_URL=${VIDEO_CDN_URL} >> .env \
-    && echo REACT_APP_GOOGLE_ANALYTICS_ID=${REACT_APP_GOOGLE_ANALYTICS_ID} >> .env \
-    && echo ENABLE_UPLOAD=${ENABLE_UPLOAD} >> .env 
+    && echo ENABLE_UPLOAD=${ENABLE_UPLOAD} >> .env \
+    && echo REACT_APP_GOOGLE_ANALYTICS_ID=${REACT_APP_GOOGLE_ANALYTICS_ID} >> .env 
 COPY ui/www/env.sh .
 RUN chmod +x ./env.sh
 RUN ./env.sh
