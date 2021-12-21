@@ -4,10 +4,14 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import AboutModal from "../components/Modals/AboutModal";
 import SplashVideo from "../assets/video_assets/splashVideo.mp4";
 import HomeFooter from "../components/Footers/HomeFooter";
+import useLogPageView from "../hooks/useLogPageView";
 
 const HomePage = () => {
   const history = useHistory();
   const [showModal, setShowModal] = React.useState(false);
+
+  useLogPageView("Home", "/");
+
   return (
     <>
       <div className="main-content bg-home" id="home">
@@ -70,7 +74,10 @@ const HomePage = () => {
             </Row>
           </Container>
         </div>
-        <HomeFooter uuid={'[No ID] - Preload feedback'} setShowModal={setShowModal} />
+        <HomeFooter
+          uuid={"[No ID] - Preload feedback"}
+          setShowModal={setShowModal}
+        />
         <AboutModal showModal={showModal} setShowModal={setShowModal} />
       </div>
     </>

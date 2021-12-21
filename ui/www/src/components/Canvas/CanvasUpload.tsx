@@ -7,8 +7,10 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import WaiverModal from "../Modals/WaiverModal";
 import { Loader } from "../Loader";
 import CanvasPlaceholder from "../../assets/backgrounds/canvas_placeholder.gif";
+import useLogPageView from "../../hooks/useLogPageView";
 
 const CanvasUpload = () => {
+  useLogPageView("Upload Image", "#upload");
   const inputFile = useRef() as React.MutableRefObject<HTMLInputElement>;
   const {
     drawing,
@@ -34,7 +36,7 @@ const CanvasUpload = () => {
    * 1. Check if an image is a .heic file being upload from desktop and is not rotated.
    * 2. Images in jpeg, png, not exif rotation.
    * 3. The exif orientation captured in mobile camera.
-   * @param e 
+   * @param e
    * @returns
    */
   const compress = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,8 +81,8 @@ const CanvasUpload = () => {
         setCompressing(false);
       } else if (exif_rotation === 6) {
         // Check for orientation tag equals to 6, photos taken from phone.
-        setCompressing(true);    
-        const imgUrl = URL.createObjectURL(file)
+        setCompressing(true);
+        const imgUrl = URL.createObjectURL(file);
 
         const tempImage = new Image();
         if (imgUrl !== null && imgUrl !== undefined) tempImage.src = imgUrl;
@@ -153,7 +155,7 @@ const CanvasUpload = () => {
     }
   };
 
-  const enableUpload = window._env_.ENABLE_UPLOAD === '1';
+  const enableUpload = window._env_.ENABLE_UPLOAD === "1";
 
   const LegalDialog = () => (
     <div className="legal-dialog">
@@ -243,7 +245,12 @@ const CanvasUpload = () => {
       ) : (
         <div className="upload-buttons-wrapper">
           <div className="mt-3 mt-lg-2 pb-1">
-            <Button size="lg" variant="light" className="py-lg-3 mt-lg-3 my-1 mr-1 sm-button" onClick={upload}>
+            <Button
+              size="lg"
+              variant="light"
+              className="py-lg-3 mt-lg-3 my-1 mr-1 sm-button"
+              onClick={upload}
+            >
               Retake
             </Button>
             <Button

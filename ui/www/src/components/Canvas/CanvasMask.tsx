@@ -9,6 +9,7 @@ import { EmptyLoader } from "../Loader";
 import MaskStage from "./MaskStage";
 import { Position } from "./PoseEditor";
 import MaskingToolbar from "./MaskingToolbar";
+import useLogPageView from "../../hooks/useLogPageView";
 
 const mapJointsToPose = (joints: object) => {
   return {
@@ -97,6 +98,7 @@ const mapJointsToPose = (joints: object) => {
 };
 
 const CanvasMask = () => {
+  useLogPageView("Mask", "#mask");
   const canvasWindow = useRef<HTMLInputElement | any>(null);
   const layerRef = useRef<HTMLImageElement | any>(null);
   const {
@@ -109,11 +111,11 @@ const CanvasMask = () => {
   const { setMaskBase64, setLines } = useMaskingStore();
   const { isLoading, getJointLocations, setMask } = useDrawingApi((err) => {});
   const { currentStep, setCurrentStep } = useStepperStore();
-  const [ imgScale, setImgScale ] = useState(1);
-  const [ isFetching, setIsFetching ] = useState(false)
+  const [imgScale, setImgScale] = useState(1);
+  const [isFetching, setIsFetching] = useState(false);
 
   /**
-   * When cropped image is updated, recalculate the dimensions, 
+   * When cropped image is updated, recalculate the dimensions,
    * which are provided to the mask/segmentation canvas.
    */
   useEffect(() => {
@@ -133,7 +135,7 @@ const CanvasMask = () => {
           canvasWindow.current?.offsetHeight - 45, // Toolbar Offset
           tempImage.naturalWidth,
           tempImage.naturalHeight
-        );  
+        );
         setImgScale(ratio);
       }
     };
@@ -144,7 +146,7 @@ const CanvasMask = () => {
   /**
    * Handles Next and Previous buttons logic.
    * @param clickType a string with a type of action "next" or "previous"
-   * @returns 
+   * @returns
    */
   const handleClick = async (clickType: string) => {
     try {
@@ -153,7 +155,7 @@ const CanvasMask = () => {
       }
 
       if (clickType === "next" && uuid) {
-        setIsFetching(true)
+        setIsFetching(true);
         const uri = layerRef.current?.toDataURL();
         const newDataUri = await resizedataURL(
           uri,
@@ -181,7 +183,7 @@ const CanvasMask = () => {
         });
 
         // Finally move to next step
-        setIsFetching(false)
+        setIsFetching(false);
         setCurrentStep(currentStep + 1);
       }
       if (clickType === "previous") {
@@ -189,7 +191,7 @@ const CanvasMask = () => {
         setCurrentStep(currentStep - 1);
       }
     } catch (err) {
-      setIsFetching(false)
+      setIsFetching(false);
       console.log(err);
     }
   };
@@ -198,7 +200,10 @@ const CanvasMask = () => {
     <>
       <div className="canvas-wrapper">
         <div className="blue-box d-none d-lg-block" />
-        <div ref={canvasWindow} className="canvas-background-p-0 canvas-mask loader">
+        <div
+          ref={canvasWindow}
+          className="canvas-background-p-0 canvas-mask loader"
+        >
           <div className="mask-tool-wrapper">
             <MaskStage
               scale={imgScale}

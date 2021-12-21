@@ -7,7 +7,7 @@ import CanvasPose from "./CanvasPose";
 import CanvasAnimation from "./CanvasAnimation";
 
 const Canvas = () => {
-  const { currentStep, } = useStepperStore();
+  const { currentStep } = useStepperStore();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -26,11 +26,7 @@ const Canvas = () => {
     }
   };
 
-  return (
-    <>
-      {renderStep()}
-    </>
-  );
+  return <>{renderStep()}</>;
 };
 
 export default Canvas;

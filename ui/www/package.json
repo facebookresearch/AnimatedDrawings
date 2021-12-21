@@ -22,6 +22,7 @@
     "react-bootstrap": "^1.6.0",
     "react-cookie-consent": "^6.4.1",
     "react-dom": "^17.0.2",
+    "react-ga4": "^1.4.1",
     "react-image-file-resizer": "^0.4.7",
     "react-konva": "^17.0.2-5",
     "react-router-dom": "^5.2.0",
