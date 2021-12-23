@@ -32,11 +32,11 @@ resource "aws_alb_listener" "http_ec2" {
 
 
 resource "aws_ecs_service" "animation_ec2_service" {
-  name            = "animation_ecs_service-${var.environment}"
+  name            = "animation_ecs-${var.environment}"
   launch_type     = "EC2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_ec2_task_definition.arn
-  desired_count   = 30
+  desired_count   = 10
   force_new_deployment = true
 
   placement_constraints {
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "animation_ec2_service" {
 }
 
 resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
-  family                   = "animation_task_definition-${var.environment}"
+  family                   = "animation_task_def_memory_${var.environment}"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "10 vCPU"
