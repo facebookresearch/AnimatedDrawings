@@ -147,11 +147,13 @@ resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
   }
 }
 
+
+# ASG FOR ANIMATION INSTANCES
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   name                      = "animation-ecs-ec2-asg-${var.environment}"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 5
-  max_size                  = 50
+  min_size                  = 20
+  max_size                  = 30
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30

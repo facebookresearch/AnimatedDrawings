@@ -149,7 +149,7 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
 }
 
 
-#SKETCH AUTOSCALING
+#ASG SKETCH FARGATE
 
 resource "aws_appautoscaling_target" "sketch_asg_target" {
   max_capacity       = 30

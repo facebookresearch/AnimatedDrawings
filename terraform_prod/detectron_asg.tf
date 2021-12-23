@@ -104,7 +104,23 @@ resource "aws_iam_policy_attachment" "ecr-registy-service" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
 }
 
+resource "aws_iam_policy_attachment" "detectron_task_policy_attach" {
+  name  = "task_execution-policy-attachment"
+  roles = [aws_iam_role.gpu_ecs_instance_role.name]
 
+  for_each = toset([
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  ])
+
+  policy_arn = each.value
+
+}
 
 
 
@@ -178,7 +194,7 @@ resource "aws_autoscaling_group" "detect_gpu_ecs_asg" {
 
 resource "aws_appautoscaling_target" "detect_gpu_target" {
   max_capacity       = 10
-  min_capacity       = 5
+  min_capacity       = 3
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.detectron_ec2_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

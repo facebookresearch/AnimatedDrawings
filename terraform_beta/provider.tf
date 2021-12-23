@@ -26,6 +26,7 @@ locals {
 }
 
 
+# Backend Resources
 resource "aws_s3_bucket" "tf_remote_state" {
   bucket = "terraform-state-sketch-animation-${var.environment}"
   lifecycle {
@@ -43,9 +44,6 @@ resource "aws_s3_bucket" "tf_remote_state" {
   }
 }
 
-
-#locking part
-
 resource "aws_dynamodb_table" "tf_remote_state_locking" {
   hash_key = "LockID"
   name = "terraform-lock-sketch-animation-${var.environment}"
@@ -54,4 +52,15 @@ resource "aws_dynamodb_table" "tf_remote_state_locking" {
     type = "S"
   }
   billing_mode = "PAY_PER_REQUEST"
+}
+
+# Backend Configuration
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-sketch-animation-beta"
+    key            = "terraform.tfstate"
+    region         = "us-east-2"
+    dynamodb_table = "terraform-lock-sketch-animation-beta"
+    encrypt        = true
+  }
 }

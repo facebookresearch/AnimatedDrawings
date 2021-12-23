@@ -46,7 +46,7 @@ const SharingPage = () => {
                       size="lg"
                       variant="info"
                       className="py-lg-3 mt-lg-3 my-1 text-primary"
-                      href="/"
+                      href="https://sketch.metademolab.com/share/cf1671e5e6f04254b5bb6b12ad4f7ace/wave_hello_3"
                     >
                       See example animation
                     </Button>
