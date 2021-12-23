@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,8 +12,28 @@ import HomePage from "./containers/HomePage";
 import TermsPage from "./containers/TermsPage";
 import AboutPage from "./containers/AboutPage";
 import CookieBanner from "./components/Banners/CookieBanner";
+import * as ReactGA from "react-ga4";
+import { getCookieConsentValue } from "react-cookie-consent";
 
 function App() {
+  // Enable analytics if cookie accepted
+  const handleAcceptCookie = useCallback(() => {
+    if (process.env.REACT_APP_GOOGLE_ANALYTICS_ID) {
+      if (process.env.NODE_ENV === "production") {
+        console.log("*** INIT GA ***");
+
+        ReactGA.default.initialize(process.env.REACT_APP_GOOGLE_ANALYTICS_ID);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const isConsent = getCookieConsentValue("animated_drawings");
+    if (isConsent === "true") {
+      handleAcceptCookie();
+    }
+  }, [handleAcceptCookie]);
+
   return (
     <Router>
       <Switch>
@@ -34,7 +54,7 @@ function App() {
         </Route>
         <Redirect from="*" to="/" />
       </Switch>
-      <CookieBanner />
+      <CookieBanner onAccept={handleAcceptCookie} />
     </Router>
   );
 }

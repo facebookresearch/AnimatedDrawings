@@ -16,7 +16,7 @@ const MainPage = () => {
   if (errorCode !== 0) {
     return <ErrorPage />;
   }
-  
+
   return (
     <div className="main-content bg-main">
       <div className="navbar-title">
@@ -50,7 +50,7 @@ const MainPage = () => {
           </Row>
         </Container>
       </div>
-      <HomeFooter uuid={uuid} setShowModal={setShowModal}/>
+      <HomeFooter uuid={uuid} setShowModal={setShowModal} />
       <AboutModal showModal={showModal} setShowModal={setShowModal} />
     </div>
   );

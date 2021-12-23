@@ -6,6 +6,7 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 import ShareIcon from "../../assets/customIcons/nav_share.svg";
+import useLogPageView from "../../hooks/useLogPageView";
 
 const VIDEO_URL = window._env_.VIDEO_URL;
 
@@ -19,19 +20,25 @@ declare global {
 }
 
 const CanvasAnimation = () => {
+  useLogPageView("Animation", "#animate");
   const { uuid, animationType, setRenderingVideo } = useDrawingStore();
   const { currentStep, setError, setCurrentStep } = useStepperStore();
 
-  const errorHandler = useCallback((err) => {
-    let isSubscribed = true
-    if (isSubscribed) {
-      setError(err.response.status);
-      console.log(err);
-    }
-   
-    return () => {isSubscribed = false}
-  }, [setError]);
-  
+  const errorHandler = useCallback(
+    (err) => {
+      let isSubscribed = true;
+      if (isSubscribed) {
+        setError(err.response.status);
+        console.log(err);
+      }
+
+      return () => {
+        isSubscribed = false;
+      };
+    },
+    [setError]
+  );
+
   const { isLoading, getAnimation, getVideoFile } = useDrawingApi(errorHandler);
   const [videoDownload, setVideoDownload] = useState("");
   const [animationFiles, setAnimationFiles] = useState<File[]>([]);
@@ -142,8 +149,8 @@ const CanvasAnimation = () => {
     const videoPlayer = document.getElementById(
       "videoPlayer"
     ) as HTMLVideoElement;
-    videoPlayer.play()
-  }
+    videoPlayer.play();
+  };
 
   return (
     <div className="canvas-wrapper">
@@ -161,7 +168,7 @@ const CanvasAnimation = () => {
               playsInline
               src={videoUrl}
             ></video>
-            <div className="replay-wrapper" onClick={playVideo}/>
+            <div className="replay-wrapper" onClick={playVideo} />
             <div className="custom-controls">
               <div className="fullscreen-btn" onClick={toggleFullScreen}>
                 <i className="bi bi-arrows-fullscreen text-dark h3" />

@@ -1,7 +1,11 @@
 import React from "react";
 import CookieConsent from "react-cookie-consent";
 
-const CookieBanner = () => {
+interface Props {
+  onAccept: () => any;
+}
+
+const CookieBanner = ({ onAccept }: Props) => {
   return (
     <CookieConsent
       style={{
@@ -15,6 +19,7 @@ const CookieBanner = () => {
       buttonText="Accept"
       cookieName="animated_drawings"
       buttonClasses="btn btn-info accept-button"
+      onAccept={onAccept}
     >
       This demo uses cookies to enhance the user experience, and allow us to
       remember you. To find out more about the cookies we use, see our{" "}

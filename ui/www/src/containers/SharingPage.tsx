@@ -4,10 +4,13 @@ import { Container, Row, Col } from "react-bootstrap";
 import CanvasShare from "../components/Canvas/CanvasShare";
 import AboutModal from "../components/Modals/AboutModal";
 import SharingFooter from "../components/Footers/SharingFooter";
+import useLogPageView from "../hooks/useLogPageView";
 
 const SharingPage = () => {
   const { videoId, type } = useParams<{ videoId: string; type: string }>();
   const [showModal, setShowModal] = useState(false);
+
+  useLogPageView("View Shared Animation", "");
 
   return (
     <div className="main-content bg-share">

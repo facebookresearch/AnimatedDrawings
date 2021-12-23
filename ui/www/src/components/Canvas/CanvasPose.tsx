@@ -5,6 +5,7 @@ import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import PoseEditor, { Pose } from "./PoseEditor";
 import { calculateRatio } from "../../utils/Helpers";
+import useLogPageView from "../../hooks/useLogPageView";
 
 const mapPoseToJoints = (pose: Pose) => {
   const entries = pose.nodes.reduce((agg, node) => {
@@ -16,6 +17,7 @@ const mapPoseToJoints = (pose: Pose) => {
 };
 
 const CanvasPose = () => {
+  useLogPageView("Pose", "#pose");
   const canvasWindow = useRef<HTMLDivElement | any>(null);
   const {
     uuid,
@@ -35,10 +37,10 @@ const CanvasPose = () => {
 
   /**
    * 1. When canvas mounts, calculate the ratio between canvas
-   * and cropped image to make the drawing fit the canvas, substract canvas padding 20. 
+   * and cropped image to make the drawing fit the canvas, substract canvas padding 20.
    * 2. Get the mask from previous state to use in the background.
-   * The component will only rerender when the uuid and croppedImg dimensions 
-   * dependencies change. Exhaustive-deps eslint warning was diable as 
+   * The component will only rerender when the uuid and croppedImg dimensions
+   * dependencies change. Exhaustive-deps eslint warning was diable as
    * no more dependencies are really necesary as side effects
    */
   useEffect(() => {

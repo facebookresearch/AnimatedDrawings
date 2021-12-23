@@ -5,6 +5,7 @@ import useStepperStore from "../../hooks/useStepperStore";
 import { useDrawingApi } from "../../hooks/useDrawingApi";
 import BoundingBoxStage from "./BoundingBoxStage";
 import { EmptyLoader } from "../Loader";
+import useLogPageView from "../../hooks/useLogPageView";
 
 export interface BoundingBox {
   x: number;
@@ -17,13 +18,13 @@ export interface BoundingBox {
 const calculateRatio = (
   canvasWidth: number,
   canvasHeight: number,
-  oW: number,  //Original image width
-  oH: number,  //Original image height
+  oW: number, //Original image width
+  oH: number //Original image height
 ) => {
   if (oH >= oW && canvasHeight >= canvasWidth) {
     return canvasHeight / oH < 1 ? canvasHeight / oH : 1;
   } else if (oH < oW && canvasHeight >= canvasWidth) {
-    return canvasHeight / oW < 1 ? canvasHeight / oW : 1
+    return canvasHeight / oW < 1 ? canvasHeight / oW : 1;
   } else if (oH >= oW && canvasHeight < canvasWidth) {
     return canvasWidth / oH < 1 ? canvasWidth / oH : 1;
   } else {
@@ -32,6 +33,7 @@ const calculateRatio = (
 };
 
 const CanvasBoundingBox = () => {
+  useLogPageView("Bounding Box", "#bounding_box");
   const canvasWindow = useRef<HTMLDivElement | any>(null);
   const { currentStep, setCurrentStep } = useStepperStore();
   const {
@@ -48,14 +50,14 @@ const CanvasBoundingBox = () => {
     isLoading,
     getBoundingBox,
     setBoundingBox,
-    getMask, 
+    getMask,
     getCroppedImage,
   } = useDrawingApi((err) => {});
 
   const [iWidth, setImageWidth] = useState(0);
   const [iHeight, setImageHeight] = useState(0);
   const [imgRatio, setImgRatio] = useState(0);
-  const [fetching, setIsFetching] = useState(false)
+  const [fetching, setIsFetching] = useState(false);
 
   /**
    * When the components mounts, invokes API to fetch json bounding box coordinates.
@@ -80,12 +82,12 @@ const CanvasBoundingBox = () => {
         };
 
         const ratio = calculateRatio(
-          canvasWindow.current?.offsetWidth -20,
-          canvasWindow.current?.offsetHeight -20,
+          canvasWindow.current?.offsetWidth - 20,
+          canvasWindow.current?.offsetHeight - 20,
           originalDimension.width,
           originalDimension.height
         );
-        
+
         const calculatedWidth = originalDimension.width * ratio;
         const calculatedHeight = originalDimension.height * ratio;
         setImageWidth(calculatedWidth);
@@ -122,7 +124,7 @@ const CanvasBoundingBox = () => {
       }
       //Send new bounding box attributes.
       if (clickType === "next") {
-        setIsFetching(true)
+        setIsFetching(true);
         let xOffset = canvasWindow.current?.offsetWidth / 2 - iWidth / 2;
         let yOffset = canvasWindow.current?.offsetHeight / 2 - iHeight / 2;
         const coordinates = {
@@ -147,7 +149,7 @@ const CanvasBoundingBox = () => {
               yOffset / imgRatio
           ),
         };
-       
+
         await setBoundingBox(uuid!, coordinates, () => {
           console.log("Bounding box loaded.");
         });
@@ -172,7 +174,7 @@ const CanvasBoundingBox = () => {
           };
         });
 
-        setIsFetching(false)
+        setIsFetching(false);
 
         // Finally move to next step.
         setCurrentStep(currentStep + 1);
@@ -183,7 +185,7 @@ const CanvasBoundingBox = () => {
       }
     } catch (err) {
       console.log(err);
-      setIsFetching(false)
+      setIsFetching(false);
     }
   };
 

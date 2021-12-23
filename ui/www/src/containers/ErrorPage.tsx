@@ -1,7 +1,9 @@
 import React from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import useLogPageView from "../hooks/useLogPageView";
 
 const SharingPage = () => {
+  useLogPageView("Error", "");
   return (
     <div className="main-content bg-main">
       <div className="navbar-title-waiver">

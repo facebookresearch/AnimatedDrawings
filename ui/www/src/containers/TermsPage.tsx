@@ -2,8 +2,10 @@ import React from "react";
 import { Navbar, Container, Row, Col } from "react-bootstrap";
 import HomeFooter from "../components/Footers/HomeFooter";
 import AboutModal from "../components/Modals/AboutModal";
+import useLogPageView from "../hooks/useLogPageView";
 
 export default function TermsPage() {
+  useLogPageView("Terms", "");
   const [showModal, setShowModal] = React.useState(false);
   return (
     <div className="main-content bg-main">
