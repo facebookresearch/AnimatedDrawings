@@ -35,6 +35,7 @@ def prep_animation_files(unique_id):
     if interim_store.exists(unique_id, "video_id.txt"):
         video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
         video_store.delete_folder(video_id);
+        # TODO update CDN Cache
 
     assert interim_store.exists(unique_id, 'cropped_image.png') == True, f"Image not found: {unique_id}/cropped_image.png"
     

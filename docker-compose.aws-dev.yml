@@ -98,6 +98,7 @@ services:
         - SKETCH_API_ENDPOINT=${SKETCH_API_ENDPOINT}
         - VIDEO_CDN_URL=${VIDEO_CDN_URL}
         - ENABLE_UPLOAD=${ENABLE_UPLOAD}
+        - REACT_APP_GOOGLE_ANALYTICS_ID=${REACT_APP_GOOGLE_ANALYTICS_ID}
 
 # Network created by default between services
 networks:
