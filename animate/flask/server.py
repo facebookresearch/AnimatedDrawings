@@ -137,6 +137,7 @@ def generate_animation():
     except Exception as e:
         app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
         app.log_exception(e)
+        shutil.rmtree(work_dir)
         return make_response("1", 500)
 
 '''    try:
