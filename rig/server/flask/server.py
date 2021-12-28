@@ -245,7 +245,6 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(unique_id)
 
-    # TODO @Jesse do we need to do this here? 
     detect_pose.detect_pose(unique_id)
 
     bb = interim_store.read_bytes(unique_id, "bb.json")
@@ -452,20 +451,15 @@ def get_animation():
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
-
-
-    
-    #cmd = f"curl -X POST -F uuid={unique_id} -F animation_type={animation_type} {ANIMATION_ENDPOINT}"
-    #response = str(subprocess.check_output(cmd.split(' ')))
-
     data = {'uuid':unique_id, 'animation_type':animation_type}
     response = requests.post(url=ANIMATION_ENDPOINT, data=data)
-    
-    video_id = response.text
-    # TODO Return the video ID the url of mp4 file. Not the whole file
-   
-    
-    return make_response(video_id, 200)
+
+    if response.status_code == 200:
+        video_id = response.text
+        return make_response(video_id, 200)
+    else:
+        make_response("animation server error", 500)
+
 
 @app.route('/video/<video_id>/<animation_type>.mp4', methods=['GET'])
 @cross_origin()
