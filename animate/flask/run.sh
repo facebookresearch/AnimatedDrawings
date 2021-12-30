@@ -10,5 +10,8 @@
 ln -sf /dev/stdout access.log \
 	&& ln -sf /dev/stderr error.log
 
+# disable core dump
+ulimit -c 0
+
 # TODO: following command is failing when run from docker-compose.yaml, but works when run from CL shell inside container
 gunicorn --worker-class gthread server:app --access-logfile access.log --log-file error.log --log-level info -w ${ANIMATE_WSGI_WORKERS} --threads ${ANIMATE_WSGI_THREADS} -b 0.0.0.0:5000 ; tail -f error.log
