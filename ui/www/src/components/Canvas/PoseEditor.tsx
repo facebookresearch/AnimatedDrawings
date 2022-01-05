@@ -88,7 +88,7 @@ const Circle = ({
     const bbox = (e.target as Element)!.getBoundingClientRect();
 
     /**
-     * Checkes whether the event is triggered from a touch event e,g mobile.
+     * Checks whether the event is triggered from a touch event e,g mobile.
      * respond only to the first touch of index 0.
      */
     let xcoord = isTouch(e) ? e.targetTouches[0].clientX : e.clientX;

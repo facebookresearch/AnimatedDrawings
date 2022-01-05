@@ -1,8 +1,8 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React from "react";
 import * as ReactGA from "react-ga4";
 
 const useLogPageView = (title: string, path: string) => {
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     ReactGA.default.send({
       hitType: "pageview",
       page_title: title,
