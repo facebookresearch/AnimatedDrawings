@@ -458,6 +458,7 @@ def get_animation():
         video_id = response.text
         return make_response(video_id, 200)
     else:
+        root_logger.error(f"error from animation server on uuid:{unique_id}. Response text: {response.text}")
         make_response("animation server error", 500)
 
 
