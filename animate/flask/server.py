@@ -130,14 +130,20 @@ def generate_animation():
             
             video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes)
 
-            shutil.rmtree(work_dir)
-
-        return make_response(video_id, 200)
+        response_id = 200
+        response_body = video_id
 
     except Exception as e:
         app.logger.exception('Failed to generate animation for uuid: %s', unique_id)
         app.log_exception(e)
-        return make_response("1", 500)
+
+        response_id = 500
+        response_body = "1"
+
+    finally:
+        shutil.rmtree(work_dir)
+        return make_response(response_body, response_id)
+
 
 '''    try:
         if not os.path.exists(video_output_path):
