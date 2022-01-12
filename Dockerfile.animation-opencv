@@ -11,7 +11,7 @@ FROM ubuntu:18.04 as opencv
 WORKDIR /root
 
 ENV OPENCV_VERSION=4.3.0 \
-    PYTHON_VERSION=3.7 \
+    PYTHON_VERSION=3.8 \
     PYTHON_VERSION_SHORT=3
 
 ENV PATH=/usr/lib/ccache:$PATH
@@ -51,6 +51,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libavformat-dev \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-dev \
+    python-numpy \
     python3-pip \
     libpq-dev \
     x264 \
@@ -60,7 +61,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 RUN  --mount=type=cache,target=/root/.cache \ 
     python${PYTHON_VERSION} -m pip install pip setuptools && \
-    python${PYTHON_VERSION} -m pip install  Cython numpy
+    python${PYTHON_VERSION} -m pip install  Cython 
 
 RUN python${PYTHON_VERSION} -m pip install boto3 
 
@@ -107,8 +108,8 @@ RUN --mount=type=cache,target=/root/.ccache \
     && make install -j8
 
 RUN mv \
-    /root/opencv-${OPENCV_VERSION}/build/lib/python3/cv2.so \
-    /usr/local/lib/python${PYTHON_VERSION}/dist-packages/cv2.so
+    /root/opencv-${OPENCV_VERSION}/build/lib/python3/* \
+    /usr/local/lib/python${PYTHON_VERSION}/dist-packages/
 
 # RUN unlink /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
@@ -122,6 +123,10 @@ CMD ["python3", "codec_tests/encoder_test.py"]
 FROM ${BASE_IMAGE} as build
 
 ENV PYTHONUNBUFFERED TRUE
+ENV OPENCV_VERSION=4.3.0 \
+    PYTHON_VERSION=3.8 \
+    PYTHON_VERSION_SHORT=3
+
 
 
 COPY  animate/conda-env.txt conda-env.txt
@@ -149,9 +154,9 @@ RUN mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
 
 # Copy our compiled opencv library built using the following command
 # ```docker build -f Dockerfile.opencv -t opencv:4.3.0 .```
-# COPY --from=opencv /usr/local/lib/python3.7/dist-packages/cv2.so /venv/lib/python3.7/site-packages/cv2.so
-COPY --from=opencv /usr/local/lib/python3.7/dist-packages/ /venv/lib/python3.7/site-packages/
-COPY --from=opencv /root/opencv-4.3.0/build/lib/ /venv/lib/
+# COPY --from=opencv /usr/local/lib/python${PYTHON_VERSION}/dist-packages/cv2.so /venv/lib/pytho${PYTHON_VERSION}/site-packages/cv2.so
+COPY --from=opencv /usr/local/lib/python${PYTHON_VERSION}/dist-packages/ /venv/lib/python${PYTHON_VERSION}/site-packages/
+COPY --from=opencv /root/opencv-${OPENCV_VERSION}/build/lib/ /venv/lib/
 
 # We've put venv in same path it'll be in final image,
 # so now fix up paths:
@@ -165,7 +170,7 @@ RUN cd /venv \
     && rm -rf /venv/bin/sqlite3 \
     && rm -rf /venv/bin/openssl \
     && find /venv/ -name '__pycache__' -type d -exec rm -rf '{}' '+' \
-    &&  find /venv/lib/python3.7/site-packages -name 'tests' -type d -exec rm -rf '{}' '+'  
+    &&  find /venv/lib/python${PYTHON_VERSION}/site-packages -name 'tests' -type d -exec rm -rf '{}' '+'  
 
 
 # The runtime-stage image; we can use Debian as the
