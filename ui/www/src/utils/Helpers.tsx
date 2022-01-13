@@ -83,5 +83,8 @@ export const getCookie = (cookieName: string) => {
  * @returns boolean
  */
 export const isTouch = (e: React.TouchEvent | React.PointerEvent): e is React.TouchEvent => {
-  return e.nativeEvent instanceof TouchEvent;
-}
+  if (window.TouchEvent && e.nativeEvent) {
+    return e.nativeEvent instanceof TouchEvent;
+  }
+  return false;
+};
