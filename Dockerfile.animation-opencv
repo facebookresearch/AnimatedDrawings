@@ -108,8 +108,8 @@ RUN --mount=type=cache,target=/root/.ccache \
     && make install -j8
 
 RUN mv \
-    /root/opencv-${OPENCV_VERSION}/build/lib/python3/* \
-    /usr/local/lib/python${PYTHON_VERSION}/dist-packages/
+    /root/opencv-${OPENCV_VERSION}/build/lib/python3/cv2.*.so \
+    /usr/local/lib/python${PYTHON_VERSION}/dist-packages/cv2.so
 
 # RUN unlink /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
@@ -155,7 +155,7 @@ RUN mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
 # Copy our compiled opencv library built using the following command
 # ```docker build -f Dockerfile.opencv -t opencv:4.3.0 .```
 # COPY --from=opencv /usr/local/lib/python${PYTHON_VERSION}/dist-packages/cv2.so /venv/lib/pytho${PYTHON_VERSION}/site-packages/cv2.so
-COPY --from=opencv /usr/local/lib/python${PYTHON_VERSION}/dist-packages/ /venv/lib/python${PYTHON_VERSION}/site-packages/
+COPY --from=opencv /usr/local/lib/python${PYTHON_VERSION}/dist-packages/ /venv/lib/python3.7/site-packages/
 COPY --from=opencv /root/opencv-${OPENCV_VERSION}/build/lib/ /venv/lib/
 
 # We've put venv in same path it'll be in final image,
@@ -170,7 +170,7 @@ RUN cd /venv \
     && rm -rf /venv/bin/sqlite3 \
     && rm -rf /venv/bin/openssl \
     && find /venv/ -name '__pycache__' -type d -exec rm -rf '{}' '+' \
-    &&  find /venv/lib/python${PYTHON_VERSION}/site-packages -name 'tests' -type d -exec rm -rf '{}' '+'  
+    &&  find /venv/lib/python3.7/site-packages -name 'tests' -type d -exec rm -rf '{}' '+'  
 
 
 # The runtime-stage image; we can use Debian as the
