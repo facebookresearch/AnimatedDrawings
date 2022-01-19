@@ -85,6 +85,7 @@ def generate_animation():
         video_id = uuid.uuid4().hex;
 
     video_output_path = video_store.exists(video_id, f'{animation_type}.mp4')
+    work_dir = None
     try:
         if video_output_path != True:
             work_dir = f'tmp_video_workdirs/{unique_id}'
@@ -141,7 +142,8 @@ def generate_animation():
         response_body = "1"
 
     finally:
-        shutil.rmtree(work_dir)
+        if work_dir is not None and os.path.exists(work_dir):
+            shutil.rmtree(work_dir)
         return make_response(response_body, response_id)
 
 
