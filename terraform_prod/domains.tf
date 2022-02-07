@@ -19,6 +19,12 @@ resource "aws_cloudfront_distribution" "www_distribution" {
     response_page_path = "/index.html"
   }
 
+   logging_config {
+    include_cookies = false
+    bucket          = "${aws_s3_bucket.logs.id}.s3.amazonaws.com"
+    prefix          = "sketch-cdn-logs-${var.environment}"
+  }
+
   aliases = ["sketch.metademolab.com"]
 
   enabled             = true
@@ -77,6 +83,12 @@ resource "aws_cloudfront_distribution" "video_distribution" {
 
   enabled = true
   aliases = ["production-sketch-video.metademolab.com"]
+
+  logging_config {
+    include_cookies = false
+    bucket          = "${aws_s3_bucket.logs.id}.s3.amazonaws.com"
+    prefix          = "video-cdn-logs-${var.environment}"
+  }
 
   default_cache_behavior {
 

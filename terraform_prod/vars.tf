@@ -102,6 +102,10 @@ variable "video_bucket" {
   default = "prod-demo-sketch-out-animations"
 }
 
+variable "logs_bucket" {
+  default = "prod-sketch-animation-logs"
+}
+
 variable "private_hosted_zone_id" {
   type = string
 }
