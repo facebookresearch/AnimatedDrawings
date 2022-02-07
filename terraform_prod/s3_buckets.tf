@@ -1,3 +1,37 @@
+# NONCONSENTS BUCKET
+resource "aws_s3_bucket" "non_consent" {
+
+  bucket = var.non_consent_bucket
+  acl    = "private"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AddPerm",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : ["*"]
+        }
+        "Action" : ["s3:*"],
+        "Resource" : ["arn:aws:s3:::${var.non_consent_bucket}/*"]
+      }
+    ],
+  })
+
+}
+
+# NONCONSENTS BUCKET BLOCK
+resource "aws_s3_bucket_public_access_block" "non_consentblock" {
+  bucket = aws_s3_bucket.non_consent.id
+
+  block_public_acls       = true
+  #block_public_policy     = true
+  #ignore_public_acls      = true
+  #restrict_public_buckets = true
+}
+
+
 # WWW BUCKET
 resource "aws_s3_bucket" "www" {
 
@@ -88,7 +122,7 @@ resource "aws_s3_bucket" "interim" {
           "AWS" : ["*"]
         }
         "Action" : ["s3:*"],
-        "Resource" : ["arn:aws:s3:::${var.interim_bucket}/*"]
+        "Resource" : ["arn:aws:s3:::${var.interim_bucket}", "arn:aws:s3:::${var.interim_bucket}/*"]
       }
     ],
   })
