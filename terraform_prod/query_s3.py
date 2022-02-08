@@ -57,6 +57,7 @@ def s3_paginator(page_count):
     for contents in page_list:
         for key in contents['Contents']:
             # Get timestamp and check if subfolder is older than 24 hours ago
+            # ONLY PROCESS FILES THAT ARE 24 HOURS OR OLDER
             last_modified_date = key['LastModified']
             if last_modified_date.replace(tzinfo = None) <= last_24_hour.replace(tzinfo = None):
                 print(last_modified_date.replace(tzinfo = None))
@@ -111,8 +112,7 @@ def lambda_handler(event, context):
     save_starting_token(NextContinuationToken)
     print("\n")
     print("SAVED TOKEN: {}".format(NextContinuationToken))
-    print("\n")
-    print("{} UUIDS COLLECTED".format(len(UUIDS)))
+
 
 
 def invoke_lambda(function_name):
