@@ -41,6 +41,8 @@ def starting_token_file():
 def s3_paginator(page_count):
     # Create paginator and store 20 pages in `page_list` list
     StartingToken = starting_token_file()
+    last_24_hour = datetime.now() - timedelta(hours=24)
+    print(last_24_hour.replace(tzinfo = None))
     paginator = s3_client.get_paginator('list_objects_v2')
     pages = paginator.paginate(Bucket=interim_bucket, Delimiter="consent_response.txt", PaginationConfig={'StartingToken': StartingToken}) 
     
@@ -54,7 +56,13 @@ def s3_paginator(page_count):
         page_list.append(page)
     for contents in page_list:
         for key in contents['Contents']:
-            object_list.append(key['Key'])
+            # Get timestamp and check if subfolder is older than 24 hours ago
+            last_modified_date = key['LastModified']
+            if last_modified_date.replace(tzinfo = None) <= last_24_hour.replace(tzinfo = None):
+                print(last_modified_date.replace(tzinfo = None))
+                object_list.append(key['Key'])
+            else: 
+                print("KEY OLDER THAN 24 HOURS. Key: {}  Key Timestamp {}".format(key['Key'], key['LastModified'].replace(tzinfo = None)))
     objects = [obj.split('/')[:1] for obj in object_list]
     key_list = [item for sublist in objects for item in sublist]
     UUIDS = list(set(key_list))
