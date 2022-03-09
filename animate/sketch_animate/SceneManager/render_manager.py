@@ -1,5 +1,6 @@
 import os
 from util import use_opengl
+from PIL import Image
 import shutil
 
 if use_opengl():
@@ -22,12 +23,13 @@ from transferrer import Transferrer_Render
 
 class RenderManager(BaseManager):
 
-    def __init__(self, cfg=None, width=720, height=720):
+    def __init__(self, cfg=None, width=720, height=720, create_webp=False):
         assert cfg is not None
 
         self.cfg = cfg
         self.width = width
         self.height = height
+        self.create_webp = create_webp
 
         if use_opengl():
             self._initialize_opengl(self.width, self.height)
@@ -47,9 +49,13 @@ class RenderManager(BaseManager):
             vid_name = self.cfg['BVH_PATH'].split('/')[-1]
             self.out_file = Path(os.path.join(self.cfg['OUTPUT_PATH'])) / f'{vid_name}.mp4'
 
+        self.out_file_webp = Path(self.out_file).with_suffix('.webp')
+        self.frames_for_webp = []
+
         self.video_working_dir = self.out_file.parent
 
-        self.frame_data = np.empty([self.height, self.width, 3], dtype='uint8')
+        self.frame_data = np.empty([self.height, self.width, 4], dtype='uint8')  # 3 for RGB, 4 for RGBA
+
         self.frames_written = 0
         self.video_writer = None
         self.prep_video_writer()
@@ -110,6 +116,8 @@ class RenderManager(BaseManager):
             do_drawing_stuff(vert_arr, frame_size, written, finished, mirror=True)
 
         self.video_writer.release()
+        if self.create_webp:
+            self._save_webp()
 
 
     def create_transferrer_render(self):
@@ -124,12 +132,25 @@ class RenderManager(BaseManager):
         self.time_manager.set_bvh_frame_count(frame_count)
 
     def _write_to_buffer(self, mirror=False):
-        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGR, GL.GL_UNSIGNED_BYTE, self.frame_data)
-        frame = self.frame_data[::-1, :, :]
+        GL.glReadPixels(0, 0, self.width, self.height, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
+        frame = self.frame_data[::-1, :, :3]
         if mirror:
             frame = frame[:, ::-1, :]
         self.video_writer.write(frame)
         self.frames_written += 1
+
+    def _save_for_webp(self, mirror=False):
+        frame = self.frame_data[::-1, :, :]
+        if mirror:
+            frame = frame[:, ::-1, :]
+        self.frames_for_webp.append(frame[...,[2,1,0,3]].copy())  # bgr to rgb, which PIL needs
+
+    def _save_webp(self):
+        images = []
+        for frame in self.frames_for_webp:
+            images.append(Image.fromarray(frame))
+        im1 = images.pop(0)
+        im1.save(self.out_file_webp, save_all=True, append_images=images, duration=1000 // self.BVH_fps, loop=0,  disposal=2, transparency=0)
 
     def _adjust_sketch(self):
         cur_bvh_frame = self.time_manager.get_current_bvh_frame()
@@ -179,6 +200,8 @@ class RenderManager(BaseManager):
                     drawable.draw(shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
 
         self._write_to_buffer(mirror)
+        if self.create_webp:
+            self._save_for_webp(mirror)
 
     def _initialize_mesa(self, width: int, height: int):
 

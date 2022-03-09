@@ -3,6 +3,7 @@ import logging
 from flask import Flask, make_response, request
 sys.path.insert(0, '..')
 import sketch_animate.main_server
+from pathlib import Path
 import s3_object
 import storage_service
 import uuid
@@ -77,7 +78,8 @@ def generate_animation():
         'wave_hello_3',
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
-    
+
+    create_webp = request.form['create_webp'] or False
     video_id = None
     if interim_store.exists(unique_id, "video_id.txt"):
         video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
@@ -120,16 +122,22 @@ def generate_animation():
             video_output_path = os.path.join(work_dir, f'{animation_type}.mp4')
 
             motion_cfg_path = f'/home/animation-server/animate/Data/motion_configs/{animation_type}.yaml'
-            sketch_animate.main_server.video_from_cfg(sketch_cfg_path, motion_cfg_path, video_output_path)
-            
+            sketch_animate.main_server.video_from_cfg(sketch_cfg_path, motion_cfg_path, video_output_path, create_webp)
+
             with open(video_output_path, 'rb') as f:
-                    videobytes =  f.read()
-                    
+                videobytes_mp4 =  f.read()
+
+            if create_webp:
+                with open(Path(video_output_path).with_suffix('.webp'), 'rb') as f:
+                    videobytes_webp =  f.read()
+
             if not interim_store.exists(unique_id, "video_id.txt"):
                 interim_store.write_bytes(unique_id, "video_id.txt", video_id)
                 logging.info("Generated Video ID: %s for Image Id: %s", video_id, unique_id)
-            
-            video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes)
+
+            video_store.write_bytes(video_id, f'{animation_type}.mp4', videobytes_mp4)
+            if create_webp:
+                video_store.write_bytes(video_id, f'{animation_type}.webp', videobytes_webp)
 
         response_id = 200
         response_body = video_id

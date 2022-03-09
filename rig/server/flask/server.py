@@ -415,6 +415,7 @@ def get_animation():
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
     consent_response = bool(int(interim_store.read_bytes(unique_id, "consent_response.txt")))
 
+    create_webp = request.form['create_webp'] == 'true'
     animation_type = request.form['animation']
 
     assert animation_type in [
@@ -451,7 +452,7 @@ def get_animation():
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
-    data = {'uuid':unique_id, 'animation_type':animation_type}
+    data = {'uuid':unique_id, 'animation_type':animation_type, 'create_webp':create_webp}
     response = requests.post(url=ANIMATION_ENDPOINT, data=data)
 
     if response.status_code == 200:
@@ -469,7 +470,15 @@ def get_video(video_id, animation_type):
     video_bytes = video_store.read_bytes(video_id, f'{animation_type}.mp4')
     io_buf = io.BytesIO(video_bytes)
     return send_file(io_buf, download_name=f'{animation_type}.mp4')
-    
+
+
+@app.route('/video/<video_id>/<animation_type>.webp', methods=['GET'])
+@cross_origin()
+def get_webp(video_id, animation_type):
+    """ Fetch the video content. NOTE in prod we should use the CDN directly. This is only for testing locally """
+    video_bytes = video_store.read_bytes(video_id, f'{animation_type}.webp')
+    io_buf = io.BytesIO(video_bytes)
+    return send_file(io_buf, download_name=f'{animation_type}.webp')
 
 
 @app.route('/set_consent_answer', methods=['POST'])
