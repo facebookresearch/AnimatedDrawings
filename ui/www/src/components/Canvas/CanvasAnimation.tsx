@@ -7,6 +7,8 @@ import { Loader } from "../Loader";
 import ShareModal from "../Modals/ShareModal";
 import ShareIcon from "../../assets/customIcons/nav_share.svg";
 import useLogPageView from "../../hooks/useLogPageView";
+import { isFromScenes } from "../../utils/Scenes";
+import ScenesDoneButton from "../Scenes/ScenesDoneButton";
 
 const VIDEO_URL = window._env_.VIDEO_URL;
 
@@ -81,7 +83,7 @@ const CanvasAnimation = () => {
     };
 
     fetchAnimation();
-    return () => {};
+    return () => { };
   }, [uuid, animationType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
@@ -162,7 +164,7 @@ const CanvasAnimation = () => {
           <div className="video_box">
             <video
               id="videoPlayer"
-              autoPlay
+              autoPlay={!isFromScenes}
               muted
               loop
               playsInline
@@ -177,55 +179,57 @@ const CanvasAnimation = () => {
           </div>
         )}
       </div>
+      {!isFromScenes ? (
+        <Row className="justify-content-center mt-3 px-1 pb-1">
+          <Col lg={4} md={4} xs={4} className="px-2">
+            <Button
+              block
+              size="lg"
+              className="py-lg-3 mt-lg-3 my-1 px-0 shadow-button"
+              disabled={isLoading}
+              href="/canvas"
+            >
+              <i className="bi bi-plus-lg mr-lg-2" /> Drawing
+            </Button>
+          </Col>
+          <Col lg={4} md={4} xs={4} className="px-2">
+            <Button
+              block
+              size="lg"
+              variant="info"
+              className="py-lg-3 mt-lg-3 my-1 px-0 text-primary shadow-button"
+              disabled={isLoading}
+              onClick={handleShare}
+            >
+              {isLoading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                <>
+                  <img src={ShareIcon} alt="" className="mr-1" /> Share
+                </>
+              )}
+            </Button>
+          </Col>
+          <Col lg={4} md={4} xs={4} className="px-2">
+            <Button
+              block
+              size="lg"
+              variant="outline-primary"
+              className="py-lg-3 mt-lg-3 my-1"
+              onClick={() => setCurrentStep(currentStep - 1)}
+            >
+              Fix
+            </Button>
+          </Col>
+        </Row>
+      ) : <ScenesDoneButton />}
 
-      <Row className="justify-content-center mt-3 px-1 pb-1">
-        <Col lg={4} md={4} xs={4} className="px-2">
-          <Button
-            block
-            size="lg"
-            className="py-lg-3 mt-lg-3 my-1 px-0 shadow-button"
-            disabled={isLoading}
-            href="/canvas"
-          >
-            <i className="bi bi-plus-lg mr-lg-2" /> Drawing
-          </Button>
-        </Col>
-        <Col lg={4} md={4} xs={4} className="px-2">
-          <Button
-            block
-            size="lg"
-            variant="info"
-            className="py-lg-3 mt-lg-3 my-1 px-0 text-primary shadow-button"
-            disabled={isLoading}
-            onClick={handleShare}
-          >
-            {isLoading ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-              <>
-                <img src={ShareIcon} alt="" className="mr-1" /> Share
-              </>
-            )}
-          </Button>
-        </Col>
-        <Col lg={4} md={4} xs={4} className="px-2">
-          <Button
-            block
-            size="lg"
-            variant="outline-primary"
-            className="py-lg-3 mt-lg-3 my-1"
-            onClick={() => setCurrentStep(currentStep - 1)}
-          >
-            Fix
-          </Button>
-        </Col>
-      </Row>
       <ShareModal
         showModal={showModal}
         handleModal={() => setModal(!showModal)}
