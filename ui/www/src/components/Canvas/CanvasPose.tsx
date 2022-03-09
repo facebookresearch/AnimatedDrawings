@@ -6,6 +6,7 @@ import { useDrawingApi } from "../../hooks/useDrawingApi";
 import PoseEditor, { Pose } from "./PoseEditor";
 import { calculateRatio } from "../../utils/Helpers";
 import useLogPageView from "../../hooks/useLogPageView";
+import { isFromScenes } from "../../utils/Scenes";
 
 const mapPoseToJoints = (pose: Pose) => {
   const entries = pose.nodes.reduce((agg, node) => {
@@ -84,7 +85,7 @@ const CanvasPose = () => {
         await setJointLocations(uuid!, joints, () => {
           console.log("New joints location set.");
         });
-        setAnimationType("running_jump");
+        setAnimationType(isFromScenes ? "wave_hello_3": "running_jump");
         setCurrentStep(currentStep + 1);
       }
       if (clickType === "previous") {

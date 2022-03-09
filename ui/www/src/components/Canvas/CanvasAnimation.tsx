@@ -47,6 +47,7 @@ const CanvasAnimation = () => {
   const [showModal, setModal] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoId, setVideoId] = useState<string>("");
+  const [webpUrl, setWebpUrl] = useState<string>();
 
   /**
    * When the CanvasAnimation component mounts, invokes the API to get an animation
@@ -61,9 +62,12 @@ const CanvasAnimation = () => {
         setRenderingVideo(true);
         setVideoUrl("");
 
-        await getAnimation(uuid, animationType, (data) => {
+        await getAnimation(uuid, animationType, isFromScenes, (data) => {
           setVideoId(data as string);
           setVideoUrl(`${VIDEO_URL}/${data as string}/${animationType}.mp4`);
+          if (isFromScenes) {
+            setWebpUrl(`${VIDEO_URL}/${data as string}/${animationType}.webp`);
+          }
           // Get the video file to share and download.
           getVideoFile(data, animationType, (data) => {
             let reader = new window.FileReader();
@@ -228,8 +232,7 @@ const CanvasAnimation = () => {
             </Button>
           </Col>
         </Row>
-      ) : <ScenesDoneButton />}
-
+      ) : <ScenesDoneButton isLoading={isLoading} webPUrl={webpUrl} />}
       <ShareModal
         showModal={showModal}
         handleModal={() => setModal(!showModal)}

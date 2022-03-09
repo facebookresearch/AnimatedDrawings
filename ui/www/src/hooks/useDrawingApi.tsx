@@ -201,12 +201,14 @@ export function useDrawingApi(onError: (error: Error) => void) {
   const getAnimation = async function (
     uuid: string,
     animation: string = "wave_hello_3",
+    createWebP: boolean = false,
     onResult: (result: any) => void
   ) {
     // try {
 
     const form = new FormData();
     form.set("animation", animation);
+    form.set("create_webp", createWebP ? 'true': 'false');
     if (uuid) {
       form.set("uuid", uuid);
     }
