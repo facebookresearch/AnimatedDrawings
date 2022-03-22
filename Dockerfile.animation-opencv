@@ -278,7 +278,7 @@ COPY --chown=animation-server:animation-server animate animate/
 # Define the default command.
 
 
-FROM common_runtime as develoment_runtime
+FROM common_runtime as development_runtime
 
 ARG USER_ID
 ARG GROUP_ID
@@ -290,7 +290,7 @@ USER animation-server
 #RUN python3 -m pip install boto3
 
 #  don't need to copy the code as it'll be mounted on the local volume
-FROM develoment_runtime as profile_runtime
+FROM development_runtime as profile_runtime
 
 
 FROM ${BUILD_CONFIG}_runtime as animation_runtime
