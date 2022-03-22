@@ -79,7 +79,11 @@ def generate_animation():
         'waving_gesture',
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
-    create_webp = request.form['create_webp'] or False
+    if 'create_webp' in request.form:
+        create_webp = request.form['create_webp'] or False
+    else:
+        create_webp = False
+
     video_id = None
     if interim_store.exists(unique_id, "video_id.txt"):
         video_id = str(interim_store.read_bytes(unique_id, "video_id.txt"), 'ascii')
