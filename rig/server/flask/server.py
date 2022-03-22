@@ -245,7 +245,9 @@ def set_bounding_box_coordinates():
 
     segment_mask.segment_mask(unique_id)
 
-    detect_pose.detect_pose(unique_id)
+    is_sparkar_request = True # request.form['create_webp'] == 'true'
+    #root_logger.log(50, f'is_sparkar_request = {is_sparkar_request}')
+    detect_pose.detect_pose(unique_id, is_sparkar_request)
 
     bb = interim_store.read_bytes(unique_id, "bb.json")
     return make_response(bb, 200)
