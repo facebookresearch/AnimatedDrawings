@@ -239,14 +239,14 @@ def set_bounding_box_coordinates():
 
     interim_store.write_bytes(unique_id, "bb.json", request.form['bounding_box_coordinates'])
 
-
-
     crop_from_bb.crop_from_bb(unique_id)
 
     segment_mask.segment_mask(unique_id)
 
-    is_sparkar_request = True # request.form['create_webp'] == 'true'
-    #root_logger.log(50, f'is_sparkar_request = {is_sparkar_request}')
+    if 'is_scenes' in request.form:
+        is_sparkar_request = request.form['is_scenes'] == 'true'
+    else:
+        is_sparkar_request = False
     detect_pose.detect_pose(unique_id, is_sparkar_request)
 
     bb = interim_store.read_bytes(unique_id, "bb.json")
@@ -417,7 +417,12 @@ def get_animation():
     #    consent_response = bool(int(f.read(1)))  # file contains 0 if consent not given, 1 if consent given
     consent_response = bool(int(interim_store.read_bytes(unique_id, "consent_response.txt")))
 
-    create_webp = request.form['create_webp'] == 'true'
+
+    if 'create_webp' in request.form:
+        create_webp = request.form['create_webp'] == 'true'
+    else:
+        create_webp = False
+
     animation_type = request.form['animation']
 
     assert animation_type in [
