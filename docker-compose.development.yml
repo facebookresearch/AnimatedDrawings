@@ -26,6 +26,7 @@ services:
     
     environment:
       - DETECTRON2_ENDPOINT=${DETECTRON2_ENDPOINT}
+      - MMPOSE_ENDPOINT=${MMPOSE_ENDPOINT}
       - ALPHAPOSE_ENDPOINT=${ALPHAPOSE_ENDPOINT}
       - ANIMATION_ENDPOINT=${ANIMATION_ENDPOINT}
       - ENABLE_UPLOAD=1
@@ -69,7 +70,7 @@ services:
   animation_server:
     build:
       context: .
-      dockerfile: Dockerfile.animation
+      dockerfile: Dockerfile.animation-opencv
       target: animation_runtime
       args:
         - BUILD_CONFIG=${BUILD_CONFIG}
