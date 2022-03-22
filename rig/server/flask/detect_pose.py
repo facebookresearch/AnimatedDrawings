@@ -6,14 +6,6 @@ import numpy as np
 import cv2
 
 
-import logging
-gunicorn_logger = logging.getLogger('gunicorn.error')
-
-if gunicorn_logger:
-    root_logger = logging.getLogger()
-    root_logger.handlers = gunicorn_logger.handlers
-    root_logger.setLevel(gunicorn_logger.level)
-
 interim_store = storage_service.get_interim_store()
 
 ALPHAPOSE_ENDPOINT = os.environ.get("ALPHAPOSE_ENDPOINT")
@@ -29,7 +21,6 @@ def detect_pose(unique_id, is_sparkar_request=False):
 
 
 def detect_pose_mmpose(unique_id):
-    root_logger.log(logging.INFO, f'detecting joints with mmpose')
 
     img_bytes = interim_store.read_bytes(unique_id, 'cropped_image.png')
 
@@ -62,7 +53,6 @@ def detect_pose_mmpose(unique_id):
 
 
 def detect_pose_alphapose(unique_id):
-    root_logger.log(logging.INFO, f'detecting joints with AlphaPose')
 
     img_bytes = interim_store.read_bytes(unique_id, 'cropped_image.png')
 
