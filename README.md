@@ -84,3 +84,7 @@ docker build -f Dockerfile.detectron_runtime -t detectron2:0.0.1 .
 
 docker run --mount type=bind,source="$(pwd)/torchserve_d2/model_store",target=/home/model-server/model_store --rm -it -p 5911 detectron2:0.0.1
 ```
+
+# Local Development setup
+
+Steps for deploying to 'Staging'
