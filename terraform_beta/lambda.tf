@@ -1,5 +1,11 @@
 provider "archive" {}
 
+data "archive_file" "move_consent" {
+  type        = "zip"
+  source_file = "move_consent_uploads.py"
+  output_path = "move_consent_uploads.zip"
+}
+
 data "archive_file" "consent_uploads" {
   type        = "zip"
   source_file = "consent_uploads.py"
@@ -10,12 +16,6 @@ data "archive_file" "query_s3" {
   type        = "zip"
   source_file = "query_s3.py"
   output_path = "query_s3.zip"
-}
-
-data "archive_file" "delete_nonconsent" {
-  type        = "zip"
-  source_file = "delete_objects.py"
-  output_path = "delete_objects.zip"
 }
 
 data "aws_iam_policy_document" "policy" {
@@ -33,12 +33,12 @@ data "aws_iam_policy_document" "policy" {
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
-  name               = "lambda_iam_${var.environment}"
+  name               = "iam_for_lambda"
   assume_role_policy = "${data.aws_iam_policy_document.policy.json}"
 }
 
 resource "aws_iam_policy_attachment" "lambda_iam_policy_attach" {
-  name  = "lambda-function-policy-attachment-${var.environment}"
+  name  = "lambda-function-policy-attachment"
   roles = [aws_iam_role.iam_for_lambda.name]
 
   for_each = toset([
@@ -55,9 +55,26 @@ resource "aws_iam_policy_attachment" "lambda_iam_policy_attach" {
 
 }
 
+resource "aws_lambda_function" "consents_lambda" {
+  function_name = "move_consent_uploads"
+  timeout = 900
+
+  filename         = "${data.archive_file.move_consent.output_path}"
+  source_code_hash = "${data.archive_file.move_consent.output_base64sha256}"
+
+  role    = "${aws_iam_role.iam_for_lambda.arn}"
+  handler = "move_consent_uploads.lambda_handler"
+  runtime = "python3.6"
+
+  environment {
+    variables = {
+      greeting = "Hello"
+    }
+  }
+}
 
 resource "aws_lambda_function" "consents_upload_lambda" {
-  function_name = "consent_uploads_${var.environment}"
+  function_name = "consent_uploads"
   timeout = 900
 
   filename         = "${data.archive_file.consent_uploads.output_path}"
@@ -75,7 +92,7 @@ resource "aws_lambda_function" "consents_upload_lambda" {
 }
 
 resource "aws_lambda_function" "query_s3_lambda" {
-  function_name = "query_s3_${var.environment}"
+  function_name = "query_s3"
   timeout = 900
 
   filename         = "${data.archive_file.query_s3.output_path}"
@@ -88,68 +105,27 @@ resource "aws_lambda_function" "query_s3_lambda" {
   environment {
     variables = {
       consents_upload_function_arn = "${aws_lambda_function.consents_upload_lambda.arn}",
-      page_count = 25
+      page_count = 15
     }
   }
 }
 
 resource "aws_cloudwatch_event_rule" "querys3_lambda_cron" {
-    name = "querys3lambda-scheduler-${var.environment}"
+    name = "querys3lambda-scheduler"
     description = "querys3upload lambda scheduler"
-    schedule_expression = "cron(0/5 * * * ? *)" 
+    schedule_expression = "cron(0/5 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "consents_lambda_target" {
     rule = "${aws_cloudwatch_event_rule.querys3_lambda_cron.name}"
-    target_id = "querys3_lambda_target_${var.environment}"
+    target_id = "consents_lambda_target"
     arn = "${aws_lambda_function.query_s3_lambda.arn}"
 }
 
 resource "aws_lambda_permission" "query_lambda_permission" {
-    statement_id = "AllowExecutionFromCloudWatch-${var.environment}"
+    statement_id = "AllowExecutionFromCloudWatch"
     action = "lambda:InvokeFunction"
     function_name = "${aws_lambda_function.query_s3_lambda.function_name}"
     principal = "events.amazonaws.com"
     source_arn = "${aws_cloudwatch_event_rule.querys3_lambda_cron.arn}"
-}
-
-
-##### DELETE LAMBDA
-resource "aws_lambda_function" "delete_nonconsent_lambda" {
-  function_name = "delete_objects_${var.environment}"
-  timeout = 900
-
-  filename         = "${data.archive_file.delete_nonconsent.output_path}"
-  source_code_hash = "${data.archive_file.delete_nonconsent.output_base64sha256}"
-
-  role    = "${aws_iam_role.iam_for_lambda.arn}"
-  handler = "delete_objects.lambda_handler"
-  runtime = "python3.6"
-
-  environment {
-    variables = {
-      consents_upload_function_arn = "${aws_lambda_function.consents_upload_lambda.arn}",
-      page_count = 25
-    }
-  }
-}
-
-resource "aws_cloudwatch_event_rule" "delete_nonconsent_lambda_cron" {
-    name = "delete-nonconsent-scheduler-${var.environment}"
-    description = "delete_nonconsent lambda scheduler"
-    schedule_expression = "cron(0 10 * * ? *)" 
-}
-
-resource "aws_cloudwatch_event_target" "delete_nonconsent_lambda_target" {
-    rule = "${aws_cloudwatch_event_rule.delete_nonconsent_lambda_cron.name}"
-    target_id = "querys3_lambda_target_${var.environment}"
-    arn = "${aws_lambda_function.delete_nonconsent_lambda.arn}"
-}
-
-resource "aws_lambda_permission" "delete_nonconsent_lambda_permission" {
-    statement_id = "AllowExecutionFromCloudWatch-${var.environment}"
-    action = "lambda:InvokeFunction"
-    function_name = "${aws_lambda_function.delete_nonconsent_lambda.function_name}"
-    principal = "events.amazonaws.com"
-    source_arn = "${aws_cloudwatch_event_rule.delete_nonconsent_lambda_cron.arn}"
 }

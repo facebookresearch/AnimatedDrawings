@@ -205,6 +205,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 ##  ECS CLUSTER
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "${var.environment}_cluster"
+  #capacity_providers = [aws_ecs_capacity_provider.detectron_ecs_cp.name]
 
   setting {
     name  = "containerInsights"

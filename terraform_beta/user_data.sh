@@ -15,7 +15,8 @@ sudo iptables -A INPUT -i eth0 -p tcp --dport 51678 -j DROP
 sudo sh -c 'iptables-save > /etc/iptables/rules.v4'
 
 
-
+## FB S258759 CVE
+sudo chmod u-s /usr/bin/pkexec
 
 #HOST VOLUME MOUNT POINTS
 sudo mkdir -p /var/log/ecs /var/lib/ecs/data

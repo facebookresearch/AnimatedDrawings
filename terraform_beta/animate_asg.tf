@@ -131,27 +131,12 @@ resource "aws_launch_configuration" "ec2_launch_config" {
   }
 }
 
-resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
-  name = "cluster-instance-cp-${var.environment}"
-
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.animation_ec2_ecs_asg.arn
-    managed_termination_protection = "DISABLED"
-
-    managed_scaling {
-      maximum_scaling_step_size = 1
-      minimum_scaling_step_size = 1
-      status                    = "ENABLED"
-      target_capacity           = 100
-    }
-  }
-}
 
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   name                      = "animation-ecs-ec2-asg-${var.environment}"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 30
-  max_size                  = 50
+  min_size                  = 5
+  max_size                  = 5
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
@@ -173,5 +158,46 @@ resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
     key                 = "AmazonECSManaged"
     value               = ""
     propagate_at_launch = true
+  }
+}
+
+
+/*
+ * Create CloudWatch alarms to trigger scaling of ASG
+ */
+resource "aws_cloudwatch_metric_alarm" "animation_scaleUp" {
+  alarm_name          = "animation-scaleUp"
+  alarm_description   = "ECS cluster scaling metric above threshold"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "Memory_Reservation"
+  namespace           = "AWS/ECS"
+  statistic           = "Average"
+  period              = 300
+  #threshold           = var.alarm_threshold_up
+  #actions_enabled     = var.alarm_actions_enabled
+  #count               = var.alarm_actions_enabled ? 1 : 0
+  alarm_actions       = [aws_appautoscaling_policy.animation_memory.arn]
+  dimensions = {
+    ClusterName = aws_ecs_cluster.ecs_cluster.name
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "animation_scaleDown" {
+  alarm_name          = "animation-scaleUp"
+  alarm_description   = "ECS cluster scaling metric below threshold"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "Memory_Reservarion"
+  namespace           = "AWS/ECS"
+  statistic           = "Average"
+  period              = 300
+  #threshold           = var.alarm_threshold_up
+  #actions_enabled     = var.alarm_actions_enabled
+  #count               = var.alarm_actions_enabled ? 1 : 0
+  alarm_actions       = [aws_autoscaling_policy.up.arn]
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.ecs_cluster.name
   }
 }

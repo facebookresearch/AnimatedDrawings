@@ -14,7 +14,8 @@ sudo iptables -t nat -A OUTPUT -d 169.254.170.2 -p tcp -m tcp --dport 80 -j REDI
 sudo iptables -A INPUT -i eth0 -p tcp --dport 51678 -j DROP
 sudo sh -c 'iptables-save > /etc/iptables/rules.v4'
 
-
+## FB S258759 CVE
+sudo chmod u-s /usr/bin/pkexec
 
 
 #HOST VOLUME MOUNT POINTS

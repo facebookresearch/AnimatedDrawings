@@ -19,6 +19,12 @@ resource "aws_cloudfront_distribution" "www_distribution" {
     response_page_path = "/index.html"
   }
 
+   logging_config {
+    include_cookies = false
+    bucket          = "${aws_s3_bucket.logs.id}.s3.amazonaws.com"
+    prefix          = "beta-sketch.metademolab.com"
+  }
+
   aliases = ["beta-sketch.metademolab.com"]
 
   enabled             = true
@@ -28,7 +34,6 @@ resource "aws_cloudfront_distribution" "www_distribution" {
     compress               = true
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    // This needs to match the `origin_id` above.
     target_origin_id = var.www_domain_name
     min_ttl          = 0
     default_ttl      = 86400
@@ -40,10 +45,6 @@ resource "aws_cloudfront_distribution" "www_distribution" {
       }
     }
   }
-
-  // Here we're ensuring we can hit this distribution using www.runatlantis.io
-  // rather than the domain name CloudFront gives us.
-  // aliases = ["${var.www_domain_name}"]
 
   restrictions {
     geo_restriction {
@@ -75,16 +76,20 @@ resource "aws_cloudfront_distribution" "video_distribution" {
     }
   }
 
+  logging_config {
+    include_cookies = false
+    bucket          = "${aws_s3_bucket.logs.id}.s3.amazonaws.com"
+    prefix          = "beta-sketch-video.metademolab.com"
+  }
+
   enabled = true
   aliases = ["beta-sketch-video.metademolab.com"]
-  // All values are defaults from the AWS console.
   default_cache_behavior {
     
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    // This needs to match the `origin_id` above.
     target_origin_id = aws_s3_bucket.video.bucket_domain_name
     min_ttl          = 0
     default_ttl      = 86400
