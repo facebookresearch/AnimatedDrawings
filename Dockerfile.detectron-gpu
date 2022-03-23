@@ -60,6 +60,7 @@ RUN apt-get update && \
     python3-pip \
     vim \
     sudo \
+    git \
     default-jre \
     && rm -rf /var/lib/apt/lists/*
 
