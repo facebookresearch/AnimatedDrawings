@@ -27,13 +27,13 @@ def build_cfg(motion_cfg_path):
     return {**base_cfg, **scene_cfg}  # combine and overwrite base with user specified config when necessary
 
 
-def video_from_cfg(sketch_cfg_path, motion_cfg_path, video_output_path):
+def video_from_cfg(sketch_cfg_path, motion_cfg_path, video_output_path, create_webp=False):
 
     cfg = build_cfg(motion_cfg_path)
 
     cfg['OUTPUT_PATH'] = str(Path(video_output_path).resolve())
 
-    scene_manager = render_manager.RenderManager(cfg=cfg)
+    scene_manager = render_manager.RenderManager(cfg=cfg, create_webp=create_webp)
 
     # first add any background scene elements (depth test is disabled)
     if cfg['DRAW_FLOOR']:

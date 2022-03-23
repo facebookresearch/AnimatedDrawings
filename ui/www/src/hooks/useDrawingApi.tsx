@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { useState } from "react";
 import {} from "../EnvConfig";
+import { isFromScenes } from "../utils/Scenes";
 
 const apiHost = window._env_.REACT_APP_API_HOST;
 const videoHost = window._env_.VIDEO_URL;
@@ -111,6 +112,8 @@ export function useDrawingApi(onError: (error: Error) => void) {
       form.set("uuid", uuid);
     }
 
+    form.set("is_scenes", isFromScenes ? "true": "false");
+
     form.set("bounding_box_coordinates", JSON.stringify(data));
     await invokePost(ApiPath.SetBoundingBox, form, onResult);
   };
@@ -201,12 +204,14 @@ export function useDrawingApi(onError: (error: Error) => void) {
   const getAnimation = async function (
     uuid: string,
     animation: string = "wave_hello_3",
+    createWebP: boolean = false,
     onResult: (result: any) => void
   ) {
     // try {
 
     const form = new FormData();
     form.set("animation", animation);
+    form.set("create_webp", createWebP ? 'true': 'false');
     if (uuid) {
       form.set("uuid", uuid);
     }
