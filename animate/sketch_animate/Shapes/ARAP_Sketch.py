@@ -828,7 +828,7 @@ class ARAP_Sketch(BaseSketch):
             mask = np.array(self.mask).T[0,:,:]
 
             # if predicted joint is outside of mask dimensions return
-            if not 0 <= x < self.dim and 0 <= y < self.dim:
+            if not (0 <= x < self.dim and 0 <= y < self.dim):
                 continue
 
             # if joint is inside mask, don't adjust it
