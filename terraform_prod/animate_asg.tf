@@ -152,14 +152,15 @@ resource "aws_ecs_capacity_provider" "ani_ecs_cp" {
 resource "aws_autoscaling_group" "animation_ec2_ecs_asg" {
   name                      = "animation-ecs-ec2-asg-${var.environment}"
   launch_configuration      = aws_launch_configuration.ec2_launch_config.name
-  min_size                  = 20
-  max_size                  = 30
+  min_size                  = 10
+  max_size                  = 15
   health_check_type         = "EC2"
   health_check_grace_period = 0
   default_cooldown          = 30
   desired_capacity          = var.target_capacity
   vpc_zone_identifier       = var.subnets == [] ? var.subnets[0].ids : var.subnets
   wait_for_capacity_timeout = "3m"
+  #protect_from_scale_in     = true
 
   lifecycle {
     ignore_changes = [desired_capacity]

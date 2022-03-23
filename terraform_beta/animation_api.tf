@@ -123,6 +123,23 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
 }
 
 
+/* resource "aws_ecs_capacity_provider" "animation_capacity_provider" {
+  name = "animation_cp_${var.environment}"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.animation_ec2_ecs_asg.arn
+    managed_termination_protection = "ENABLED"
+
+    managed_scaling {
+      maximum_scaling_step_size = 10
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
+  }
+}
+ */
+
 #ANIMATION AUTOSCALING
 
 resource "aws_appautoscaling_target" "animation_target" {
@@ -164,7 +181,7 @@ resource "aws_appautoscaling_policy" "animation_memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value = 80
+    target_value = 50
   }
 }
 
@@ -180,6 +197,24 @@ resource "aws_appautoscaling_policy" "animation_cpu" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    target_value = 60
+    target_value = 50
   }
+}
+
+resource "aws_autoscaling_policy" "up" {
+  name                   = "animation-scaleUpPolicy-${var.environment}"
+  scaling_adjustment     = 2
+  adjustment_type        = "ExactCapacity"
+  cooldown               = 60
+  policy_type            = "SimpleScaling"
+  autoscaling_group_name = aws_autoscaling_group.animation_ec2_ecs_asg.name
+}
+
+resource "aws_autoscaling_policy" "down" {
+  name                   = "animation-scaleDownPolicy-${var.environment}"
+  scaling_adjustment     = 2
+  adjustment_type        = "ExactCapacity"
+  cooldown               = 60
+  policy_type            = "SimpleScaling"
+  autoscaling_group_name = aws_autoscaling_group.animation_ec2_ecs_asg.name
 }

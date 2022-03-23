@@ -102,6 +102,10 @@ variable "video_bucket" {
   default = "beta-demo-sketch-out-animations"
 }
 
+variable "logs_bucket" {
+  default = "beta-sketch-animation-logs"
+}
+
 variable "private_hosted_zone_id" {
   type = string
 }
@@ -151,3 +155,4 @@ variable "PROFILE_ARN" {
 variable "cloudfront_cert_arn" {
   type = string
 }
+

@@ -32,11 +32,11 @@ resource "aws_alb_listener" "http_ec2" {
 
 
 resource "aws_ecs_service" "animation_ec2_service" {
-  name            = "animation_ecs_service-${var.environment}"
+  name            = "animation_ecs-${var.environment}"
   launch_type     = "EC2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.animation_ec2_task_definition.arn
-  desired_count   = 30
+  desired_count   = 10
   force_new_deployment = true
 
   placement_constraints {
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "animation_ec2_service" {
 }
 
 resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
-  family                   = "animation_task_definition-${var.environment}"
+  family                   = "animation_task_def_memory_${var.environment}"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "10 vCPU"
@@ -123,11 +123,28 @@ resource "aws_ecs_task_definition" "animation_ec2_task_definition" {
 }
 
 
+/* resource "aws_ecs_capacity_provider" "animation_capacity_provider" {
+  name = "animation_cp_${var.environment}"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.animation_ec2_ecs_asg.arn
+    managed_termination_protection = "ENABLED"
+
+    managed_scaling {
+      maximum_scaling_step_size = 10
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
+  }
+} */
+
+
 #ANIMATION AUTOSCALING
 
 resource "aws_appautoscaling_target" "animation_target" {
-  max_capacity       = 50
-  min_capacity       = 30
+  max_capacity       = 15
+  min_capacity       = 10
   resource_id        = "service/${aws_ecs_cluster.ecs_cluster.name}/${aws_ecs_service.animation_ec2_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

@@ -102,6 +102,14 @@ variable "video_bucket" {
   default = "prod-demo-sketch-out-animations"
 }
 
+variable "logs_bucket" {
+  default = "prod-sketch-animation-logs"
+}
+
+variable "non_consent_bucket" {
+  default = "prod-non-consent-uploads"
+}
+
 variable "private_hosted_zone_id" {
   type = string
 }
