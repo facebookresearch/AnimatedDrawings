@@ -79,6 +79,16 @@ ENV PATH /venv/bin/:${PATH}
 # Downloads MAR File from S3 Bucket
 RUN bash "./torchserve_d2/download_mar.sh"
 
+# Install mmpose dependencies needed to serve resnet152_256x192.mar
+RUN pip3 install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.9.0/index.html \
+    && pip3 install --no-cache-dir --upgrade pip wheel setuptools \
+    && git clone https://github.com/open-mmlab/mmpose.git
+WORKDIR /home/model-server/mmpose
+RUN git checkout c09a6930a2e699722ec3bd6142c6ad334d32b469 \
+    && pip3 install -r requirements.txt \
+    && pip3 install -v -e . \
+    && pip3 install numpy==1.22.3
+
 # start torchserve for detectron2 model in background
 CMD ["/home/model-server/torchserve_d2/torchserve_start.sh"]
 #CMD ["sleep", "infinity"]
