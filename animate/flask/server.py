@@ -80,7 +80,7 @@ def generate_animation():
         'zombie_walk'], f'Unsupposed animation_type:{animation_type}'
 
     if 'create_webp' in request.form:
-        create_webp = request.form['create_webp'] or False
+        create_webp = request.form['create_webp'] == 'True'
     else:
         create_webp = False
 
