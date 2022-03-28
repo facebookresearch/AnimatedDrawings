@@ -89,3 +89,5 @@ docker run --mount type=bind,source="$(pwd)/torchserve_d2/model_store",target=/h
 Ensure all changes have been pulled into `main` branch
 
 Run `./sketch_rig/terraform_beta/build_images.sh` to push images to AWS ECR.
+
+Rest to be filled in later.
