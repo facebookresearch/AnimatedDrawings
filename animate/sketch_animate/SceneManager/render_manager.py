@@ -32,9 +32,9 @@ class RenderManager(BaseManager):
         self.create_webp = create_webp
 
         if use_opengl():
-            self._initialize_opengl(self.width, self.height)
+            self._initialize_opengl(self.width, self.height, create_webp)
         else:
-            self._initialize_mesa(self.width, self.height)
+            self._initialize_mesa(self.width, self.height, create_webp)
 
         super().__init__(cfg)
 
@@ -203,7 +203,7 @@ class RenderManager(BaseManager):
         if self.create_webp:
             self._save_for_webp(mirror)
 
-    def _initialize_mesa(self, width: int, height: int):
+    def _initialize_mesa(self, width: int, height: int, create_webp: bool = False):
 
         self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
         self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))
@@ -214,7 +214,12 @@ class RenderManager(BaseManager):
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
+        # If we're creating transparent animation, set clear alpha appropriately
+        clear_color = self.cfg['CLEAR_COLOR']
+        if create_webp:
+            clear_color[-1] = 0
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
+
         GL.glEnable(GL.GL_CULL_FACE)
         if self.cfg['USE_DEPTH_TEST']:
             GL.glEnable(GL.GL_DEPTH_TEST)
@@ -222,7 +227,7 @@ class RenderManager(BaseManager):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-    def _initialize_opengl(self, width: int, height: int):
+    def _initialize_opengl(self, width: int, height: int, create_webp: bool = False):
         glfw.init()
         """ Initalize opengl"""
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -239,7 +244,12 @@ class RenderManager(BaseManager):
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
+        # If we're creating transparent animation, set clear alpha appropriately
+        clear_color = self.cfg['CLEAR_COLOR']
+        if create_webp:
+            clear_color[-1] = 0
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
+
         GL.glEnable(GL.GL_CULL_FACE)
         if self.cfg['USE_DEPTH_TEST']:
             GL.glEnable(GL.GL_DEPTH_TEST)
