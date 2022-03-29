@@ -215,9 +215,8 @@ class RenderManager(BaseManager):
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
         # If we're creating transparent animation, set clear alpha appropriately
-        clear_color = self.cfg['CLEAR_COLOR']
         if create_webp:
-            clear_color[-1] = 0
+            self.cfg['CLEAR_COLOR'][-1] = 0
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
 
         GL.glEnable(GL.GL_CULL_FACE)
@@ -245,9 +244,8 @@ class RenderManager(BaseManager):
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())
 
         # If we're creating transparent animation, set clear alpha appropriately
-        clear_color = self.cfg['CLEAR_COLOR']
         if create_webp:
-            clear_color[-1] = 0
+            self.cfg['CLEAR_COLOR'][-1] = 0
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
 
         GL.glEnable(GL.GL_CULL_FACE)
