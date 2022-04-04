@@ -10,8 +10,8 @@ DETECTRON_GPU_ECR=$(terraform output --json  | jq -r .detectron_gpu_ecr.value)
 DETECTRON_GPU_CONTAINER_NAME=$(terraform output --json | jq -r .detectron_gpu_container_name.value)
 
 # Set ALPHAPOSE_ECR and ALPHAPOSE_CONTAINER_NAME
-ALPHAPOSE_ECR=$(terraform output --json  | jq -r .alphapose_ecr.value)
-ALPHAPOSE_CONTAINER_NAME=$(terraform output --json | jq -r .alphapose_container_name.value)
+#ALPHAPOSE_ECR=$(terraform output --json  | jq -r .alphapose_ecr.value)
+#ALPHAPOSE_CONTAINER_NAME=$(terraform output --json | jq -r .alphapose_container_name.value)
 
 # Set ANIMATION_ECR and ANIMATION_CONTAINER_NAME
 ANIMATION_ECR=$(terraform output --json  | jq -r .animation_ecr.value)
@@ -33,9 +33,9 @@ SKETCH_CONTAINER_NAME=$(terraform output --json | jq -r .sketch_container_name.v
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.us-east-2.amazonaws.com
 
 # Push and Build Alphapose Image
-DOCKER_BUILDKIT=1 docker build -t $ALPHAPOSE_CONTAINER_NAME:latest -f ../Dockerfile.alphapose ..
-docker tag $ALPHAPOSE_CONTAINER_NAME:latest $ALPHAPOSE_ECR
-docker push $ALPHAPOSE_ECR:latest
+#DOCKER_BUILDKIT=1 docker build -t $ALPHAPOSE_CONTAINER_NAME:latest -f ../Dockerfile.alphapose ..
+#docker tag $ALPHAPOSE_CONTAINER_NAME:latest $ALPHAPOSE_ECR
+#docker push $ALPHAPOSE_ECR:latest
 
 # Push and Build Animation image
 DOCKER_BUILDKIT=1 docker build -t $ANIMATION_CONTAINER_NAME:latest -f ../Dockerfile.animation-opencv ..

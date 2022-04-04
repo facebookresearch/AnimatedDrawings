@@ -110,6 +110,10 @@ resource "aws_ecs_task_definition" "sketch_task_definition" {
           "value" : "http://${aws_lb.animation_ecs_alb.dns_name}:5000/generate_animation"
         },
         {
+          "name" : "MMPOSE_ENDPOINT",
+          "value" : "http://${aws_lb.detectron_ecs_alb.dns_name}:5911/predictions/res152_256x192"
+        },
+        {
           "name" : "AWS_S3_INTERIM_BUCKET",
           "value" : "${aws_s3_bucket.interim.id}"
         },
