@@ -32,7 +32,14 @@ def save_starting_token(StartingToken):
 
 # GET STARTING TOKEN FROM FILE IN S3
 def starting_token_file():
-    obj = s3_client.get_object(Bucket=devops_bucket, Key='startToken')
+    obj = None
+    try:
+        obj = s3_client.get_object(Bucket=devops_bucket, Key='startToken')
+    except Exception as e:
+        print(f"Error reading key startToken from bucket {devops_bucket}: {e}")
+
+    if not obj: 
+        return None
     StartingToken = obj['Body'].read().decode('utf8')
     print("Starting Token From File: {}".format(StartingToken))
     return StartingToken
