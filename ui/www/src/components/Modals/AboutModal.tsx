@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import { isFromScenes } from "../../utils/Scenes";
 
 interface modalProps {
   showModal: boolean;
@@ -7,6 +8,24 @@ interface modalProps {
 }
 
 const AboutModal = ({ showModal, setShowModal }: modalProps) => {
+  let alphaPoseSection = undefined;
+  if (!isFromScenes) {
+    alphaPoseSection = (
+      <>
+        {" "}
+        and
+        <a
+          href="https://github.com/MVIG-SJTU/AlphaPose"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {" "}
+          AlphaPose
+        </a>
+      </>
+    );
+  }
+
   return (
     <Fragment>
       {showModal ? (
@@ -25,8 +44,8 @@ const AboutModal = ({ showModal, setShowModal }: modalProps) => {
                       automatic animation.
                     </p>
                     <br />
-                    <p> This demo builds upon <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noreferrer" className="bold"> Detectron2</a> and 
-                      <a href="https://github.com/MVIG-SJTU/AlphaPose" target="_blank" rel="noreferrer"> AlphaPose</a>. Motion capture data comes from the{" "}
+                    <p> This demo builds upon <a href="https://github.com/facebookresearch/detectron2" target="_blank" rel="noreferrer" className="bold"> Detectron2</a>
+                     {alphaPoseSection}. Motion capture data comes from the{" "}
                       <a href="http://mocap.cs.cmu.edu/" target="_blank" rel="noreferrer">CMU Graphics Motion Capture Lab</a> and
                       <a href="https://www.mixamo.com/" target="_blank" rel="noreferrer"> Mixamo</a>.
                     </p>

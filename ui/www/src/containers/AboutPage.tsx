@@ -1,9 +1,29 @@
 import React from "react";
 import { Navbar, Nav, Container, Row, Col } from "react-bootstrap";
 import useLogPageView from "../hooks/useLogPageView";
+import { isFromScenes } from "../utils/Scenes";
 
 const AboutPage = () => {
   useLogPageView("About", "");
+
+  let alphaPoseSection = undefined;
+  if (!isFromScenes) {
+    alphaPoseSection = (
+      <>
+        {" "}
+        and
+        <a
+          href="https://github.com/MVIG-SJTU/AlphaPose"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {" "}
+          AlphaPose
+        </a>
+      </>
+    );
+  }
+
   return (
     <div className="main-content bg-about">
       <Navbar bg="transparent">
@@ -38,16 +58,8 @@ const AboutPage = () => {
                 >
                   {" "}
                   Detectron2
-                </a>{" "}
-                and
-                <a
-                  href="https://github.com/MVIG-SJTU/AlphaPose"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {" "}
-                  AlphaPose
                 </a>
+                {alphaPoseSection}
                 . Motion capture data comes from the{" "}
                 <a
                   href="http://mocap.cs.cmu.edu/"
