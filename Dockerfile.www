@@ -47,6 +47,7 @@ RUN cp env-config.js build/
 FROM amazon/aws-cli
 
 ARG AWS_S3_WWW_BUCKET
+ARG AWS_CLOUDFRONT_DISTRIBUTION
 ENV AWS_S3_WWW_BUCKET_URL s3://${AWS_S3_WWW_BUCKET}
 
 #Using the alias defined for the first container, copy the contents of the build folder to this container
@@ -55,6 +56,8 @@ COPY --from=builder /usr/src/app/build .
 #Set the default command of this container to push the files from the working directory of this container to our s3 bucket 
 # Override enrypoint as the json array mode does not support using env vars
 # see https://docs.docker.com/engine/reference/builder/#cmd
-ENTRYPOINT /usr/local/bin/aws s3 sync ./ $AWS_S3_WWW_BUCKET_URL
+RUN /usr/local/bin/aws s3 sync ./ $AWS_S3_WWW_BUCKET_URL
 
+
+RUN /usr/local/bin/aws cloudfront create-invalidation --distribution-id ${AWS_CLOUDFRONT_DISTRIBUTION} --paths "/*"
 
