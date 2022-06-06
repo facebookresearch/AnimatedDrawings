@@ -99,6 +99,7 @@ services:
         - VIDEO_CDN_URL=${VIDEO_CDN_URL}
         - ENABLE_UPLOAD=${ENABLE_UPLOAD}
         - REACT_APP_GOOGLE_ANALYTICS_ID=${REACT_APP_GOOGLE_ANALYTICS_ID}
+        - AWS_CLOUDFRONT_DISTRIBUTION=${AWS_CLOUDFRONT_DISTRIBUTION}
 
 # Network created by default between services
 networks:
