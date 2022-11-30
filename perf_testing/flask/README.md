@@ -1,1 +1,0 @@
-NOTE: This directory contains a code that's only used for testing It should not be deployed in prod.

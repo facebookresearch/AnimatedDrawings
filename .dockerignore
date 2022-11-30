@@ -1,9 +1,0 @@
-**/.git
-**/node_modules
-ui/www/build
-ui/www/build/.env
-# Ignore compoled models and model store directories. These will be mounted directly.
-**/*.mar
-**/model_store/
-# App Output dir
-videos
