@@ -10,12 +10,12 @@ import numpy as np
 import ctypes
 import math
 import triangle
-from util import normalized, angle_from, rotate, translate, read_texture, scale
-from util import get_sketch_segment_visibility
-from util import get_sketch_skeleton_visibility
-from util import point_in_triangle
-from util import get_arap_handles_visibility, get_sketch_mesh_visibility, get_arap_sketch_visibility
-from util import bone_colors, colors, squared_distance_between_point_and_line, segment_names, x_ax
+from sketch_animate.util import normalized, angle_from, rotate, translate, read_texture, scale
+from sketch_animate.util import get_sketch_segment_visibility
+from sketch_animate.util import get_sketch_skeleton_visibility
+from sketch_animate.util import point_in_triangle
+from sketch_animate.util import get_arap_handles_visibility, get_sketch_mesh_visibility, get_arap_sketch_visibility
+from sketch_animate.util import bone_colors, colors, squared_distance_between_point_and_line, segment_names, x_ax
 from typing import Dict
 from collections import deque
 import logging
@@ -24,9 +24,9 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 import scipy.linalg as la
 
-from DataStructures import halfedge
+from sketch_animate.DataStructures import halfedge
 
-from Shapes.Shapes import Rectangle
+from sketch_animate.Shapes.Shapes import Rectangle
 
 from PIL import Image
 import cv2

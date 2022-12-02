@@ -1,11 +1,11 @@
-from util import rotate, z_ax, x_ax, angle_from, normalized, constrain_angle, cached_rot_name_to_index
+from sketch_animate.util import rotate, z_ax, x_ax, angle_from, normalized, constrain_angle, cached_rot_name_to_index
 import numpy as np
-from Shapes.Shapes import ScreenSpaceSquare
-from camera import Camera
+from sketch_animate.Shapes.Shapes import ScreenSpaceSquare
+from sketch_animate.camera import Camera
 from pathlib import Path
 
 from typing import List
-from Shapes.PaperSketch import Sketch
+from sketch_animate.Shapes.PaperSketch import Sketch
 
 """
 Transferrers are responsible for transferring motion from the BVH onto the sketch. 

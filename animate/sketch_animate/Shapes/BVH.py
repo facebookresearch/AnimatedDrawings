@@ -2,12 +2,12 @@ import OpenGL.GL as GL
 import numpy as np
 import ctypes
 
-import motion.BVH as holden_BVH
-from motion.Animation import positions_global
+import sketch_animate.motion.BVH as holden_BVH
+from sketch_animate.motion.Animation import positions_global
 
 from sklearn.decomposition import PCA
 
-from util import rotate, translate, x_ax, z_ax, y_ax, normalized, angle_between
+from sketch_animate.util import rotate, translate, x_ax, z_ax, y_ax, normalized, angle_between
 
 
 class BVH:

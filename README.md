@@ -39,9 +39,9 @@ Finishing install dependencies from within Docker:
     conda create --name sketch_animate --file conda-env.txt
     conda activate sketch_animate
     pip install -r requirements.txt flask flask_cors gunicorn ffmpeg-python==0.2.0 shapely==1.7.1 opencv-python
+    cd code
     pip install -e .
 
 Test headless render:
 
-    cd code
     ./render_test.sh

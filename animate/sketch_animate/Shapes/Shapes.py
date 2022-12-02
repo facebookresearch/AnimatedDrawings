@@ -4,7 +4,7 @@ import OpenGL.GL as GL
 import numpy as np
 import ctypes
 import triangle
-from util import read_texture, scale
+from sketch_animate.util import read_texture, scale
 
 
 class ARAP_Rectangle:

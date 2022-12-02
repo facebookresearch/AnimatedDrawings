@@ -3,7 +3,7 @@ import sys
 import os
 import logging
 from pathlib import Path
-from util import prep_render_backend
+from sketch_animate.util import prep_render_backend
 
 
 def build_scene_cfg():
@@ -31,19 +31,19 @@ def main(scene_cfg, sketch_cfg):
 
     if scene_cfg['RENDER_MODE'] == 'RENDER':
         prep_render_backend()
-        import SceneManager.render_manager as render_manager
+        import sketch_animate.SceneManager.render_manager as render_manager
         scene_manager = render_manager.RenderManager(cfg=scene_cfg)
     elif scene_cfg['RENDER_MODE'] == 'INTERACT':
-        import SceneManager.interactive_manager as interactive_manager
+        import sketch_animate.SceneManager.interactive_manager as interactive_manager
         scene_manager = interactive_manager.InteractiveManager(cfg=scene_cfg)
     else:
         assert False, f'bad cfg["RENDER_MODE"]: {scene_cfg["RENDER_MODE"]}'
 
-    from Shapes.ARAP_Sketch import ARAP_Sketch
-    from Shapes.Floor import Floor
-    from Shapes.BVH import BVH
-    from camera import Camera
-    from util import bodypart_groups
+    from sketch_animate.Shapes.ARAP_Sketch import ARAP_Sketch
+    from sketch_animate.Shapes.Floor import Floor
+    from sketch_animate.Shapes.BVH import BVH
+    from sketch_animate.camera import Camera
+    from sketch_animate.util import bodypart_groups
 
     # first add any background scene elements (depth test is disabled)
     if scene_cfg['DRAW_FLOOR']:

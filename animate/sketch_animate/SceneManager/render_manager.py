@@ -1,5 +1,5 @@
 import os
-from util import use_opengl
+from sketch_animate.util import use_opengl
 from PIL import Image
 import shutil
 
@@ -11,14 +11,14 @@ else:
 
 import cv2
 import numpy as np
-from SceneManager.base_manager import BaseManager
+from sketch_animate.SceneManager.base_manager import BaseManager
 from pathlib import Path
 import time
 import ffmpeg
 import multiprocessing as mp
-from util import use_opengl
-from time_manager import TimeManager_Render
-from transferrer import Transferrer_Render
+from sketch_animate.util import use_opengl
+from sketch_animate.time_manager import TimeManager_Render
+from sketch_animate.transferrer import Transferrer_Render
 
 
 class RenderManager(BaseManager):
@@ -194,7 +194,7 @@ class RenderManager(BaseManager):
         camera = self.camera_manager.free_camera
         for drawable in self.drawables:
             if camera.is_drawable_visible_in_camera(drawable):
-                if str(type(drawable)) == "<class 'Shapes.ARAP_Sketch.ARAP_Sketch'>":
+                if str(type(drawable)) == "<class 'sketch_animate.Shapes.ARAP_Sketch.ARAP_Sketch'>":
                     drawable.draw_render_mp(mesh_vertices, shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)
                 else:
                     drawable.draw(shader_ids=self.shader_ids, time=self.time_manager.get_current_bvh_frame(), camera=camera)

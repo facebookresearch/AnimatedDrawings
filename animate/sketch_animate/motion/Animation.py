@@ -4,7 +4,7 @@ import numpy as np
 import numpy.core.umath_tests as ut
 
 #import AnimationStructure
-from motion.Quaternions import Quaternions
+from sketch_animate.motion.Quaternions import Quaternions
 
 class Animation:
     """
