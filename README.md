@@ -8,11 +8,16 @@ If you are looking for the code behind sketch.metademolab.com, see [https://gith
 
 From local computer:
 
+    # create env if needed
+    cd sketch_animate
+    conda create --name sketch_animate --file conda-env.txt
+    conda activate sketch_animate
+    pip install -r requirements.txt flask flask_cors gunicorn ffmpeg-python==0.2.0 shapely==1.7.1 opencv-python
+
     PROJECTROOT=/Users/hjessmith/Projects/AnimatedDrawings  # modify this
     MOTION_CONFIG=${PROJECTROOT}/animate/Data/motion_configs/hip_hop_dancing_interactive.yaml
     CHARACTER_CONFIG=${PROJECTROOT}/animate/Data/Texture/nick_cat.yaml
     cd sketch_animate
-    conda activate sketch_animate
     python main.py ${MOTION_CONFIG} ${CHARACTER_CONFIG} .
 
 ### Headless Render Test
