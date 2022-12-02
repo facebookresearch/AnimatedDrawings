@@ -9,10 +9,11 @@ If you are looking for the code behind sketch.metademolab.com, see [https://gith
 From local computer:
 
     # create env if needed
-    cd sketch_animate
+    cd ${PROJECTROOT}/animate
     conda create --name sketch_animate --file conda-env.txt
     conda activate sketch_animate
     pip install -r requirements.txt flask flask_cors gunicorn ffmpeg-python==0.2.0 shapely==1.7.1 opencv-python
+    pip install -e .
 
     PROJECTROOT=/Users/hjessmith/Projects/AnimatedDrawings  # modify this
     MOTION_CONFIG=${PROJECTROOT}/animate/Data/motion_configs/hip_hop_dancing_interactive.yaml
@@ -38,6 +39,7 @@ Finishing install dependencies from within Docker:
     conda create --name sketch_animate --file conda-env.txt
     conda activate sketch_animate
     pip install -r requirements.txt flask flask_cors gunicorn ffmpeg-python==0.2.0 shapely==1.7.1 opencv-python
+    pip install -e .
 
 Test headless render:
 
