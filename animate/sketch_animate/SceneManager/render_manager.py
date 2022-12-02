@@ -70,7 +70,7 @@ class RenderManager(BaseManager):
         if self.out_file.exists():
             Path.unlink(self.out_file)
 
-        fourcc = cv2.VideoWriter_fourcc(*'x264')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         self.video_writer = cv2.VideoWriter(str(self.out_file), fourcc, self.BVH_fps, (self.width, self.height))
 
     def _is_frame_rendered(self, frame_idx):
