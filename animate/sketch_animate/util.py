@@ -119,43 +119,6 @@ def get_show_multi_cameras():
 ###############################
 
 ###############################
-
-def use_opengl():
-    """Checks if proper env vars set, returns true if use opengl, false if use osmesa"""
-    return 'SKETCH_ANIMATE_RENDER_BACKEND' in os.environ and  \
-           os.environ['SKETCH_ANIMATE_RENDER_BACKEND'] == 'OPENGL'
-
-
-def prep_render_backend():
-    """
-    If OpenGL and GLFW are available, set SKETCH_ANIMATE_RENDER_BACKEND=OPENGL in env before running.
-    Otherwise, osmesa is assumed to be used for headless rendering.
-    This function is called by main once to set variables and import dependencies properly
-    """
-    if use_opengl():
-        logging.info('SKETCH_ANIMATE_RENDER_BACKEND == OPENGL. Using OpenGL')
-        try:
-            from OpenGL import GL
-        except:
-            logging.critical('Error initializing OpenGL. Aborting')
-        logging.info('OpenGL successfully initialized')
-
-    else:
-        logging.info('SKETCH_ANIMATE_RENDER_BACKEND != OPENGL, Using OSMesa')
-        try:
-            os.environ['PYOPENGL_PLATFORM'] = "osmesa"
-            os.environ['MUJOCO_GL'] = "osmesa"
-            os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
-            from OpenGL import GL, osmesa
-        except Exception as e:
-            logging.critical(f'Error initializing osmesa. Aborting: {e}')
-        logging.info('osmesa successfully initialized')
-
-
-
-###############################
-
-###############################
 # an assortment of colors to use as needed
 bone_colors = [
     (1.0, 0.0, 0.0),  # right side of character

@@ -1,13 +1,8 @@
 import os
-from sketch_animate.util import use_opengl
 from PIL import Image
 import shutil
 
-if use_opengl():
-    from OpenGL import GL
-    import glfw
-else:
-    from OpenGL import GL, osmesa
+from OpenGL import GL, osmesa
 
 import cv2
 import numpy as np
@@ -16,7 +11,6 @@ from pathlib import Path
 import time
 import ffmpeg
 import multiprocessing as mp
-from sketch_animate.util import use_opengl
 from sketch_animate.time_manager import TimeManager_Render
 from sketch_animate.transferrer import Transferrer_Render
 
@@ -31,10 +25,7 @@ class RenderManager(BaseManager):
         self.height = height
         self.create_webp = create_webp
 
-        if use_opengl():
-            self._initialize_opengl(self.width, self.height, create_webp)
-        else:
-            self._initialize_mesa(self.width, self.height, create_webp)
+        self._initialize_mesa(self.width, self.height, create_webp)
 
         super().__init__(cfg)
 

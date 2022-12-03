@@ -33,9 +33,9 @@ def get_scene_manager(scene_cfg):
     render_mode = scene_cfg["RENDER_MODE"]
     logging.info(f'RENDER_MODE is {render_mode}')
     if render_mode == 'RENDER':
-        from sketch_animate.util import prep_render_backend
+        os.environ['PYOPENGL_PLATFORM'] = "osmesa"
+        os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
         from sketch_animate.SceneManager.render_manager import RenderManager
-        prep_render_backend()
         return RenderManager(cfg=scene_cfg)
     elif render_mode == 'INTERACT':
         from sketch_animate.SceneManager.interactive_manager import InteractiveManager
