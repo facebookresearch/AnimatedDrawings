@@ -3,64 +3,72 @@ import sys
 import os
 import logging
 from pathlib import Path
-from sketch_animate.util import prep_render_backend
 
 
-def build_scene_cfg():
-    with open(sys.argv[1], 'r') as f:
-        scene_cfg = yaml.load(f, Loader=yaml.FullLoader)
+def get_scene_cfg():
+    try:
+        with open(sys.argv[1], 'r') as f:
+            user_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open('./config/base.yaml', 'r') as f:
+            base_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        return {**base_cfg, **user_cfg}  # scene_cfg is base overwitten by user
+    except Exception as e:
+        logging.critical(f'Error building scene_cfg: {str(e)}')
+        assert False
 
-    with open('./config/base.yaml', 'r') as f:
-        base_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
-    return {**base_cfg, **scene_cfg}  # combine and overwrite base with user specified config when necessary
+def get_sketch_cfg():
+    try:
+        character_cfg_path = Path(sys.argv[2])
+        with open(character_cfg_path, 'r') as f:
+            sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        sketch_cfg['image_loc'] = f"{character_cfg_path.parent /character_cfg_path.stem}.png"
+        return sketch_cfg
+    except Exception as e:
+        logging.critical(f'Error building sketch_cfg: {str(e)}')
+        assert False
 
 
-def build_sketch_cfg():
-    character_cfg_path = Path(sys.argv[2])
-    with open(character_cfg_path, 'r') as f:
-        sketch_cfg = yaml.load(f, Loader=yaml.FullLoader)
-
-        sketch_cfg['image_loc'] = f"{str(character_cfg_path.parent)}/{sketch_cfg['image_name']}"
-
-    return sketch_cfg
+def get_scene_manager(scene_cfg):
+    render_mode = scene_cfg["RENDER_MODE"]
+    logging.info(f'RENDER_MODE is {render_mode}')
+    if render_mode == 'RENDER':
+        from sketch_animate.util import prep_render_backend
+        from sketch_animate.SceneManager.render_manager import RenderManager
+        prep_render_backend()
+        return RenderManager(cfg=scene_cfg)
+    elif render_mode == 'INTERACT':
+        from sketch_animate.SceneManager.interactive_manager import InteractiveManager
+        return InteractiveManager(cfg=scene_cfg)
+    else:
+        logging.critical(f'bad render_mode: {render_mode}')
+        assert False
 
 
 def main(scene_cfg, sketch_cfg):
-    logging.info(f'RENDER_MODE is {scene_cfg["RENDER_MODE"]}')
 
-    if scene_cfg['RENDER_MODE'] == 'RENDER':
-        prep_render_backend()
-        import sketch_animate.SceneManager.render_manager as render_manager
-        scene_manager = render_manager.RenderManager(cfg=scene_cfg)
-    elif scene_cfg['RENDER_MODE'] == 'INTERACT':
-        import sketch_animate.SceneManager.interactive_manager as interactive_manager
-        scene_manager = interactive_manager.InteractiveManager(cfg=scene_cfg)
-    else:
-        assert False, f'bad cfg["RENDER_MODE"]: {scene_cfg["RENDER_MODE"]}'
-
-    from sketch_animate.Shapes.ARAP_Sketch import ARAP_Sketch
-    from sketch_animate.Shapes.Floor import Floor
-    from sketch_animate.Shapes.BVH import BVH
-    from sketch_animate.camera import Camera
-    from sketch_animate.util import bodypart_groups
+    scene_manager = get_scene_manager(scene_cfg)
 
     # first add any background scene elements (depth test is disabled)
     if scene_cfg['DRAW_FLOOR']:
+        from sketch_animate.Shapes.Floor import Floor
         scene_manager.add(Floor())
 
-    # Create the ARAP_Sketch object (or unpickle if already exists), and add to scene
-    ARAP_pickle_loc = os.path.join(Path(sketch_cfg['image_loc']).parent, 'ARAP_Sketch.pickle')
-    if os.path.exists(ARAP_pickle_loc):
-        print(f'pickled arap_sketch exists. Using it: {ARAP_pickle_loc}')
-        arap_sketch = ARAP_Sketch.load_from_pickle(ARAP_pickle_loc)
-    else:
-        print(f'pickled arap_sketch DNE. Creating it: {ARAP_pickle_loc}')
-        arap_sketch = ARAP_Sketch(sketch_cfg, scene_cfg)
+    # TODO: Hook to add background image to animation
+    if 'DRAW_BACKGROUND' in scene_cfg.keys():
+        pass
 
+    # Add the character to the scene
+    logging.info('Creating arap_sketch')
+    from sketch_animate.Shapes.ARAP_Sketch import ARAP_Sketch
+    arap_sketch = ARAP_Sketch(sketch_cfg, scene_cfg)
     scene_manager.add_sketch(arap_sketch)
 
+    # if it's an interactive scene, we calculate the character's bone angles given the bvh
+    # and the bvh cameras.
+    # TODO: Remove this functionality.
     if scene_cfg['RENDER_MODE'] == 'INTERACT':
+        from sketch_animate.Shapes.BVH import BVH
         bvh = BVH(scene_cfg)
         scene_manager.add_bvh(bvh)
         scene_manager.create_root_motion_transferrer()
@@ -69,6 +77,9 @@ def main(scene_cfg, sketch_cfg):
         scene_manager.create_timemanager_render()
 
     # add all cameras
+    # TODO: Consider removing this. We only need a single camera, the 'free' camera
+    from sketch_animate.camera import Camera
+    from sketch_animate.util import bodypart_groups
     for cam_cfg in scene_cfg['Cameras']:
         if cam_cfg['type'] == 'ignore':
             continue
@@ -84,7 +95,8 @@ def main(scene_cfg, sketch_cfg):
             scene_manager.add_sketch_camera(cam)
         elif cam_cfg['type'] == 'bvh':
             if scene_cfg['RENDER_MODE'] == 'INTERACT':
-                scene_manager.add_bvh_camera(cam, bodypart_groups[cam_cfg['retarget_bodypart_group']])
+                scene_manager.add_bvh_camera(
+                    cam, bodypart_groups[cam_cfg['retarget_bodypart_group']])
         else:
             assert False, 'Unsupported camera type. cam name: {} - cam type: {}'.format(cam_cfg['name'],
                                                                                         cam_cfg['type'])
@@ -95,13 +107,9 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
-    if not os.path.exists(sys.argv[1]):
-        assert False, 'Cannot find motion_config: {}'.format(sys.argv[1])
-    scene_cfg = build_scene_cfg()
+    scene_cfg = get_scene_cfg()
 
-    if not os.path.exists(sys.argv[2]):
-        assert False, 'Cannot find sketch_config: {}'.format(sys.argv[2])
-    sketch_cfg = build_sketch_cfg()
+    sketch_cfg = get_sketch_cfg()
 
     if not os.path.exists(sys.argv[3]):
         assert False, 'Output directory does not exist: {}'.format(sys.argv[3])
