@@ -14,6 +14,9 @@ class InteractiveController(Controller):
         glfw.set_key_callback(self.view.win, self._on_key)
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
         glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
+    
+    def attach_view(self, view: InteractiveView):
+        self.view = view
 
     def attach_view(self, view: InteractiveView):
         self.view = view
