@@ -7,8 +7,8 @@ from model.transform import Transform
 
 import pyrr  # # TODO remove this
 
-from sketch_animate.Shaders.Shader import Shader  # TODO Move shader code in View
-import numpy as np  # this should probably go into view
+from view.shaders.shader import Shader
+import numpy as np
 
 
 class InteractiveView(View):
@@ -32,16 +32,16 @@ class InteractiveView(View):
 
     def _prep_shaders(self):
 
-        BVH_VERT = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/bvh.vert"
-        BVH_FRAG = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/bvh.frag"
+        BVH_VERT = "view/shaders/bvh.vert"
+        BVH_FRAG = "view/shaders/bvh.frag"
         self._initiatize_shader('bvh_shader', BVH_VERT, BVH_FRAG)
 
-        COLOR_VERT = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/color.vert"
-        COLOR_FRAG = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/color.frag"
+        COLOR_VERT = "view/shaders/color.vert"
+        COLOR_FRAG = "view/shaders/color.frag"
         self._initiatize_shader('color_shader', COLOR_VERT, COLOR_FRAG)
 
-        TEXTURE_VERT = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/texture.vert"
-        TEXTURE_FRAG = "/Users/hjessmith/Projects/AnimatedDrawings/animate/sketch_animate/Shaders/texture.frag"
+        TEXTURE_VERT = "view/shaders/texture.vert"
+        TEXTURE_FRAG = "view/shaders/texture.frag"
         self._initiatize_shader('texture_shader', TEXTURE_VERT, TEXTURE_FRAG, texture=True)
 
     def update_shaders_view_transform(self, camera: Camera):
