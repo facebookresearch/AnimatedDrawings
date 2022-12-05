@@ -1,8 +1,7 @@
 import glfw
 from animator.controller.controller import Controller
 from animator.model.scene import Scene
-from animator.view.view import InteractiveView
-import logging
+from animator.view.interactive_view import InteractiveView
 
 
 class InteractiveController(Controller):
@@ -16,6 +15,9 @@ class InteractiveController(Controller):
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
         glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
+    def attach_view(self, view: InteractiveView):
+        self.view = view
+
     def _is_run_over(self):
         return glfw.window_should_close(self.view.win)
 
@@ -26,16 +28,9 @@ class InteractiveController(Controller):
         glfw.poll_events()
 
     def _render(self):
-        if self.view is None:
-            logging.critical('Attempted to render but controller\'s view not set.')
-            assert False
-
-        # update shaders with camera's transform
-        self.scene.update_shaders_view_transform(self.view.camera)
-        self.view.render()
+        self.view.render(self.scene)
 
     def _on_key(self, _win, key: int, _scancode, action, _mods):
-
         if not (action == glfw.PRESS or action == glfw.REPEAT):
             return
 
