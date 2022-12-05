@@ -21,18 +21,13 @@ class Controller():
         self.scene.tick()
 
     @abstractmethod
-    def _render(self):
-        """Subclass and add logic needed to have viewer render the scene"""
-        pass
-
-    @abstractmethod
     def _is_run_over(self):
         """Subclass and add logic is necessary to end the scene"""
         pass
 
     @abstractmethod
-    def _prep_next_run_loop(self):
-        """Subclass and add steps necessary before starting next iteration of run loop"""
+    def _start_run_loop(self):
+        """Subclass and add code to start run loop iteration"""
         pass
 
     @abstractmethod
@@ -41,16 +36,21 @@ class Controller():
         pass
 
     @abstractmethod
-    def _start_of_run_loop(self):
-        """Subclass and add code to start run loop iteration"""
+    def _render(self):
+        """Subclass and add logic needed to have viewer render the scene"""
+        pass
+
+    @abstractmethod
+    def _finish_run_loop(self):
+        """Subclass and add steps necessary before starting next iteration of run loop"""
         pass
 
     def run(self):
         self.scene.initialize_time()
 
         while not self._is_run_over():
-            self._start_of_run_loop()
+            self._start_run_loop()
             self._handle_user_input()
             self._tick()
             self._render()
-            self._prep_next_run_loop()
+            self._finish_run_loop()
