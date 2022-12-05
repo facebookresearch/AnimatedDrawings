@@ -90,13 +90,14 @@ class InteractiveView(View):
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +     # type: ignore
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())        # type: ignore
 
-        GL.glClearColor(*self.cfg['CLEAR_COLOR'])
         GL.glEnable(GL.GL_CULL_FACE)
-        if self.cfg['USE_DEPTH_TEST']:
-            GL.glEnable(GL.GL_DEPTH_TEST)
-
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+        # GL parameters specified by the cfg go here 
+        GL.glClearColor(*self.cfg['CLEAR_COLOR'])
+        if self.cfg['USE_DEPTH_TEST']:
+            GL.glEnable(GL.GL_DEPTH_TEST)
 
         return win
 
