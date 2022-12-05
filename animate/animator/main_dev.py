@@ -1,6 +1,7 @@
 from animator.model.scene import Scene
+from animator.model.camera import Camera
 from animator.controller.interactive_controller import InteractiveController
-from animator.view.view import InteractiveView, Camera
+from animator.view.interactive_view import InteractiveView
 from model.vector import Vector
 from model.box import Box
 import logging

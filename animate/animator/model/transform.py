@@ -29,3 +29,13 @@ class Transform():
     def add_child(self, child):
         """Child must be another transform or subclass thereof"""
         self.children.append(child)
+
+    def draw(self, recurse=True, **kwargs):
+        self._draw(**kwargs)
+        if not recurse:
+            return
+        [child.draw(recurse=recurse, **kwargs) for child in self.children]
+
+    def _draw(self, **kwargs):
+        """Transforms default to not being drawn. Subclasses must implement how they appear"""
+        pass

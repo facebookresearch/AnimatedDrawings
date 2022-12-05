@@ -90,13 +90,13 @@ class Box(Transform):
         GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.ebo)
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.indices, GL.GL_STATIC_DRAW)
 
-        # position attributes
         vert_bytes     = 4 * self.points.shape[1]  # 4 is byte size of np.float32
 
         pos_offset     = 4 * 0
         color_offset   = 4 * 3
         normals_offset = 4 * 6
 
+        # position attributes
         GL.glVertexAttribPointer(0, 3, GL.GL_FLOAT, False, vert_bytes, ctypes.c_void_p(pos_offset))
         GL.glEnableVertexAttribArray(0)
 
@@ -116,7 +116,7 @@ class Box(Transform):
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.points, GL.GL_STATIC_DRAW)
 
-    def draw(self, **kwargs):
+    def _draw(self, **kwargs):
 
         GL.glUseProgram(kwargs['shader_ids'][self.shader_name])
         model_loc = GL.glGetUniformLocation(kwargs['shader_ids'][self.shader_name], "model")
