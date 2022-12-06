@@ -19,7 +19,6 @@ class InteractiveView(View):
         self.camera: Camera = camera
         self.win: glfw._GLFWwindow = self._create_window(500, 500)
 
-        # this should probably go into view
         self.shaders = {}
         self.shader_ids = {}
         self._prep_shaders()
@@ -87,7 +86,6 @@ class InteractiveView(View):
                 self.shader_ids[key], "viewPos")
             GL.glUniform3fv(viewPos_loc, 1, view_transform[-1:, :-1])
 
-    # this should probably go into view
     def _set_shader_projections(self, proj_m: np.ndarray):
         # TODO use self.shaders instead of self.shader_ids
         for shader in self.shader_ids.values():
@@ -95,7 +93,6 @@ class InteractiveView(View):
             proj_loc = GL.glGetUniformLocation(shader, "proj")
             GL.glUniformMatrix4fv(proj_loc, 1, GL.GL_FALSE, proj_m.T)
 
-    # this should probably go into view
     def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs):
         self.shaders[shader_name] = Shader(vert_path, frag_path)
         self.shader_ids[shader_name] = self.shaders[shader_name].glid
