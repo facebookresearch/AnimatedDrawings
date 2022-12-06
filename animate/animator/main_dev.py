@@ -14,29 +14,24 @@ def get_cfg():
         user_cfg = {}
         return {**base_cfg, **user_cfg}  # scene_cfg is base overwitten by user
 
+if __name__ == '__main__':
+    logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
-cfg = get_cfg()
-logging.basicConfig(filename='log.txt', level=logging.DEBUG)
+    cfg = get_cfg()
 
-if True:  # for interactive
-    # TODO: Fix this once we move the shader code into view
-    import glfw
-    glfw.init()
-    view_camera = Camera(pos=Vector(0.0, 0.0, -10))
-    view = InteractiveView(cfg, view_camera)
+    scene = Scene(cfg)
 
-scene = Scene(cfg)
-view.set_scene(scene)
+    if True:  # code specific to running in 'interactive' mode
+        import glfw
+        glfw.init()
+        
+        view_camera = Camera(pos=Vector(0.0, 0.0, -10))
+        scene.add_child(view_camera)
+        view = InteractiveView(cfg, view_camera)
 
-if True:  # for interactive
-    # move glfw.init() here after shader code moved:w
-
-    scene.add_child(view_camera)
-
-    controller = InteractiveController(cfg, scene, view)
-
-# Anything that calls OpenGL code needs to go down here:
-
-box = Box()
-scene.add_child(box)
-controller.run()
+        controller = InteractiveController(cfg, scene, view)
+                
+    box = Box()
+    scene.add_child(box)
+    
+    controller.run()
