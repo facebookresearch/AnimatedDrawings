@@ -123,7 +123,7 @@ class InteractiveView(View):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        # GL parameters specified by the cfg go here 
+        # GL parameters specified by the cfg go here
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
         if self.cfg['USE_DEPTH_TEST']:
             GL.glEnable(GL.GL_DEPTH_TEST)

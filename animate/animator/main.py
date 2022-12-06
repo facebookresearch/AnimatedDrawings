@@ -98,8 +98,11 @@ def main(scene_cfg, sketch_cfg):
                 scene_manager.add_bvh_camera(
                     cam, bodypart_groups[cam_cfg['retarget_bodypart_group']])
         else:
-            assert False, 'Unsupported camera type. cam name: {} - cam type: {}'.format(cam_cfg['name'],
-                                                                                        cam_cfg['type'])
+            logging.critical(
+                'Unsupported camera type. cam name: {} - cam type: {}'.format(cam_cfg['name'],
+                                                                              cam_cfg['type'])
+            )
+            assert False
     scene_manager.run()
 
 
@@ -112,7 +115,9 @@ if __name__ == '__main__':
     sketch_cfg = get_sketch_cfg()
 
     if not os.path.exists(sys.argv[3]):
-        assert False, 'Output directory does not exist: {}'.format(sys.argv[3])
+        logging.critical(
+            'Output directory does not exist: {}'.format(sys.argv[3]))
+        assert False
     scene_cfg['OUTPUT_PATH'] = sys.argv[3]
 
     main(scene_cfg, sketch_cfg)
