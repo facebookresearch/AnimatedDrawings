@@ -1,13 +1,13 @@
 from animator.model.transform import Transform
-from model.vector import Vector
+from model.vectors import Vectors
 
 
 class Camera(Transform):
 
     def __init__(
         self,
-        pos: Vector = Vector(0.0, 0.0, 0.0),
-        fwd: Vector = Vector(0.0, 0.0, 1.0)
+        pos: Vectors = Vectors([0.0, 0.0, 0.0]),
+        fwd: Vectors = Vectors([0.0, 0.0, 1.0])
     ):
         super().__init__()
 
