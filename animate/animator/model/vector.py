@@ -36,10 +36,3 @@ class Vector():
 
     def __str__(self):
         return str(self.data)
-
-
-if __name__ == "__main__":
-    v1 = Vector(1, 2, 3)
-    v2 = v1.copy()
-    v2.data[0] = 10
-    v3 = v1.cross(v2)
