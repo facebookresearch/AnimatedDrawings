@@ -2,9 +2,8 @@ import os
 import OpenGL.GL as GL
 
 
-# ------------ low level OpenGL object wrappers ----------------------------
 class Shader:
-    """ Helper class to create and automatically destroy shader program """
+    """Class to create shader programs"""
 
     @staticmethod
     def _compile_shader(src, shader_type):
@@ -24,12 +23,12 @@ class Shader:
         return shader
 
     def __init__(self, vertex_source, fragment_source):
-        """ Shader can be initialized with raw strings or source file names """
+        """Takes raw shader code or path to shader code"""
         self.glid = None
         vert = self._compile_shader(vertex_source, GL.GL_VERTEX_SHADER)
         frag = self._compile_shader(fragment_source, GL.GL_FRAGMENT_SHADER)
         if vert and frag:
-            self.glid = GL.glCreateProgram()  # pylint: disable=E1111
+            self.glid = GL.glCreateProgram()
             GL.glAttachShader(self.glid, vert)
             GL.glAttachShader(self.glid, frag)
             GL.glLinkProgram(self.glid)
@@ -40,6 +39,3 @@ class Shader:
                 print(GL.glGetProgramInfoLog(self.glid).decode('ascii'))
                 GL.glDeleteProgram(self.glid)
                 self.glid = None
-
-    def __del__(self):
-        pass
