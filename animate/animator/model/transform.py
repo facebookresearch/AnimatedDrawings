@@ -14,8 +14,6 @@ class Transform():
 
     def look_at(self, fwd: Vector):
         """Given a forward vector, rotate the transform to face that position without affect scale or translation"""
-        # Follow this: https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function
-        # but use column major not row major
         fwd_n: Vector = fwd.copy()
         fwd_n.norm()
         tmp: Vector = Vector(0, 1, 0)
