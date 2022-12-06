@@ -12,7 +12,7 @@ class Quaternions:
     Inspired by Daniel Holden's excellent Quaternions class.
     """
 
-    def __init__(self, qs: Union[np.ndarray, Quaternions]):
+    def __init__(self, qs: Union[tuple, list, np.ndarray, Quaternions]):
         if isinstance(qs, np.ndarray):
             if not qs.shape[-1] == 4:
                 msg = f'Final dimension passed to Quaternions must be 4. Found {qs.shape[-1]}'
@@ -21,6 +21,17 @@ class Quaternions:
 
             if len(qs.shape) == 1:
                 qs = np.expand_dims(qs, axis=0)
+            self.qs = qs
+
+        elif isinstance(qs, tuple) or isinstance(qs, list):
+            try:
+                qs = np.array(qs)
+                assert qs.shape[-1] == 4
+            except Exception:
+                msg = 'Could not convert quaternion data to ndarray with shape[-1] == 4'
+                logging.critical(msg)
+                assert False, msg
+
             self.qs = qs
 
         elif isinstance(qs, Quaternions):
