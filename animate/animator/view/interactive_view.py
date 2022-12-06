@@ -4,8 +4,8 @@ import glfw
 import OpenGL.GL as GL
 from model.scene import Scene
 from model.transform import Transform
+import logging
 
-import pyrr  # # TODO remove this
 
 from view.shaders.shader import Shader
 import numpy as np
@@ -26,9 +26,41 @@ class InteractiveView(View):
 
         self._set_shader_projections(self._get_projection_matrix())
 
-    def _get_projection_matrix(self):
+    def _get_projection_matrix(self, type_='perspective'):
         w_h: tuple[int, int] = glfw.get_framebuffer_size(self.win)
-        return pyrr.matrix44.create_perspective_projection(35.0, w_h[0] / w_h[1], 0.1, 100.0).T  # TODO remove
+
+        if type_ == 'perspective':
+
+            fov = 35.0
+            near = 0.1
+            aspect = w_h[0] / w_h[1]
+            top = near * np.tan(fov * np.pi / 360)
+            right = top * aspect
+            far = 100.0
+            bottom = -top
+            left = -right
+
+            M_0_0 =       (2 * near) / (right - left)  # noqa: E222
+            M_0_2 =   (left + right) / (left - right)  # noqa: E222
+            M_1_1 =       (2 * near) / (top - bottom)  # noqa: E222
+            M_1_2 =   (bottom + top) / (bottom-top)    # noqa: E222
+            M_2_2 =     (far + near) / (near - far)    # noqa: E222
+            M_2_3 = (2 * far * near) / (near - far)
+            M_3_2 = -1
+
+            M: np.ndarray = np.zeros([4, 4])
+            M[0, 0] = M_0_0
+            M[0, 2] = M_0_2
+            M[1, 1] = M_1_1
+            M[1, 2] = M_1_2
+            M[2, 2] = M_2_2
+            M[2, 3] = M_2_3
+            M[3, 2] = M_3_2
+            return M
+
+        else:
+            logging.critical(f'unsupported camera type specified: {type_}')
+            assert False
 
     def _prep_shaders(self):
 
