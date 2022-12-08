@@ -5,6 +5,7 @@ from typing import Union
 from model.vectors import Vectors
 import math
 from utils import tolerance
+from functools import reduce
 
 
 class Quaternions:
@@ -90,7 +91,10 @@ class Quaternions:
     @classmethod
     def from_angle_axis(cls, angles: np.ndarray, axes: Vectors) -> Quaternions:
         axes.norm()
-        angles = np.expand_dims(angles, axis=0)
+
+        if len(angles.shape) == 1:
+            angles = np.expand_dims(angles, axis=0)
+
         ss = np.sin(angles / 2.0)
         cs = np.cos(angles / 2.0)
         return Quaternions(np.concatenate([cs, axes.vs * ss], axis=-1))
@@ -106,9 +110,15 @@ class Quaternions:
         :param order: string comprised of x, y, and/or z
         :param angles: angles in degrees
         """
-        assert len(order) == angles.shape[-1], 'length of orders and angles doesn\'t match'
+        if len(angles.shape) == 1:
+            angles = np.expand_dims(angles, axis=0)
 
-        ret_q = Quaternions.identity(angles.shape[:-1])
+        if len(order) != angles.shape[-1]:
+            msg = 'lengh of orders and angles does not match'
+            logging.critical(msg)
+            assert False, msg
+
+        _quats = [Quaternions.identity(angles.shape[:-1])]
         for axis_char, pos in zip(order, range(len(order))):
 
             angle = angles[..., pos] * np.pi / 180
@@ -123,8 +133,9 @@ class Quaternions:
             axis = np.zeros([*angles.shape[:-1], 3])
             axis[...,ord(axis_char) - ord('x')] = 1.0
 
-            ret_q *= Quaternions.from_angle_axis(angle, Vectors(axis))
+            _quats.insert(0, Quaternions.from_angle_axis(angle, Vectors(axis)))
 
+        ret_q = reduce(lambda a, b: b * a, _quats)
         return ret_q
 
     @classmethod
