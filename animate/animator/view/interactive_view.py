@@ -35,7 +35,7 @@ class InteractiveView(View):
             aspect = w_h[0] / w_h[1]
             top = near * np.tan(fov * np.pi / 360)
             right = top * aspect
-            far = 100.0
+            far = 10000.0
             bottom = -top
             left = -right
 
@@ -76,7 +76,7 @@ class InteractiveView(View):
         self._initiatize_shader('texture_shader', TEXTURE_VERT, TEXTURE_FRAG, texture=True)
 
     def update_shaders_view_transform(self, camera: Camera):
-        view_transform: np.ndarray = camera.transform
+        view_transform: np.ndarray = camera.world_transform
         # TODO use self.shaders instead of self.shader_ids
         for key in self.shader_ids:
             GL.glUseProgram(self.shader_ids[key])
