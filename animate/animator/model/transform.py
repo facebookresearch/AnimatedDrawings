@@ -104,7 +104,7 @@ class Transform():
     def set_rotate(self, q: Quaternions) -> None:
         if q.qs.shape != (1, 4):
             msg = f'set_rotate q must have dimension (1, 4). Found: {q.qs.shape}'
-            logging.critical.msg
+            logging.critical(msg)
             assert False, msg
 
         self.rotate_m = q.to_rotation_matrix()

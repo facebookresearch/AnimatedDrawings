@@ -11,7 +11,7 @@ import logging
 
 class Joint(Transform):
     """
-    Helper class used by BVH to store kinematic chain 
+    Helper class used by BVH to store kinematic chain
     """
     def __init__(self,
                  joint_name: str,
@@ -39,7 +39,7 @@ class Joint(Transform):
 
 class BVH(Transform):
     """
-    Class to encapsulate BVH animation data. Include a single skeletal hierarchy defined in the BVH, frame count and speed, 
+    Class to encapsulate BVH animation data. Include a single skeletal hierarchy defined in the BVH, frame count and speed,
     and skeletal position/rotation data for each frame
     """
 
@@ -65,6 +65,8 @@ class BVH(Transform):
 
         self.root_joint = root_joint
         self.add_child(root_joint)
+
+        self.set_position(-self.pos_data[0])  # position skeleton at origin for first frame
 
         self.cur_frame = 0
 
@@ -136,7 +138,7 @@ class BVH(Transform):
         ptr += 1
 
         for c in joint.children:
-            if not type(c) == Joint:
+            if not isinstance(c, Joint):
                 continue
             self._apply_frame(c, frame_num, ptr)
 
@@ -149,7 +151,7 @@ class BVH(Transform):
         """
 
         # Get the joint name
-        if lines[0].strip().startswith('ROOT'):  
+        if lines[0].strip().startswith('ROOT'):
             _, joint_name = lines.pop(0).strip().split(' ')
         elif lines[0].strip().startswith('JOINT'):
             _, joint_name = lines.pop(0).strip().split(' ')
@@ -199,7 +201,10 @@ class BVH(Transform):
         # split root pose data and joint euler angle data
         pos_data, ea_rots = np.split(np.array(frames, dtype=np.float32), [3], axis=1)
 
-        # quaternion rot data will go here 
+        # modify pos_data so the character root is positioned at origin for the first frame
+        pos_data -= pos_data[0]
+
+        # quaternion rot data will go here
         rot_data = np.empty([len(frames), BVH.joint_count(skeleton), 4], dtype=np.float32)
         BVH._pose_euler_angles_to_quaternions(skeleton, ea_rots, rot_data)
 
