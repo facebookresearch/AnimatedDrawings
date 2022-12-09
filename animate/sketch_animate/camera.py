@@ -1,6 +1,6 @@
 import pyrr
-from util import *
-from Shapes.Box import Box
+from sketch_animate.util import *
+from sketch_animate.Shapes.Box import Box
 import numpy as np
 
 # A list containing the type of objects that are visible in each camera type

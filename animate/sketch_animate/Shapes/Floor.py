@@ -1,5 +1,5 @@
-from Shapes.Shapes import Rectangle
-from util import rotate, translate
+from sketch_animate.Shapes.Shapes import Rectangle
+from sketch_animate.util import rotate, translate
 
 
 class Floor:

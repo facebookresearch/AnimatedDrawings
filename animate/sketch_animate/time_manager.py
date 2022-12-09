@@ -1,5 +1,5 @@
 import time
-from Shapes.BVH import BVH
+from sketch_animate.Shapes.BVH import BVH
 
 
 class TimeManager:

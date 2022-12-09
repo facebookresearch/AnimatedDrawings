@@ -1,12 +1,12 @@
-from SceneManager.base_manager import BaseManager
+from sketch_animate.SceneManager.base_manager import BaseManager
 import glfw
 import OpenGL.GL as GL
-from util import *
-from Shapes.BVH import BVH
-from transferrer import JointAngleTransferrer_Interact, RootMotionTransferrer
-from camera import Camera
+from sketch_animate.util import *
+from sketch_animate.Shapes.BVH import BVH
+from sketch_animate.transferrer import JointAngleTransferrer_Interact, RootMotionTransferrer
+from sketch_animate.camera import Camera
 from typing import List, Optional
-from time_manager import TimeManager_Interact
+from sketch_animate.time_manager import TimeManager_Interact
 
 class InteractiveManager(BaseManager):
 
@@ -326,7 +326,7 @@ class InteractiveManager(BaseManager):
         return ret
 
     def _initialize_borders(self):
-        from Shapes.Shapes import Border as Border
+        from sketch_animate.Shapes.Shapes import Border as Border
         self.borders = []
         self.borders.append(Border())
 

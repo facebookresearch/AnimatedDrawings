@@ -1,6 +1,6 @@
 import numpy as np
-from util import get_show_multi_cameras
-from camera import Camera
+from sketch_animate.util import get_show_multi_cameras
+from sketch_animate.camera import Camera
 
 from typing import Optional
 

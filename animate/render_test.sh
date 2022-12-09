@@ -5,5 +5,5 @@ CHARACTER_CONFIG=/home/headless_render/code/Data/Texture/nick_cat.yaml
 
 OUTPUT_PATH=/home/headless_render/code
 
-cd sketch_animate
+cd animator
 python main.py ${MOTION_CONFIG} ${CHARACTER_CONFIG} ${OUTPUT_PATH}

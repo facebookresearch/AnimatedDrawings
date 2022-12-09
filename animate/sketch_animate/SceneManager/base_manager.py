@@ -1,10 +1,10 @@
 import OpenGL.GL as GL
 import pyrr
-from Shaders.Shader import Shader
-from util import *
-from camera import Camera
-from Shapes.ARAP_Sketch import ARAP_Sketch
-from camera_manager import CameraManager
+from sketch_animate.Shaders.Shader import Shader
+from sketch_animate.util import *
+from sketch_animate.camera import Camera
+from sketch_animate.Shapes.ARAP_Sketch import ARAP_Sketch
+from sketch_animate.camera_manager import CameraManager
 import freetype as ft
 from typing import List
 import os
