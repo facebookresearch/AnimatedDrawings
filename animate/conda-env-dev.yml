@@ -2,12 +2,14 @@ name: sketch_animate
 channels:
   - defaults
 dependencies:
+  - attrs=22.1.0=py38hca03da5_0
   - autopep8=1.6.0=pyhd3eb1b0_1
   - blas=1.0=openblas
   - ca-certificates=2022.10.11=hca03da5_0
   - certifi=2022.9.24=py38hca03da5_0
   - flake8=4.0.1=pyhd3eb1b0_1
   - importlib-metadata=4.11.3=py38hca03da5_0
+  - iniconfig=1.1.1=pyhd3eb1b0_0
   - libcxx=14.0.6=h848a8c0_0
   - libffi=3.4.2=hc377ac9_4
   - libgfortran=5.0.0=11_3_0_hca03da5_28
@@ -19,15 +21,20 @@ dependencies:
   - numpy=1.23.3=py38h42add53_0
   - numpy-base=1.23.3=py38hadd41eb_0
   - openssl=1.1.1s=h1a28f6b_0
+  - packaging=21.3=pyhd3eb1b0_0
   - pip=22.2.2=py38hca03da5_0
+  - pluggy=1.0.0=py38hca03da5_1
+  - py=1.11.0=pyhd3eb1b0_0
   - pycodestyle=2.8.0=pyhd3eb1b0_0
   - pyflakes=2.4.0=pyhd3eb1b0_0
+  - pytest=7.1.2=py38hca03da5_0
   - python=3.8.13=hbdb9e5c_0
   - readline=8.1.2=h1a28f6b_1
   - setuptools=63.4.1=py38hca03da5_0
   - sqlite=3.39.3=h1058600_0
   - tk=8.6.12=hb8d0fd4_0
   - toml=0.10.2=pyhd3eb1b0_0
+  - tomli=2.0.1=py38hca03da5_0
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.6=h1a28f6b_0
   - zipp=3.8.0=py38hca03da5_0
@@ -41,7 +48,6 @@ dependencies:
     - multipledispatch==0.6.0
     - networkx==2.8.7
     - opencv-python==4.6.0.66
-    - packaging==21.3
     - pillow==9.2.0
     - pyopengl==3.1.6
     - pyopengl-accelerate==3.1.5
