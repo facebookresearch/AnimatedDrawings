@@ -120,7 +120,7 @@ class Box(Transform):
 
         GL.glUseProgram(kwargs['shader_ids'][self.shader_name])
         model_loc = GL.glGetUniformLocation(kwargs['shader_ids'][self.shader_name], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.transform.T)
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
 
         GL.glBindVertexArray(self.vao)
         # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
