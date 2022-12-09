@@ -2,6 +2,7 @@
 CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
 USE_DEPTH_TEST: False  # Use OpenGL Depth Test. False since characters are 2D and we specify how to render their part layers in code
 
+WINDOW_DIMENSIONS: [500, 500]  # The [width, height] dimensions of the window or images to be rendered
 # Eventually this will contain all of the config options needed to creat various animations.
 # For now, I'm uncommenting them one-by-one as I add in the functionality they handle
 
