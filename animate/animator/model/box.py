@@ -75,7 +75,16 @@ class Box(Transform):
             'shininess': 32
         }
 
-        self.shader_name = shader_name
+        self.shader_name: str = shader_name
+        
+        self._is_opengl_initialized: bool = False  # keep track of whether self._initialize_opengl_resources was called.
+    
+    def _initialize_opengl_resources(self):
+        """ Method to initialize the OpenGL arrays and buffers necessary to draw the object.
+        It's better to not initialize these things unless we're definitely going to be drawing the object,
+        as calling GL functions without calling glfw.init() first can cause a mysterious segfault. 
+        This way, unit tests and other non-rendering operations can proceed without requiring a Controller.
+        """
         self.vao = GL.glGenVertexArrays(1)
         self.vbo = GL.glGenBuffers(1)
         self.ebo = GL.glGenBuffers(1)
@@ -111,12 +120,17 @@ class Box(Transform):
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindVertexArray(0)
 
+        self._is_opengl_initialized = True
+
     def rebuffer_vertex_data(self):
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.points, GL.GL_STATIC_DRAW)
 
     def _draw(self, **kwargs):
+        
+        if not self._is_opengl_initialized:
+            self._initialize_opengl_resources()
 
         GL.glUseProgram(kwargs['shader_ids'][self.shader_name])
         model_loc = GL.glGetUniformLocation(kwargs['shader_ids'][self.shader_name], "model")
