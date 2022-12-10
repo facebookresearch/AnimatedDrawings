@@ -57,6 +57,7 @@ def test_to_euler_angles():
     # TODO add test coverage for from_euler_angles
     pass
 
+
 def test_multiply():
     # TODO add test coverage for quaternion multiplication
     pass

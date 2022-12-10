@@ -1,6 +1,5 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
-from numbers import Number
 import logging
 from typing import Union
 from copy import copy
