@@ -12,7 +12,7 @@ def test_initialize_with_tuple_or_list1():
 
 def test_initialize2():
     try:
-        v = Vectors('f')
+        Vectors('f')  # type: ignore
     except AssertionError:
         return
     assert False
