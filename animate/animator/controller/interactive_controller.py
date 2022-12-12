@@ -41,11 +41,6 @@ class InteractiveController(Controller):
     def _start_run_loop_iteration(self):
         self.view.clear_window()
 
-        # TODO: Remove this before next check in.
-        if self.bvh:
-            self.bvh.cur_frame = (self.bvh.cur_frame + 1) % self.bvh.frame_num
-            self.bvh.apply_frame(self.bvh.cur_frame)
-
         self.scene.update_transforms()
 
     def _handle_user_input(self):
