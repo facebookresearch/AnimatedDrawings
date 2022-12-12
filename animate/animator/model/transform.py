@@ -69,7 +69,7 @@ class Transform():
         if isinstance(pos, Vectors):
             pos = pos.vs
         self.set_position(self.translate_m[:-1, -1] + pos)
-        
+       
     def look_at(self, fwd_: Union[np.ndarray, Vectors]) -> None:
         """Given a forward vector, rotate the transform to face that position"""
         if isinstance(fwd_, np.ndarray):
