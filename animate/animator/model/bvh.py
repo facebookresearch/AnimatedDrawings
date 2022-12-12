@@ -39,7 +39,7 @@ class Joint(Transform):
 
 class BVH(Transform):
     """
-    Class to encapsulate BVH animation data. Include a single skeletal hierarchy defined in the BVH, frame count and speed,
+    Class to encapsulate BVH (Biovision Hierarchy) animation data. Include a single skeletal hierarchy defined in the BVH, frame count and speed,
     and skeletal position/rotation data for each frame
     """
 
