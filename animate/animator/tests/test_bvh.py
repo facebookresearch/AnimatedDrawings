@@ -25,4 +25,3 @@ def test_bvh_from_file():
     assert b.rot_data.shape[1] == BVH.joint_count(b.root_joint)
     # and the rotation is a quaternion with dimensionality of 4
     assert b.rot_data.shape[-1] == 4
-
