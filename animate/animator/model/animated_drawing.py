@@ -8,11 +8,148 @@ from skimage import measure
 import ctypes
 from scipy.spatial import Delaunay
 from shapely import geometry
+from typing import Dict, List, Optional
 import OpenGL.GL as GL
 
 
+class Rig(Transform):
+    """ The skeletal rig used to deform the character """
+
+    def __init__(self, char_cfg: Dict[str, dict]):
+        """
+        Initializes character rig in four steps:
+        1 - Populate joint dictionary with joint transforms, using global image position of joint as initial local offset
+        2 - Computes and add the root joint
+        3 - Build skeletal hierarchy
+        4 - Updates joint positions to reflect local offsets from their parent joints
+        """
+        super().__init__()
+
+        # TODO: The following should be abstracted to a mapping, so we can eventually support other types of skeletons
+        # TODO: Put this into a try clause to protect against bad user input
+        # 1
+        self.joints: Dict[str, Transform] = {}
+        for joint_d in char_cfg['skeleton']:
+            joint_t = Transform(name=joint_d['name'])
+            x, y = joint_d['loc']
+            # 1 - y as textures are flipped
+            joint_t.offset(np.array([x, 1 - y, 0]))
+            self.joints[joint_d['name']] = joint_t
+
+        # 2
+        # TODO: values should be specified in config
+        averaged_root_joints = ['left_hip', 'right_hip']
+        r_xyz: np.ndarray = np.mean(
+            [self.joints[name].get_world_position() for name in averaged_root_joints], axis=0)
+        root_t = Transform(name='root')
+        root_t.offset(r_xyz)
+        self.joints['root'] = root_t
+
+        # 3
+        for joint_d in char_cfg['skeleton']:
+            if joint_d['parent'] is None:
+                continue
+            self.joints[joint_d['parent']].add_child(
+                self.joints[joint_d['name']])
+
+        # 4
+        def _update_positions(t: Transform):
+            if t.parent is not None:
+                offset = np.subtract(t.get_local_position(),
+                                     t.parent.get_world_position())
+                t.set_position(offset)
+            for c in t.children:
+                _update_positions(c)
+        _update_positions(self.joints['root'])
+
+        # (5) get vertices computed and ready for the gl buffer
+        self.vertices = np.zeros([2*(len(self.joints)-1), 6], np.float32)
+        self._update_vertices()
+
+        self._is_opengl_initialized: bool = False
+        self._is_vertex_buffer_current: bool = False
+
+    def _update_vertices(self, parent: Optional[Transform] = None, pointer: List[int] = [0]) -> None:
+        """ 
+        Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference
+        """
+        if parent is None:
+            parent = self.joints['root']
+
+        for c in parent.children:
+            p1 = c.get_world_position()
+            p2 = parent.get_world_position()
+
+            self.vertices[pointer[0], 0:3] = p1
+            self.vertices[pointer[0]+1, 0:3] = p2
+            pointer[0] += 2
+
+            self._update_vertices(c, pointer)
+
+    def _initialize_opengl_resources(self):
+        self.vao = GL.glGenVertexArrays(1)
+        self.vbo = GL.glGenBuffers(1)
+
+        GL.glBindVertexArray(self.vao)
+
+        # buffer vertex data
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, self.vertices, GL.GL_STATIC_DRAW)
+
+        vert_bytes = 4 * self.vertices.shape[1]  # 4 is byte size of np.float32
+
+        pos_offset = 4 * 0
+        color_offset = 4 * 3
+
+        # position attributes
+        GL.glVertexAttribPointer(
+            0, 3, GL.GL_FLOAT, False, vert_bytes, ctypes.c_void_p(pos_offset))
+        GL.glEnableVertexAttribArray(0)
+
+        # color attributes
+        GL.glVertexAttribPointer(
+            1, 3, GL.GL_FLOAT, False, vert_bytes, ctypes.c_void_p(color_offset))
+        GL.glEnableVertexAttribArray(1)
+
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+
+        self._is_opengl_initialized = True
+
+    def _rebuffer_vertex_data(self):
+        GL.glBindVertexArray(self.vao)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, self.vertices, GL.GL_STATIC_DRAW)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+
+        self._is_vertex_buffer_current = True
+
+    def _draw(self, **kwargs):
+        if not self._is_opengl_initialized:
+            self._initialize_opengl_resources()
+
+        if not self._is_vertex_buffer_current:
+            self._rebuffer_vertex_data()
+
+        GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+        model_loc = GL.glGetUniformLocation(
+            kwargs['shader_ids']['color_shader'], "model")
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
+                              self.world_transform.T)
+
+        GL.glBindVertexArray(self.vao)
+        # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
+        GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
+
+
 class AnimatedDrawing(Transform):
-    """ The drawn character to be animated. """
+    """ 
+    The drawn character to be animated. 
+    It consists of a mesh and a 'rig' of as-rigid-as-possible control handles used to deform it.
+    The character is 2D the mesh and rig both exist within the local XY plane at Z=0
+
+    """
 
     def __init__(self, char_cfg_fn: str):
         super().__init__()
@@ -29,17 +166,27 @@ class AnimatedDrawing(Transform):
         self.vertices: np.ndarray = self._generate_vertices()
         self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()
 
+        self.rig = Rig(self.char_cfg)
+        self.children.append(self.rig)
+
         self._is_opengl_initialized: bool = False
         self._is_vertex_buffer_current: bool = False
 
     def _load_cfg(self, cfg_fn: str) -> dict:
         try:
             with open(cfg_fn, 'r') as f:
-                return yaml.load(f, Loader=yaml.FullLoader)
+                cfg = yaml.load(f, Loader=yaml.FullLoader)
         except Exception as e:
             msg = f'Error loading config {cfg_fn}: {str(e)}'
             logging.critical(msg)
             assert False, msg
+
+        # scale joint locations to 0-1. txtr and mask will be padded to max_dim square
+        max_dim = max(cfg['width'], cfg['height'])
+        for joint in cfg['skeleton']:
+            joint['loc'] = np.array(joint['loc']) / max_dim
+
+        return cfg
 
     def _load_mask(self, mask_fn: str) -> np.ndarray:
         """ Load and perform preprocessing upon the mask """
@@ -164,7 +311,7 @@ class AnimatedDrawing(Transform):
 
         return vertices
 
-    def _initialize_opengl(self) -> None:
+    def _initialize_opengl_resources(self) -> None:
 
         h, w, _ = self.txtr.shape
 
@@ -207,7 +354,7 @@ class AnimatedDrawing(Transform):
 
         self._is_opengl_initialized = True
 
-    def _buffer_vertex_data(self):
+    def _rebuffer_vertex_data(self):
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.vertices, GL.GL_STATIC_DRAW)
@@ -218,26 +365,30 @@ class AnimatedDrawing(Transform):
 
     def _draw(self, **kwargs):
         if not self._is_opengl_initialized:
-            self._initialize_opengl()
+            self._initialize_opengl_resources()
 
         if not self._is_vertex_buffer_current:
-            self._buffer_vertex_data()
+            self._rebuffer_vertex_data()
 
         GL.glBindVertexArray(self.vao)
-
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
 
+        # render texture
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
-
         GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
         model_loc = GL.glGetUniformLocation(
             kwargs['shader_ids']['texture_shader'], "model")
-
         GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
                               self.world_transform.T)
-
         GL.glDrawElements(
             GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+
+        # # render mesh lines
+        # GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+        # model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+        # GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+        # GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
         GL.glBindVertexArray(0)
