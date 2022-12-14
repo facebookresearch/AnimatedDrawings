@@ -30,7 +30,7 @@ if __name__ == '__main__':
         import glfw
         glfw.init()
 
-        view_camera = Camera(pos=Vectors([0.0, 0.0, -5.0]), fwd=Vectors([0.0, 0.0, 1.0]))
+        view_camera = Camera(pos=Vectors([-0.5, -0.5, -3.0]), fwd=Vectors([0.0, 0.0, 1.0]))
         scene.add_child(view_camera)
         view = InteractiveView(cfg, view_camera)
 
