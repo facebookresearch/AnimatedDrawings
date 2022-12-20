@@ -43,10 +43,13 @@ class ARAP():
 
         self.e_v_idxs: list = []  # build a deduplicated list of edge->vertex IDS
         for v0, v1, v2 in triangles:
-            self.e_v_idxs.append(tuple(sorted((v0, v1))))
-            self.e_v_idxs.append(tuple(sorted((v1, v2))))
-            self.e_v_idxs.append(tuple(sorted((v2, v0))))
-        self.e_v_idxs = list(set(self.e_v_idxs))
+            self.e_v_idxs.append((v0, v1))
+            self.e_v_idxs.append((v1, v2))
+            self.e_v_idxs.append((v2, v0))
+        #     self.e_v_idxs.append(tuple(sorted((v0, v1))))
+        #     self.e_v_idxs.append(tuple(sorted((v1, v2))))
+        #     self.e_v_idxs.append(tuple(sorted((v2, v0))))
+        # self.e_v_idxs = list(set(self.e_v_idxs))
 
         _edge_vectors: List = []  # build list of edge vectors
         for vi_idx, vj_idx in self.e_v_idxs:
@@ -55,6 +58,7 @@ class ARAP():
             _edge_vectors.append(vj - vi)
         self.edge_vectors: np.ndarray = np.array(_edge_vectors)
 
+        # TODO: Keep track of any pins that were skipped because outside mesh. Need to remove those pins during solve as well
         pins_bc: list = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)  # get barycentric coordinates of pins
 
         v_vnbr_idxs: Dict[int, Set[int]] = defaultdict(set)  # build a dict mapping vertex ID -> neighbor vertex IDs
@@ -72,6 +76,11 @@ class ARAP():
 
         for k, (vi_idx, vj_idx) in enumerate(self.e_v_idxs):
 
+            self.A1[2*k:2*(k+1), 2*vi_idx:2*(vi_idx+1)] = -np.identity(2)
+            self.A1[2*k:2*(k+1), 2*vj_idx:2*(vj_idx+1)] = np.identity(2)
+
+
+
             # Find the 'neighbor' vertices for this edge: {v_i, v_j,v_r, v_l}
             vi_vnbr_idxs: set = v_vnbr_idxs[vi_idx]
             vj_vnbr_idxs: set = v_vnbr_idxs[vj_idx]
@@ -82,9 +91,17 @@ class ARAP():
             e_vnbr_xys: list = [self.vertices[v_idx] for v_idx in e_vnbr_idxs]
 
             _: list = []
-            for v in e_vnbr_xys:
-                _.extend(((v[0], v[1]), (v[1], -v[0])))
+            for v in e_vnbr_xys[1:]:
+                vx = v[0] - e_vnbr_xys[0][0]
+                vy = v[1] - e_vnbr_xys[0][1]
+                _.extend(((vx, vy), (vy, -vx)))
+                #_.extend(((v[0], v[1]), (v[1], -v[0])))
             G_k: np.ndarray = np.array(_)
+
+            #G_k = np.zeros([2*len(e_vnbr_xys), 2])
+            #for g_idx, v_xy in enumerate(e_vnbr_xys):
+            #    G_k[2*g_idx, :] =   v_xy[0],  v_xy[1]
+            #    G_k[2*g_idx+1, :] = v_xy[1], -v_xy[0]
 
             G_star: np.ndarray = np.linalg.inv(G_k.T @ G_k) @ G_k.T
 
@@ -94,25 +111,51 @@ class ARAP():
                 [e_ky, -e_kx]
             ], np.float32)
 
-            edge_matrix: np.ndarray = np.array([
-                [-1, 0, 1, 0, 0, 0],
-                [0, -1, 0, 1, 0, 0],
-            ])
-            if len(e_vnbr_idxs) == 4:
-                edge_matrix = np.hstack([edge_matrix, np.zeros([2, 2])])
+            #edge_matrix: np.ndarray = np.array([
+            #    [-1, 0, 1, 0, 0, 0],
+            #    [0, -1, 0, 1, 0, 0],
+            #])
 
-            h = edge_matrix - e @ G_star
+            edge_matrix = np.hstack([np.tile(-np.identity(2), (len(e_vnbr_idxs)-1,1)), np.identity(2*(len(e_vnbr_idxs)-1))])
+            g = np.dot(G_star, edge_matrix)
+            h = np.dot(e, g)
+            #edge_matrix: np.ndarray = 
+            # np.vstack 
+            # np.array([
+            #     [-1, 0],
+            #     [0, -1],
+            # ])
+            #if len(e_vnbr_idxs) == 4:
+            #    edge_matrix = np.hstack([edge_matrix, np.zeros([2, 2])])
 
-            for h_offset, vertex_idx in enumerate(e_vnbr_idxs):
-                self.A1[2*k  , 2*vertex_idx  ] = h[0, 2*h_offset  ]
-                self.A1[2*k+1, 2*vertex_idx  ] = h[1, 2*h_offset  ]
-                self.A1[2*k  , 2*vertex_idx+1] = h[0, 2*h_offset+1]
-                self.A1[2*k+1, 2*vertex_idx+1] = h[1, 2*h_offset+1]
+            # g = np.dot(la.inv(np.dot(g.T, g)), g.T)  # G_star
+            # G_star = np.dot(G_star, edge_matrix)
+            # h = - np.dot(e, G_star)
 
-                self.G[2*k  , 2*vertex_idx  ] = G_star[0, 2 * h_offset  ]
-                self.G[2*k+1, 2*vertex_idx  ] = G_star[1, 2 * h_offset  ]
-                self.G[2*k  , 2*vertex_idx+1] = G_star[0, 2 * h_offset+1]
-                self.G[2*k+1, 2*vertex_idx+1] = G_star[1, 2 * h_offset+1]
+            #h = edge_matrix - e @ G_star
+            #vjprime_minus_viprime = np.zeros([2, 2*len(e_vnbr_xys)]) 
+            #vjprime_minus_viprime[0, 0] = -1
+            #vjprime_minus_viprime[1, 1] = -1
+            #vjprime_minus_viprime[0, 2] = 1
+            #vjprime_minus_viprime[1, 3] = 1
+
+            #hk = edge_matrix - e @ G_star
+            for h_offset, v_idx in enumerate(e_vnbr_idxs):
+                x = 2
+                self.A1[2*k:2*(k+1), 2*v_idx:2*(v_idx+1)] -= h[:, 2*h_offset:2*(h_offset+1)]
+
+                self.G[2*k:2*(k+1), 2*v_idx:2*(v_idx+1)] = g[:, 2*h_offset:2*(h_offset+1)]
+
+
+            ##self.A1[2*k:2*(k+1)] -= h
+            #for h_offset, v_idx in enumerate(e_vnbr_idxs):
+            #    self.A1[2*k:2*(k+1), 2*v_idx:2*(v_idx+1)] -= h[:, 2*h_offset:2*(h_offset+1)]
+
+            #for h_offset, v_idx in enumerate(e_vnbr_idxs):
+            #    self.A1[2*k:2*k+2, 2*v_idx:2*v_idx+2] = h[0:2, 2*h_offset:2*h_offset+2]
+
+            #    self.G[2*k:2*k+2, 2*v_idx:2*v_idx+2] = G_star[0:2, 2*h_offset:2*h_offset+2]
+
 
         # now do the constraints
         for pin_idx, pin_bc in enumerate(pins_bc):
@@ -148,9 +191,10 @@ class ARAP():
         """
         assert len(pins_xy) == self.pin_num
 
-        self.b1 = np.hstack([np.zeros([2 * self.edge_num]), pins_xy.reshape([-1, ])])
+        self.b1 = np.hstack([np.zeros([2 * self.edge_num]), self.w * pins_xy.reshape([-1, ])])
 
         v1 = np.linalg.solve(self.tA1xA1, self.tA1 @ self.b1)
+        #v1 = np.linalg.lstsq(self.tA1xA1, self.tA1 @ self.b1)[0]
 
         T1 = self.G @ v1
         b2_top = np.empty([self.edge_num, 2])
@@ -167,9 +211,11 @@ class ARAP():
 
         v2x = np.linalg.solve(self.tA2xA2, self.tA2 @ b2[:, 0])
         v2y = np.linalg.solve(self.tA2xA2, self.tA2 @ b2[:, 1])
+        #v2x = np.linalg.lstsq(self.tA2xA2, self.tA2 @ b2[:, 0])[0]
+        #v2y = np.linalg.lstsq(self.tA2xA2, self.tA2 @ b2[:, 1])[0]
         v2 = np.vstack((v2x, v2y)).T
 
-        return v2
+        return v1, v2
 
     def _xy_to_barycentric_coords(self, points: np.ndarray, vertices: np.ndarray, triangles: np.ndarray):
         """
@@ -214,7 +260,9 @@ class ARAP():
 
             # point is outside mesh. Log a warning and continue
             if not len(containing_t_idxs):
-                logging.warning(f'point {p_xy} not inside or on edge of any triangle in mesh. Skipping it')
+                msg = f'point {p_xy} not inside or on edge of any triangle in mesh. Skipping it'
+                print(msg)
+                logging.warning(msg)
                 continue
 
             # grab the id of first triangle the point is in or on
@@ -254,10 +302,10 @@ class ARAP():
 def plot_mesh(vertices, triangles, pins_xy):
     """ Helper function to visualize mesh deformation outputs """
     import matplotlib.pyplot as plt
-    x_points = []
-    y_points = []
 
     for tri in triangles:
+        x_points = []
+        y_points = []
         v0, v1, v2 = tri.tolist()
         x_points.append(vertices[v0][0])
         y_points.append(vertices[v0][1])
@@ -268,9 +316,9 @@ def plot_mesh(vertices, triangles, pins_xy):
         x_points.append(vertices[v0][0])
         y_points.append(vertices[v0][1])
 
-    plt.plot(x_points, y_points)
-    plt.ylim((-10, 10))
-    plt.xlim((-10, 10))
+        plt.plot(x_points, y_points)
+    plt.ylim((-15, 15))
+    plt.xlim((-15, 15))
 
     for pin in pins_xy:
         plt.plot(pin[0], pin[1], color='red', marker='o')
