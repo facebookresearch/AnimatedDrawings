@@ -1,9 +1,9 @@
 import numpy as np
 from model.arap import ARAP, plot_mesh
-from model.old_arap import old_ARAP
 
 
 def test_single_triangle_mesh():
+    show_plots = False  # Make true if you'd like to see mesh viz during test run
     vertices = np.array([
         [2.0, 2.0],
         [3.0, 3.0],
@@ -14,29 +14,25 @@ def test_single_triangle_mesh():
         [0, 1, 2]
     ], np.int32)
 
-    pins_xy = np.array([[2.2, 2.1], [3.6, 2.2]])
-    plot_mesh(vertices, triangles, pins_xy)
+    pins_xy = np.array([[2.0, 2.0], [4.0, 2.0]])
+    if show_plots:
+        plot_mesh(vertices, triangles, pins_xy)
     arap = ARAP(pins_xy, triangles=triangles, vertices=vertices)
-    old = old_ARAP(pins_xy, triangles=triangles, vertices=vertices)
 
-    pins_xy = np.array([[-5.0, 0.0], [6.0, 1.0]])
-    v1, v2 = arap.solve(pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, pins_xy)
-    plot_mesh(v2, triangles, pins_xy)
+    pins_xy = np.array([[-5.0, 0.0], [5.0, 0.0]])
+    v = arap.solve(pins_xy)
+    if show_plots:
+        plot_mesh(v, triangles, pins_xy)
 
-    pins_xy = np.array([[-5.0, 0.0], [6.0, 1.0]])
-    v1, v2 = old._arap_solve(pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, pins_xy)
-    plot_mesh(v2, triangles, pins_xy)
-
-    assert np.isclose(v2, np.array([
-        [0.00000000e+00, -2.99999100e-06],
-        [1.00000000e+00, -2.00000000e+00],
-        [6.93003543e-23, -3.99999700e+00]
-    ])).all()
+    assert np.isclose(v, np.array([
+        [-5.0, 0.0],
+        [0.0, 1.0],
+        [5.0, 0.0]
+        ])).all()
 
 
 def test_two_triangle_mesh():
+    show_plots = False  # Make true if you'd like to see mesh viz during test run
     vertices = np.array([
         [1.0, 0.0],
         [1.0, 1.0],
@@ -51,28 +47,24 @@ def test_two_triangle_mesh():
 
     pins_xy = np.array([[1.0, 0.0], [2.0, 0.0]])
     new = ARAP(pins_xy, triangles=triangles, vertices=vertices)
-    old = old_ARAP(pins_xy, triangles=triangles, vertices=vertices)
-    plot_mesh(vertices, triangles, pins_xy)
+    if show_plots:
+        plot_mesh(vertices, triangles, pins_xy)
 
     pins_xy = np.array([[1.0, 0.0], [1.7, 0.7]])
-    v1, v2 = new.solve(pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, pins_xy)
-    plot_mesh(v2, triangles, pins_xy)
+    v = new.solve(pins_xy)
+    if show_plots:
+        plot_mesh(v, triangles, pins_xy)
 
-
-    pins_xy = np.array([[1.0, 0.0], [1.7, 0.7]])
-    v1, v2 = old._arap_solve(pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, pins_xy)
-    plot_mesh(v2, triangles, pins_xy)
-
-    assert np.isclose(v2, np.array([
-        [3.00000000e+00, 0.000000000e+00],
-        [3.40000000+00, 1.000000000e+00],
-        [4.800000004e+00, 1.000000000e+00],
-        [5.99999657e+00, 0.00000000e-22]
+    assert np.isclose(v, np.array([
+        [9.99999989e-01, -1.13708135e-08],
+        [2.91471856e-01,  7.05685418e-01],
+        [9.97157285e-01,  1.41137085e+00],
+        [1.70000001e+00,  7.00000011e-01]
     ])).all()
 
+
 def test_four_triangle_mesh():
+    show_plots = False  # Make true if you'd like to see mesh viz during test run
     vertices = np.array([
         [0.0, 0.0],
         [0.0, 1.0],
@@ -98,23 +90,23 @@ def test_four_triangle_mesh():
     ], np.int32)
 
     pins_xy = np.array([[0.0, 0.0], [0.0, 2.0], [2.0, 0.0]])
-    new_pins_xy = np.array([[0.0, 0.0], [0.0, 2.0], [4.0, 0.0]])
-    plot_mesh(vertices, triangles, pins_xy)
+    if show_plots:
+        plot_mesh(vertices, triangles, pins_xy)
     new = ARAP(pins_xy, triangles=triangles, vertices=vertices)
-    v1, v2 = new.solve(new_pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, new_pins_xy)
-    plot_mesh(v2, triangles, new_pins_xy)
 
-    plot_mesh(vertices, triangles, pins_xy)
-    old = old_ARAP(pins_xy, triangles=triangles, vertices=vertices)
-    v1, v2 = old._arap_solve(new_pins_xy)
-    plot_mesh(v1.reshape([-1, 2]), triangles, new_pins_xy)
-    plot_mesh(v2, triangles, new_pins_xy)
+    new_pins_xy = np.array([[0.0, 0.0], [0.0, 3.0], [6.0, 0.0]])
+    v = new.solve(new_pins_xy)
+    if show_plots:
+        plot_mesh(v, triangles, new_pins_xy)
 
-
-    # assert np.isclose(v2, np.array([
-    #     [3.00000000e+00, 0.000000000e+00],
-    #     [3.40000000+00, 1.000000000e+00],
-    #     [4.800000004e+00, 1.000000000e+00],
-    #     [5.99999657e+00, 0.00000000e-22]
-    # ])).all()
+    assert np.isclose(v, np.array([
+        [3.19325865e-06, 1.08194488e-06],
+        [6.78428061e-01, 1.37166545e+00],
+        [2.14606263e+00, 1.19790398e+00],
+        [2.81917351e+00, 1.12790606e-02],
+        [3.95163838e+00, 1.34725960e+00],
+        [5.99999596e+00, 5.51801260e-07],
+        [8.44193478e-07, 2.99999837e+00],
+        [1.46633111e+00, 2.60720416e+00],
+        [2.82413859e+00, 2.62209072e+00]
+    ])).all()
