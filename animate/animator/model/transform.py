@@ -11,19 +11,29 @@ import OpenGL.GL as GL
 class Transform():
     """Base class from which all other scene objects descend"""
 
-    def __init__(self, parent: Optional[Transform] = None, name: Optional[str] = None):
-        self.parent: Optional[Transform] = parent
-        self.children: List[Transform] = []
+    def __init__(self, 
+                 parent: Optional[Transform] = None,
+                 name: Optional[str] = None,
+                 children: List[Transform] = [],
+                 offset: Union[np.ndarray, Vectors, None] = None
+    ):
+        self._parent: Optional[Transform] = parent
 
-        self._name: Optional[str] = name
+        self._children: List[Transform] = []
+        for child in children:
+            self.add_child(child)
 
-        # TODO: make all of these hidden
-        self.rotate_m: np.ndarray = np.identity(4, dtype=np.float32)
-        self.translate_m: np.ndarray = np.identity(4, dtype=np.float32)
-        self.scale_m: np.ndarray = np.identity(4, dtype=np.float32)
+        self.name: Optional[str] = name
 
-        self.local_transform: np.ndarray = np.identity(4, dtype=np.float32)
-        self.world_transform: np.ndarray = np.identity(4, dtype=np.float32)
+        self.translate_m: np.ndarray = np.identity(4, dtype=np.float32)  #TODO: Make hidden
+        if offset:
+            self.offset(offset)
+
+        self.rotate_m: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
+        self.scale_m: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
+
+        self.local_transform: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
+        self.world_transform: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
         self.dirty_bit: bool = True  # are world/local transforms stale?
 
     def update_transforms(self, parent_dirty_bit: bool = False) -> None:
@@ -39,7 +49,7 @@ class Transform():
         if self.dirty_bit | parent_dirty_bit:
             self.compute_world_transform()
 
-        for c in self.children:
+        for c in self._children:
             c.update_transforms(self.dirty_bit | parent_dirty_bit)
 
         self.dirty_bit = False
@@ -49,8 +59,20 @@ class Transform():
 
     def compute_world_transform(self) -> None:
         self.world_transform = self.local_transform
-        if self.parent:
-            self.world_transform = self.parent.world_transform @ self.world_transform
+        if self._parent:
+            self.world_transform = self._parent.world_transform @ self.world_transform
+
+    def get_local_transform(self, update_ancestors: bool = True) -> np.ndarray:
+        raise NotImplementedError
+
+    def get_world_transform(self, update_ancestors: bool = True) -> np.ndarray:
+        """
+        Get the transform's world matrix.
+        If update is true, check to ensure the world_transform is current
+        """
+        if update_ancestors:
+            self.update_ancestor_transforms()
+        return np.copy(self.world_transform)
 
     def set_position(self, pos: Union[np.ndarray, Vectors]) -> None:
         """ Set the absolute values of the translational elements of transform """
@@ -75,16 +97,28 @@ class Transform():
             self.compute_local_transform()
         return np.copy(self.local_transform[:-1, -1])
 
-    def get_world_position(self) -> np.ndarray:
-        """ Ensure all parent transforms are update and return world xyz coordinates """
+    def update_ancestor_transforms(self) -> None:
+        """
+        Proceeds up the tree to find root node, and updates all transforms it contains
+        """
+        # TODO: Modify this to only update transforms between starting one and ancestor, 
+        # not all of ancestors children
+        ancestor: Transform = self
+        ancestor_parent: Optional[Transform] = ancestor.get_parent()
+        while ancestor_parent is not None:
+            ancestor = ancestor_parent
+            ancestor_parent = ancestor.get_parent()
+        ancestor.update_transforms()
 
-        if self.parent is None:
-            self.update_transforms()
-        else:
-            ancestor: Transform = self.parent
-            while ancestor.parent is not None:
-                ancestor = ancestor.parent
-            ancestor.update_transforms()
+    def get_world_position(self, update_ancestors: bool = True) -> np.ndarray:
+        """ 
+        Ensure all parent transforms are update and return world xyz coordinates
+        If update_ancestor_transforms is true, update ancestor transforms to ensure
+        up-to-date world_transform before returning
+        """
+        if update_ancestors:
+            self.update_ancestor_transforms()
+
         return np.copy(self.world_transform[:-1, -1])
 
     def offset(self, pos: Union[np.ndarray, Vectors]) -> None:
@@ -135,21 +169,26 @@ class Transform():
         self.dirty_bit = True
 
     def add_child(self, child: Transform) -> None:
-        self.children.append(child)
+        self._children.append(child)
         child.set_parent(self)
 
+    def get_children(self) -> List[Transform]:
+        return self._children
+
     def set_parent(self, parent: Transform) -> None:
-        self.parent = parent
+        self._parent = parent
         self.dirty_bit = True
+
+    def get_parent(self) -> Optional[Transform]:
+        return self._parent
 
     def draw(self, recurse=True, **kwargs) -> None:
         """ Draw this transform and recurse on children """
         self._draw(**kwargs)
 
         if recurse:
-            for child in self.children:
+            for child in self._children:
                 child.draw(**kwargs)
-            #[child.draw(**kwargs) for child in self.children]
 
     def _draw(self, **kwargs):
         """Transforms default to not being drawn. Subclasses must implement how they appear"""
