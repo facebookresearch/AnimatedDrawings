@@ -69,18 +69,6 @@ class InteractiveController(Controller):
 
         self.scene.update_transforms()
 
-
-        from animator.model.quaternions import Quaternions
-        import numpy as np
-        self.rotation -= 1
-        q2 = Quaternions.from_euler_angles('z', np.array([self.rotation]))
-        self.ad.rig.joints['right_elbow'].set_rotate(q2)
-        self.ad.rig._vertex_buffer_dirty_bit = True
-        self.ad.update_transforms()
-        self.ad.update()
-
-
-
     def _handle_user_input(self):
         glfw.poll_events()
 
