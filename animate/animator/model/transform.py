@@ -11,12 +11,12 @@ import OpenGL.GL as GL
 class Transform():
     """Base class from which all other scene objects descend"""
 
-    def __init__(self, 
+    def __init__(self,
                  parent: Optional[Transform] = None,
                  name: Optional[str] = None,
                  children: List[Transform] = [],
                  offset: Union[np.ndarray, Vectors, None] = None
-    ):
+                 ):
         self._parent: Optional[Transform] = parent
 
         self._children: List[Transform] = []
@@ -25,15 +25,15 @@ class Transform():
 
         self.name: Optional[str] = name
 
-        self.translate_m: np.ndarray = np.identity(4, dtype=np.float32)  #TODO: Make hidden
+        self.translate_m: np.ndarray = np.identity(4, dtype=np.float32)   # TODO: Make hidden
+        self.rotate_m: np.ndarray = np.identity(4, dtype=np.float32)  # TODO: Make hidden
+        self.scale_m: np.ndarray = np.identity(4, dtype=np.float32)  # TODO: Make hidden
+
         if offset:
             self.offset(offset)
 
-        self.rotate_m: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
-        self.scale_m: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
-
-        self.local_transform: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
-        self.world_transform: np.ndarray = np.identity(4, dtype=np.float32) #TODO: Make hidden
+        self.local_transform: np.ndarray = np.identity(4, dtype=np.float32)  # TODO: Make hidden
+        self.world_transform: np.ndarray = np.identity(4, dtype=np.float32)  # TODO: Make hidden
         self.dirty_bit: bool = True  # are world/local transforms stale?
 
     def update_transforms(self, parent_dirty_bit: bool = False) -> None:
@@ -49,7 +49,7 @@ class Transform():
         if self.dirty_bit | parent_dirty_bit:
             self.compute_world_transform()
 
-        for c in self._children:
+        for c in self.get_children():
             c.update_transforms(self.dirty_bit | parent_dirty_bit)
 
         self.dirty_bit = False
@@ -101,7 +101,7 @@ class Transform():
         """
         Proceeds up the tree to find root node, and updates all transforms it contains
         """
-        # TODO: Modify this to only update transforms between starting one and ancestor, 
+        # TODO: Modify this to only update transforms between starting one and ancestor,
         # not all of ancestors children
         ancestor: Transform = self
         ancestor_parent: Optional[Transform] = ancestor.get_parent()
@@ -111,7 +111,7 @@ class Transform():
         ancestor.update_transforms()
 
     def get_world_position(self, update_ancestors: bool = True) -> np.ndarray:
-        """ 
+        """
         Ensure all parent transforms are update and return world xyz coordinates
         If update_ancestor_transforms is true, update ancestor transforms to ensure
         up-to-date world_transform before returning
@@ -187,7 +187,7 @@ class Transform():
         self._draw(**kwargs)
 
         if recurse:
-            for child in self._children:
+            for child in self.get_children():
                 child.draw(**kwargs)
 
     def _draw(self, **kwargs):
@@ -257,4 +257,3 @@ class TransformWidget(Transform):
         GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_LINES, 0, len(self.points))
         GL.glBindVertexArray(0)
-        

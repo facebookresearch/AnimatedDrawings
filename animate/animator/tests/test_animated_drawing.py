@@ -13,3 +13,6 @@ def test_init():
 
     cfg_fn = 'animate/animator/tests/test_character/nick_cat.yaml'
     AnimatedDrawing(cfg_fn)
+    assert True
+
+    # TODO: Add more specifics to test
