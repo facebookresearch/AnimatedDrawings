@@ -5,6 +5,14 @@ from abc import abstractmethod
 
 
 class Controller():
+    """
+    Base Controller class from which all other Controllers be be derived.
+    Controllers are responsible for:
+        - running the game loop.
+        - handling user input and forwarding it to the view or scene.
+        - triggering the scene's update method
+        - trigger the view's render method
+    """
 
     def __init__(self, cfg: dict, scene: Scene):
         self.cfg: dict = cfg
