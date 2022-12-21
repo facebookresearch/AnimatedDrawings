@@ -19,6 +19,8 @@ class InteractiveController(Controller):
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
         glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
+        self.rotation = 0
+
     def attach_view(self, view: InteractiveView):
         self.view = view
 
@@ -31,6 +33,30 @@ class InteractiveController(Controller):
 
         if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
             glfw.set_window_should_close(self.view.win, True)
+        elif key == glfw.KEY_W:  # move camera forward
+            fwd = self.view.camera.world_transform[:-1, 2]
+            self.view.camera.offset(0.1 * fwd)
+            self.view.camera
+        elif key == glfw.KEY_S:  # move camera back
+            fwd = self.view.camera.world_transform[:-1, 2]
+            self.view.camera.offset(-0.1 * fwd)
+            self.view.camera
+        elif key == glfw.KEY_A:  # move camera right
+            right = self.view.camera.world_transform[:-1, 0]
+            self.view.camera.offset(0.1 * right)
+            self.view.camera
+        elif key == glfw.KEY_D:  # move camera left
+            right = self.view.camera.world_transform[:-1, 0]
+            self.view.camera.offset(-0.1 * right)
+            self.view.camera
+        elif key == glfw.KEY_E:  # move camera up
+            up = self.view.camera.world_transform[:-1, 1]
+            self.view.camera.offset(0.1 * up)
+            self.view.camera
+        elif key == glfw.KEY_R:  # move camera down
+            up = self.view.camera.world_transform[:-1, 1]
+            self.view.camera.offset(-0.1 * up)
+            self.view.camera
 
     def _on_mouse_move(self, win, xpos: float, ypos: float):
         pass
@@ -42,6 +68,18 @@ class InteractiveController(Controller):
         self.view.clear_window()
 
         self.scene.update_transforms()
+
+
+        from animator.model.quaternions import Quaternions
+        import numpy as np
+        self.rotation -= 1
+        q2 = Quaternions.from_euler_angles('z', np.array([self.rotation]))
+        self.ad.rig.joints['right_elbow'].set_rotate(q2)
+        self.ad.rig._vertex_buffer_dirty_bit = True
+        self.ad.update_transforms()
+        self.ad.update()
+
+
 
     def _handle_user_input(self):
         glfw.poll_events()

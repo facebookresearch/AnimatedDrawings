@@ -1,4 +1,6 @@
 from model.transform import Transform
+from model.arap import ARAP, plot_mesh
+from model.old_arap import old_ARAP
 import yaml
 import logging
 import cv2
@@ -11,6 +13,11 @@ from shapely import geometry
 from typing import Dict, List, Optional
 import OpenGL.GL as GL
 
+# TODO: move joint from BVH into it's own file and then incorporate it from there
+class Joint(Transform):
+
+    def __init__(self):
+        pass
 
 class Rig(Transform):
     """ The skeletal rig used to deform the character """
@@ -28,6 +35,10 @@ class Rig(Transform):
         # TODO: The following should be abstracted to a mapping, so we can eventually support other types of skeletons
         # TODO: Put this into a try clause to protect against bad user input
         # 1
+
+        # TODO: These need to be children of the rig, not self.joints
+        # TODO: 
+        # but do have a special pointer to root
         self.joints: Dict[str, Transform] = {}
         for joint_d in char_cfg['skeleton']:
             joint_t = Transform(name=joint_d['name'])
@@ -37,8 +48,7 @@ class Rig(Transform):
             self.joints[joint_d['name']] = joint_t
 
         # 2
-        # TODO: values should be specified in config
-        averaged_root_joints = ['left_hip', 'right_hip']
+        averaged_root_joints = ['left_hip', 'right_hip']  # TODO: values should be specified in config
         r_xyz: np.ndarray = np.mean(
             [self.joints[name].get_world_position() for name in averaged_root_joints], axis=0)
         root_t = Transform(name='root')
@@ -54,29 +64,28 @@ class Rig(Transform):
 
         # 4
         def _update_positions(t: Transform):
-            if t.parent is not None:
-                offset = np.subtract(t.get_local_position(),
-                                     t.parent.get_world_position())
+            parent: Optional[Transform] = t.get_parent()
+            if parent is not None:
+                offset = np.subtract(t.get_local_position(), parent.get_world_position())
                 t.set_position(offset)
-            for c in t.children:
+            for c in t.get_children():
                 _update_positions(c)
         _update_positions(self.joints['root'])
 
         # (5) get vertices computed and ready for the gl buffer
         self.vertices = np.zeros([2*(len(self.joints)-1), 6], np.float32)
-        self._update_vertices()
 
         self._is_opengl_initialized: bool = False
-        self._is_vertex_buffer_current: bool = False
+        self._vertex_buffer_dirty_bit: bool = True
 
-    def _update_vertices(self, parent: Optional[Transform] = None, pointer: List[int] = [0]) -> None:
-        """ 
+    def _compute_buffer_vertices(self, parent: Optional[Transform], pointer: List[int]) -> None:
+        """
         Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference
         """
         if parent is None:
             parent = self.joints['root']
 
-        for c in parent.children:
+        for c in parent.get_children():
             p1 = c.get_world_position()
             p2 = parent.get_world_position()
 
@@ -84,7 +93,7 @@ class Rig(Transform):
             self.vertices[pointer[0]+1, 0:3] = p2
             pointer[0] += 2
 
-            self._update_vertices(c, pointer)
+            self._compute_buffer_vertices(c, pointer)
 
     def _initialize_opengl_resources(self):
         self.vao = GL.glGenVertexArrays(1)
@@ -116,21 +125,52 @@ class Rig(Transform):
 
         self._is_opengl_initialized = True
 
-    def _rebuffer_vertex_data(self):
+    def _compute_and_buffer_vertex_data(self):
+
+        self._compute_buffer_vertices(parent=self.joints['root'], pointer=[0])
+
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.vertices, GL.GL_STATIC_DRAW)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindVertexArray(0)
 
-        self._is_vertex_buffer_current = True
+        self._vertex_buffer_dirty_bit = False
+
+    def get_joints_pos(self) -> np.ndarray:
+        """
+        Returns array of joints positions in local space of the rig
+        """
+        # step 1 get the world space coordinates of everything
+        self.update_transforms()
+        root = self.joints['root']  # TODO: eventually change this to be the rig itself
+        #root_wt_i: np.ndarray = np.linalg.inv(root.get_world_transform())  # inverse of root's world transofrm
+        #pos_list: list = self._get_joint_chain_relative_to(root, root_wt_i, [])
+
+        pos_list: list = self._get_joint_chain_relative_to(root, np.identity(4), [])
+
+        return np.array(pos_list)
+
+    # TODO: move this into the joint class
+    def _get_joint_chain_relative_to(self, joint: Transform, root_wt_i: np.ndarray, pos_list: List):
+        """
+        Recursively populates pos_list with xyz coordinates of joints in 'root' space, where parameter root_wt_i
+        contains the inverse of the 'root's world transform.
+        """
+        # get the position of joints in joints chain relative to root position (world_transform)
+        joint_wt: np.ndarray = joint.get_world_transform()
+        joint_rt: np.ndarray = root_wt_i @ joint_wt  # joint transform wrt root
+        pos_list.append(joint_rt[:-1, -1])
+        for c in joint.get_children():
+            self._get_joint_chain_relative_to(c, root_wt_i, pos_list)
+        return pos_list
 
     def _draw(self, **kwargs):
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
-
-        if not self._is_vertex_buffer_current:
-            self._rebuffer_vertex_data()
+        
+        if self._vertex_buffer_dirty_bit:
+            self._compute_and_buffer_vertex_data()
 
         GL.glUseProgram(kwargs['shader_ids']['color_shader'])
         model_loc = GL.glGetUniformLocation(
@@ -144,8 +184,8 @@ class Rig(Transform):
 
 
 class AnimatedDrawing(Transform):
-    """ 
-    The drawn character to be animated. 
+    """
+    The drawn character to be animated.
     It consists of a mesh and a 'rig' of as-rigid-as-possible control handles used to deform it.
     The character is 2D the mesh and rig both exist within the local XY plane at Z=0
 
@@ -156,6 +196,8 @@ class AnimatedDrawing(Transform):
 
         self.char_cfg: dict = self._load_cfg(char_cfg_fn)
 
+        self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
+
         mask_fn = f'{Path(char_cfg_fn).parent}/{Path(char_cfg_fn).stem}_mask.png'
         self.mask: np.ndarray = self._load_mask(mask_fn)
 
@@ -163,14 +205,34 @@ class AnimatedDrawing(Transform):
         self.txtr: np.ndarray = self._load_txtr(txtr_fn)
 
         self.mesh: dict = self._generate_mesh()
-        self.vertices: np.ndarray = self._generate_vertices()
-        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()
+        self.vertices: np.ndarray = self._initialize_vertices()
+
+        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
         self.rig = Rig(self.char_cfg)
-        self.children.append(self.rig)
+        self.add_child(self.rig)
+
+        control_points: np.ndarray = self.rig.get_joints_pos()[:, :2] * self.img_dim
+        self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
+        #self.arap = old_ARAP(control_points, self.mesh['vertices'], np.stack(self.mesh['triangles']))
+
+        #self.vertices[:, :2] = self.arap._arap_solve(control_points)[0].reshape([-1, 2]) / self.img_dim
+        self.vertices[:, :2] = self.arap.solve(control_points)[0].reshape([-1, 2]) / self.img_dim
+
+
+        #self.old_arap = old_ARAP(control_points[:, :2], self.mesh['vertices'], np.stack(self.mesh['triangles']))
 
         self._is_opengl_initialized: bool = False
-        self._is_vertex_buffer_current: bool = False
+        self._vertex_buffer_dirty_bit: bool = True
+
+    def update(self):
+        control_points: np.ndarray = self.rig.get_joints_pos()[:,:2] * self.img_dim
+
+        self.vertices[:,:2] = self.arap.solve(control_points)[0].reshape([-1, 2]) / self.img_dim
+        #self.vertices[:,:2] = self.arap._arap_solve(control_points)[0].reshape([-1, 2]) / self.img_dim
+
+        #self.vertices[:,:2] = self.arap.solve(control_points) 
+        self._vertex_buffer_dirty_bit = True
 
     def _load_cfg(self, cfg_fn: str) -> dict:
         try:
@@ -208,8 +270,7 @@ class AnimatedDrawing(Transform):
         _mask = np.rot90(_mask, 3, )  # rotate to upright
 
         # pad to square
-        max_dim = max(_mask.shape)
-        mask = np.zeros([max_dim, max_dim], _mask.dtype)
+        mask = np.zeros([self.img_dim, self.img_dim], _mask.dtype)
         mask[0:_mask.shape[0], 0:_mask.shape[1]] = _mask
 
         return mask
@@ -237,8 +298,7 @@ class AnimatedDrawing(Transform):
         _txtr = np.rot90(_txtr, 3, )  # rotate to upright
 
         # pad to square
-        max_dim = max(_txtr.shape)
-        txtr = np.zeros([max_dim, max_dim, _txtr.shape[-1]], _txtr.dtype)
+        txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
         # make pixels outside mask transparent
@@ -261,23 +321,25 @@ class AnimatedDrawing(Transform):
             contours.sort(key=len, reverse=True)
 
         # approximate polygon so resulting mesh has fewer triangles around edges
+        # TODO: Find a more prinicipled way to get a good mesh than sampling every 25 points prior to approximating?
         outside_vertices = measure.approximate_polygon(
-            contours[0], tolerance=0.25)
-
+            contours[0][::25,:], tolerance=0.25)
         character_outline = geometry.Polygon(outside_vertices)
 
-        # add some interal vertices to ensure a good mesh is created
-        inside_vertices = []
-        _x = np.linspace(0, self.mask.shape[0], 20)
-        _y = np.linspace(0, self.mask.shape[1], 20)
-        xv, yv = np.meshgrid(_x, _y)
-        for x, y in zip(xv.flatten(), yv.flatten()):
-            if character_outline.contains(geometry.Point(x, y)):
-                inside_vertices.append((x, y))
-        inside_vertices = np.array(inside_vertices)
+        ## add some interal vertices to ensure a good mesh is created
+        #inside_vertices = []
+        #_x = np.linspace(0, self.img_dim, 20)
+        #_y = np.linspace(0, self.img_dim, 20)
+        #xv, yv = np.meshgrid(_x, _y)
+        #for x, y in zip(xv.flatten(), yv.flatten()):
+        #    if character_outline.contains(geometry.Point(x, y)):
+        #        inside_vertices.append((x, y))
+        #inside_vertices = np.array(inside_vertices)
 
-        vertices = np.concatenate([outside_vertices, inside_vertices])
+        #vertices = np.concatenate([outside_vertices, inside_vertices])
+        vertices = outside_vertices
 
+        #plot_mesh([], [], vertices)
         """
         Create a convex hull containing the character.
         Then remove unnecessary edges by discarding triangles whose centroid
@@ -285,29 +347,29 @@ class AnimatedDrawing(Transform):
         """
         convex_hull_triangles = Delaunay(vertices)
         triangles = []
+        #plot_mesh(vertices, convex_hull_triangles.simplices, [])
         for _triangle in convex_hull_triangles.simplices:
             tri_vertices = np.array(
                 [vertices[_triangle[0]], vertices[_triangle[1]], vertices[_triangle[2]]])
             tri_centroid = geometry.Point(np.mean(tri_vertices, 0))
             if character_outline.contains(tri_centroid):
                 triangles.append(_triangle)
-
+        #plot_mesh(vertices, triangles, [])
+        
         return {'vertices': vertices, 'triangles': triangles}
 
-    def _generate_vertices(self) -> np.ndarray:
-        """ Prepare the ndarray that will be sent to rendering pipeline"""
-
+    def _initialize_vertices(self) -> np.ndarray:
+        """ Prepare the ndarray that will be sent to rendering pipeline. Subsequenct calls will update the x and y pos of vertices,
+        but z pos and u v textures won't change
+        
+        """
         vertices = np.empty((self.mesh['vertices'].shape[0], 5), np.float32)
 
-        _img_dim = self.txtr.shape[0]  # images are always padded to be square
-
-        _vertices = np.stack(self.mesh['vertices'])
-
-        vertices[:, 0] = _vertices[:, 0] / _img_dim     # x pos
-        vertices[:, 1] = _vertices[:, 1] / _img_dim     # y pos
-        vertices[:, 2] = 0.0                            # z pos
-        vertices[:, 3] = _vertices[:, 1] / _img_dim     # x tex
-        vertices[:, 4] = _vertices[:, 0] / _img_dim     # y tex
+        vertices[:, 0] = self.mesh['vertices'][:, 0] / self.img_dim    # x pos
+        vertices[:, 1] = self.mesh['vertices'][:, 1] / self.img_dim    # y pos
+        vertices[:, 2] = 0.0                                           # z pos
+        vertices[:, 3] = self.mesh['vertices'][:, 1] / self.img_dim    # u tex
+        vertices[:, 4] = self.mesh['vertices'][:, 0] / self.img_dim    # v tex
 
         return vertices
 
@@ -361,13 +423,13 @@ class AnimatedDrawing(Transform):
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindVertexArray(0)
 
-        self._is_vertex_buffer_current = True
+        self._vertex_buffer_dirty_bit = False
 
     def _draw(self, **kwargs):
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
 
-        if not self._is_vertex_buffer_current:
+        if self._vertex_buffer_dirty_bit:
             self._rebuffer_vertex_data()
 
         GL.glBindVertexArray(self.vao)
