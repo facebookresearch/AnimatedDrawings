@@ -1,6 +1,6 @@
 from model.transform import Transform
 from model.arap import ARAP, plot_mesh
-from model.old_arap import old_ARAP
+from model.joint import Joint
 import yaml
 import logging
 import cv2
@@ -12,12 +12,6 @@ from scipy.spatial import Delaunay
 from shapely import geometry
 from typing import Dict, List, Optional
 import OpenGL.GL as GL
-
-# TODO: move joint from BVH into it's own file and then incorporate it from there
-class Joint(Transform):
-
-    def __init__(self):
-        pass
 
 class Rig(Transform):
     """ The skeletal rig used to deform the character """
@@ -166,29 +160,34 @@ class Rig(Transform):
         return pos_list
 
     def _draw(self, **kwargs):
+        # TODO: Parameterize this so View passes in defaultdict specifying whether to draw or not
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
         
         if self._vertex_buffer_dirty_bit:
             self._compute_and_buffer_vertex_data()
 
-        GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        model_loc = GL.glGetUniformLocation(
-            kwargs['shader_ids']['color_shader'], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
-                              self.world_transform.T)
+        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+        # model_loc = GL.glGetUniformLocation(
+        #     kwargs['shader_ids']['color_shader'], "model")
+        # GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
+        #                       self.world_transform.T)
 
-        GL.glBindVertexArray(self.vao)
-        # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
-        GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
+        # GL.glBindVertexArray(self.vao)
+        # # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
+        # GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
 
 
 class AnimatedDrawing(Transform):
     """
     The drawn character to be animated.
-    It consists of a mesh and a 'rig' of as-rigid-as-possible control handles used to deform it.
-    The character is 2D the mesh and rig both exist within the local XY plane at Z=0
+    An AnimatedDrawings object consists of four main parts:
+    1. A 2D mesh textured with the original drawing, the 'visual' representation of the character
+    2. A 2D skeletal rig
+    3. An ARAP module which uses rig joint positions to deform the mesh
+    4. A retargeting module which reposes the rig.
 
+    After initializing the object, only the update() method needs to be called.
     """
 
     def __init__(self, char_cfg_fn: str):
@@ -205,33 +204,32 @@ class AnimatedDrawing(Transform):
         self.txtr: np.ndarray = self._load_txtr(txtr_fn)
 
         self.mesh: dict = self._generate_mesh()
+
         self.vertices: np.ndarray = self._initialize_vertices()
 
-        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
+        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles: TODO: should be driven by retargeting module.
 
         self.rig = Rig(self.char_cfg)
         self.add_child(self.rig)
 
-        control_points: np.ndarray = self.rig.get_joints_pos()[:, :2] * self.img_dim
+        control_points: np.ndarray = self.rig.get_joints_pos()[:, :2]
         self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
-        #self.arap = old_ARAP(control_points, self.mesh['vertices'], np.stack(self.mesh['triangles']))
-
-        #self.vertices[:, :2] = self.arap._arap_solve(control_points)[0].reshape([-1, 2]) / self.img_dim
-        self.vertices[:, :2] = self.arap.solve(control_points)[0].reshape([-1, 2]) / self.img_dim
-
-
-        #self.old_arap = old_ARAP(control_points[:, :2], self.mesh['vertices'], np.stack(self.mesh['triangles']))
+        self.vertices[:, :2] = self.arap.solve(control_points).reshape([-1, 2])
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
-    def update(self):
-        control_points: np.ndarray = self.rig.get_joints_pos()[:,:2] * self.img_dim
+    def update(self, delta_t: float):
+        """
+        This method receives the delta t, the amount of time to progress the character's internal time keeper.
+        The new time is calculated and used to obtain the new rig joint positions from the retargeter.
+        The rig is reposed and its updated joint positions are calculated.
+        The updated joint positions are passed into the ARAP module, which computes the new vertex locations.
+        The new vertex locations are stored and the dirty bit is set.
+        """
+        control_points: np.ndarray = self.rig.get_joints_pos()[:,:2]
 
-        self.vertices[:,:2] = self.arap.solve(control_points)[0].reshape([-1, 2]) / self.img_dim
-        #self.vertices[:,:2] = self.arap._arap_solve(control_points)[0].reshape([-1, 2]) / self.img_dim
-
-        #self.vertices[:,:2] = self.arap.solve(control_points) 
+        self.vertices[:,:2] = self.arap.solve(control_points).reshape([-1, 2])
         self._vertex_buffer_dirty_bit = True
 
     def _load_cfg(self, cfg_fn: str) -> dict:
@@ -320,26 +318,22 @@ class AnimatedDrawing(Transform):
             logging.info(msg)
             contours.sort(key=len, reverse=True)
 
-        # approximate polygon so resulting mesh has fewer triangles around edges
-        # TODO: Find a more prinicipled way to get a good mesh than sampling every 25 points prior to approximating?
         outside_vertices = measure.approximate_polygon(
-            contours[0][::25,:], tolerance=0.25)
-        character_outline = geometry.Polygon(outside_vertices)
+            contours[0], tolerance=0.25)
+        character_outline = geometry.Polygon(contours[0])
 
-        ## add some interal vertices to ensure a good mesh is created
-        #inside_vertices = []
-        #_x = np.linspace(0, self.img_dim, 20)
-        #_y = np.linspace(0, self.img_dim, 20)
-        #xv, yv = np.meshgrid(_x, _y)
-        #for x, y in zip(xv.flatten(), yv.flatten()):
-        #    if character_outline.contains(geometry.Point(x, y)):
-        #        inside_vertices.append((x, y))
-        #inside_vertices = np.array(inside_vertices)
+        # add some internal vertices to ensure a good mesh is created
+        inside_vertices = []
+        _x = np.linspace(0, self.img_dim, 40)
+        _y = np.linspace(0, self.img_dim, 40)
+        xv, yv = np.meshgrid(_x, _y)
+        for x, y in zip(xv.flatten(), yv.flatten()):
+            if character_outline.contains(geometry.Point(x, y)):
+                inside_vertices.append((x, y))
+        inside_vertices = np.array(inside_vertices)
 
-        #vertices = np.concatenate([outside_vertices, inside_vertices])
-        vertices = outside_vertices
+        vertices = np.concatenate([outside_vertices, inside_vertices])
 
-        #plot_mesh([], [], vertices)
         """
         Create a convex hull containing the character.
         Then remove unnecessary edges by discarding triangles whose centroid
@@ -347,29 +341,28 @@ class AnimatedDrawing(Transform):
         """
         convex_hull_triangles = Delaunay(vertices)
         triangles = []
-        #plot_mesh(vertices, convex_hull_triangles.simplices, [])
         for _triangle in convex_hull_triangles.simplices:
             tri_vertices = np.array(
                 [vertices[_triangle[0]], vertices[_triangle[1]], vertices[_triangle[2]]])
             tri_centroid = geometry.Point(np.mean(tri_vertices, 0))
             if character_outline.contains(tri_centroid):
                 triangles.append(_triangle)
-        #plot_mesh(vertices, triangles, [])
         
+        vertices /= self.img_dim  # scale vertices so they lie between 0-1
+
         return {'vertices': vertices, 'triangles': triangles}
 
     def _initialize_vertices(self) -> np.ndarray:
-        """ Prepare the ndarray that will be sent to rendering pipeline. Subsequenct calls will update the x and y pos of vertices,
-        but z pos and u v textures won't change
-        
+        """ Prepare the ndarray that will be sent to rendering pipeline.
+        Subsequenct calls will update the x and y pos of vertices, but z pos and u v textures won't change.
         """
         vertices = np.empty((self.mesh['vertices'].shape[0], 5), np.float32)
 
-        vertices[:, 0] = self.mesh['vertices'][:, 0] / self.img_dim    # x pos
-        vertices[:, 1] = self.mesh['vertices'][:, 1] / self.img_dim    # y pos
-        vertices[:, 2] = 0.0                                           # z pos
-        vertices[:, 3] = self.mesh['vertices'][:, 1] / self.img_dim    # u tex
-        vertices[:, 4] = self.mesh['vertices'][:, 0] / self.img_dim    # v tex
+        vertices[:, 0] = self.mesh['vertices'][:, 0]    # x pos
+        vertices[:, 1] = self.mesh['vertices'][:, 1]    # y pos
+        vertices[:, 2] = 0.0                            # z pos
+        vertices[:, 3] = self.mesh['vertices'][:, 1]    # u tex
+        vertices[:, 4] = self.mesh['vertices'][:, 0]    # v tex
 
         return vertices
 
