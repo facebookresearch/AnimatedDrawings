@@ -2,6 +2,8 @@ import glfw
 from animator.controller.controller import Controller
 from animator.model.scene import Scene
 from animator.view.interactive_view import InteractiveView
+from model.bvh import BVH
+from typing import Optional
 
 
 class InteractiveController(Controller):
@@ -11,12 +13,17 @@ class InteractiveController(Controller):
 
         self.view: InteractiveView = view
 
+        self.bvh: Optional[BVH] = None
+
         glfw.set_key_callback(self.view.win, self._on_key)
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
         glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
     def attach_view(self, view: InteractiveView):
         self.view = view
+
+    def set_bvh(self, bvh: BVH):
+        self.bvh = bvh
 
     def _on_key(self, _win, key: int, _scancode, action, _mods):
         if not (action == glfw.PRESS or action == glfw.REPEAT):
@@ -33,6 +40,12 @@ class InteractiveController(Controller):
 
     def _start_run_loop(self):
         self.view.clear_window()
+
+        if self.bvh:
+            self.bvh.cur_frame = (self.bvh.cur_frame + 1) % self.bvh.frame_num
+            self.bvh.apply_frame(self.bvh.cur_frame)
+
+        self.scene.update_transforms()
 
     def _handle_user_input(self):
         glfw.poll_events()
