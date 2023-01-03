@@ -11,7 +11,7 @@ z_axis = np.array([0.0, 0.0, 1.0])
 
 class Retargeter():
 
-    def __init__(self, bvh_fn: str, bvh_projection_mapping):
+    def __init__(self, bvh_fn: str, bvh_projection_mapping: list):
         """
         bvh_fn: path to bvh file containing animation data
         bvh_projection_mapping: list of dicts containing groupings of joints, plane projection method, and grouping name
@@ -70,7 +70,7 @@ class Retargeter():
 
     def _determine_projection_plane_normal(self, joint_projection_group: dict) -> np.ndarray:
         """
-        Given a list of joint names and specified method, computes normal to projection plane.
+        Given a joint_projection_group dictionary object, computes the projection plane normal used for the group.
         Called during initialization.
         """
 
@@ -161,8 +161,7 @@ class Retargeter():
         at1 = np.arctan2(projected_bone_xy[:, 1], projected_bone_xy[:, 0])
         at2 = np.arctan2(y_axis[:, 1], y_axis[:, 0])
         theta = at1 - at2  # type: ignore
-        theta = np.degrees(theta)
-        theta = theta % 360.0
+        theta = np.degrees(theta) % 360
         theta = np.where(theta < 0.0, theta + 360, theta)
 
         # save it
@@ -170,7 +169,8 @@ class Retargeter():
 
     def get_orientations(self, time: float) -> dict:
         """
-        Given an input time in seconds, determines which frame to use and returns its orientations.
+        Given an input time, in seconds, compute the correct bvh frame to use.
+        For that frame, creates a dictionary mapping from character joint names to world orienations (degrees CCW from +Y axis).
         """
         frame_idx = int(round(time / self.bvh.frame_time, 0))
 
