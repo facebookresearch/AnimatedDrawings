@@ -1,0 +1,7 @@
+view:
+  CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
+  WINDOW_DIMENSIONS: [500, 500]
+controller:
+scene:
+DRAW_FLOOR: True
+CHARACTER_OFFSET: [0.0, 0.0, 0.0]

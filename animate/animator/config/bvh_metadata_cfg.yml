@@ -1,0 +1,36 @@
+filepath: tests/zombie.bvh
+groundplane_joint: LeftFoot
+projection_bodypart_groups:
+- joint_names:
+  - RightShoulder
+  - RightArm
+  - RightForeArm
+  - RightHand
+  - RightHandEnd
+  - LeftShoulder
+  - LeftArm
+  - LeftForeArm
+  - LeftHand
+  - LeftHandEnd
+  name: Upper Limbs
+- joint_names:
+  - RightUpLeg
+  - RightLeg
+  - RightFoot
+  - RightToeBase
+  - LeftUpLeg
+  - LeftLeg
+  - LeftFoot
+  - LeftToeBase
+  name: Lower Limbs
+- joint_names:
+  - Hips
+  - Spine
+  - Spine1
+  - Spine2
+  - Spine3
+  - Neck
+  - Head
+  name: Trunk
+scale: 0.025
+up: +z
