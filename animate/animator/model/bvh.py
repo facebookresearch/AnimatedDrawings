@@ -96,7 +96,7 @@ class BVH(Transform, TimeManager):
         Finds average of vectors between joint pairs, then returns vector perpendicular to their average.
         """
         if update:
-            self.root_joint.update_ancestor_transforms()
+            self.root_joint.update_transforms(update_ancestors=True)
 
         vectors_cw_perpendicular_to_fwd: List[Vectors] = []
         for (start_joint_name, end_joint_name) in forward_perp_vector_joint_names:

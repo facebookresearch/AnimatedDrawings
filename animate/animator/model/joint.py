@@ -21,8 +21,7 @@ class Joint(Transform):
  
     def get_chain_worldspace_positions(self):
         """ Get xzy worldspace coordinates of all joints within the chain. """
-        self.update_transforms()
-        self.update_ancestor_transforms()  # TODO: Do we need to call both of these?
+        self.update_transforms(update_ancestors=True)
         return self._get_chain_worldspace_positions(self, [])
 
     def _get_chain_worldspace_positions(self, joint: Joint, position_list: list):

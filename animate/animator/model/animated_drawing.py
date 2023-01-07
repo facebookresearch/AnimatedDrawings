@@ -176,7 +176,7 @@ class AnimatedDrawingRig(Transform):
                 self._set_global_orientations(c, bvh_orientations)
 
     def _draw(self, **kwargs):
-        if 'DRAW_AD_RIG' not in kwargs['viewer_cfg'].keys() or kwargs['viewer_cfg']['DRAW_AD_RIG'] == False:
+        if 'DRAW_AD_RIG' not in kwargs['viewer_cfg'].keys() or kwargs['viewer_cfg']['DRAW_AD_RIG'] is False:
             return
 
         if not self._is_opengl_initialized:
@@ -187,8 +187,8 @@ class AnimatedDrawingRig(Transform):
 
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        model_loc = GL.glGetUniformLocation( kwargs['shader_ids']['color_shader'], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+        model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
 
         GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
@@ -245,14 +245,7 @@ class AnimatedDrawing(Transform, TimeManager):
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
-    def _initialize_retargeter_bvh(self,
-                                  bvh_metadata_cfg: dict,
-                                  char_bvh_retargeting_cfg: dict,
-                                  # bvh_fn: str,
-                                  # bvh_metadata_cfg: dict,
-                                  # char_joint_to_bvh_joints_mapping: Dict[str, Tuple[str, str]],
-                                  # char_bvh_proportion_mapping: dict
-                                  ):
+    def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
         Initializes the retargeter used to drive the animated character.
         bvh_fn: path to the BVH file containing animation data.
@@ -453,7 +446,7 @@ class AnimatedDrawing(Transform, TimeManager):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        txtr[np.where(self.mask == 0)] = 0 # make pixels outside mask transparent
+        txtr[np.where(self.mask == 0)] = 0  # make pixels outside mask transparent
 
         return txtr
 
@@ -601,7 +594,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
             GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
             model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['texture_shader'], "model")
-            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
             GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
             GL.glEnable(GL.GL_DEPTH_TEST)
@@ -612,7 +605,7 @@ class AnimatedDrawing(Transform, TimeManager):
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
             GL.glUseProgram(kwargs['shader_ids']['color_shader'])
             model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
-            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
             GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
             GL.glEnable(GL.GL_DEPTH_TEST)
@@ -623,7 +616,7 @@ class AnimatedDrawing(Transform, TimeManager):
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
             GL.glUseProgram(kwargs['shader_ids']['color_shader'])
             model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
-            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
 
             color_black_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "color_black")
             GL.glUniform1i(color_black_loc, 1)

@@ -76,9 +76,9 @@ class Box(Transform):
         }
 
         self.shader_name: str = shader_name
-        
+
         self._is_opengl_initialized: bool = False  # keep track of whether self._initialize_opengl_resources was called.
-    
+
     def _initialize_opengl_resources(self):
         """ Method to initialize the OpenGL arrays and buffers necessary to draw the object.
         It's better to not initialize these things unless we're definitely going to be drawing the object,
@@ -128,13 +128,13 @@ class Box(Transform):
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.points, GL.GL_STATIC_DRAW)
 
     def _draw(self, **kwargs):
-        
+
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
 
         GL.glUseProgram(kwargs['shader_ids'][self.shader_name])
         model_loc = GL.glGetUniformLocation(kwargs['shader_ids'][self.shader_name], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
 
         GL.glBindVertexArray(self.vao)
         # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
