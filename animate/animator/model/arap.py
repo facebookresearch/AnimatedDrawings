@@ -58,7 +58,7 @@ class ARAP():
         self.edge_vectors: np.ndarray = np.array(_edge_vectors)
 
         # get barycentric coordinates of pins, and mask denoting which pins were initially outside the mesh
-        pins_bc, pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)  
+        pins_bc, pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)
         self.pin_mask = np.array(pin_mask)
 
         v_vnbr_idxs: Dict[int, Set[int]] = defaultdict(set)  # build a dict mapping vertex ID -> neighbor vertex IDs
