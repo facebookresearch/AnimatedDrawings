@@ -5,10 +5,8 @@ from animator.model.arap import ARAP
 from animator.model.joint import Joint
 from animator.model.quaternions import Quaternions
 from animator.model.vectors import Vectors
-import yaml
 import logging
 import cv2
-from pathlib import Path
 import numpy as np
 from skimage import measure
 import ctypes
@@ -33,8 +31,6 @@ class AnimatedDrawingRig(Transform):
     def __init__(self, char_cfg: Dict[str, dict]):
         """ Initializes character rig.  """
         super().__init__()
-
-        # TODO: Put this into a try clause to protect against bad user input
 
         # Populate joint dict with Joints, using global image position of joint as initial local offset
         _joints_d: Dict[str, AnimatedDrawingsJoint] = {}
@@ -103,9 +99,7 @@ class AnimatedDrawingRig(Transform):
         return np.array(self.root_joint.get_chain_worldspace_positions()).reshape([-1, 3])[:, :2]
 
     def _compute_buffer_vertices(self, parent: Optional[Transform], pointer: List[int]) -> None:
-        """
-        Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference
-        """
+        """ Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference """
         if parent is None:
             parent = self.root_joint
 
@@ -182,8 +176,9 @@ class AnimatedDrawingRig(Transform):
                 self._set_global_orientations(c, bvh_orientations)
 
     def _draw(self, **kwargs):
-        pass
-        # TODO: Parameterize this so View passes in defaultdict specifying whether to draw or not
+        if 'DRAW_AD_RIG' not in kwargs['viewer_cfg'].keys() or kwargs['viewer_cfg']['DRAW_AD_RIG'] == False:
+            return
+
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
 
@@ -192,10 +187,8 @@ class AnimatedDrawingRig(Transform):
 
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        model_loc = GL.glGetUniformLocation(
-            kwargs['shader_ids']['color_shader'], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
-                              self.world_transform.T)
+        model_loc = GL.glGetUniformLocation( kwargs['shader_ids']['color_shader'], "model")
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
 
         GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
@@ -216,20 +209,21 @@ class AnimatedDrawing(Transform, TimeManager):
     Afterwars, only the update() method needs to be called.
     """
 
-    def __init__(self, char_cfg_fn: str, char_body_segmentation_groups: list):
+    def __init__(self, char_cfg: dict, char_bvh_retargeting_cfg: dict, bvh_metadata_cfg: dict):
         super().__init__()
 
-        self.char_body_segmentation_groups = char_body_segmentation_groups  # TODO: Fold this into the character yaml
+        self.char_bvh_retargeting_cfg: dict = char_bvh_retargeting_cfg
 
-        self.char_cfg: dict = self._load_cfg(char_cfg_fn)
+        self.char_cfg: dict = char_cfg
 
         self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
 
-        mask_fn = f'{Path(char_cfg_fn).parent}/{Path(char_cfg_fn).stem}_mask.png'
-        self.mask: np.ndarray = self._load_mask(mask_fn)
+        self.mask: np.ndarray = self._load_mask(self.char_cfg['mask_filepath'])
 
-        txtr_fn = f'{Path(char_cfg_fn).parent}/{Path(char_cfg_fn).stem}.png'
-        self.txtr: np.ndarray = self._load_txtr(txtr_fn)
+        self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
+
+        for joint in self.char_cfg['skeleton']:  
+            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1 
 
         self.mesh: dict = self._generate_mesh()
 
@@ -242,6 +236,7 @@ class AnimatedDrawing(Transform, TimeManager):
         self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
         self.retargeter: Optional[Retargeter] = None
+        self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
 
         control_points: np.ndarray = self.rig.get_joints_2D_positions()
         self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
@@ -250,50 +245,58 @@ class AnimatedDrawing(Transform, TimeManager):
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
-    def initialize_retargeter_bvh(self,
-                                  bvh_fn: str,
-                                  bvh_projection_mapping: list,
-                                  char_joint_to_bvh_joints_mapping: Dict[str, Tuple[str, str]],
-                                  char_bvh_proportion_mapping: dict
+    def _initialize_retargeter_bvh(self,
+                                  bvh_metadata_cfg: dict,
+                                  char_bvh_retargeting_cfg: dict,
+                                  # bvh_fn: str,
+                                  # bvh_metadata_cfg: dict,
+                                  # char_joint_to_bvh_joints_mapping: Dict[str, Tuple[str, str]],
+                                  # char_bvh_proportion_mapping: dict
                                   ):
         """
+        Initializes the retargeter used to drive the animated character.
+        bvh_fn: path to the BVH file containing animation data.
+        bvh_metadata_cfg: dictionary containing bvh_metadata needed by the retargeter
         Takes in path to BVH used to create Retargeter.
         Then, using char_joint_to_bvh_joints_mapping, calculates the orientations for each character joint needed for retargeting.
         """
         # initialize retargeter
-        self.retargeter = Retargeter(bvh_fn, bvh_projection_mapping)
+        self.retargeter = Retargeter(bvh_metadata_cfg, char_bvh_retargeting_cfg)
 
-        # compute ratio of character's leg length to bvh actor leg length
+        # compute ratio of character's leg length to bvh skel leg length
         c_limb_length = 0
-        for limb_group in char_bvh_proportion_mapping['character']:
-            while len(limb_group) >= 2:
-                c_dist_joint = self.rig.root_joint.get_joint_by_name(limb_group[1])
-                c_prox_joint = self.rig.root_joint.get_joint_by_name(limb_group[0])
+        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['character']
+        for b_joint_group in c_joint_groups:
+            while len(b_joint_group) >= 2:
+                c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
+                c_prox_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[0])
                 assert isinstance(c_dist_joint, AnimatedDrawingsJoint)
                 assert isinstance(c_prox_joint, AnimatedDrawingsJoint)
                 c_dist_joint_pos = c_dist_joint.get_world_position()
                 c_prox_joint_pos = c_prox_joint.get_world_position()
                 c_limb_length += np.linalg.norm(np.subtract(c_dist_joint_pos, c_prox_joint_pos))
-                limb_group.pop(0)
+                b_joint_group.pop(0)
 
         b_limb_length = 0
-        for limb_group in char_bvh_proportion_mapping['bvh_actor']:
-            while len(limb_group) >= 2:
-                b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(limb_group[1])
-                b_prox_joint = self.retargeter.bvh.root_joint.get_joint_by_name(limb_group[0])
+        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_skel']
+        for b_joint_group in b_joint_groups:
+            while len(b_joint_group) >= 2:
+                b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
+                b_prox_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[0])
                 assert isinstance(b_dist_joint, Joint)
                 assert isinstance(b_prox_joint, Joint)
                 b_dist_joint_pos = b_dist_joint.get_world_position()
                 b_prox_joint_pos = b_prox_joint.get_world_position()
                 b_limb_length += np.linalg.norm(np.subtract(b_dist_joint_pos, b_prox_joint_pos))
-                limb_group.pop(0)
+                b_joint_group.pop(0)
 
         # compute character-bvh scale factor and send to retargeter
         scale_factor = float(c_limb_length / b_limb_length)
-        self.retargeter.scale_root_positions_for_character(scale_factor, char_bvh_proportion_mapping['bvh_proj_group_for_offset'])
+        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_projection_bodypart_group_for_offset']
+        self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
 
         # compute the necessary orienations
-        for char_joint_name, (bvh_prox_joint_name, bvh_dist_joint_name) in char_joint_to_bvh_joints_mapping.items():
+        for char_joint_name, (bvh_prox_joint_name, bvh_dist_joint_name) in self.char_bvh_retargeting_cfg['char_joint_bvh_joints_mapping'].items():
             self.retargeter.compute_orientations(bvh_prox_joint_name, bvh_dist_joint_name, char_joint_name)
 
     def update(self):
@@ -325,16 +328,16 @@ class AnimatedDrawing(Transform, TimeManager):
     def _set_draw_indices(self, joint_depths: dict):
 
         # sort segmentation groups by decreasing depth_driver's distance to camera
-        _segment_render_order = []
-        for idx, segment_group_dict in enumerate(self.char_body_segmentation_groups):
-            segment_depth = np.mean([joint_depths[joint_name] for joint_name in segment_group_dict['depth_drivers']])
-            _segment_render_order.append((idx, segment_depth))
-        _segment_render_order.sort(key=lambda x: x[1])
+        _bodypart_render_order = []
+        for idx, bodypart_group_dict in enumerate(self.char_bvh_retargeting_cfg['char_bodypart_groups']):
+            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['depth_drivers']])
+            _bodypart_render_order.append((idx, bodypart_depth))
+        _bodypart_render_order.sort(key=lambda x: x[1])
 
         # Add vertices belonging to joints in each segment group in the order they will be rendered
         indices = []
-        for idx, _ in _segment_render_order:
-            for joint_name in self.char_body_segmentation_groups[idx]['joints']:
+        for idx, _ in _bodypart_render_order:
+            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['joints']:
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 
@@ -399,22 +402,6 @@ class AnimatedDrawing(Transform, TimeManager):
             joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
         return joint_to_tri_v_idx
 
-    def _load_cfg(self, cfg_fn: str) -> dict:
-        try:
-            with open(cfg_fn, 'r') as f:
-                cfg = yaml.load(f, Loader=yaml.FullLoader)
-        except Exception as e:
-            msg = f'Error loading config {cfg_fn}: {str(e)}'
-            logging.critical(msg)
-            assert False, msg
-
-        # scale joint locations to 0-1. txtr and mask will be padded to max_dim square
-        max_dim = max(cfg['width'], cfg['height'])
-        for joint in cfg['skeleton']:
-            joint['loc'] = np.array(joint['loc']) / max_dim
-
-        return cfg
-
     def _load_mask(self, mask_fn: str) -> np.ndarray:
         """ Load and perform preprocessing upon the mask """
         try:
@@ -466,8 +453,7 @@ class AnimatedDrawing(Transform, TimeManager):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        # make pixels outside mask transparent
-        txtr[np.where(self.mask == 0)] = 0
+        txtr[np.where(self.mask == 0)] = 0 # make pixels outside mask transparent
 
         return txtr
 
@@ -599,6 +585,7 @@ class AnimatedDrawing(Transform, TimeManager):
         self._vertex_buffer_dirty_bit = False
 
     def _draw(self, **kwargs):
+
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
 
@@ -606,38 +593,43 @@ class AnimatedDrawing(Transform, TimeManager):
             self._rebuffer_vertex_data()
 
         GL.glBindVertexArray(self.vao)
-        GL.glActiveTexture(GL.GL_TEXTURE0)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
 
-        GL.glDisable(GL.GL_DEPTH_TEST)
+        if 'DRAW_AD_TXTR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_TXTR'] is True:
+            GL.glActiveTexture(GL.GL_TEXTURE0)
+            GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
+            GL.glDisable(GL.GL_DEPTH_TEST)
 
-        # TODO: Modify viewer to pass in args about how to display character
+            GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['texture_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
-        # GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
-        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        # model_loc = GL.glGetUniformLocation(
-        #     kwargs['shader_ids']['color_shader'], "model")
+            GL.glEnable(GL.GL_DEPTH_TEST)
+        
+        if 'DRAW_AD_COLOR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_COLOR'] is True:
+            GL.glDisable(GL.GL_DEPTH_TEST)
 
-        # render texture
-        GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
-        model_loc = GL.glGetUniformLocation(
-            kwargs['shader_ids']['texture_shader'], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
-                              self.world_transform.T)
-        GL.glDrawElements(
-            GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+            GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
-        # # render mesh lines
-        # GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        # model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
-        # GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+            GL.glEnable(GL.GL_DEPTH_TEST)
 
-        # color_black_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "color_black")
-        # GL.glUniform1i(color_black_loc, 1)
-        # GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
-        # #GL.glUniformMatrix4fv(color_blac#k_loc, 1, GL.GL_FALSE, False)
-        # GL.glUniform1i(color_black_loc, 0)
+        if 'DRAW_AD_MESH_LINES' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_MESH_LINES'] is True:
+            GL.glDisable(GL.GL_DEPTH_TEST)
 
-        GL.glEnable(GL.GL_DEPTH_TEST)
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+            GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
+
+            color_black_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "color_black")
+            GL.glUniform1i(color_black_loc, 1)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+            GL.glUniform1i(color_black_loc, 0)
+
+            GL.glEnable(GL.GL_DEPTH_TEST)
+
         GL.glBindVertexArray(0)
