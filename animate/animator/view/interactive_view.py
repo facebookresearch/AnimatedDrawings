@@ -76,15 +76,17 @@ class InteractiveView(View):
         self._initiatize_shader('texture_shader', TEXTURE_VERT, TEXTURE_FRAG, texture=True)
 
     def update_shaders_view_transform(self, camera: Camera):
-        view_transform: np.ndarray = camera.world_transform
-        # TODO use self.shaders instead of self.shader_ids
-        for key in self.shader_ids:
-            GL.glUseProgram(self.shader_ids[key])
-            view_loc = GL.glGetUniformLocation(self.shader_ids[key], "view")
+        try:
+            view_transform: np.ndarray = np.linalg.inv(camera.get_world_transform())
+        except Exception as e:
+            msg = f'Error inverting camera world transform'
+            logging.critical(msg)
+            assert False, msg
+
+        for shader_name in self.shaders:
+            GL.glUseProgram(self.shader_ids[shader_name])
+            view_loc = GL.glGetUniformLocation(self.shader_ids[shader_name], "view")
             GL.glUniformMatrix4fv(view_loc, 1, GL.GL_FALSE, view_transform.T)
-            viewPos_loc = GL.glGetUniformLocation(
-                self.shader_ids[key], "viewPos")
-            GL.glUniform3fv(viewPos_loc, 1, view_transform[-1:, :-1])
 
     def _set_shader_projections(self, proj_m: np.ndarray):
         # TODO use self.shaders instead of self.shader_ids
@@ -121,12 +123,11 @@ class InteractiveView(View):
 
         GL.glEnable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_BLEND)
+        GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         # GL parameters specified by the cfg go here
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
-        if self.cfg['USE_DEPTH_TEST']:
-            GL.glEnable(GL.GL_DEPTH_TEST)
 
         return win
 
