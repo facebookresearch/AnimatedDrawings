@@ -1,6 +1,5 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
-from numbers import Number
 import logging
 from typing import Union
 from copy import copy
@@ -20,12 +19,7 @@ class Vectors():
             self.vs: np.ndarray = vs
 
         elif isinstance(vs, tuple) or isinstance(vs, list):
-            try:
-                vs = np.array(vs)
-            except Exception:
-                msg = 'Could not convert vector data to ndarray'
-                logging.critical(msg)
-                assert False, msg
+            vs = np.array(vs)
 
             if len(vs.shape) == 1:
                 vs = np.expand_dims(vs, axis=0)
@@ -39,7 +33,7 @@ class Vectors():
             logging.critical(msg)
             assert False, msg
 
-    def __div__(self, scale: Number):
+    def __truediv__(self, scale: Union[int, float]):
         return Vectors(self.vs / scale)
 
     def copy(self):
@@ -78,52 +72,3 @@ class Vectors():
 
     def __repr__(self):
         return f"Vectors({str(self.vs)})"
-
-
-if __name__ == '__main__':
-
-    # test1
-    # try with multidimensional vector.shape = [2, 3, 3, 3]
-    v1 = Vectors(np.array([
-            [
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            ],
-            [
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-                [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            ]
-        ]))
-    v1.norm()
-
-    # test2
-    # crossproduct test
-    v2 = Vectors(np.array([
-        [
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-        ],
-        [
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-        ]
-    ]))
-
-    v3 = Vectors(np.array([
-        [
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-        ],
-        [
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-            [[0, 1, 2], [1, 2, 3], [2, 3, 4]],
-        ]
-    ]))
-
-    print(v2.cross(v3))

@@ -26,7 +26,7 @@ class Controller():
         pass
 
     @abstractmethod
-    def _start_run_loop(self):
+    def _start_run_loop_iteration(self):
         """Subclass and add code to start run loop iteration"""
         pass
 
@@ -41,7 +41,7 @@ class Controller():
         pass
 
     @abstractmethod
-    def _finish_run_loop(self):
+    def _finish_run_loop_iteration(self):
         """Subclass and add steps necessary before starting next iteration of run loop"""
         pass
 
@@ -49,8 +49,8 @@ class Controller():
         self.scene.initialize_time()
 
         while not self._is_run_over():
-            self._start_run_loop()
+            self._start_run_loop_iteration()
             self._handle_user_input()
             self._tick()
             self._render()
-            self._finish_run_loop()
+            self._finish_run_loop_iteration()

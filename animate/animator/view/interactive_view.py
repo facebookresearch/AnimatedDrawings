@@ -17,7 +17,7 @@ class InteractiveView(View):
     def __init__(self, cfg: dict, camera: Camera):
         super().__init__(cfg)
         self.camera: Camera = camera
-        self.win: glfw._GLFWwindow = self._create_window(500, 500)
+        self.win: glfw._GLFWwindow = self._create_window(*self.cfg['WINDOW_DIMENSIONS'])
 
         self.shaders = {}
         self.shader_ids = {}

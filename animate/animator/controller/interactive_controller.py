@@ -38,12 +38,8 @@ class InteractiveController(Controller):
     def _is_run_over(self):
         return glfw.window_should_close(self.view.win)
 
-    def _start_run_loop(self):
+    def _start_run_loop_iteration(self):
         self.view.clear_window()
-
-        if self.bvh:
-            self.bvh.cur_frame = (self.bvh.cur_frame + 1) % self.bvh.frame_num
-            self.bvh.apply_frame(self.bvh.cur_frame)
 
         self.scene.update_transforms()
 
@@ -53,5 +49,5 @@ class InteractiveController(Controller):
     def _render(self):
         self.view.render(self.scene)
 
-    def _finish_run_loop(self):
+    def _finish_run_loop_iteration(self):
         self.view.swap_buffers()
