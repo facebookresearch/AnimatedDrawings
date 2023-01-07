@@ -50,5 +50,8 @@ if __name__ == '__main__':
 
     scene.add_child(ad)
 
+    if cfg['DRAW_AD_RETARGET_BVH']:
+        scene.add_child(ad.retargeter.bvh)
+
     # start the run loop
     controller.run()

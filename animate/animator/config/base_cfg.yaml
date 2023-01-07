@@ -9,4 +9,5 @@ controller:
   keyboard_timestep: 0.0333
 scene:
 DRAW_FLOOR: True
+DRAW_AD_RETARGET_BVH: TRUE
 CHARACTER_OFFSET: [0.0, 0.0, 0.0]

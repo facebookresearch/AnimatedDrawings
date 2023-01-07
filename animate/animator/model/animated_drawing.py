@@ -235,7 +235,7 @@ class AnimatedDrawing(Transform, TimeManager):
         self.joint_to_tri_v_idx: dict = self._initialize_joint_to_triangles_dict()
         self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
-        self.retargeter: Optional[Retargeter] = None
+        self.retargeter: Retargeter
         self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
 
         control_points: np.ndarray = self.rig.get_joints_2D_positions()
