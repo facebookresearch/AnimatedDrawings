@@ -136,7 +136,7 @@ class InteractiveView(View):
 
         self.update_shaders_view_transform(self.camera)
 
-        transform.draw(shader_ids=self.shader_ids)
+        transform.draw(shader_ids=self.shader_ids, viewer_cfg=self.cfg)
 
     def swap_buffers(self):
         glfw.swap_buffers(self.win)
