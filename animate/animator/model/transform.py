@@ -179,7 +179,7 @@ class Transform():
             assert False, msg
         self._rotate_m = q.to_rotation_matrix()
         self.dirty_bit = True
-    
+
     def rotation_offset(self, q: Quaternions) -> None:
         if q.qs.shape != (1, 4):
             msg = f'set_rotate q must have dimension (1, 4). Found: {q.qs.shape}'

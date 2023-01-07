@@ -88,15 +88,6 @@ class Vectors():
 
         return Vectors(np.cross(self.vs, v2.vs))
 
-    # def dot(self, v2: Vectors) -> np.ndarray:
-    #     """ Dot product of a series of vectors. All dimensions of vs must match."""
-    #     if self.vs.shape != v2.vs.shape:
-    #         msg = f'Cannot cross product different sized vectors: {self.vs.shape} {v2.vs.shape}.'
-    #         logging.critical(msg)
-    #         assert False, msg
-    #     
-    #     return np.tensordot(self.vs, v2.vs)
-
     def perpendicular(self, ccw=True):
         """
         Returns ndarray of vectors perpendicular to the original ones.

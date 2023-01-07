@@ -62,4 +62,3 @@ class Rectangle(Transform):
 
         GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 6)
-

@@ -18,7 +18,7 @@ class Joint(Transform):
             if isinstance(c, Joint):
                 count += c.joint_count()
         return count
- 
+
     def get_chain_worldspace_positions(self):
         """ Get xzy worldspace coordinates of all joints within the chain. """
         self.update_transforms(update_ancestors=True)
@@ -36,7 +36,7 @@ class Joint(Transform):
         """ Traverse through joint in depth-first order and return names of joints in the order they are visited. """
         joint_names: list = []
         return self._get_chain_joint_names(self, joint_names)
-    
+
     def _get_chain_joint_names(self, joint: Joint, joint_name_list: list):
         joint_name_list.append(joint.name)
         for c in joint.get_children():
