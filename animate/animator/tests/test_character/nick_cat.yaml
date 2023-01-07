@@ -43,7 +43,7 @@ skeleton:
   - 251
   - 372
   name: right_hip
-  parent: torso
+  parent: root
 - loc:
   - 243
   - 409
@@ -58,7 +58,7 @@ skeleton:
   - 294
   - 371
   name: left_hip
-  parent: torso
+  parent: root
 - loc:
   - 308
   - 410
@@ -81,3 +81,5 @@ skeleton:
   parent: neck
 height: 515
 width: 415
+mask_filepath: 'tests/test_character/nick_cat_mask.png'
+txtr_filepath: 'tests/test_character/nick_cat.png'
