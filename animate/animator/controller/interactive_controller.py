@@ -13,7 +13,8 @@ class InteractiveController(Controller):
 
         self.view: InteractiveView = view
 
-        self.prev_time: float = 0.0  # tracks real-world time passing between run loops. Set in _prep_for_run_loop
+        self.prev_time: float = 0.0  # tracks real-world time passing between run loops.
+        self.pause: bool = False  # does time progress?
 
         glfw.set_key_callback(self.view.win, self._on_key)
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
@@ -52,6 +53,13 @@ class InteractiveController(Controller):
             _, up, _ = self.view.camera.get_right_up_fwd_vectors()
             self.view.camera.offset(-0.1 * up)
             self.view.camera
+        elif key == glfw.KEY_SPACE:  # toggle start/stop time
+            self.pause = not self.pause
+            self.prev_time = time.time()
+        elif key == glfw.KEY_RIGHT:
+            self._tick(self.cfg['keyboard_timestep'])
+        elif key == glfw.KEY_LEFT:
+            self._tick(-self.cfg['keyboard_timestep'])
 
     def _on_mouse_move(self, win, xpos: float, ypos: float):
         pass
@@ -66,11 +74,17 @@ class InteractiveController(Controller):
     def _start_run_loop_iteration(self):
         self.view.clear_window()
 
-    def _tick(self):
+    def _tick(self, delta_t: Optional[float] = None):
+        """ If passed delta_t, advance scene by that amount of seconds. Otherwise, use elapsed real time since last _tick(). """
+        if delta_t is None and self.pause:
+            return
+
         cur_time = time.time()
-        delta_t: float = cur_time - self.prev_time
+        if delta_t is None:
+            delta_t = cur_time - self.prev_time
         self.prev_time = cur_time
-        self.scene.progress_scene_time(delta_t)
+
+        self.scene.progress_time(delta_t)
 
     def _update(self):
         self.scene.update_transforms()
