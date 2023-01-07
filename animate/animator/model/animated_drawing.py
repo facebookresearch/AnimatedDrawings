@@ -1,83 +1,107 @@
-from model.transform import Transform
-from model.arap import ARAP, plot_mesh
-from model.joint import Joint
-import yaml
+from animator.model.transform import Transform
+from animator.model.time_manager import TimeManager
+from animator.model.retargeter import Retargeter
+from animator.model.arap import ARAP
+from animator.model.joint import Joint
+from animator.model.quaternions import Quaternions
+from animator.model.vectors import Vectors
 import logging
 import cv2
-from pathlib import Path
 import numpy as np
 from skimage import measure
 import ctypes
 from scipy.spatial import Delaunay
 from shapely import geometry
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import OpenGL.GL as GL
+from collections import defaultdict
+import heapq
 
-class Rig(Transform):
+
+class AnimatedDrawingsJoint(Joint):
+    def __init__(self):
+        super().__init__()
+        self.starting_theta: Optional[np.ndarray] = None
+        self.current_theta: Optional[np.ndarray] = None
+
+
+class AnimatedDrawingRig(Transform):
     """ The skeletal rig used to deform the character """
 
     def __init__(self, char_cfg: Dict[str, dict]):
-        """
-        Initializes character rig in four steps:
-        1 - Populate joint dictionary with joint transforms, using global image position of joint as initial local offset
-        2 - Computes and add the root joint
-        3 - Build skeletal hierarchy
-        4 - Updates joint positions to reflect local offsets from their parent joints
-        """
+        """ Initializes character rig.  """
         super().__init__()
 
-        # TODO: The following should be abstracted to a mapping, so we can eventually support other types of skeletons
-        # TODO: Put this into a try clause to protect against bad user input
-        # 1
-
-        # TODO: These need to be children of the rig, not self.joints
-        # TODO: 
-        # but do have a special pointer to root
-        self.joints: Dict[str, Transform] = {}
+        # Populate joint dict with Joints, using global image position of joint as initial local offset
+        _joints_d: Dict[str, AnimatedDrawingsJoint] = {}
         for joint_d in char_cfg['skeleton']:
-            joint_t = Transform(name=joint_d['name'])
+            joint_t = AnimatedDrawingsJoint()
+            joint_t.name = joint_d['name']
             x, y = joint_d['loc']
-            # 1 - y as textures are flipped
             joint_t.offset(np.array([x, 1 - y, 0]))
-            self.joints[joint_d['name']] = joint_t
+            _joints_d[joint_d['name']] = joint_t
 
-        # 2
-        averaged_root_joints = ['left_hip', 'right_hip']  # TODO: values should be specified in config
-        r_xyz: np.ndarray = np.mean(
-            [self.joints[name].get_world_position() for name in averaged_root_joints], axis=0)
-        root_t = Transform(name='root')
-        root_t.offset(r_xyz)
-        self.joints['root'] = root_t
-
-        # 3
+        # Build skeletal hierarchy
         for joint_d in char_cfg['skeleton']:
             if joint_d['parent'] is None:
                 continue
-            self.joints[joint_d['parent']].add_child(
-                self.joints[joint_d['name']])
+            _joints_d[joint_d['parent']].add_child(
+                _joints_d[joint_d['name']])
 
-        # 4
+        # Updates joint positions to reflect local offsets from their parent joints
         def _update_positions(t: Transform):
+            """ Now that kinematic parent-> child chain is formed, subtract parent world positions to get actual child offsets"""
             parent: Optional[Transform] = t.get_parent()
             if parent is not None:
                 offset = np.subtract(t.get_local_position(), parent.get_world_position())
                 t.set_position(offset)
             for c in t.get_children():
                 _update_positions(c)
-        _update_positions(self.joints['root'])
+        _update_positions(_joints_d['root'])
 
-        # (5) get vertices computed and ready for the gl buffer
-        self.vertices = np.zeros([2*(len(self.joints)-1), 6], np.float32)
+        # Compute the starting rotation (CCW from +Y axis) of each joint
+        for _, joint in _joints_d.items():
+            parent = joint.get_parent()
+            if parent is None:
+                joint.starting_theta = np.ndarray(0)
+                continue
+
+            v1 = np.array([0.0, 1.0])
+            v2 = Vectors([np.subtract(joint.get_world_position(), parent.get_world_position())])
+            v2.norm()
+            v2 = v2.vs[0, :2]
+            theta = np.arctan2(v2[1], v2[0]) - np.arctan2(v1[1], v1[0])
+            theta = np.degrees(theta)
+            theta = theta % 360.0
+            theta = np.where(theta < 0.0, theta + 360, theta)
+
+            joint.starting_theta = theta
+
+        # Misc. initialization tasks
+        self.root_joint = _joints_d['root']
+        self.add_child(self.root_joint)
+
+        self.joint_count = _joints_d['root'].joint_count()
+
+        self.vertices = np.zeros([2*(self.joint_count-1), 6], np.float32)
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
+    def set_global_orientations(self, bvh_frame_orientations: dict) -> None:
+        """ Applies orientation from bvh_frame_orientation to the rig. """
+
+        self._set_global_orientations(self.root_joint, bvh_frame_orientations)
+        self._vertex_buffer_dirty_bit = True
+
+    def get_joints_2D_positions(self) -> np.ndarray:
+        """ Returns array of 2D joints positions for rig.  """
+        return np.array(self.root_joint.get_chain_worldspace_positions()).reshape([-1, 3])[:, :2]
+
     def _compute_buffer_vertices(self, parent: Optional[Transform], pointer: List[int]) -> None:
-        """
-        Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference
-        """
+        """ Recomputes values to pass to vertex buffer. Called recursively, pointer is List[int] to emulate pass-by-reference """
         if parent is None:
-            parent = self.joints['root']
+            parent = self.root_joint
 
         for c in parent.get_children():
             p1 = c.get_world_position()
@@ -121,7 +145,7 @@ class Rig(Transform):
 
     def _compute_and_buffer_vertex_data(self):
 
-        self._compute_buffer_vertices(parent=self.joints['root'], pointer=[0])
+        self._compute_buffer_vertices(parent=self.root_joint, pointer=[0])
 
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
@@ -131,54 +155,48 @@ class Rig(Transform):
 
         self._vertex_buffer_dirty_bit = False
 
-    def get_joints_pos(self) -> np.ndarray:
-        """
-        Returns array of joints positions in local space of the rig
-        """
-        # step 1 get the world space coordinates of everything
-        self.update_transforms()
-        root = self.joints['root']  # TODO: eventually change this to be the rig itself
-        #root_wt_i: np.ndarray = np.linalg.inv(root.get_world_transform())  # inverse of root's world transofrm
-        #pos_list: list = self._get_joint_chain_relative_to(root, root_wt_i, [])
+    def _set_global_orientations(self, joint: AnimatedDrawingsJoint, bvh_orientations: dict):
+        if joint.name in bvh_orientations.keys():
 
-        pos_list: list = self._get_joint_chain_relative_to(root, np.identity(4), [])
+            theta = bvh_orientations[joint.name] - joint.starting_theta
+            theta = np.radians(theta)
+            joint.current_theta = theta
 
-        return np.array(pos_list)
+            parent = joint.get_parent()
+            assert isinstance(parent, AnimatedDrawingsJoint)
+            if parent.current_theta is not None:
+                theta = theta - parent.current_theta
 
-    # TODO: move this into the joint class
-    def _get_joint_chain_relative_to(self, joint: Transform, root_wt_i: np.ndarray, pos_list: List):
-        """
-        Recursively populates pos_list with xyz coordinates of joints in 'root' space, where parameter root_wt_i
-        contains the inverse of the 'root's world transform.
-        """
-        # get the position of joints in joints chain relative to root position (world_transform)
-        joint_wt: np.ndarray = joint.get_world_transform()
-        joint_rt: np.ndarray = root_wt_i @ joint_wt  # joint transform wrt root
-        pos_list.append(joint_rt[:-1, -1])
+            rotation_q = Quaternions.from_angle_axis(np.array([theta]), axes=Vectors([0.0, 0.0, 1.0]))
+            parent.set_rotation(rotation_q)
+            parent.update_transforms()
+
         for c in joint.get_children():
-            self._get_joint_chain_relative_to(c, root_wt_i, pos_list)
-        return pos_list
+            if isinstance(c, AnimatedDrawingsJoint):
+                self._set_global_orientations(c, bvh_orientations)
 
     def _draw(self, **kwargs):
-        # TODO: Parameterize this so View passes in defaultdict specifying whether to draw or not
+        if 'DRAW_AD_RIG' not in kwargs['viewer_cfg'].keys() or kwargs['viewer_cfg']['DRAW_AD_RIG'] is False:
+            return
+
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
-        
+
         if self._vertex_buffer_dirty_bit:
             self._compute_and_buffer_vertex_data()
 
-        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        # model_loc = GL.glGetUniformLocation(
-        #     kwargs['shader_ids']['color_shader'], "model")
-        # GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
-        #                       self.world_transform.T)
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+        model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
 
-        # GL.glBindVertexArray(self.vao)
-        # # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
-        # GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
+        GL.glBindVertexArray(self.vao)
+        GL.glDrawArrays(GL.GL_LINES, 0, len(self.vertices))
+
+        GL.glEnable(GL.GL_DEPTH_TEST)
 
 
-class AnimatedDrawing(Transform):
+class AnimatedDrawing(Transform, TimeManager):
     """
     The drawn character to be animated.
     An AnimatedDrawings object consists of four main parts:
@@ -187,66 +205,195 @@ class AnimatedDrawing(Transform):
     3. An ARAP module which uses rig joint positions to deform the mesh
     4. A retargeting module which reposes the rig.
 
-    After initializing the object, only the update() method needs to be called.
+    After initializing the object, the retarger must be initialized by calling initialize_retarger_bvh().
+    Afterwars, only the update() method needs to be called.
     """
 
-    def __init__(self, char_cfg_fn: str):
+    def __init__(self, char_cfg: dict, char_bvh_retargeting_cfg: dict, bvh_metadata_cfg: dict):
         super().__init__()
 
-        self.char_cfg: dict = self._load_cfg(char_cfg_fn)
+        self.char_bvh_retargeting_cfg: dict = char_bvh_retargeting_cfg
+
+        self.char_cfg: dict = char_cfg
 
         self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
 
-        mask_fn = f'{Path(char_cfg_fn).parent}/{Path(char_cfg_fn).stem}_mask.png'
-        self.mask: np.ndarray = self._load_mask(mask_fn)
+        self.mask: np.ndarray = self._load_mask(self.char_cfg['mask_filepath'])
 
-        txtr_fn = f'{Path(char_cfg_fn).parent}/{Path(char_cfg_fn).stem}.png'
-        self.txtr: np.ndarray = self._load_txtr(txtr_fn)
+        self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
+
+        for joint in self.char_cfg['skeleton']:  
+            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1 
 
         self.mesh: dict = self._generate_mesh()
 
         self.vertices: np.ndarray = self._initialize_vertices()
 
-        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles: TODO: should be driven by retargeting module.
-
-        self.rig = Rig(self.char_cfg)
+        self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
 
-        control_points: np.ndarray = self.rig.get_joints_pos()[:, :2]
+        self.joint_to_tri_v_idx: dict = self._initialize_joint_to_triangles_dict()
+        self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
+
+        self.retargeter: Retargeter
+        self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
+
+        control_points: np.ndarray = self.rig.get_joints_2D_positions()
         self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
         self.vertices[:, :2] = self.arap.solve(control_points).reshape([-1, 2])
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
-    def update(self, delta_t: float):
+    def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
+        """
+        Initializes the retargeter used to drive the animated character.
+        bvh_fn: path to the BVH file containing animation data.
+        bvh_metadata_cfg: dictionary containing bvh_metadata needed by the retargeter
+        Takes in path to BVH used to create Retargeter.
+        Then, using char_joint_to_bvh_joints_mapping, calculates the orientations for each character joint needed for retargeting.
+        """
+        # initialize retargeter
+        self.retargeter = Retargeter(bvh_metadata_cfg, char_bvh_retargeting_cfg)
+
+        # compute ratio of character's leg length to bvh skel leg length
+        c_limb_length = 0
+        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['character']
+        for b_joint_group in c_joint_groups:
+            while len(b_joint_group) >= 2:
+                c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
+                c_prox_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[0])
+                assert isinstance(c_dist_joint, AnimatedDrawingsJoint)
+                assert isinstance(c_prox_joint, AnimatedDrawingsJoint)
+                c_dist_joint_pos = c_dist_joint.get_world_position()
+                c_prox_joint_pos = c_prox_joint.get_world_position()
+                c_limb_length += np.linalg.norm(np.subtract(c_dist_joint_pos, c_prox_joint_pos))
+                b_joint_group.pop(0)
+
+        b_limb_length = 0
+        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_skel']
+        for b_joint_group in b_joint_groups:
+            while len(b_joint_group) >= 2:
+                b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
+                b_prox_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[0])
+                assert isinstance(b_dist_joint, Joint)
+                assert isinstance(b_prox_joint, Joint)
+                b_dist_joint_pos = b_dist_joint.get_world_position()
+                b_prox_joint_pos = b_prox_joint.get_world_position()
+                b_limb_length += np.linalg.norm(np.subtract(b_dist_joint_pos, b_prox_joint_pos))
+                b_joint_group.pop(0)
+
+        # compute character-bvh scale factor and send to retargeter
+        scale_factor = float(c_limb_length / b_limb_length)
+        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_projection_bodypart_group_for_offset']
+        self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
+
+        # compute the necessary orienations
+        for char_joint_name, (bvh_prox_joint_name, bvh_dist_joint_name) in self.char_bvh_retargeting_cfg['char_joint_bvh_joints_mapping'].items():
+            self.retargeter.compute_orientations(bvh_prox_joint_name, bvh_dist_joint_name, char_joint_name)
+
+    def update(self):
         """
         This method receives the delta t, the amount of time to progress the character's internal time keeper.
-        The new time is calculated and used to obtain the new rig joint positions from the retargeter.
-        The rig is reposed and its updated joint positions are calculated.
+        This method passes its time to the retargeter, which returns bone orientations.
+        Orientations are passed to rig to calculate new joint positions.
         The updated joint positions are passed into the ARAP module, which computes the new vertex locations.
         The new vertex locations are stored and the dirty bit is set.
         """
-        control_points: np.ndarray = self.rig.get_joints_pos()[:,:2]
+        if self.retargeter is None:
+            return
 
-        self.vertices[:,:2] = self.arap.solve(control_points).reshape([-1, 2])
+        # get retargeted motion data
+        frame_orientations, joint_depths, root_position = self.retargeter.get_retargeted_frame_data(self.get_time())
+
+        # update the rig's root position and reorient all of its joints
+        self.rig.root_joint.set_position(root_position)
+        self.rig.set_global_orientations(frame_orientations)
+
+        # using new joint positions, calculate new mesh vertex positions
+        control_points: np.ndarray = self.rig.get_joints_2D_positions()
+        self.vertices[:, :2] = self.arap.solve(control_points)
         self._vertex_buffer_dirty_bit = True
 
-    def _load_cfg(self, cfg_fn: str) -> dict:
-        try:
-            with open(cfg_fn, 'r') as f:
-                cfg = yaml.load(f, Loader=yaml.FullLoader)
-        except Exception as e:
-            msg = f'Error loading config {cfg_fn}: {str(e)}'
-            logging.critical(msg)
-            assert False, msg
+        # using joint depths, determine the correct order in which to render the character
+        self._set_draw_indices(joint_depths)
 
-        # scale joint locations to 0-1. txtr and mask will be padded to max_dim square
-        max_dim = max(cfg['width'], cfg['height'])
-        for joint in cfg['skeleton']:
-            joint['loc'] = np.array(joint['loc']) / max_dim
+    def _set_draw_indices(self, joint_depths: dict):
 
-        return cfg
+        # sort segmentation groups by decreasing depth_driver's distance to camera
+        _bodypart_render_order = []
+        for idx, bodypart_group_dict in enumerate(self.char_bvh_retargeting_cfg['char_bodypart_groups']):
+            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['depth_drivers']])
+            _bodypart_render_order.append((idx, bodypart_depth))
+        _bodypart_render_order.sort(key=lambda x: x[1])
+
+        # Add vertices belonging to joints in each segment group in the order they will be rendered
+        indices = []
+        for idx, _ in _bodypart_render_order:
+            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['joints']:
+                indices.append(self.joint_to_tri_v_idx[joint_name])
+        self.indices = np.hstack(indices)
+
+    def _initialize_joint_to_triangles_dict(self):
+        """
+        Uses BFS to find and return the closest joint bone (line segment between joint and parent) to each triangle centroid.
+        """
+        shortest_distance = np.full(self.mask.shape, 1 << 12, dtype=np.int32)  # to nearest joint
+        closest_joint_idx = np.full(self.mask.shape, -1, dtype=np.int8)  # track joint idx nearest each point
+
+        # temp dictionary to help with seed generation
+        joints_d: Dict[str, dict] = {}
+        for joint in self.char_cfg['skeleton']:
+            joints_d[joint['name']] = joint
+            joints_d[joint['name']]['loc'][1] = 1-(self.img_dim / self.char_cfg['height'] * joints_d[joint['name']]['loc'][1])
+
+        # list of joints to aid with seed generation
+        joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
+
+        # seed generation
+        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []  # [(dist_to_closest_joint_idx, (joint_idx, (x_loc, y_loc))...]
+        for _, joint in joints_d.items():
+            if joint['parent'] is None:  # skip root joint
+                continue
+            joint_idx = joint_name_to_idx.index(joint['name'])
+            dist_joint_xy = joint['loc']
+            prox_joint_xy = joints_d[joint['parent']]['loc']
+            seeds_xy = (self.img_dim * np.linspace(dist_joint_xy, prox_joint_xy, num=20, endpoint=False)).round()
+            heap.extend([(0, (joint_idx, tuple(seed_xy.astype(np.int32)))) for seed_xy in seeds_xy])
+
+        # BFS search
+        logging.info('Starting joint -> mask pixel BFS')
+        while heap:
+            distance, (joint_idx, (x, y)) = heapq.heappop(heap)
+            neighbors = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
+            for (n_x, n_y) in neighbors:
+                n_distance = distance + 1
+                if not 0 <= n_x < self.img_dim or not 0 <= n_y < self.img_dim:
+                    continue  # neighbor is outside image bounds- ignore
+
+                if not self.mask[n_x, n_y]:
+                    continue  # outside character mask
+
+                if shortest_distance[n_x, n_y] <= n_distance:
+                    continue  # a closer joint exists
+
+                closest_joint_idx[n_x, n_y] = joint_idx
+                shortest_distance[n_x, n_y] = n_distance
+                heapq.heappush(heap, (n_distance, (joint_idx, (n_x, n_y))))
+        logging.info('Finished joint -> mask pixel BFS')
+
+        # create map between joint name and triangle centroids it is closest to
+        joint_to_tri_v_idx = defaultdict(list)
+        for tri_v_idx in self.mesh['triangles']:
+            tri_verts = np.array([self.mesh['vertices'][v_idx] for v_idx in tri_v_idx])
+            centroid_x, centroid_y = list((tri_verts.mean(axis=0) * self.img_dim).round().astype(np.int32))
+            tri_centroid_closest_joint_idx = closest_joint_idx[centroid_x, centroid_y]
+            joint_to_tri_v_idx[joint_name_to_idx[tri_centroid_closest_joint_idx]].append(tri_v_idx)
+
+        # convert to ndarray and return.
+        for key, val in joint_to_tri_v_idx.items():
+            joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
+        return joint_to_tri_v_idx
 
     def _load_mask(self, mask_fn: str) -> np.ndarray:
         """ Load and perform preprocessing upon the mask """
@@ -299,8 +446,7 @@ class AnimatedDrawing(Transform):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        # make pixels outside mask transparent
-        txtr[np.where(self.mask == 0)] = 0
+        txtr[np.where(self.mask == 0)] = 0  # make pixels outside mask transparent
 
         return txtr
 
@@ -356,13 +502,16 @@ class AnimatedDrawing(Transform):
         """ Prepare the ndarray that will be sent to rendering pipeline.
         Subsequenct calls will update the x and y pos of vertices, but z pos and u v textures won't change.
         """
-        vertices = np.empty((self.mesh['vertices'].shape[0], 5), np.float32)
+        vertices = np.empty((self.mesh['vertices'].shape[0], 8), np.float32)
 
         vertices[:, 0] = self.mesh['vertices'][:, 0]    # x pos
         vertices[:, 1] = self.mesh['vertices'][:, 1]    # y pos
         vertices[:, 2] = 0.0                            # z pos
-        vertices[:, 3] = self.mesh['vertices'][:, 1]    # u tex
-        vertices[:, 4] = self.mesh['vertices'][:, 0]    # v tex
+        vertices[:, 3] = self.mesh['vertices'][:, 0]    # r col
+        vertices[:, 4] = self.mesh['vertices'][:, 1]    # g col
+        vertices[:, 5] = 0.0                            # b col
+        vertices[:, 6] = self.mesh['vertices'][:, 1]    # u tex
+        vertices[:, 7] = self.mesh['vertices'][:, 0]    # v tex
 
         return vertices
 
@@ -399,10 +548,15 @@ class AnimatedDrawing(Transform):
             0, 3, GL.GL_FLOAT, False, 4 * self.vertices.shape[1], None)
         GL.glEnableVertexAttribArray(0)
 
+        # color attributes
+        GL.glVertexAttribPointer(
+            1, 3, GL.GL_FLOAT, False, 4 * self.vertices.shape[1], ctypes.c_void_p(4 * 3))
+        GL.glEnableVertexAttribArray(1)
+
         # texture attributes
         GL.glVertexAttribPointer(
-            1, 2, GL.GL_FLOAT, False, 4 * self.vertices.shape[1], ctypes.c_void_p(4 * 3))
-        GL.glEnableVertexAttribArray(1)
+            2, 2, GL.GL_FLOAT, False, 4 * self.vertices.shape[1], ctypes.c_void_p(4 * 6))
+        GL.glEnableVertexAttribArray(2)
 
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindVertexArray(0)
@@ -414,11 +568,17 @@ class AnimatedDrawing(Transform):
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.vertices, GL.GL_STATIC_DRAW)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-        GL.glBindVertexArray(0)
 
+        # buffer element index data
+        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.ebo)
+        GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
+                        self.indices, GL.GL_STATIC_DRAW)
+
+        GL.glBindVertexArray(0)
         self._vertex_buffer_dirty_bit = False
 
     def _draw(self, **kwargs):
+
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
 
@@ -426,24 +586,43 @@ class AnimatedDrawing(Transform):
             self._rebuffer_vertex_data()
 
         GL.glBindVertexArray(self.vao)
-        GL.glActiveTexture(GL.GL_TEXTURE0)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
 
-        # render texture
-        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
-        GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
-        model_loc = GL.glGetUniformLocation(
-            kwargs['shader_ids']['texture_shader'], "model")
-        GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE,
-                              self.world_transform.T)
-        GL.glDrawElements(
-            GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+        if 'DRAW_AD_TXTR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_TXTR'] is True:
+            GL.glActiveTexture(GL.GL_TEXTURE0)
+            GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
+            GL.glDisable(GL.GL_DEPTH_TEST)
 
-        # # render mesh lines
-        # GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-        # GL.glUseProgram(kwargs['shader_ids']['color_shader'])
-        # model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
-        # GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self.world_transform.T)
-        # GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+            GL.glUseProgram(kwargs['shader_ids']['texture_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['texture_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+
+            GL.glEnable(GL.GL_DEPTH_TEST)
+        
+        if 'DRAW_AD_COLOR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_COLOR'] is True:
+            GL.glDisable(GL.GL_DEPTH_TEST)
+
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+            GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+
+            GL.glEnable(GL.GL_DEPTH_TEST)
+
+        if 'DRAW_AD_MESH_LINES' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_MESH_LINES'] is True:
+            GL.glDisable(GL.GL_DEPTH_TEST)
+
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+            GL.glUseProgram(kwargs['shader_ids']['color_shader'])
+            model_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "model")
+            GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
+
+            color_black_loc = GL.glGetUniformLocation(kwargs['shader_ids']['color_shader'], "color_black")
+            GL.glUniform1i(color_black_loc, 1)
+            GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
+            GL.glUniform1i(color_black_loc, 0)
+
+            GL.glEnable(GL.GL_DEPTH_TEST)
 
         GL.glBindVertexArray(0)

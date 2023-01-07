@@ -1,11 +1,12 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 from pathlib import Path
-from model.transform import Transform
-from typing import List, Tuple
-from model.box import Box
-from model.quaternions import Quaternions
-from model.vectors import Vectors
-from model.joint import Joint
+from animator.model.transform import Transform
+from typing import List, Tuple, Optional
+from animator.model.box import Box
+from animator.model.quaternions import Quaternions
+from animator.model.vectors import Vectors
+from animator.model.joint import Joint
+from animator.model.time_manager import TimeManager
 import numpy as np
 import logging
 
@@ -14,11 +15,12 @@ class BVH_Joint(Joint):
     """
         Joint class with channel order attribute and specialized vis widget
     """
-    def __init__(self, channel_order: List[str] = [], widget: bool = False, **kwargs):
+    def __init__(self, channel_order: List[str] = [], widget: bool = True, **kwargs):
         super().__init__(**kwargs)
 
         self.channel_order = channel_order
 
+        self.widget: Optional[Transform] = None
         if widget:
             self.widget = Box()
             self.add_child(self.widget)
@@ -28,7 +30,7 @@ class BVH_Joint(Joint):
             self.widget.draw(**kwargs)
 
 
-class BVH(Transform):
+class BVH(Transform, TimeManager):
     """
     Class to encapsulate BVH (Biovision Hierarchy) animation data.
     Include a single skeletal hierarchy defined in the BVH, frame count and speed,
@@ -44,7 +46,7 @@ class BVH(Transform):
                  rot_data: np.ndarray
                  ):
         """
-        Do NOT call this method directly.  Use BVH.from_file() or another class method to construct a BVH object
+        Don't recommend calling this method directly.  Instead, use BVH.from_file().
         """
         super().__init__()
 
@@ -56,32 +58,64 @@ class BVH(Transform):
 
         self.root_joint = root_joint
         self.add_child(self.root_joint)
+        self.joint_num = self.root_joint.joint_count()
 
-        self.cur_frame = 0
+        self.cur_frame = 0  # initialize skeleton pose to first frame
         self.apply_frame(self.cur_frame)
 
+    def get_joint_names(self):
+        """ Get names of joints in skeleton in the order in which BVH rotation data is stored. """
+        return self.root_joint.get_chain_joint_names()
+
+    def update(self) -> None:
+        """Based upon internal time, determine which frame should be displayed and apply it"""
+        cur_time: float = self.get_time()
+        cur_frame = round(cur_time / self.frame_time) % self.frame_max_num
+        self.apply_frame(cur_frame)
+
     def apply_frame(self, frame_num: int) -> None:
-        """
-        Apply a the pose data from  
-        """
-        if not 0 <= frame_num < self.frame_max_num:
-            msg = f'bad frame_num specified:{frame_num}. Must be between 0 and {self.frame_max_num}'
-            logging.critical(msg)
-            assert False, msg
-
+        """ Apply root position and joint rotation data for specified frame_num.  """
         self.root_joint.set_position(self.pos_data[frame_num])
-        self._apply_frame(self.root_joint, frame_num, ptr=np.array(0))
+        self._apply_frame_rotations(self.root_joint, frame_num, ptr=np.array(0))
 
-    def _apply_frame(self, joint: BVH_Joint, frame_num: int, ptr: np.ndarray):
+    def _apply_frame_rotations(self, joint: BVH_Joint, frame_num: int, ptr: np.ndarray):
         q = Quaternions(self.rot_data[frame_num, ptr])
-        joint.set_rotate(q)
+        joint.set_rotation(q)
 
         ptr += 1
 
         for c in joint.get_children():
             if not isinstance(c, BVH_Joint):
                 continue
-            self._apply_frame(c, frame_num, ptr)
+            self._apply_frame_rotations(c, frame_num, ptr)
+
+    def get_skeleton_fwd(self, forward_perp_vector_joint_names: List[Tuple[str, str]], update=True) -> Vectors:
+        """
+        Get current forward vector of skeleton in world coords. If update=True, ensure skeleton transforms are current.
+        Input forward_perp_vector_joint_names, a list of pairs of joint names (e.g. [[leftshould, rightshoulder], [lefthip, righthip]])
+        Finds average of vectors between joint pairs, then returns vector perpendicular to their average.
+        """
+        if update:
+            self.root_joint.update_transforms(update_ancestors=True)
+
+        vectors_cw_perpendicular_to_fwd: List[Vectors] = []
+        for (start_joint_name, end_joint_name) in forward_perp_vector_joint_names:
+            start_joint = self.root_joint.get_joint_by_name(start_joint_name)
+            if not start_joint:
+                msg = f'Could not find BVH joint with name: {start_joint}'
+                logging.critical(msg)
+                assert False, msg
+
+            end_joint = self.root_joint.get_joint_by_name(end_joint_name)
+            if not end_joint:
+                msg = f'Could not find BVH joint with name: {end_joint}'
+                logging.critical(msg)
+                assert False, msg
+
+            bone_vector: Vectors = Vectors(end_joint.get_world_position()) - Vectors(start_joint.get_world_position())
+            vectors_cw_perpendicular_to_fwd.append(bone_vector)
+
+        return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
 
     @classmethod
     def from_file(cls, bvh_fn: str) -> BVH:
@@ -183,9 +217,6 @@ class BVH(Transform):
 
         # split root pose data and joint euler angle data
         pos_data, ea_rots = np.split(np.array(frames, dtype=np.float32), [3], axis=1)
-
-        # modify pos_data so the character root is positioned at origin for the first frame
-        pos_data -= pos_data[0]
 
         # quaternion rot data will go here
         rot_data = np.empty([len(frames), skeleton.joint_count(), 4], dtype=np.float32)

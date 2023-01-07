@@ -58,7 +58,7 @@ class ARAP():
         self.edge_vectors: np.ndarray = np.array(_edge_vectors)
 
         # get barycentric coordinates of pins, and mask denoting which pins were initially outside the mesh
-        pins_bc, pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)  
+        pins_bc, pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)
         self.pin_mask = np.array(pin_mask)
 
         v_vnbr_idxs: Dict[int, Set[int]] = defaultdict(set)  # build a dict mapping vertex ID -> neighbor vertex IDs
@@ -105,7 +105,7 @@ class ARAP():
                 [e_ky, -e_kx]
             ], np.float32)
 
-            edge_matrix = np.hstack([np.tile(-np.identity(2), (len(e_vnbr_idxs)-1,1)), np.identity(2*(len(e_vnbr_idxs)-1))])
+            edge_matrix = np.hstack([np.tile(-np.identity(2), (len(e_vnbr_idxs)-1, 1)), np.identity(2*(len(e_vnbr_idxs)-1))])
             g = np.dot(G_k_star, edge_matrix)
             h = np.dot(e, g)
 
@@ -138,16 +138,15 @@ class ARAP():
 
         self.tA1xA1 = self.tA1 @ self.A1
         while np.linalg.det(self.tA1xA1) == 0.0:
-            logging.info('tA1xA1 is singular. peturbing...')
+            logging.info('tA1xA1 is singular. perturbing...')
             self.tA1xA1 += 0.00000001 * np.identity(self.tA1xA1.shape[0])
         self.tA1xA1 = sp.csr_matrix(self.tA1xA1)
 
         self.tA2xA2 = self.tA2 @ self.A2
         while np.linalg.det(self.tA2xA2) == 0.0:
-            logging.info('tA2xA2 is singular. peturbing...')
+            logging.info('tA2xA2 is singular. perturbing...')
             self.tA2xA2 += 0.00000001 * np.identity(self.tA2xA2.shape[0])
         self.tA2xA2 = sp.csr_matrix(self.tA2xA2)
-
 
     def solve(self, pins_xy) -> np.ndarray:
         """
@@ -194,8 +193,9 @@ class ARAP():
 
         Is point inside triangle? : https://mathworld.wolfram.com/TriangleInterior.html
 
-        Returns a list of barycentric coords for points inside the mesh, and a list of True/False values indicating whether a given pin 
-        was inside the mesh or not. Needed for removing pins during subsequent solve steps.
+        Returns a list of barycentric coords for points inside the mesh,
+        and a list of True/False values indicating whether a given pin was inside the mesh or not.
+        Needed for removing pins during subsequent solve steps.
 
         """
         def det(u, v):

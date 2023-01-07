@@ -24,7 +24,6 @@ class Quaternions:
 
             if len(qs.shape) == 1:
                 qs = np.expand_dims(qs, axis=0)
-
             self.qs = qs
 
         elif isinstance(qs, tuple) or isinstance(qs, list):
@@ -36,6 +35,8 @@ class Quaternions:
                 logging.critical(msg)
                 assert False, msg
 
+            if len(qs.shape) == 1:
+                qs = np.expand_dims(qs, axis=0)
             self.qs = qs
 
         elif isinstance(qs, Quaternions):
@@ -89,6 +90,19 @@ class Quaternions:
                          [0.0, 0.0, 0.0, 1.0]], dtype=np.float32)
 
     @classmethod
+    def rotate_between_vectors(cls, v1: Vectors, v2: Vectors) -> Quaternions:
+        """
+        Computes quaternion rotating from v1 to v2. 
+        """
+        # TODO: Modify this so it is called instead of the 'look_at' function within Transform
+        xyz: list = v1.cross(v2).vs.squeeze().tolist()
+        w: float = math.sqrt((v1.length**2) * (v2.length**2)) + np.dot(v1.vs.squeeze(), v2.vs.squeeze())
+
+        ret_q = Quaternions([w, *xyz])
+        ret_q.normalize()
+        return ret_q
+
+    @classmethod
     def from_angle_axis(cls, angles: np.ndarray, axes: Vectors) -> Quaternions:
         axes.norm()
 
@@ -107,6 +121,7 @@ class Quaternions:
     @classmethod
     def from_euler_angles(cls, order: str, angles: np.ndarray) -> Quaternions:
         """
+        Applies a series of euler angle rotations. Angles applied from right to left
         :param order: string comprised of x, y, and/or z
         :param angles: angles in degrees
         """
