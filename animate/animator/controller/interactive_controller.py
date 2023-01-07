@@ -31,6 +31,30 @@ class InteractiveController(Controller):
 
         if key == glfw.KEY_ESCAPE or key == glfw.KEY_Q:
             glfw.set_window_should_close(self.view.win, True)
+        elif key == glfw.KEY_W:  # move camera forward
+            fwd = self.view.camera.world_transform[:-1, 2]
+            self.view.camera.offset(0.1 * fwd)
+            self.view.camera
+        elif key == glfw.KEY_S:  # move camera back
+            fwd = self.view.camera.world_transform[:-1, 2]
+            self.view.camera.offset(-0.1 * fwd)
+            self.view.camera
+        elif key == glfw.KEY_A:  # move camera right
+            right = self.view.camera.world_transform[:-1, 0]
+            self.view.camera.offset(0.1 * right)
+            self.view.camera
+        elif key == glfw.KEY_D:  # move camera left
+            right = self.view.camera.world_transform[:-1, 0]
+            self.view.camera.offset(-0.1 * right)
+            self.view.camera
+        elif key == glfw.KEY_E:  # move camera up
+            up = self.view.camera.world_transform[:-1, 1]
+            self.view.camera.offset(0.1 * up)
+            self.view.camera
+        elif key == glfw.KEY_R:  # move camera down
+            up = self.view.camera.world_transform[:-1, 1]
+            self.view.camera.offset(-0.1 * up)
+            self.view.camera
 
     def _on_mouse_move(self, win, xpos: float, ypos: float):
         pass

@@ -36,6 +36,20 @@ class Vectors():
     def __truediv__(self, scale: Union[int, float]):
         return Vectors(self.vs / scale)
 
+    def __sub__(self, other: Vectors):
+        if self.vs.shape != other.vs.shape:
+            msg = 'Attempted to subtract Vectors with different dimensions'
+            logging.critical(msg)
+            assert False, msg
+        return Vectors(np.subtract(self.vs, other.vs))
+
+    def __add__(self, other: Vectors):
+        if self.vs.shape != other.vs.shape:
+            msg = 'Attempted to add Vectors with different dimensions'
+            logging.critical(msg)
+            assert False, msg
+        return Vectors(np.add(self.vs, other.vs))
+
     def copy(self):
         return copy(self)
 
