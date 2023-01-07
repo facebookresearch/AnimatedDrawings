@@ -4,7 +4,9 @@ import numpy as np
 import math
 from animator.model.joint import Joint
 from sklearn.decomposition import PCA
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
+from animator.model.vectors import Vectors
+from animator.model.quaternions import Quaternions
 
 x_axis = np.array([1.0, 0.0, 0.0])
 z_axis = np.array([0.0, 0.0, 1.0])
@@ -12,26 +14,75 @@ z_axis = np.array([0.0, 0.0, 1.0])
 
 class Retargeter():
 
-    def __init__(self, bvh_fn: str, bvh_projection_mapping: list):
+    def __init__(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
         bvh_fn: path to bvh file containing animation data
-        bvh_projection_mapping: list of dicts containing groupings of joints, plane projection method, and grouping name
+        bvh_metadata_cfg: bvh metadata config dictionary
         """
-        self.bvh = BVH.from_file(bvh_fn)
-        self.joint_names = self.bvh.get_joint_names()
+
+        try:
+            self.bvh = BVH.from_file(bvh_metadata_cfg['filepath'])
+        except Exception as e:
+            msg = f'Error loading BVH: {e}'
+            logging.critical(msg)
+            assert False, msg
+
+        self.bvh_joint_names = self.bvh.get_joint_names()
+
+        #bvh joints defining a set of vectors that skeleton's fwd is perpendicular to 
+        self.forward_perp_vector_joint_names = bvh_metadata_cfg['forward_perp_joint_vectors']
+
+        # rotate BVH skeleton so up is +Y
+        if bvh_metadata_cfg['up'] == '+z':
+            self.bvh.set_rotation(Quaternions.from_euler_angles('yx', np.array([-90.0, -90.0])))
+        else:
+            msg = f'bvh_metadata_cfg["up"] value not implemented: {bvh_metadata_cfg["up"]}'
+            logging.warning(msg)
+
+        # rotate BVH skeleton so forward is +X
+        skeleton_fwd: Vectors = self.bvh.get_skeleton_fwd(self.forward_perp_vector_joint_names)
+        q: Quaternions = Quaternions.rotate_between_vectors(skeleton_fwd, Vectors([1.0, 0.0, 0.0]))
+        self.bvh.rotation_offset(q)
+
+        # scale BVH
+        try:
+            self.bvh.set_scale(bvh_metadata_cfg['scale'])
+        except Exception as e:
+            msg = f'Could not scale BVH: {e}'
+            logging.warning(msg)
+
+        # position above origin
+        self.bvh.offset(-self.bvh.root_joint.get_world_position())
+
+        # adjust bvh skeleton height
+        try:
+            groundplane_joint = self.bvh.root_joint.get_joint_by_name(bvh_metadata_cfg['groundplane_joint'])
+            if groundplane_joint is None:
+                raise Exception(f'could not find groundplane_joint{bvh_metadata_cfg["groundplane_joint"]}')
+            bvh_groundplane_y = groundplane_joint.get_world_position()[1]
+            self.bvh.offset(np.array([0, -bvh_groundplane_y, 0]))  # reposition groundplane
+        except Exception as e:
+            msg = f'Could not use groundplane_joint to adjust bvh heightError getting groundplane joint: {str(e)}'
+            logging.warning(msg)
+            assert False
 
         self.joint_positions: np.ndarray
         self.fwd_vectors: np.ndarray
         self.bvh_root_positions: np.ndarray
         self._compute_normalized_joint_positions_and_fwd_vectors()
 
-        self.char_root_positions: Optional[np.ndarray] = None  # retargeted world coordinates of character root joint
+        # retargeted world coordinates of character root joint
+        self.char_root_positions: Optional[np.ndarray] = None
 
         # get & save projection planes
         self.joint_group_name_to_projection_plane: dict = {}
         self.joint_to_projection_plane: dict = {}
-        for joint_projection_group in bvh_projection_mapping:
-            projection_plane = self._determine_projection_plane_normal(joint_projection_group)
+        for joint_projection_group in bvh_metadata_cfg['projection_bodypart_groups']:
+            group_name = joint_projection_group['name']
+            joint_names = joint_projection_group['joint_names']
+            projection_method: str = char_bvh_retargeting_cfg['bvh_projection_mapping_methods'][group_name]
+
+            projection_plane = self._determine_projection_plane_normal(group_name, joint_names, projection_method)
             self.joint_group_name_to_projection_plane[joint_projection_group['name']] = projection_plane
 
             for joint_name in joint_projection_group['joint_names']:
@@ -57,11 +108,11 @@ class Retargeter():
         for frame_idx in range(self.bvh.frame_max_num):
             self.bvh.apply_frame(frame_idx)
             self.joint_positions[frame_idx] = self.bvh.root_joint.get_chain_worldspace_positions()
-            self.fwd_vectors[frame_idx] = self.bvh.get_skeleton_fwd().vs[0]
+            self.fwd_vectors[frame_idx] = self.bvh.get_skeleton_fwd(self.forward_perp_vector_joint_names).vs[0]
 
         # reposition over origin
         self.bvh_root_positions = self.joint_positions[:, :3]
-        self.joint_positions = self.joint_positions - np.tile(self.bvh_root_positions, [1, len(self.joint_names)])
+        self.joint_positions = self.joint_positions - np.tile(self.bvh_root_positions, [1, len(self.bvh_joint_names)])
 
         # compute angle between skelton's forward vector and x axis
         v1 = np.tile(np.array([1.0, 0.0]), reps=(self.joint_positions.shape[0], 1))
@@ -83,25 +134,28 @@ class Retargeter():
             rotated_joints = rot_mat @ self.joint_positions[idx].reshape([-1, 3]).T
             self.joint_positions[idx] = rotated_joints.T.reshape(self.joint_positions[idx].shape)
 
-    def _determine_projection_plane_normal(self, joint_projection_group: dict) -> np.ndarray:
+    def _determine_projection_plane_normal(self, group_name: str, joint_names: List[str], projection_method: str) -> np.ndarray:
         """
         Given a joint_projection_group dictionary object, computes the projection plane normal used for the group.
         Called during initialization.
         """
 
-        if joint_projection_group['projection_method'] == 'frontal':
+        if projection_method == 'frontal':
+            logging.info(f'{group_name} projection_method is {projection_method}. Using {x_axis}')
             return x_axis
-        elif joint_projection_group['projection_method'] == 'saggital':
+        elif projection_method == 'saggital':
+            logging.info(f'{group_name} projection_method is {projection_method}. Using {z_axis}')
             return z_axis
-        elif joint_projection_group['projection_method'] == 'pca':
+        elif projection_method == 'pca':
+            logging.info(f'{group_name} projection_method is {projection_method}. Running PCA on {joint_names}')
             pass  # pca code is below
         else:
-            msg = f'bad project method for {joint_projection_group["name"]}: {joint_projection_group["projection_method"]}'
+            msg = f'bad project method for {group_name}: {projection_method}'
             logging.critical(msg)
             assert False, msg
 
         # get the xyz locations of joints within this joint_projection_group
-        joints_idxs = [self.joint_names.index(joint_name) for joint_name in joint_projection_group['joint_names']]
+        joints_idxs = [self.bvh_joint_names.index(joint_name) for joint_name in joint_names]
         joints_mask = np.full(self.joint_positions.shape[1], False, dtype=np.bool8)
         for idx in joints_idxs:
             joints_mask[3*idx:3*(idx+1)] = True
@@ -119,25 +173,27 @@ class Retargeter():
 
         # return close of the two
         if abs(x_cos_sim) > abs(z_cos_sim):
+            logging.info(f'PCA complete. {group_name} using {x_axis}')
             return x_axis
         else:
+            logging.info(f'PCA complete. {group_name} using {z_axis}')
             return z_axis
 
     def _compute_depths(self) -> dict:
         """
-        For each BVH joint within bvh_projection_mapping, compute distance to projection plane.
-        This distance used if the joint is a char_body_segmentation_groups depth_driver. 
+        For each BVH joint within bvh_projection_mapping_groups, compute distance to projection plane.
+        This distance used if the joint is a char_body_segmentation_groups depth_driver.
         """
 
         bvh_joint_to_projection_depth = {}
 
-        for joint_name in self.joint_names:
+        for joint_name in self.bvh_joint_names:
             joint = self.bvh.root_joint.get_joint_by_name(joint_name)
 
             assert joint is not None
             assert self.joint_positions is not None
 
-            joint_idx = self.joint_names.index(joint.name)
+            joint_idx = self.bvh_joint_names.index(joint.name)
             joint_xyz = self.joint_positions[:, 3*joint_idx:3*(joint_idx+1)]
             try:
                 projection_plane_normal = self.joint_to_projection_plane[joint_name]
@@ -149,7 +205,7 @@ class Retargeter():
             # project bone onto 2D plane
             if np.array_equal(projection_plane_normal, x_axis):
                 joint_depths = joint_xyz[:, 0]
-            elif np.array_equal(projection_plane_normal, z_axis): 
+            elif np.array_equal(projection_plane_normal, z_axis):
                 joint_depths = joint_xyz[:, 2]
             else:
                 msg = 'error projection_plane_normal'
@@ -159,12 +215,17 @@ class Retargeter():
 
         return bvh_joint_to_projection_depth
 
-    def scale_root_positions_for_character(self, char_to_bvh_scale: float, projection_group_name: str) -> None:
+    def scale_root_positions_for_character(self, char_to_bvh_scale: float, projection_bodypart_group_for_offset: str) -> None:
         """
-        Uses the projection plane of projection_group_name to determine bvh skeleton's projected root offset.
+        Uses projection plane of projection_bodypart_group_for_offset to determine bvh skeleton's projected root offset.
         Scales that offset to account for differences in lengths of character and bvh skeleton limbs.
         """
-        projection_plane = self.joint_group_name_to_projection_plane[projection_group_name]
+        try:
+            projection_plane = self.joint_group_name_to_projection_plane[projection_bodypart_group_for_offset]
+        except Exception as e:
+            msg = f'Error getting projection plane: {str(e)}'
+            logging.critical(msg)
+            assert False, msg
 
         self.char_root_positions = np.empty([self.bvh_root_positions.shape[0], 2])
         self.char_root_positions[0] = [0, 0]
@@ -208,10 +269,10 @@ class Retargeter():
             logging.critical(msg)
             assert False, msg
 
-        dist_joint_idx = self.joint_names.index(dist_joint.name)
+        dist_joint_idx = self.bvh_joint_names.index(dist_joint.name)
         dist_joint_xyz = self.joint_positions[:, 3*dist_joint_idx:3*(dist_joint_idx+1)]
 
-        prox_joint_idx = self.joint_names.index(prox_joint.name)
+        prox_joint_idx = self.bvh_joint_names.index(prox_joint.name)
         prox_joint_xyz = self.joint_positions[:, 3*prox_joint_idx:3*(prox_joint_idx+1)]
 
         # compute the bone vector
@@ -228,7 +289,7 @@ class Retargeter():
         # project bone onto 2D plane
         if np.array_equal(projection_plane_normal, x_axis):
             projected_bone_xy = np.stack((-bone_vector[:, 2], bone_vector[:, 1]), axis=1)
-        elif np.array_equal(projection_plane_normal, z_axis): 
+        elif np.array_equal(projection_plane_normal, z_axis):
             projected_bone_xy = np.stack((bone_vector[:, 0], bone_vector[:, 1]), axis=1)
         else:
             msg = 'error projection_plane_normal'
