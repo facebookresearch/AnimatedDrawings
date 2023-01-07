@@ -1,5 +1,10 @@
 filepath: tests/zombie.bvh
 groundplane_joint: LeftFoot
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftUpLeg
+    - RightUpLeg
 projection_bodypart_groups:
 - joint_names:
   - RightShoulder
