@@ -211,4 +211,3 @@ class Transform():
     def _draw(self, **kwargs):
         """Transforms default to not being drawn. Subclasses must implement how they appear"""
         pass
-

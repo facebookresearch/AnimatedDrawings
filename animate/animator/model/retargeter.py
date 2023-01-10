@@ -29,7 +29,7 @@ class Retargeter():
 
         self.bvh_joint_names = self.bvh.get_joint_names()
 
-        # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to 
+        # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to
         self.forward_perp_vector_joint_names = bvh_metadata_cfg['forward_perp_joint_vectors']
 
         # rotate BVH skeleton so up is +Y

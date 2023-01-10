@@ -29,7 +29,7 @@ class Controller():
     def _tick(self):
         """Subclass and add logic is necessary to progress time"""
         pass
-    
+
     @abstractmethod
     def _update(self):
         """Subclass and add logic is necessary to update scene after progressing time"""
@@ -83,5 +83,5 @@ class Controller():
             self._update()
             self._handle_user_input()
             self._finish_run_loop_iteration()
-        
+
         self._cleanup_after_run_loop()

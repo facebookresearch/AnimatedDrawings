@@ -1,6 +1,7 @@
 from typing import Optional
 from abc import abstractmethod
 
+
 class TimeManager():
     """ Mixin class designed to be used by objects that must keep track of their own time (e.g. time-varying animations) """
 
@@ -15,7 +16,7 @@ class TimeManager():
         if not self._is_paused:
             self._time += delta_t
             self.update()
-    
+
     @abstractmethod
     def update(self):
         """ Contains logic needed to update subclass after tick() """

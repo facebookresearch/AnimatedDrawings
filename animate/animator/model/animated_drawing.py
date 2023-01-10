@@ -222,8 +222,8 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
 
-        for joint in self.char_cfg['skeleton']:  
-            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1 
+        for joint in self.char_cfg['skeleton']:
+            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1
 
         self.mesh: dict = self._generate_mesh()
 
@@ -493,7 +493,7 @@ class AnimatedDrawing(Transform, TimeManager):
             tri_centroid = geometry.Point(np.mean(tri_vertices, 0))
             if character_outline.contains(tri_centroid):
                 triangles.append(_triangle)
-        
+
         vertices /= self.img_dim  # scale vertices so they lie between 0-1
 
         return {'vertices': vertices, 'triangles': triangles}
@@ -598,7 +598,7 @@ class AnimatedDrawing(Transform, TimeManager):
             GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
             GL.glEnable(GL.GL_DEPTH_TEST)
-        
+
         if 'DRAW_AD_COLOR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_COLOR'] is True:
             GL.glDisable(GL.GL_DEPTH_TEST)
 

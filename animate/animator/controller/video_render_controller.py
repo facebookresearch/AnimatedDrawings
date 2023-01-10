@@ -38,7 +38,7 @@ class VideoRenderController(Controller):
 
     def _tick(self):
         self.scene.progress_time(self.delta_t)
-    
+
     def _update(self):
         self.scene.update_transforms()
 

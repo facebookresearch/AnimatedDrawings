@@ -28,7 +28,7 @@ class InteractiveController(Controller):
             glfw.set_window_should_close(self.view.win, True)
         elif key == glfw.KEY_W:  # move camera forward
             _, _, fwd = self.view.camera.get_right_up_fwd_vectors()
-            self.view.camera.offset(-0.1 * fwd) 
+            self.view.camera.offset(-0.1 * fwd)
             self.view.camera
         elif key == glfw.KEY_S:  # move camera back
             _, _, fwd = self.view.camera.get_right_up_fwd_vectors()
