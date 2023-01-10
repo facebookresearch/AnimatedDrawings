@@ -76,11 +76,11 @@ class Controller():
         self._prep_for_run_loop()
         while True:
             self._start_run_loop_iteration()
+            self._update()
             self._render()
             if self._is_run_over():
                 break
             self._tick()
-            self._update()
             self._handle_user_input()
             self._finish_run_loop_iteration()
 
