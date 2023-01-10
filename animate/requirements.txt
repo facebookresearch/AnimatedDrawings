@@ -24,3 +24,4 @@ scikit-learn==0.24.2
 threadpoolctl==2.1.0
 tifffile==2021.4.8
 triangle==20200424
+flask==2.2.2
