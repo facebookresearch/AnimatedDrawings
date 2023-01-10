@@ -2,9 +2,9 @@ import glfw
 from animator.controller.controller import Controller
 from animator.model.scene import Scene
 from animator.view.interactive_view import InteractiveView
-#from model.bvh import BVH
 from typing import Optional
 import time
+
 
 class InteractiveController(Controller):
 
@@ -12,16 +12,13 @@ class InteractiveController(Controller):
         super().__init__(cfg, scene)
 
         self.view: InteractiveView = view
-
         self.prev_time: float = 0.0  # tracks real-world time passing between run loops.
         self.pause: bool = False  # does time progress?
 
+        glfw.init()
         glfw.set_key_callback(self.view.win, self._on_key)
         glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
         glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
-
-    def attach_view(self, view: InteractiveView):
-        self.view = view
 
     def _on_key(self, _win, key: int, _scancode, action, _mods):
         if not (action == glfw.PRESS or action == glfw.REPEAT):

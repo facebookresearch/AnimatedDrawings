@@ -1,4 +1,6 @@
 filepath: tests/zombie.bvh
+frames: 779
+frame_time: 0.0333333
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
   - - LeftShoulder
