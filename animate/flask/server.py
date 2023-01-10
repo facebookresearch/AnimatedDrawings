@@ -1,6 +1,6 @@
 from flask import Flask
-#from flask import Flask, make_response, request
-#import logging
+# from flask import Flask, make_response, request
+# import logging
 
 
 app = Flask(__name__)
@@ -43,7 +43,7 @@ def image_to_predictions():
     pass
 
 
-@app.route('image_plus_annotations_to_animation', methods=['POST'])  #type: ignore
+@app.route('/image_plus_annotations_to_animation', methods=['POST'])  #type: ignore
 def image_plus_annotations_to_animation():
     """
     Given an image, annotations, and appropriate configs, creates an animation.
