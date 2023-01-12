@@ -13,6 +13,7 @@ from animator.view.shaders.shader import Shader
 import logging
 from typing import Tuple
 import numpy as np
+from pathlib import Path
 
 
 class MesaView(View):
@@ -34,18 +35,22 @@ class MesaView(View):
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
 
     def _prep_shaders(self):
+        if 'AD_ROOT_DIR' not in os.environ:
+            msg = 'AD_ROOT_DIR environmental variable not set'
+            logging.critical(msg)
+            assert False, msg
 
-        BVH_VERT = "view/shaders/bvh.vert"
-        BVH_FRAG = "view/shaders/bvh.frag"
-        self._initiatize_shader('bvh_shader', BVH_VERT, BVH_FRAG)
+        BVH_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.vert")
+        BVH_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.frag")
+        self._initiatize_shader('bvh_shader', str(BVH_VERT), str(BVH_FRAG))
 
-        COLOR_VERT = "view/shaders/color.vert"
-        COLOR_FRAG = "view/shaders/color.frag"
-        self._initiatize_shader('color_shader', COLOR_VERT, COLOR_FRAG)
+        COLOR_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/color.vert")
+        COLOR_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/color.frag")
+        self._initiatize_shader('color_shader', str(COLOR_VERT), str(COLOR_FRAG))
 
-        TEXTURE_VERT = "view/shaders/texture.vert"
-        TEXTURE_FRAG = "view/shaders/texture.frag"
-        self._initiatize_shader('texture_shader', TEXTURE_VERT, TEXTURE_FRAG, texture=True)
+        TEXTURE_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/texture.vert")
+        TEXTURE_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/texture.frag")
+        self._initiatize_shader('texture_shader', str(TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
 
     def _update_shaders_view_transform(self, camera: Camera):
         try:
