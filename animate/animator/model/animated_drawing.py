@@ -222,8 +222,10 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
 
+        # modify joint positions to account for new, padded image sizes
         for joint in self.char_cfg['skeleton']:
-            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1
+            joint['loc'][0] = joint['loc'][0] / self.img_dim  # width
+            joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg['height']/self.img_dim)  # height
 
         self.mesh: dict = self._generate_mesh()
 
