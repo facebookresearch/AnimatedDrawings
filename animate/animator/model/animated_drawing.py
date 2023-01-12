@@ -247,6 +247,9 @@ class AnimatedDrawing(Transform, TimeManager):
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
 
+        # pose the animated drawing using the first frame of the bvh
+        self.update()
+
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
         Initializes the retargeter used to drive the animated character.
