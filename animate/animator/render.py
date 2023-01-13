@@ -16,7 +16,7 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         assert False, msg
 
     # create the MVC config by combining base with user-specified options
-    with open(f'{os.environ["AD_ROOT_DIR"]}/config/base_cfg.yaml', 'r') as f:
+    with open(f'{os.environ["AD_ROOT_DIR"]}/animate/config/base_cfg.yaml', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
     with open(user_cfg_fn, 'r') as f:
         user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})
