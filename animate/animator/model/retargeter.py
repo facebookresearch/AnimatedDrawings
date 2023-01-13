@@ -7,6 +7,8 @@ from sklearn.decomposition import PCA
 from typing import Optional, Tuple, List
 from animator.model.vectors import Vectors
 from animator.model.quaternions import Quaternions
+from pathlib import Path
+import os
 
 x_axis = np.array([1.0, 0.0, 0.0])
 z_axis = np.array([0.0, 0.0, 1.0])
@@ -20,8 +22,19 @@ class Retargeter():
         bvh_metadata_cfg: bvh metadata config dictionary
         """
 
+        # Look for specified bvh file. First check using path specified, then relative to AD_ROOT_DIR. Abort if not found.
+        if Path(bvh_metadata_cfg['filepath']).exists():
+            bvh_fn: str = bvh_metadata_cfg['filepath']
+        elif Path(os.environ['AD_ROOT_DIR'], bvh_metadata_cfg['filepath']):
+            bvh_fn: str = str(Path(os.environ['AD_ROOT_DIR'], bvh_metadata_cfg['filepath']))
+        else:
+            msg = f'Could not find bvh file, aborting: {bvh_metadata_cfg["filepath"]}'
+            logging.critical(msg)
+            assert False, msg
+        logging.info(f'Using bvh file: {bvh_fn}')
+
         try:
-            self.bvh = BVH.from_file(bvh_metadata_cfg['filepath'])
+            self.bvh = BVH.from_file(bvh_fn)
         except Exception as e:
             msg = f'Error loading BVH: {e}'
             logging.critical(msg)
