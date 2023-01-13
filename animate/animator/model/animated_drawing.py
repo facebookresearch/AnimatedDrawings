@@ -218,9 +218,11 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
 
-        self.mask: np.ndarray = self._load_mask(self.char_cfg['mask_filepath'])
+        # load mask and pad to square
+        self.mask: np.ndarray = self._load_mask()
 
-        self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
+        # load texture and pad to square
+        self.txtr: np.ndarray = self._load_txtr()
 
         # modify joint positions to account for new, padded image sizes
         for joint in self.char_cfg['skeleton']:
@@ -400,8 +402,9 @@ class AnimatedDrawing(Transform, TimeManager):
             joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
         return joint_to_tri_v_idx
 
-    def _load_mask(self, mask_fn: str) -> np.ndarray:
+    def _load_mask(self) -> np.ndarray:
         """ Load and perform preprocessing upon the mask """
+        mask_fn: str = f'{self.char_cfg["char_files_dir"]}/mask.png'
         try:
             _mask = cv2.imread(mask_fn, cv2.IMREAD_GRAYSCALE)
             if _mask is None:
@@ -425,11 +428,13 @@ class AnimatedDrawing(Transform, TimeManager):
 
         return mask
 
-    def _load_txtr(self, txtr_fn: str) -> np.ndarray:
+    def _load_txtr(self) -> np.ndarray:
         """ Load and perform preprocessing upon the drawing image """
+        txtr_fn: str = f'{self.char_cfg["char_files_dir"]}/texture.png'
         try:
             _txtr = cv2.imread(txtr_fn, cv2.IMREAD_IGNORE_ORIENTATION |
                                cv2.IMREAD_UNCHANGED).astype(np.float32)
+            _txtr = cv2.cvtColor(_txtr, cv2.COLOR_BGRA2RGBA)
             if _txtr is None:
                 raise ValueError('Could not read file')
             if _txtr.shape[-1] != 4:
