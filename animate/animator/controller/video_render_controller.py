@@ -10,7 +10,7 @@ import logging
 
 class VideoRenderController(Controller):
 
-    def __init__(self, cfg: dict, scene: Scene, view: View, video_fps: float, frames_to_render: int):
+    def __init__(self, cfg: dict, scene: Scene, view: View, video_fps: float, frames_to_render: int, output_dir: str):
         super().__init__(cfg, scene)
 
         self.view: View = view
@@ -24,9 +24,9 @@ class VideoRenderController(Controller):
         self.video_width, self.video_height = self.view.get_framebuffer_size()
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.video_writer = cv2.VideoWriter(str('out.mp4'), fourcc, video_fps, (self.video_width, self.video_height))
+        self.video_writer = cv2.VideoWriter(f'{output_dir}/out.mp4', fourcc, video_fps, (self.video_width, self.video_height))
 
-        self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 3 for RGB, 4 for RGBA
+        self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
         self.frames = []
         self.frames_left_to_render = frames_to_render
 
@@ -38,7 +38,7 @@ class VideoRenderController(Controller):
 
     def _tick(self):
         self.scene.progress_time(self.delta_t)
-    
+
     def _update(self):
         self.scene.update_transforms()
 

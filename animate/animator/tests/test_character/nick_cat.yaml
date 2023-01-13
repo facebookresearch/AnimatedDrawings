@@ -74,11 +74,6 @@ skeleton:
   - 206
   name: neck
   parent: torso
-- loc:
-  - 252
-  - 43
-  name: head
-  parent: neck
 height: 515
 width: 415
 mask_filepath: 'tests/test_character/nick_cat_mask.png'

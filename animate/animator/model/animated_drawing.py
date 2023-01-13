@@ -218,12 +218,16 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
 
-        self.mask: np.ndarray = self._load_mask(self.char_cfg['mask_filepath'])
+        # load mask and pad to square
+        self.mask: np.ndarray = self._load_mask()
 
-        self.txtr: np.ndarray = self._load_txtr(self.char_cfg['txtr_filepath'])
+        # load texture and pad to square
+        self.txtr: np.ndarray = self._load_txtr()
 
-        for joint in self.char_cfg['skeleton']:  
-            joint['loc'] = np.array(joint['loc']) / self.img_dim  # scale joints to 0-1 
+        # modify joint positions to account for new, padded image sizes
+        for joint in self.char_cfg['skeleton']:
+            joint['loc'][0] = joint['loc'][0] / self.img_dim  # width
+            joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg['height']/self.img_dim)  # height
 
         self.mesh: dict = self._generate_mesh()
 
@@ -244,6 +248,9 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
+
+        # pose the animated drawing using the first frame of the bvh
+        self.update()
 
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
@@ -395,8 +402,9 @@ class AnimatedDrawing(Transform, TimeManager):
             joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
         return joint_to_tri_v_idx
 
-    def _load_mask(self, mask_fn: str) -> np.ndarray:
+    def _load_mask(self) -> np.ndarray:
         """ Load and perform preprocessing upon the mask """
+        mask_fn: str = f'{self.char_cfg["char_files_dir"]}/mask.png'
         try:
             _mask = cv2.imread(mask_fn, cv2.IMREAD_GRAYSCALE)
             if _mask is None:
@@ -420,11 +428,13 @@ class AnimatedDrawing(Transform, TimeManager):
 
         return mask
 
-    def _load_txtr(self, txtr_fn: str) -> np.ndarray:
+    def _load_txtr(self) -> np.ndarray:
         """ Load and perform preprocessing upon the drawing image """
+        txtr_fn: str = f'{self.char_cfg["char_files_dir"]}/texture.png'
         try:
             _txtr = cv2.imread(txtr_fn, cv2.IMREAD_IGNORE_ORIENTATION |
                                cv2.IMREAD_UNCHANGED).astype(np.float32)
+            _txtr = cv2.cvtColor(_txtr, cv2.COLOR_BGRA2RGBA)
             if _txtr is None:
                 raise ValueError('Could not read file')
             if _txtr.shape[-1] != 4:
@@ -493,7 +503,7 @@ class AnimatedDrawing(Transform, TimeManager):
             tri_centroid = geometry.Point(np.mean(tri_vertices, 0))
             if character_outline.contains(tri_centroid):
                 triangles.append(_triangle)
-        
+
         vertices /= self.img_dim  # scale vertices so they lie between 0-1
 
         return {'vertices': vertices, 'triangles': triangles}
@@ -598,7 +608,7 @@ class AnimatedDrawing(Transform, TimeManager):
             GL.glDrawElements(GL.GL_TRIANGLES, self.indices.shape[0], GL.GL_UNSIGNED_INT, None)
 
             GL.glEnable(GL.GL_DEPTH_TEST)
-        
+
         if 'DRAW_AD_COLOR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_COLOR'] is True:
             GL.glDisable(GL.GL_DEPTH_TEST)
 

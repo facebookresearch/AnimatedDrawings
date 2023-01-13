@@ -82,7 +82,7 @@ class Box(Transform):
     def _initialize_opengl_resources(self):
         """ Method to initialize the OpenGL arrays and buffers necessary to draw the object.
         It's better to not initialize these things unless we're definitely going to be drawing the object,
-        as calling GL functions without calling glfw.init() first can cause a mysterious segfault. 
+        as calling GL functions without calling glfw.init() first can cause a mysterious segfault.
         This way, unit tests and other non-rendering operations can proceed without requiring a Controller.
         """
         self.vao = GL.glGenVertexArrays(1)

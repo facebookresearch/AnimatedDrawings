@@ -29,7 +29,7 @@ class Controller():
     def _tick(self):
         """Subclass and add logic is necessary to progress time"""
         pass
-    
+
     @abstractmethod
     def _update(self):
         """Subclass and add logic is necessary to update scene after progressing time"""
@@ -74,14 +74,12 @@ class Controller():
         """ The run loop. Subclassed controllers should overload and define functionality for each step in this function."""
 
         self._prep_for_run_loop()
-        while True:
+        while not self._is_run_over():
             self._start_run_loop_iteration()
-            self._render()
-            if self._is_run_over():
-                break
-            self._tick()
             self._update()
+            self._render()
+            self._tick()
             self._handle_user_input()
             self._finish_run_loop_iteration()
-        
+
         self._cleanup_after_run_loop()

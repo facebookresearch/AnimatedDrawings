@@ -134,7 +134,7 @@ class ARAP():
         # for speed, convert to sparse matrices and cache for later
         self.tA1 = sp.csr_matrix(self.A1.transpose())
         self.tA2 = sp.csr_matrix(self.A2.transpose())
-        self.G = sp.csr_matrix(G) 
+        self.G = sp.csr_matrix(G)
 
         self.tA1xA1 = self.tA1 @ self.A1
         while np.linalg.det(self.tA1xA1) == 0.0:
