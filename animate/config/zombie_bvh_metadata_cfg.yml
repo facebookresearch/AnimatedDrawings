@@ -1,4 +1,4 @@
-filepath: tests/zombie.bvh
+filepath: animate/bvh/zombie.bvh
 frames: 779
 frame_time: 0.0333333
 groundplane_joint: LeftFoot

@@ -1,4 +1,4 @@
-filepath: bvh/dab.bvh
+filepath: animate/bvh/dab.bvh
 frames: 339
 frame_time: 0.0333333
 groundplane_joint: LeftFoot
