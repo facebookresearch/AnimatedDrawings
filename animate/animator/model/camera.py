@@ -1,5 +1,5 @@
 from animator.model.transform import Transform
-from model.vectors import Vectors
+from animator.model.vectors import Vectors
 
 
 class Camera(Transform):
@@ -11,6 +11,10 @@ class Camera(Transform):
     ):
         super().__init__()
 
+        if not isinstance(pos, Vectors):
+            pos = Vectors(pos)
         self.set_position(pos)
 
+        if not isinstance(fwd, Vectors):
+            fwd = Vectors(fwd)
         self.look_at(fwd)

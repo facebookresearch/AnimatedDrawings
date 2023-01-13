@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Tuple
 
 
 class View:
@@ -13,5 +14,16 @@ class View:
         pass
 
     @abstractmethod
-    def render(self):
+    def render(self, scene):
+        """ Called by the controller to render the scene. """
+        pass
+
+    @abstractmethod
+    def clear_window(self):
+        """ Clear output from previous render loop. """
+        pass
+
+    @abstractmethod
+    def get_framebuffer_size(self) -> Tuple[int, int]:
+        """ Return (width, height) of framebuffer. """
         pass

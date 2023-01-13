@@ -1,26 +1,31 @@
-from animator.view.view import View
-from animator.view.shaders.shader import Shader
-from animator.view.utils import get_projection_matrix
-from animator.model.scene import Scene
+import os
+os.environ['PYOPENGL_PLATFORM'] = "osmesa"
+os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
+from OpenGL import GL, osmesa
+
 from animator.model.camera import Camera
+from animator.model.scene import Scene
 from animator.model.transform import Transform
-import glfw
-import OpenGL.GL as GL
+from animator.view.view import View
+from animator.view.utils import get_projection_matrix
+from animator.view.shaders.shader import Shader
+
 import logging
 from typing import Tuple
 import numpy as np
 
 
-class InteractiveView(View):
-    """Interactive View for interactive, windowed rendering"""
+class MesaView(View):
+    """ Mesa View for Headless Rendering """
 
     def __init__(self, cfg: dict):
         super().__init__(cfg)
 
-        glfw.init()
-
         self.camera: Camera = Camera(cfg['CAMERA_POS'], cfg['CAMERA_FWD'])
-        self.win: glfw._GLFWwindow = self._create_window(*self.cfg['WINDOW_DIMENSIONS'])
+
+        self.ctx: osmesa.OSMesaContext
+        self.buffer: np.ndarray
+        self._initialize_mesa()
 
         self.shaders = {}
         self.shader_ids = {}
@@ -70,29 +75,17 @@ class InteractiveView(View):
             GL.glUniform1i(GL.glGetUniformLocation(
                 self.shader_ids[shader_name], 'texture0'), 0)
 
-    def _create_window(self, width: int, height: int):
-        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
-        glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-        glfw.window_hint(glfw.RESIZABLE, False)
+    def _initialize_mesa(self):
 
-        win = glfw.create_window(width, height, 'Viewer', None, None)
-        glfw.make_context_current(win)
+        width, height = self.cfg['WINDOW_DIMENSIONS']
+        self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
+        self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
+        osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
 
-        print('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',  # type: ignore
-              GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +     # type: ignore
-              ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())        # type: ignore
-
-        GL.glEnable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_BLEND)
-        GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        # GL parameters specified by the cfg go here
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
-
-        return win
 
     def set_scene(self, scene: Scene):
         self.scene = scene
@@ -106,10 +99,7 @@ class InteractiveView(View):
 
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of view's window. """
-        return glfw.get_framebuffer_size(self.win)
-
-    def swap_buffers(self):
-        glfw.swap_buffers(self.win)
+        return self.buffer.shape[:2][::-1]
 
     def clear_window(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore

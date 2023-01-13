@@ -74,12 +74,14 @@ class Controller():
         """ The run loop. Subclassed controllers should overload and define functionality for each step in this function."""
 
         self._prep_for_run_loop()
-        while not self._is_run_over():
+        while True:
             self._start_run_loop_iteration()
-            self._handle_user_input()
+            self._render()
+            if self._is_run_over():
+                break
             self._tick()
             self._update()
-            self._render()
+            self._handle_user_input()
             self._finish_run_loop_iteration()
         
         self._cleanup_after_run_loop()
