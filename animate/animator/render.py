@@ -4,12 +4,19 @@ import yaml
 import sys
 from collections import defaultdict
 from pathlib import Path
+import os
 
 
 def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_fn: str, char_cfg_fn: str):
 
+    # ensure project root dir set as env var
+    if 'AD_ROOT_DIR' not in os.environ:
+        msg = 'AD_ROOT_DIR environmental variable not set'
+        logging.critical(msg)
+        assert False, msg
+
     # create the MVC config by combining base with user-specified options
-    with open('./animator/config/base_cfg.yaml', 'r') as f:
+    with open(f'{os.environ["AD_ROOT_DIR"]}/animate/config/base_cfg.yaml', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
     with open(user_cfg_fn, 'r') as f:
         user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})

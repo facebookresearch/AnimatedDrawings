@@ -1,5 +1,5 @@
 DRAW_FLOOR: True
-DRAW_AD_RETARGET_BVH: TRUE
+DRAW_AD_RETARGET_BVH: False
 CHARACTER_OFFSET: [0.0, 0.0, 0.0]
 view:
   CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
@@ -10,13 +10,13 @@ view:
   DRAW_AD_MESH_LINES: False
   USE_MESA: False
   CAMERA_POS:
-    - 2.5
-    - 1.5
-    - 9.0
+    - 0.0
+    - 0.5
+    - 2.0
   CAMERA_FWD:
     - 0.0
-    - 0.0
-    - 9.0
+    - 0.5
+    - 2.0
 controller:
   keyboard_timestep: 0.0333
   type: 'interactive'
