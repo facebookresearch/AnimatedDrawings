@@ -113,6 +113,7 @@ class BVH(Transform, TimeManager):
                 assert False, msg
 
             bone_vector: Vectors = Vectors(end_joint.get_world_position()) - Vectors(start_joint.get_world_position())
+            bone_vector.norm()
             vectors_cw_perpendicular_to_fwd.append(bone_vector)
 
         return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
