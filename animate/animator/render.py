@@ -24,14 +24,6 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
     cfg['controller'] = {**base_cfg['controller'], **user_cfg['controller']}
     cfg['view'] = {**base_cfg['view'], **user_cfg['view']}
 
-    # get the configs needed for animation
-    with open(bvh_metadata_cfg_fn, 'r') as f:
-        bvh_metadata_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    with open(char_bvh_retargeting_cfg_fn, 'r') as f:
-        char_bvh_retargeting_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    with open(char_cfg_fn, 'r') as f:
-        char_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    char_cfg['char_files_dir'] = str(Path(char_cfg_fn).parent)  # save the path so we can get image and mask from same directory
 
     # create view
     if cfg['view']['USE_MESA']:
@@ -49,23 +41,40 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         from animator.model.floor import Floor
         scene.add_child(Floor())
     
+    max_video_frames = 0
+    video_fps = None
     # Add the Animated Drawing
     from animator.model.animated_drawing import AnimatedDrawing
-    ad = AnimatedDrawing(char_cfg, char_bvh_retargeting_cfg, bvh_metadata_cfg)
-    scene.add_child(ad)
-    if cfg['DRAW_AD_RETARGET_BVH']:
-        scene.add_child(ad.retargeter.bvh)
+    for ad_dict in cfg['ANIMATED_CHARACTERS']:
+        with open(ad_dict['motion_cfg'], 'r') as f:
+            motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(ad_dict['retarget_cfg'], 'r') as f:
+            retarget_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(ad_dict['character_cfg'], 'r') as f:
+            char_cfg = yaml.load(f, Loader=yaml.FullLoader)
+            char_cfg['char_files_dir'] = str(Path(ad_dict['character_cfg']).parent)  # save the path so we can get image and mask from same directory
+
+        # add the character
+        ad = AnimatedDrawing(char_cfg, retarget_cfg, motion_cfg)
+        scene.add_child(ad)
+        if cfg['DRAW_AD_RETARGET_BVH']:
+            scene.add_child(ad.retargeter.bvh)
+
+        max_video_frames = max(max_video_frames, motion_cfg['end_frame_idx'] - motion_cfg['start_frame_idx'])
+        if video_fps is None:
+            video_fps = 1 / ad.retargeter.bvh.frame_time
+        elif video_fps != 1 / ad.retargeter.bvh.frame_time:
+            msg = 'BVH files with mismatching Frame Times in same scene. If using video, Frame Time of first BVH will be used'
+            logging.info(msg)
+
 
     # create controller
     if cfg['controller']['MODE'] == 'video_render':
         # calculate the number of frames we'll be rendering
-        video_frames = bvh_metadata_cfg['end_frame_idx'] - bvh_metadata_cfg['start_frame_idx']
+        video_frames = max_video_frames
 
-        # video frames per second is 1 / BVH's frame_time (seconds per frame)
-        video_fps = 1 / ad.retargeter.bvh.frame_time
-
-        # save video to parent directory of char_cfg_fn
-        out_dir = str(Path(char_cfg_fn).parent)
+        # save video to parent directory of user_cfg_fn
+        out_dir = str(Path(user_cfg_fn).parent)
 
         from controller.video_render_controller import VideoRenderController
         controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)

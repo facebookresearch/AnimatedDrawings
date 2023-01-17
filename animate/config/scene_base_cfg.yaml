@@ -1,5 +1,9 @@
 DRAW_FLOOR: True
 DRAW_AD_RETARGET_BVH: False
+ANIMATED_CHARACTERS:
+  - character_cfg: /Users/hjessmith/Desktop/ad_out/char_cfg.yaml
+    motion_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/motion_dab.yaml
+    retarget_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/retarget.yaml
 view:
   CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
   WINDOW_DIMENSIONS: [500, 500]

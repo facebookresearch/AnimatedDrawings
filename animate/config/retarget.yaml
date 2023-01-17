@@ -2,7 +2,7 @@ bvh_projection_mapping_methods:
   Lower Limbs: pca
   Trunk: frontal
   Upper Limbs: pca
-char_starting_location: [0.0, 0.0, -10.0]
+char_starting_location: [0.0, 0.0, 0.0]
 char_bodypart_groups:
 - depth_drivers:
   - Hips
