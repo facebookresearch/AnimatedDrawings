@@ -16,7 +16,7 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         assert False, msg
 
     # create the MVC config by combining base with user-specified options
-    with open(f'{os.environ["AD_ROOT_DIR"]}/animate/config/base_cfg.yaml', 'r') as f:
+    with open(f'{os.environ["AD_ROOT_DIR"]}/animate/config/scene_base_cfg.yaml', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
     with open(user_cfg_fn, 'r') as f:
         user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})
@@ -33,31 +33,16 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         char_cfg = yaml.load(f, Loader=yaml.FullLoader)
     char_cfg['char_files_dir'] = str(Path(char_cfg_fn).parent)  # save the path so we can get image and mask from same directory
 
-    # create scene
-    scene = Scene(cfg['scene'])
-
     # create view
     if cfg['view']['USE_MESA']:
         from animator.view.mesa_view import MesaView
         view = MesaView(cfg['view'])
     else:
-        from animator.view.interactive_view import InteractiveView
-        view = InteractiveView(cfg['view'])
+        from view.window_view import WindowView
+        view = WindowView(cfg['view'])
 
-    # create controller
-    if cfg['controller']['type'] == 'video_render':
-        from controller.video_render_controller import VideoRenderController
-        video_fps = 1.0 / bvh_metadata_cfg['frame_time']
-        video_frames = bvh_metadata_cfg['frames']
-        out_dir = str(Path(char_cfg_fn).parent)
-        controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)
-    elif cfg['controller']['type'] == 'interactive':
-        from animator.controller.interactive_controller import InteractiveController
-        controller = InteractiveController(cfg['controller'], scene, view)
-    else:
-        msg = f'Unknown controller type specified: {cfg["controller"]["type"]}'
-        logging.critical(msg)
-        assert False, msg
+    # create scene
+    scene = Scene(cfg['scene'])
 
     # populate scene
     if cfg['DRAW_FLOOR']:
@@ -71,6 +56,26 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
     if cfg['DRAW_AD_RETARGET_BVH']:
         scene.add_child(ad.retargeter.bvh)
 
+    # create controller
+    if cfg['controller']['MODE'] == 'video_render':
+        # calculate the number of frames we'll be rendering
+        video_frames = bvh_metadata_cfg['end_frame_idx'] - bvh_metadata_cfg['start_frame_idx']
+
+        # video frames per second is 1 / BVH's frame_time (seconds per frame)
+        video_fps = 1 / ad.retargeter.bvh.frame_time
+
+        # save video to parent directory of char_cfg_fn
+        out_dir = str(Path(char_cfg_fn).parent)
+
+        from controller.video_render_controller import VideoRenderController
+        controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)
+    elif cfg['controller']['MODE'] == 'interactive':
+        from animator.controller.interactive_controller import InteractiveController
+        controller = InteractiveController(cfg['controller'], scene, view)
+    else:
+        msg = f'Unknown controller type specified: {cfg["controller"]["type"]}'
+        logging.critical(msg)
+        assert False, msg
     # start the run loop
     controller.run()
 
