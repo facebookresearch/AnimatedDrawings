@@ -74,7 +74,7 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         video_frames = max_video_frames
 
         # save video to parent directory of user_cfg_fn
-        out_dir = str(Path(user_cfg_fn).parent)
+        out_dir = cfg['controller']['OUTPUT_VIDEO_PATH']
 
         from controller.video_render_controller import VideoRenderController
         controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)
