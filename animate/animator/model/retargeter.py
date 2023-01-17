@@ -33,13 +33,19 @@ class Retargeter():
             assert False, msg
         logging.info(f'Using bvh file: {bvh_fn}')
 
+        # read start and end frame from config
+        start_frame_idx = bvh_metadata_cfg.get('start_frame_idx', 0)
+        end_frame_idx = bvh_metadata_cfg.get('end_frame_idx', None)
+
+        # instantiate the bvh
         try:
-            self.bvh = BVH.from_file(bvh_fn)
+            self.bvh = BVH.from_file(bvh_fn, start_frame_idx, end_frame_idx)
         except Exception as e:
             msg = f'Error loading BVH: {e}'
             logging.critical(msg)
             assert False, msg
 
+        # get and cache bvh joint names for later
         self.bvh_joint_names = self.bvh.get_joint_names()
 
         # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to
