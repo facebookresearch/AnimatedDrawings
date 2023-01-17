@@ -231,8 +231,6 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.mesh: dict = self._generate_mesh()
 
-        self.vertices: np.ndarray = self._initialize_vertices()
-
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
 
@@ -242,9 +240,11 @@ class AnimatedDrawing(Transform, TimeManager):
         self.retargeter: Retargeter
         self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
 
-        control_points: np.ndarray = self.rig.get_joints_2D_positions()
-        self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
-        self.vertices[:, :2] = self.arap.solve(control_points).reshape([-1, 2])
+        # initialize arap solver with original joint positions
+        self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
+
+        self.vertices: np.ndarray
+        self._initialize_vertices()
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
@@ -512,22 +512,32 @@ class AnimatedDrawing(Transform, TimeManager):
 
         return {'vertices': vertices, 'triangles': triangles}
 
-    def _initialize_vertices(self) -> np.ndarray:
-        """ Prepare the ndarray that will be sent to rendering pipeline.
-        Subsequenct calls will update the x and y pos of vertices, but z pos and u v textures won't change.
+    def _initialize_vertices(self) -> None:
         """
-        vertices = np.empty((self.mesh['vertices'].shape[0], 8), np.float32)
+        Prepare the ndarray that will be sent to rendering pipeline.
+        Later, x and y vertex positions will change, but z pos, u v texture, and rgb color won't.
+        """
+        self.vertices = np.zeros((self.mesh['vertices'].shape[0], 8), np.float32)
 
-        vertices[:, 0] = self.mesh['vertices'][:, 0]    # x pos
-        vertices[:, 1] = self.mesh['vertices'][:, 1]    # y pos
-        vertices[:, 2] = 0.0                            # z pos
-        vertices[:, 3] = self.mesh['vertices'][:, 0]    # r col
-        vertices[:, 4] = self.mesh['vertices'][:, 1]    # g col
-        vertices[:, 5] = 0.0                            # b col
-        vertices[:, 6] = self.mesh['vertices'][:, 1]    # u tex
-        vertices[:, 7] = self.mesh['vertices'][:, 0]    # v tex
+        # initialize xy positions of mesh vertices
+        self.vertices[:, :2] = self.arap.solve(self.rig.get_joints_2D_positions()).reshape([-1, 2])
 
-        return vertices
+        # initialize texture coordiantes
+        self.vertices[:, 6] = self.mesh['vertices'][:, 1]                        # u tex
+        self.vertices[:, 7] = self.mesh['vertices'][:, 0]                        # v tex
+
+        # set per-joint triangle colors
+        r = np.linspace(0, 1, 4)
+        g = np.linspace(0, 1, 4)
+        b = np.linspace(0, 1, 4)
+        colors = set()
+        while len(colors) < len(self.joint_to_tri_v_idx):
+            color = (np.random.choice(r), np.random.choice(g), np.random.choice(b))
+            colors.add(color)
+        colors = np.array(list(colors), np.float32)
+
+        for c_idx, v_idxs in enumerate(self.joint_to_tri_v_idx.values()):
+            self.vertices[v_idxs, 3:6] = colors[c_idx]  # rgb colors
 
     def _initialize_opengl_resources(self) -> None:
 
