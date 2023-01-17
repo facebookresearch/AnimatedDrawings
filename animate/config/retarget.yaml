@@ -1,7 +1,3 @@
-bvh_projection_mapping_methods:
-  Lower Limbs: pca
-  Trunk: frontal
-  Upper Limbs: pca
 char_starting_location: [-1.0, 0.0, -3.0]
 projection_bodypart_groups:
 - joint_names:
@@ -15,6 +11,7 @@ projection_bodypart_groups:
   - LeftForeArm
   - LeftHand
   - LeftHandEnd
+  method: saggital
   name: Upper Limbs
 - joint_names:
   - RightUpLeg
@@ -25,6 +22,7 @@ projection_bodypart_groups:
   - LeftLeg
   - LeftFoot
   - LeftToeBase
+  method: saggital
   name: Lower Limbs
 - joint_names:
   - Hips
@@ -34,6 +32,7 @@ projection_bodypart_groups:
   - Spine3
   - Neck
   - Head
+  method: frontal
   name: Trunk
 char_bodypart_groups:
 - depth_drivers:
