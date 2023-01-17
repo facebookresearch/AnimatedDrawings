@@ -99,7 +99,7 @@ class Retargeter():
         # get & save projection planes
         self.joint_group_name_to_projection_plane: dict = {}
         self.joint_to_projection_plane: dict = {}
-        for joint_projection_group in bvh_metadata_cfg['projection_bodypart_groups']:
+        for joint_projection_group in char_bvh_retargeting_cfg['projection_bodypart_groups']:
             group_name = joint_projection_group['name']
             joint_names = joint_projection_group['joint_names']
             projection_method: str = char_bvh_retargeting_cfg['bvh_projection_mapping_methods'][group_name]
