@@ -6,11 +6,11 @@ import cv2
 from OpenGL import GL
 import numpy as np
 import logging
-
+from pathlib import Path
 
 class VideoRenderController(Controller):
 
-    def __init__(self, cfg: dict, scene: Scene, view: View, video_fps: float, frames_to_render: int, output_dir: str):
+    def __init__(self, cfg: dict, scene: Scene, view: View, video_fps: float, frames_to_render: int, output_path: str):
         super().__init__(cfg, scene)
 
         self.view: View = view
@@ -24,7 +24,12 @@ class VideoRenderController(Controller):
         self.video_width, self.video_height = self.view.get_framebuffer_size()
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.video_writer = cv2.VideoWriter(f'{output_dir}/out.mp4', fourcc, video_fps, (self.video_width, self.video_height))
+        if not output_path.endswith('.mp4'):
+            msg = f'Only .mp4 output video files supported. Found {Path(output_path).suffix}'
+            logging.critical(msg)
+            assert False, msg
+
+        self.video_writer = cv2.VideoWriter(output_path, fourcc, video_fps, (self.video_width, self.video_height))
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
         self.frames = []
