@@ -1,1 +1,1 @@
-tolerance = 10**-5
+TOLERANCE = 10**-5

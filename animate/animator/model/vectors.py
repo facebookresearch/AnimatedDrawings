@@ -4,7 +4,7 @@ import logging
 from typing import Union
 from numbers import Number
 from copy import copy
-from utils import tolerance
+from utils import TOLERANCE
 
 
 class Vectors():
@@ -66,10 +66,10 @@ class Vectors():
     def norm(self):
         ns = np.linalg.norm(self.vs, axis=-1)
 
-        if np.min(ns) < tolerance:
-            logging.info(f"Encountered values close to zero in vector norm. Replacing with {tolerance}")
-            print(f"Encountered values close to zero in vector norm. Replacing with {tolerance}")
-            ns[ns < tolerance] = tolerance
+        if np.min(ns) < TOLERANCE:
+            logging.info(f"Encountered values close to zero in vector norm. Replacing with {TOLERANCE}")
+            print(f"Encountered values close to zero in vector norm. Replacing with {TOLERANCE}")
+            ns[ns < TOLERANCE] = TOLERANCE
 
         self.vs = self.vs / np.expand_dims(ns, axis=-1)
 
