@@ -18,5 +18,5 @@ view:
     - 0.5
     - 2.0
 controller:
-  keyboard_timestep: 0.0333
-  type: 'interactive'
+  KEYBOARD_TIMESTEP: 0.0333
+  MODE: 'interactive'

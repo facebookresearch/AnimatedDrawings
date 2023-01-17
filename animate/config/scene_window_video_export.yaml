@@ -1,4 +1,4 @@
 controller:
-  type: 'video_render'
+  MODE: 'video_render'
 view:
   USE_MESA: False

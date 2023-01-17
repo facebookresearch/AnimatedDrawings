@@ -54,9 +54,9 @@ class InteractiveController(Controller):
             self.pause = not self.pause
             self.prev_time = time.time()
         elif key == glfw.KEY_RIGHT:
-            self._tick(self.cfg['keyboard_timestep'])
+            self._tick(self.cfg['KEYBOARD_TIMESTEP'])
         elif key == glfw.KEY_LEFT:
-            self._tick(-self.cfg['keyboard_timestep'])
+            self._tick(-self.cfg['KEYBOARD_TIMESTEP'])
 
     def _on_mouse_move(self, win, xpos: float, ypos: float):
         pass
