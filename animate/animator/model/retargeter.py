@@ -102,7 +102,7 @@ class Retargeter():
         for joint_projection_group in char_bvh_retargeting_cfg['projection_bodypart_groups']:
             group_name = joint_projection_group['name']
             joint_names = joint_projection_group['joint_names']
-            projection_method: str = char_bvh_retargeting_cfg['bvh_projection_mapping_methods'][group_name]
+            projection_method: str = joint_projection_group['method']
 
             projection_plane = self._determine_projection_plane_normal(group_name, joint_names, projection_method)
             self.joint_group_name_to_projection_plane[joint_projection_group['name']] = projection_plane
