@@ -13,8 +13,8 @@ import os
 from pathlib import Path
 
 
-class InteractiveView(View):
-    """Interactive View for interactive, windowed rendering"""
+class WindowView(View):
+    """Window View for rendering into a visible window"""
 
     def __init__(self, cfg: dict):
         super().__init__(cfg)
