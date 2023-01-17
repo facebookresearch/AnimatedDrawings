@@ -90,7 +90,10 @@ class Retargeter():
         self.bvh_root_positions: np.ndarray
         self._compute_normalized_joint_positions_and_fwd_vectors()
 
-        # retargeted world coordinates of character root joint
+        # cache the starting worldspace location of character's root joint
+        self.character_start_loc = np.array(char_bvh_retargeting_cfg['char_starting_location'])
+
+        # holds world coordinates of character root joint after retargeting
         self.char_root_positions: Optional[np.ndarray] = None
 
         # get & save projection planes
@@ -358,5 +361,6 @@ class Retargeter():
         joint_depths = {key: val[frame_idx] for (key, val) in self.bvh_joint_to_projection_depth.items()}
 
         root_position = np.array([self.char_root_positions[frame_idx, 0], self.char_root_positions[frame_idx, 1], 0.0])
+        root_position += self.character_start_loc  # offset by character's starting location
 
         return orientations, joint_depths, root_position

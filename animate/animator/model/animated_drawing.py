@@ -317,9 +317,13 @@ class AnimatedDrawing(Transform, TimeManager):
         self.rig.root_joint.set_position(root_position)
         self.rig.set_global_orientations(frame_orientations)
 
-        # using new joint positions, calculate new mesh vertex positions
+        # using new joint positions, calculate new mesh vertex xy positions
         control_points: np.ndarray = self.rig.get_joints_2D_positions()
         self.vertices[:, :2] = self.arap.solve(control_points)
+
+        # use the z position of the rig's root joint for all mesh vertices
+        self.vertices[:, 2] = self.rig.root_joint.get_world_position()[2]
+
         self._vertex_buffer_dirty_bit = True
 
         # using joint depths, determine the correct order in which to render the character
