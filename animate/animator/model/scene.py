@@ -2,6 +2,9 @@ from animator.model.transform import Transform
 from animator.model.time_manager import TimeManager
 import yaml
 from pathlib import Path
+import os
+import logging
+from utils import resolve_ad_filepath
 
 
 class Scene(Transform, TimeManager):
@@ -23,15 +26,27 @@ class Scene(Transform, TimeManager):
         # Add the Animated Drawing
         from animator.model.animated_drawing import AnimatedDrawing
         for ad_dict in cfg['ANIMATED_CHARACTERS']:
-            with open(ad_dict['motion_cfg'], 'r') as f:
+
+            # get the motion config
+            motion_cfg_p = resolve_ad_filepath(ad_dict['motion_cfg'], 'motion cfg')
+            logging.info(f'Using motion_cfg located at {motion_cfg_p.resolve()}')
+            with open(str(motion_cfg_p), 'r') as f:
                 motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
-            with open(ad_dict['retarget_cfg'], 'r') as f:
+
+            # get the retarget config
+            retarget_cfg_p = resolve_ad_filepath(ad_dict['retarget_cfg'], 'retarget cfg')
+            logging.info(f'Using retarget_cfg located at {retarget_cfg_p.resolve()}')
+            with open(str(retarget_cfg_p), 'r') as f:
                 retarget_cfg = yaml.load(f, Loader=yaml.FullLoader)
-            with open(ad_dict['character_cfg'], 'r') as f:
+
+            # get the character config
+            character_cfg_p = resolve_ad_filepath(ad_dict['character_cfg'], 'character cfg')
+            logging.info(f'Using character_cfg located at {character_cfg_p.resolve()}')
+            with open(str(character_cfg_p), 'r') as f:
                 char_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
-            # save the path so we can get image and mask from same directory
-            char_cfg['char_files_dir'] = str(Path(ad_dict['character_cfg']).parent)
+            # save the path of parent dir so we can get image and mask from same directory
+            char_cfg['char_files_dir'] = str(character_cfg_p.parent)
 
             # add the character to the scene
             ad = AnimatedDrawing(char_cfg, retarget_cfg, motion_cfg)

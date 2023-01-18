@@ -9,6 +9,8 @@ from animator.model.joint import Joint
 from animator.model.time_manager import TimeManager
 import numpy as np
 import logging
+import os
+from animator.utils import resolve_ad_filepath
 
 
 class BVH_Joint(Joint):
@@ -122,13 +124,11 @@ class BVH(Transform, TimeManager):
     def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None) -> BVH:
         """ Given a path to a .bvh, constructs and returns BVH object"""
 
-        if not Path(bvh_fn).exists():
-            msg = f'bvh_fn DNE: {bvh_fn}'
-            logging.critical(msg)
-            assert False, msg
-        name = Path(bvh_fn).name
+        # search for the BVH file specified
+        bvh_p: Path = resolve_ad_filepath(bvh_fn, 'bvh file')
+        logging.info(f'Using BVH file located at {bvh_p.resolve()}')
 
-        with open(bvh_fn, 'r') as f:
+        with open(str(bvh_p), 'r') as f:
             lines = f.read().splitlines()
 
         if lines.pop(0) != 'HIERARCHY':
@@ -190,7 +190,7 @@ class BVH(Transform, TimeManager):
         # new frame_max_num based is end_frame_idx minus start_frame_idx
         frame_max_num = end_frame_idx - start_frame_idx
 
-        return BVH(name, root_joint, frame_max_num, frame_time, pos_data, rot_data)
+        return BVH(bvh_p.name, root_joint, frame_max_num, frame_time, pos_data, rot_data)
 
     @classmethod
     def _parse_skeleton(cls, lines: List[str]) -> BVH_Joint:
