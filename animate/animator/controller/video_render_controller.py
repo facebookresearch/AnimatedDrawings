@@ -62,15 +62,12 @@ class VideoRenderController(Controller):
 
         # prep video output location
         output_p = Path(self.cfg['OUTPUT_VIDEO_PATH'])
-        if not output_p.suffix == '.mp4':
-            msg = f'Only .mp4 output video files supported. Found {output_p.suffix}'
-            logging.critical(msg)
-            assert False, msg
         output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'Writing video to {output_p.resolve()}')
 
         # prep codec
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*self.cfg['OUTPUT_VIDEO_CODEC'])
+        logging.info(f'Using {self.cfg["OUTPUT_VIDEO_CODEC"]}')
 
         # prep video dimensions
         self.video_width, self.video_height = self.view.get_framebuffer_size()

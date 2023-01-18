@@ -9,8 +9,10 @@ view:
   DRAW_AD_COLOR: False
   DRAW_AD_MESH_LINES: False
   USE_MESA: False
-  CAMERA_POS: [0.0, 0.5, 2.0]
+  CAMERA_POS: [0.0, 1.0, 2.0]
   CAMERA_FWD: [0.0, 0.5, 2.0]
 controller:
-  KEYBOARD_TIMESTEP: 0.0333
   MODE: 'interactive'
+  KEYBOARD_TIMESTEP: 0.0333  # only used if mode is 'interactive'
+  OUTPUT_VIDEO_PATH: ./output_video.mp4  # only used if mode is 'video_render'
+  OUTPUT_VIDEO_CODEC: H264  # only used if mode is 'video_render'
