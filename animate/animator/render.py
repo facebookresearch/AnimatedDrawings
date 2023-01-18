@@ -9,7 +9,7 @@ from pathlib import Path
 import os
 
 
-def _build_config(user_cfg_fn: str) -> defaultdict:
+def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
     """ Combines and returns user-specified config file with base config file."""
 
     # ensure project root dir set as env var
@@ -21,7 +21,7 @@ def _build_config(user_cfg_fn: str) -> defaultdict:
     # create the MVC config by combining base with user-specified options
     with open(f'{Path(os.environ["AD_ROOT_DIR"],"animate/animator/scene_base_cfg.yaml")}', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
-    with open(user_cfg_fn, 'r') as f:
+    with open(user_mvc_cfg_fn, 'r') as f:
         user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})
 
     cfg = defaultdict(dict)
@@ -32,10 +32,10 @@ def _build_config(user_cfg_fn: str) -> defaultdict:
     return cfg
 
 
-def start(user_cfg_fn: str):
+def start(user_mvc_cfg_fn: str):
 
     # build cfg
-    cfg = _build_config(user_cfg_fn)
+    cfg = _build_config(user_mvc_cfg_fn)
 
     # create view
     view = View.create_view(cfg['view'])
@@ -53,7 +53,7 @@ def start(user_cfg_fn: str):
 if __name__ == '__main__':
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
-    # user-specified scene-level configuration filepath
-    scene_cfg_fn = sys.argv[1]
+    # user-specified mvc configuration filepath
+    user_mvc_cfg_fn = sys.argv[1]
 
-    start(scene_cfg_fn)
+    start(user_mvc_cfg_fn)

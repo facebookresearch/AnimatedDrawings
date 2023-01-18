@@ -1,9 +1,9 @@
-# Scene Config File
+# MVC Config File
 This configuration file contains all the parameters and options not specified related to the Animated Drawing character, the BVH file, or the retargeting process.
-Notably, parameters needed by the View or Controller within the MVC framework should go here.
-Most of the available parameters are defined in `scene_base_cfg.yaml`. This file should **not** be changed. Instead, create a new scene config file containg *only* the parameters that need to be modified.
-The rendering script will read the initial parameters from `scene_base_cfg.yaml` and overwrite any parameters specified within the new scene config file. 
-See `scene_interactive_window.yaml`, `scene_headless_video_export.yaml`, or `scene_window_video_export.yaml` for examples.
+Such parameters belong to one of three subgroups, in alignment with the Model-View-Controller design pattern. (Note: the 'Model' element of MVC is referred to as 'scene')
+Most of the available parameters are defined in `mvc_base_cfg.yaml`. This file should **not** be changed. Instead, create a new mvc config file containg *only* the parameters that need to be modified.
+The rendering script will read the initial parameters from `mvc_base_cfg.yaml` and overwrite any parameters specified within the new mvc config file. 
+See `mvc_interactive_window.yaml`, `mvc_headless_video_export.yaml`, or `mvc_window_video_export.yaml` for examples.
 
 <b>scene</b> <em>(dict)</em>: Dictionary containing parameters used by the MVC's Model/Scene component.
 

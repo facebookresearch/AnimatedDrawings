@@ -12,7 +12,7 @@ class Scene(Transform, TimeManager):
     """
 
     def __init__(self, cfg: dict):
-        """ Takes in the scene dictionary from an MVC config file and prepares the scene. """
+        """ Takes in the scene dictionary from an mvc config file and prepares the scene. """
         super().__init__()
 
         # add floor if required

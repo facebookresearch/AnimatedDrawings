@@ -87,7 +87,7 @@ class Controller():
 
     @staticmethod
     def create_controller(controller_cfg: dict, scene: Scene, view: View) -> Controller:
-        """ Takes in a controller dictionary from MVC config, scene, and view. Constructs and return appropriate controller."""
+        """ Takes in a controller dictionary from mvc config file, scene, and view. Constructs and return appropriate controller."""
         if controller_cfg['MODE'] == 'video_render':
             from controller.video_render_controller import VideoRenderController
             return VideoRenderController(controller_cfg, scene, view,)

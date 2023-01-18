@@ -31,7 +31,7 @@ class View:
 
     @staticmethod
     def create_view(view_cfg: dict) -> View:
-        """ Takes in a scene-level configuration file's view dictionary and returns the appropriate view """
+        """ Takes in a view dictionary from mvc config file and returns the appropriate view. """
         # create view
         if view_cfg['USE_MESA']:
             from animator.view.mesa_view import MesaView
