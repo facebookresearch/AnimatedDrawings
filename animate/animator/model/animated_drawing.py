@@ -340,8 +340,9 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # Add vertices belonging to joints in each segment group in the order they will be rendered
         indices = []
-        for idx, _ in _bodypart_render_order:
-            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['char_joints']:
+        for idx, dist in _bodypart_render_order:
+            intra_bodypart_render_order = 1 if dist > 0 else -1  # if depth driver is behind plane, render bodyparts in reverse order
+            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['char_joints'][::intra_bodypart_render_order]:
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 
@@ -362,7 +363,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
 
         # seed generation
-        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []  # [(dist_to_closest_joint_idx, (joint_idx, (x_loc, y_loc))...]
+        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []
         for _, joint in joints_d.items():
             if joint['parent'] is None:  # skip root joint
                 continue
@@ -377,8 +378,9 @@ class AnimatedDrawing(Transform, TimeManager):
         while heap:
             distance, (joint_idx, (x, y)) = heapq.heappop(heap)
             neighbors = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
-            for (n_x, n_y) in neighbors:
-                n_distance = distance + 1
+            n_dist =    [     1.414,      1.0,      1.414,      1.0,      1.0,      1.414,      1.0,      1.414]
+            for (n_x, n_y), n_dist in zip(neighbors, n_dist):
+                n_distance = distance + n_dist
                 if not 0 <= n_x < self.img_dim or not 0 <= n_y < self.img_dim:
                     continue  # neighbor is outside image bounds- ignore
 
@@ -399,11 +401,19 @@ class AnimatedDrawing(Transform, TimeManager):
             tri_verts = np.array([self.mesh['vertices'][v_idx] for v_idx in tri_v_idx])
             centroid_x, centroid_y = list((tri_verts.mean(axis=0) * self.img_dim).round().astype(np.int32))
             tri_centroid_closest_joint_idx = closest_joint_idx[centroid_x, centroid_y]
-            joint_to_tri_v_idx[joint_name_to_idx[tri_centroid_closest_joint_idx]].append(tri_v_idx)
+            dist_from_tri_centroid_to_bone = shortest_distance[centroid_x, centroid_y]
+            joint_to_tri_v_idx[joint_name_to_idx[tri_centroid_closest_joint_idx]].append((tri_v_idx, dist_from_tri_centroid_to_bone))
 
-        # convert to ndarray and return.
         for key, val in joint_to_tri_v_idx.items():
+            # sort by distance, descending
+            val.sort(key=lambda x: x[1], reverse=True)
+
+            # retain vertex indices, remove distance info
+            val = [v[0] for v in val]
+
+            # convert to np array and save in dictionary
             joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
+
         return joint_to_tri_v_idx
 
     def _load_mask(self) -> np.ndarray:
