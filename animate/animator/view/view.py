@@ -30,7 +30,7 @@ class View:
         pass
 
     @staticmethod
-    def get_view(view_cfg: dict) -> View:
+    def create_view(view_cfg: dict) -> View:
         """ Takes in a scene-level configuration file's view dictionary and returns the appropriate view """
         # create view
         if view_cfg['USE_MESA']:

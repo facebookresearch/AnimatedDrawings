@@ -37,7 +37,7 @@ def start(user_cfg_fn: str):
     cfg = _build_config(user_cfg_fn)
 
     # create view
-    view = View.get_view(cfg['view'])
+    view = View.create_view(cfg['view'])
 
     # create scene
     scene = Scene(cfg['scene'])
