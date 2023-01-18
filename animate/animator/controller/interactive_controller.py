@@ -1,17 +1,17 @@
 import glfw
 from animator.controller.controller import Controller
 from animator.model.scene import Scene
-from animator.view.interactive_view import InteractiveView
+from view.window_view import WindowView
 from typing import Optional
 import time
 
 
 class InteractiveController(Controller):
 
-    def __init__(self, cfg: dict, scene: Scene, view: InteractiveView):
+    def __init__(self, cfg: dict, scene: Scene, view: WindowView):
         super().__init__(cfg, scene)
 
-        self.view: InteractiveView = view
+        self.view: WindowView = view
         self.prev_time: float = 0.0  # tracks real-world time passing between run loops.
         self.pause: bool = False  # does time progress?
 
