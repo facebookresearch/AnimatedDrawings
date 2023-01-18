@@ -12,12 +12,6 @@ import os
 def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
     """ Combines and returns user-specified config file with base config file."""
 
-    # ensure project root dir set as env var
-    if 'AD_ROOT_DIR' not in os.environ:
-        msg = 'AD_ROOT_DIR environmental variable not set'
-        logging.critical(msg)
-        assert False, msg
-
     # create the MVC config by combining base with user-specified options
     with open(f'{Path(os.environ["AD_ROOT_DIR"],"animate/animator/scene_base_cfg.yaml")}', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
@@ -33,6 +27,12 @@ def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
 
 
 def start(user_mvc_cfg_fn: str):
+
+    # ensure project root dir set as env var
+    if 'AD_ROOT_DIR' not in os.environ:
+        msg = 'AD_ROOT_DIR environmental variable not set'
+        logging.critical(msg)
+        assert False, msg
 
     # build cfg
     cfg = _build_config(user_mvc_cfg_fn)
