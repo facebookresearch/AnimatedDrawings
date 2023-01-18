@@ -1,48 +1,79 @@
-bvh_projection_mapping_methods:
-  Lower Limbs: pca
-  Trunk: frontal
-  Upper Limbs: saggital
-char_bodypart_groups:
-- depth_drivers:
+char_starting_location: [-1.0, 0.0, -3.0]
+bvh_projection_bodypart_groups:
+- bvh_joint_names:
+  - RightShoulder
+  - RightArm
+  - RightForeArm
+  - RightHand
+  - RightHandEnd
+  - LeftShoulder
+  - LeftArm
+  - LeftForeArm
+  - LeftHand
+  - LeftHandEnd
+  method: saggital
+  name: Upper Limbs
+- bvh_joint_names:
+  - RightUpLeg
+  - RightLeg
+  - RightFoot
+  - RightToeBase
+  - LeftUpLeg
+  - LeftLeg
+  - LeftFoot
+  - LeftToeBase
+  method: saggital
+  name: Lower Limbs
+- bvh_joint_names:
   - Hips
-  joints:
+  - Spine
+  - Spine1
+  - Spine2
+  - Spine3
+  - Neck
+  - Head
+  method: frontal
+  name: Trunk
+char_bodypart_groups:
+- bvh_depth_drivers:
+  - Hips
+  char_joints:
   - right_shoulder
   - left_shoulder
   - right_hip
   - left_hip
   - torso
   - neck
-  - head
-- depth_drivers:
+- bvh_depth_drivers:
   - LeftHand
-  joints:
+  char_joints:
   - left_elbow
   - left_hand
-- depth_drivers:
+- bvh_depth_drivers:
   - RightHand
-  joints:
+  char_joints:
   - right_elbow
   - right_hand
-- depth_drivers:
+- bvh_depth_drivers:
   - LeftFoot
-  joints:
+  char_joints:
   - left_knee
   - left_foot
-- depth_drivers:
+- bvh_depth_drivers:
   - RightFoot
-  joints:
+  char_joints:
   - right_knee
   - right_foot
-char_bvh_root_offset_scaling:
+char_bvh_root_offset:
   bvh_projection_bodypart_group_for_offset: Lower Limbs
-  bvh_skel:
+  bvh_joints:
   - - RightFoot
     - RightLeg
     - RightUpLeg
   - - LeftFoot
     - LeftLeg
     - LeftUpLeg
-  character:
+  char_joints:
   - - left_foot
     - left_knee
     - left_hip
@@ -50,9 +81,6 @@ char_bvh_root_offset_scaling:
     - right_knee
     - right_hip
 char_joint_bvh_joints_mapping:
-  head: !!python/tuple
-  - Hips
-  - Head
   left_elbow: !!python/tuple
   - LeftArm
   - LeftForeArm

@@ -7,6 +7,8 @@ from sklearn.decomposition import PCA
 from typing import Optional, Tuple, List
 from animator.model.vectors import Vectors
 from animator.model.quaternions import Quaternions
+from pathlib import Path
+import os
 
 x_axis = np.array([1.0, 0.0, 0.0])
 z_axis = np.array([0.0, 0.0, 1.0])
@@ -20,13 +22,30 @@ class Retargeter():
         bvh_metadata_cfg: bvh metadata config dictionary
         """
 
+        # Look for specified bvh file. First check using path specified, then relative to AD_ROOT_DIR. Abort if not found.
+        if Path(bvh_metadata_cfg['filepath']).exists():
+            bvh_fn: str = bvh_metadata_cfg['filepath']
+        elif Path(os.environ['AD_ROOT_DIR'], bvh_metadata_cfg['filepath']):
+            bvh_fn: str = str(Path(os.environ['AD_ROOT_DIR'], bvh_metadata_cfg['filepath']))
+        else:
+            msg = f'Could not find bvh file, aborting: {bvh_metadata_cfg["filepath"]}'
+            logging.critical(msg)
+            assert False, msg
+        logging.info(f'Using bvh file: {bvh_fn}')
+
+        # read start and end frame from config
+        start_frame_idx = bvh_metadata_cfg.get('start_frame_idx', 0)
+        end_frame_idx = bvh_metadata_cfg.get('end_frame_idx', None)
+
+        # instantiate the bvh
         try:
-            self.bvh = BVH.from_file(bvh_metadata_cfg['filepath'])
+            self.bvh = BVH.from_file(bvh_fn, start_frame_idx, end_frame_idx)
         except Exception as e:
             msg = f'Error loading BVH: {e}'
             logging.critical(msg)
             assert False, msg
 
+        # get and cache bvh joint names for later
         self.bvh_joint_names = self.bvh.get_joint_names()
 
         # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to
@@ -71,21 +90,24 @@ class Retargeter():
         self.bvh_root_positions: np.ndarray
         self._compute_normalized_joint_positions_and_fwd_vectors()
 
-        # retargeted world coordinates of character root joint
+        # cache the starting worldspace location of character's root joint
+        self.character_start_loc = np.array(char_bvh_retargeting_cfg['char_starting_location'])
+
+        # holds world coordinates of character root joint after retargeting
         self.char_root_positions: Optional[np.ndarray] = None
 
         # get & save projection planes
         self.joint_group_name_to_projection_plane: dict = {}
         self.joint_to_projection_plane: dict = {}
-        for joint_projection_group in bvh_metadata_cfg['projection_bodypart_groups']:
+        for joint_projection_group in char_bvh_retargeting_cfg['bvh_projection_bodypart_groups']:
             group_name = joint_projection_group['name']
-            joint_names = joint_projection_group['joint_names']
-            projection_method: str = char_bvh_retargeting_cfg['bvh_projection_mapping_methods'][group_name]
+            joint_names = joint_projection_group['bvh_joint_names']
+            projection_method: str = joint_projection_group['method']
 
             projection_plane = self._determine_projection_plane_normal(group_name, joint_names, projection_method)
             self.joint_group_name_to_projection_plane[joint_projection_group['name']] = projection_plane
 
-            for joint_name in joint_projection_group['joint_names']:
+            for joint_name in joint_projection_group['bvh_joint_names']:
                 self.joint_to_projection_plane[joint_name] = projection_plane
 
         # map character joint names to its orientations
@@ -320,13 +342,11 @@ class Retargeter():
         frame_idx = int(round(time / self.bvh.frame_time, 0))
 
         if frame_idx < 0:
-            msg = f'invalid frame_idx, first frame (0) instead: {frame_idx}'
-            logging.info(msg)
+            logging.info(f'invalid frame_idx ({frame_idx}), replacing with 0')
             frame_idx = 0
 
         if self.bvh.frame_max_num <= frame_idx:
-            msg = f'invalid frame_idx, last frame ({self.bvh.frame_max_num-1}) instead: {frame_idx}'
-            logging.info(msg)
+            logging.info(f'invalid frame_idx ({frame_idx}), replacing with last frame {self.bvh.frame_max_num-1}')
             frame_idx = self.bvh.frame_max_num-1
 
         if self.char_root_positions is None:
@@ -339,5 +359,6 @@ class Retargeter():
         joint_depths = {key: val[frame_idx] for (key, val) in self.bvh_joint_to_projection_depth.items()}
 
         root_position = np.array([self.char_root_positions[frame_idx, 0], self.char_root_positions[frame_idx, 1], 0.0])
+        root_position += self.character_start_loc  # offset by character's starting location
 
         return orientations, joint_depths, root_position

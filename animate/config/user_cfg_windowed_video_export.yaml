@@ -1,4 +1,0 @@
-controller:
-  type: 'video_render'
-view:
-  USE_MESA: False

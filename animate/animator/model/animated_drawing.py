@@ -231,8 +231,6 @@ class AnimatedDrawing(Transform, TimeManager):
 
         self.mesh: dict = self._generate_mesh()
 
-        self.vertices: np.ndarray = self._initialize_vertices()
-
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
 
@@ -242,9 +240,11 @@ class AnimatedDrawing(Transform, TimeManager):
         self.retargeter: Retargeter
         self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
 
-        control_points: np.ndarray = self.rig.get_joints_2D_positions()
-        self.arap = ARAP(control_points, self.mesh['triangles'], self.mesh['vertices'])
-        self.vertices[:, :2] = self.arap.solve(control_points).reshape([-1, 2])
+        # initialize arap solver with original joint positions
+        self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
+
+        self.vertices: np.ndarray
+        self._initialize_vertices()
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
@@ -265,7 +265,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute ratio of character's leg length to bvh skel leg length
         c_limb_length = 0
-        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['character']
+        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['char_joints']
         for b_joint_group in c_joint_groups:
             while len(b_joint_group) >= 2:
                 c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
@@ -278,7 +278,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 b_joint_group.pop(0)
 
         b_limb_length = 0
-        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_skel']
+        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_joints']
         for b_joint_group in b_joint_groups:
             while len(b_joint_group) >= 2:
                 b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
@@ -292,7 +292,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute character-bvh scale factor and send to retargeter
         scale_factor = float(c_limb_length / b_limb_length)
-        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_projection_bodypart_group_for_offset']
+        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_projection_bodypart_group_for_offset']
         self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
 
         # compute the necessary orienations
@@ -317,9 +317,13 @@ class AnimatedDrawing(Transform, TimeManager):
         self.rig.root_joint.set_position(root_position)
         self.rig.set_global_orientations(frame_orientations)
 
-        # using new joint positions, calculate new mesh vertex positions
+        # using new joint positions, calculate new mesh vertex xy positions
         control_points: np.ndarray = self.rig.get_joints_2D_positions()
         self.vertices[:, :2] = self.arap.solve(control_points)
+
+        # use the z position of the rig's root joint for all mesh vertices
+        self.vertices[:, 2] = self.rig.root_joint.get_world_position()[2]
+
         self._vertex_buffer_dirty_bit = True
 
         # using joint depths, determine the correct order in which to render the character
@@ -330,14 +334,15 @@ class AnimatedDrawing(Transform, TimeManager):
         # sort segmentation groups by decreasing depth_driver's distance to camera
         _bodypart_render_order = []
         for idx, bodypart_group_dict in enumerate(self.char_bvh_retargeting_cfg['char_bodypart_groups']):
-            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['depth_drivers']])
+            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['bvh_depth_drivers']])
             _bodypart_render_order.append((idx, bodypart_depth))
         _bodypart_render_order.sort(key=lambda x: x[1])
 
         # Add vertices belonging to joints in each segment group in the order they will be rendered
         indices = []
-        for idx, _ in _bodypart_render_order:
-            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['joints']:
+        for idx, dist in _bodypart_render_order:
+            intra_bodypart_render_order = 1 if dist > 0 else -1  # if depth driver is behind plane, render bodyparts in reverse order
+            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['char_joints'][::intra_bodypart_render_order]:
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 
@@ -358,7 +363,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
 
         # seed generation
-        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []  # [(dist_to_closest_joint_idx, (joint_idx, (x_loc, y_loc))...]
+        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []
         for _, joint in joints_d.items():
             if joint['parent'] is None:  # skip root joint
                 continue
@@ -373,8 +378,9 @@ class AnimatedDrawing(Transform, TimeManager):
         while heap:
             distance, (joint_idx, (x, y)) = heapq.heappop(heap)
             neighbors = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
-            for (n_x, n_y) in neighbors:
-                n_distance = distance + 1
+            n_dist =    [     1.414,      1.0,      1.414,      1.0,      1.0,      1.414,      1.0,      1.414]
+            for (n_x, n_y), n_dist in zip(neighbors, n_dist):
+                n_distance = distance + n_dist
                 if not 0 <= n_x < self.img_dim or not 0 <= n_y < self.img_dim:
                     continue  # neighbor is outside image bounds- ignore
 
@@ -395,11 +401,19 @@ class AnimatedDrawing(Transform, TimeManager):
             tri_verts = np.array([self.mesh['vertices'][v_idx] for v_idx in tri_v_idx])
             centroid_x, centroid_y = list((tri_verts.mean(axis=0) * self.img_dim).round().astype(np.int32))
             tri_centroid_closest_joint_idx = closest_joint_idx[centroid_x, centroid_y]
-            joint_to_tri_v_idx[joint_name_to_idx[tri_centroid_closest_joint_idx]].append(tri_v_idx)
+            dist_from_tri_centroid_to_bone = shortest_distance[centroid_x, centroid_y]
+            joint_to_tri_v_idx[joint_name_to_idx[tri_centroid_closest_joint_idx]].append((tri_v_idx, dist_from_tri_centroid_to_bone))
 
-        # convert to ndarray and return.
         for key, val in joint_to_tri_v_idx.items():
+            # sort by distance, descending
+            val.sort(key=lambda x: x[1], reverse=True)
+
+            # retain vertex indices, remove distance info
+            val = [v[0] for v in val]
+
+            # convert to np array and save in dictionary
             joint_to_tri_v_idx[key] = np.array(val).flatten()  # type: ignore
+
         return joint_to_tri_v_idx
 
     def _load_mask(self) -> np.ndarray:
@@ -508,22 +522,32 @@ class AnimatedDrawing(Transform, TimeManager):
 
         return {'vertices': vertices, 'triangles': triangles}
 
-    def _initialize_vertices(self) -> np.ndarray:
-        """ Prepare the ndarray that will be sent to rendering pipeline.
-        Subsequenct calls will update the x and y pos of vertices, but z pos and u v textures won't change.
+    def _initialize_vertices(self) -> None:
         """
-        vertices = np.empty((self.mesh['vertices'].shape[0], 8), np.float32)
+        Prepare the ndarray that will be sent to rendering pipeline.
+        Later, x and y vertex positions will change, but z pos, u v texture, and rgb color won't.
+        """
+        self.vertices = np.zeros((self.mesh['vertices'].shape[0], 8), np.float32)
 
-        vertices[:, 0] = self.mesh['vertices'][:, 0]    # x pos
-        vertices[:, 1] = self.mesh['vertices'][:, 1]    # y pos
-        vertices[:, 2] = 0.0                            # z pos
-        vertices[:, 3] = self.mesh['vertices'][:, 0]    # r col
-        vertices[:, 4] = self.mesh['vertices'][:, 1]    # g col
-        vertices[:, 5] = 0.0                            # b col
-        vertices[:, 6] = self.mesh['vertices'][:, 1]    # u tex
-        vertices[:, 7] = self.mesh['vertices'][:, 0]    # v tex
+        # initialize xy positions of mesh vertices
+        self.vertices[:, :2] = self.arap.solve(self.rig.get_joints_2D_positions()).reshape([-1, 2])
 
-        return vertices
+        # initialize texture coordiantes
+        self.vertices[:, 6] = self.mesh['vertices'][:, 1]                        # u tex
+        self.vertices[:, 7] = self.mesh['vertices'][:, 0]                        # v tex
+
+        # set per-joint triangle colors
+        r = np.linspace(0, 1, 4)
+        g = np.linspace(0, 1, 4)
+        b = np.linspace(0, 1, 4)
+        colors = set()
+        while len(colors) < len(self.joint_to_tri_v_idx):
+            color = (np.random.choice(r), np.random.choice(g), np.random.choice(b))
+            colors.add(color)
+        colors = np.array(list(colors), np.float32)
+
+        for c_idx, v_idxs in enumerate(self.joint_to_tri_v_idx.values()):
+            self.vertices[v_idxs, 3:6] = colors[c_idx]  # rgb colors
 
     def _initialize_opengl_resources(self) -> None:
 

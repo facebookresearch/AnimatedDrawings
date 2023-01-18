@@ -4,7 +4,7 @@ import logging
 from typing import Union
 from model.vectors import Vectors
 import math
-from utils import tolerance
+from utils import TOLERANCE
 from functools import reduce
 
 
@@ -158,7 +158,7 @@ class Quaternions:
         """
         As described here: https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf
         """
-        is_orthogonal = np.isclose(M @ M.T, np.identity(4), atol=tolerance)
+        is_orthogonal = np.isclose(M @ M.T, np.identity(4), atol=TOLERANCE)
         if not is_orthogonal.all():
             msg = "attempted to create quaternion from non-orthogonal rotation matrix"
             logging.critical(msg)

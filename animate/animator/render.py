@@ -1,4 +1,7 @@
 from animator.model.scene import Scene
+from animator.view.view import View
+from animator.controller.controller import Controller
+from animator.utils import resolve_ad_filepath
 import logging
 import yaml
 import sys
@@ -7,7 +10,29 @@ from pathlib import Path
 import os
 
 
-def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_fn: str, char_cfg_fn: str):
+def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
+    """ Combines and returns user-specified config file with base config file. """
+
+    # prep the mvc base config
+    with open(f'{Path(os.environ["AD_ROOT_DIR"],"animate/animator/mvc_base_cfg.yaml")}', 'r') as f:
+        base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
+
+    # search for the user-specified mvc confing
+    user_mvc_cfg_p: Path = resolve_ad_filepath(user_mvc_cfg_fn, 'user mvc config')
+    logging.info(f'Using user-specified mvc config file located at {user_mvc_cfg_p.resolve()}')
+
+    with open(str(user_mvc_cfg_p), 'r') as f:
+        user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})
+
+    # build and return config dict
+    cfg = defaultdict(dict)
+    cfg['scene'] = {**base_cfg['scene'], **user_cfg['scene']}
+    cfg['controller'] = {**base_cfg['controller'], **user_cfg['controller']}
+    cfg['view'] = {**base_cfg['view'], **user_cfg['view']}
+    return cfg
+
+
+def start(user_mvc_cfg_fn: str):
 
     # ensure project root dir set as env var
     if 'AD_ROOT_DIR' not in os.environ:
@@ -15,61 +40,17 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
         logging.critical(msg)
         assert False, msg
 
-    # create the MVC config by combining base with user-specified options
-    with open(f'{os.environ["AD_ROOT_DIR"]}/animate/config/base_cfg.yaml', 'r') as f:
-        base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
-    with open(user_cfg_fn, 'r') as f:
-        user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})
-    cfg = defaultdict(dict, {**base_cfg, **user_cfg})
-    cfg['controller'] = {**base_cfg['controller'], **user_cfg['controller']}
-    cfg['view'] = {**base_cfg['view'], **user_cfg['view']}
+    # build cfg
+    cfg = _build_config(user_mvc_cfg_fn)
 
-    # get the configs needed for animation
-    with open(bvh_metadata_cfg_fn, 'r') as f:
-        bvh_metadata_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    with open(char_bvh_retargeting_cfg_fn, 'r') as f:
-        char_bvh_retargeting_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    with open(char_cfg_fn, 'r') as f:
-        char_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    char_cfg['char_files_dir'] = str(Path(char_cfg_fn).parent)  # save the path so we can get image and mask from same directory
+    # create view
+    view = View.create_view(cfg['view'])
 
     # create scene
     scene = Scene(cfg['scene'])
 
-    # create view
-    if cfg['view']['USE_MESA']:
-        from animator.view.mesa_view import MesaView
-        view = MesaView(cfg['view'])
-    else:
-        from animator.view.interactive_view import InteractiveView
-        view = InteractiveView(cfg['view'])
-
     # create controller
-    if cfg['controller']['type'] == 'video_render':
-        from controller.video_render_controller import VideoRenderController
-        video_fps = 1.0 / bvh_metadata_cfg['frame_time']
-        video_frames = bvh_metadata_cfg['frames']
-        out_dir = str(Path(char_cfg_fn).parent)
-        controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)
-    elif cfg['controller']['type'] == 'interactive':
-        from animator.controller.interactive_controller import InteractiveController
-        controller = InteractiveController(cfg['controller'], scene, view)
-    else:
-        msg = f'Unknown controller type specified: {cfg["controller"]["type"]}'
-        logging.critical(msg)
-        assert False, msg
-
-    # populate scene
-    if cfg['DRAW_FLOOR']:
-        from animator.model.floor import Floor
-        scene.add_child(Floor())
-    
-    # Add the Animated Drawing
-    from animator.model.animated_drawing import AnimatedDrawing
-    ad = AnimatedDrawing(char_cfg, char_bvh_retargeting_cfg, bvh_metadata_cfg)
-    scene.add_child(ad)
-    if cfg['DRAW_AD_RETARGET_BVH']:
-        scene.add_child(ad.retargeter.bvh)
+    controller = Controller.create_controller(cfg['controller'], scene, view)
 
     # start the run loop
     controller.run()
@@ -78,11 +59,7 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
 if __name__ == '__main__':
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
-    user_cfg_fn = sys.argv[1]  # user-specified MVC configs
-    bvh_metadata_cfg_fn = sys.argv[2]  # bvh-specific metadata config
+    # user-specified mvc configuration filepath. Can be absolute, relative to cwd, or relative to ${AD_ROOT_DIR}
+    user_mvc_cfg_fn = sys.argv[1]
 
-    char_bvh_retargeting_cfg_fn = sys.argv[3]  # bvh->character retargeting config
-
-    char_cfg_fn = sys.argv[4]  # character-specific config
-
-    start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
+    start(user_mvc_cfg_fn)

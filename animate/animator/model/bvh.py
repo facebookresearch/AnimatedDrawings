@@ -9,6 +9,8 @@ from animator.model.joint import Joint
 from animator.model.time_manager import TimeManager
 import numpy as np
 import logging
+import os
+from animator.utils import resolve_ad_filepath
 
 
 class BVH_Joint(Joint):
@@ -113,21 +115,20 @@ class BVH(Transform, TimeManager):
                 assert False, msg
 
             bone_vector: Vectors = Vectors(end_joint.get_world_position()) - Vectors(start_joint.get_world_position())
+            bone_vector.norm()
             vectors_cw_perpendicular_to_fwd.append(bone_vector)
 
         return Vectors(vectors_cw_perpendicular_to_fwd).average().perpendicular()
 
     @classmethod
-    def from_file(cls, bvh_fn: str) -> BVH:
+    def from_file(cls, bvh_fn: str, start_frame_idx: int = 0, end_frame_idx: Optional[int] = None) -> BVH:
         """ Given a path to a .bvh, constructs and returns BVH object"""
 
-        if not Path(bvh_fn).exists():
-            msg = f'bvh_fn DNE: {bvh_fn}'
-            logging.critical(msg)
-            assert False, msg
-        name = Path(bvh_fn).name
+        # search for the BVH file specified
+        bvh_p: Path = resolve_ad_filepath(bvh_fn, 'bvh file')
+        logging.info(f'Using BVH file located at {bvh_p.resolve()}')
 
-        with open(bvh_fn, 'r') as f:
+        with open(str(bvh_p), 'r') as f:
             lines = f.read().splitlines()
 
         if lines.pop(0) != 'HIERARCHY':
@@ -155,9 +156,41 @@ class BVH(Transform, TimeManager):
             assert False, msg
 
         # Split logically distinct root position data from joint euler angle rotation data
+        pos_data: np.ndarray
+        rot_data: np.ndarray
         pos_data, rot_data = BVH._process_frame_data(root_joint, frames)
 
-        return BVH(name, root_joint, frame_max_num, frame_time, pos_data, rot_data)
+        # TODO: Move all user input verification checks into a central location instead of scattered throughout code
+        # Ensure start_frame_idx is >= 0
+        if start_frame_idx < 0:
+            msg = f'config specified bvh start_frame < 0, replacing with 0: {start_frame_idx}'
+            logging.warning(msg)
+            start_frame_idx = 0
+
+        # Set end_frame if not passed in
+        if not end_frame_idx:
+            end_frame_idx = frame_max_num
+
+        # Ensure end_frame_idx <= frame_max_num
+        if frame_max_num < end_frame_idx:
+            msg = f'config specified end_frame_idx > bvh frame_max_num ({end_frame_idx} > {frame_max_num}). Replacing with frame_max_num.'
+            logging.warning(msg)
+            end_frame_idx = frame_max_num
+
+        # Ensure start_frame_idx < end_frame_idx
+        if start_frame_idx >= end_frame_idx:
+            msg = f'start_frame_idx >= end_frame_idx: {start_frame_idx}>={end_frame_idx}. Aborting.'
+            logging.critical(msg)
+            assert False, msg
+
+        # slice position and rotation data using start and end frame indices
+        pos_data = pos_data[start_frame_idx:end_frame_idx, :]
+        rot_data = rot_data[start_frame_idx:end_frame_idx, :]
+
+        # new frame_max_num based is end_frame_idx minus start_frame_idx
+        frame_max_num = end_frame_idx - start_frame_idx
+
+        return BVH(bvh_p.name, root_joint, frame_max_num, frame_time, pos_data, rot_data)
 
     @classmethod
     def _parse_skeleton(cls, lines: List[str]) -> BVH_Joint:

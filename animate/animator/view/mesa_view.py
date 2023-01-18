@@ -35,11 +35,6 @@ class MesaView(View):
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
 
     def _prep_shaders(self):
-        if 'AD_ROOT_DIR' not in os.environ:
-            msg = 'AD_ROOT_DIR environmental variable not set'
-            logging.critical(msg)
-            assert False, msg
-
         BVH_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.vert")
         BVH_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.frag")
         self._initiatize_shader('bvh_shader', str(BVH_VERT), str(BVH_FRAG))
