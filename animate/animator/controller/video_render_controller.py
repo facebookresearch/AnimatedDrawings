@@ -7,33 +7,70 @@ from OpenGL import GL
 import numpy as np
 import logging
 from pathlib import Path
+from typing import Tuple
+
 
 class VideoRenderController(Controller):
 
-    def __init__(self, cfg: dict, scene: Scene, view: View, video_fps: float, frames_to_render: int, output_path: str):
+    def __init__(self, cfg: dict, scene: Scene, view: View):
         super().__init__(cfg, scene)
 
         self.view: View = view
 
         self.scene: Scene = scene
 
-        self.delta_t = 1.0 / video_fps  # amount to advance scene between rendering
+        self.frames_left_to_render: int  # when this becomes zero, stop rendering
+        self.delta_t: float  # amount of time to progress scene between renders
+        self.frames_left_to_render, self.delta_t = self._get_max_motion_frames_and_frame_time()
 
         self.video_width: int
         self.video_height: int
-        self.video_width, self.video_height = self.view.get_framebuffer_size()
+        self.video_writer: cv2.VideoWriter
+        self._initialize_video_writer()
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
+        self.frames = []
+
+    def _get_max_motion_frames_and_frame_time(self) -> Tuple[int, float]:
+        """
+        Based upon the animated drawings within the scene, computes maximum number of frames in a BVH.
+        Checks that all frame times within BVHs are equal, logs a warning if not.
+        Return max number of BVH frames and frame time of first BVH.
+        """
+
+        max_frames = 0
+        frame_time = []
+        for child in self.scene.get_children():
+            try:
+                max_frames = max(max_frames, child.retargeter.bvh.frame_max_num)
+                frame_time.append(child.retargeter.bvh.frame_time)
+            except AttributeError:
+                pass  # child wasn't an Animated Drawing. Fine to skip it
+            except Exception as e:
+                msg = f'Error attempting to compute video max_frames and frame_time: {e}'
+                logging.critical(msg)
+                assert False, msg
+
+        if not all(x == frame_time[0] for x in frame_time):
+            msg = f'frame time of BVH files don\'t match. Using first value: {frame_time[0]}'
+            logging.warning(msg)
+
+        return max_frames, frame_time[0]
+
+    def _initialize_video_writer(self) -> None:
+        """ Logic necessary for setting up the video writer. """
+
+        output_path = self.cfg['OUTPUT_VIDEO_PATH']
         if not output_path.endswith('.mp4'):
             msg = f'Only .mp4 output video files supported. Found {Path(output_path).suffix}'
             logging.critical(msg)
             assert False, msg
 
-        self.video_writer = cv2.VideoWriter(output_path, fourcc, video_fps, (self.video_width, self.video_height))
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-        self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
-        self.frames = []
-        self.frames_left_to_render = frames_to_render
+        self.video_width, self.video_height = self.view.get_framebuffer_size()
+
+        self.video_writer = cv2.VideoWriter(output_path, fourcc, 1 / self.delta_t, (self.video_width, self.video_height))
 
     def _is_run_over(self):
         return self.frames_left_to_render == 0

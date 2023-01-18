@@ -1,8 +1,9 @@
+from __future__ import annotations
 from animator.model.scene import Scene
 from animator.view.view import View
 from typing import Optional
 from abc import abstractmethod
-
+import logging
 
 class Controller():
     """
@@ -83,3 +84,17 @@ class Controller():
             self._finish_run_loop_iteration()
 
         self._cleanup_after_run_loop()
+
+    @staticmethod
+    def create_controller(controller_cfg: dict, scene: Scene, view: View) -> Controller:
+        """ Takes in a controller dictionary from MVC config, scene, and view. Constructs and return appropriate controller."""
+        if controller_cfg['MODE'] == 'video_render':
+            from controller.video_render_controller import VideoRenderController
+            return VideoRenderController(controller_cfg, scene, view,)
+        elif controller_cfg['MODE'] == 'interactive':
+            from animator.controller.interactive_controller import InteractiveController
+            return InteractiveController(controller_cfg, scene, view)
+        else:
+            msg = f'Unknown controller mode specified: {controller_cfg["MODE"]}'
+            logging.critical(msg)
+            assert False, msg

@@ -1,5 +1,6 @@
 from animator.model.scene import Scene
 from animator.view.view import View
+from animator.controller.controller import Controller
 import logging
 import yaml
 import sys
@@ -43,22 +44,8 @@ def start(user_cfg_fn: str):
     scene = Scene(cfg['scene'])
 
     # create controller
-    if cfg['controller']['MODE'] == 'video_render':
-        # calculate the number of frames we'll be rendering
-        video_frames = max_video_frames
+    controller = Controller.create_controller(cfg['controller'], scene, view)
 
-        # save video to parent directory of user_cfg_fn
-        out_dir = cfg['controller']['OUTPUT_VIDEO_PATH']
-
-        from controller.video_render_controller import VideoRenderController
-        controller = VideoRenderController(cfg['controller'], scene, view, video_fps, video_frames, out_dir)
-    elif cfg['controller']['MODE'] == 'interactive':
-        from animator.controller.interactive_controller import InteractiveController
-        controller = InteractiveController(cfg['controller'], scene, view)
-    else:
-        msg = f'Unknown controller type specified: {cfg["controller"]["type"]}'
-        logging.critical(msg)
-        assert False, msg
     # start the run loop
     controller.run()
 
