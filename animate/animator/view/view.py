@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import abstractmethod
 from typing import Tuple
 
@@ -27,3 +28,14 @@ class View:
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of framebuffer. """
         pass
+
+    @staticmethod
+    def get_view(view_cfg: dict) -> View:
+        """ Takes in a scene-level configuration file's view dictionary and returns the appropriate view """
+        # create view
+        if view_cfg['USE_MESA']:
+            from animator.view.mesa_view import MesaView
+            return MesaView(view_cfg)
+        else:
+            from view.window_view import WindowView
+            return WindowView(view_cfg)

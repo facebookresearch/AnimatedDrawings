@@ -1,4 +1,5 @@
 from animator.model.scene import Scene
+from animator.view.view import View
 import logging
 import yaml
 import sys
@@ -25,12 +26,7 @@ def start(user_cfg_fn: str):
     cfg['view'] = {**base_cfg['view'], **user_cfg['view']}
 
     # create view
-    if cfg['view']['USE_MESA']:
-        from animator.view.mesa_view import MesaView
-        view = MesaView(cfg['view'])
-    else:
-        from view.window_view import WindowView
-        view = WindowView(cfg['view'])
+    view = View.get_view(cfg['view'])
 
     # create scene
     scene = Scene(cfg['scene'])
