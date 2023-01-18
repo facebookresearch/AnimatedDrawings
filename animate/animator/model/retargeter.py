@@ -99,15 +99,15 @@ class Retargeter():
         # get & save projection planes
         self.joint_group_name_to_projection_plane: dict = {}
         self.joint_to_projection_plane: dict = {}
-        for joint_projection_group in char_bvh_retargeting_cfg['projection_bodypart_groups']:
+        for joint_projection_group in char_bvh_retargeting_cfg['bvh_projection_bodypart_groups']:
             group_name = joint_projection_group['name']
-            joint_names = joint_projection_group['joint_names']
+            joint_names = joint_projection_group['bvh_joint_names']
             projection_method: str = joint_projection_group['method']
 
             projection_plane = self._determine_projection_plane_normal(group_name, joint_names, projection_method)
             self.joint_group_name_to_projection_plane[joint_projection_group['name']] = projection_plane
 
-            for joint_name in joint_projection_group['joint_names']:
+            for joint_name in joint_projection_group['bvh_joint_names']:
                 self.joint_to_projection_plane[joint_name] = projection_plane
 
         # map character joint names to its orientations

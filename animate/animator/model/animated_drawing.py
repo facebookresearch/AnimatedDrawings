@@ -265,7 +265,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute ratio of character's leg length to bvh skel leg length
         c_limb_length = 0
-        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['character']
+        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['char_joints']
         for b_joint_group in c_joint_groups:
             while len(b_joint_group) >= 2:
                 c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
@@ -278,7 +278,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 b_joint_group.pop(0)
 
         b_limb_length = 0
-        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_skel']
+        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_joints']
         for b_joint_group in b_joint_groups:
             while len(b_joint_group) >= 2:
                 b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
@@ -292,7 +292,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute character-bvh scale factor and send to retargeter
         scale_factor = float(c_limb_length / b_limb_length)
-        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset_scaling']['bvh_projection_bodypart_group_for_offset']
+        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_projection_bodypart_group_for_offset']
         self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
 
         # compute the necessary orienations
@@ -334,14 +334,14 @@ class AnimatedDrawing(Transform, TimeManager):
         # sort segmentation groups by decreasing depth_driver's distance to camera
         _bodypart_render_order = []
         for idx, bodypart_group_dict in enumerate(self.char_bvh_retargeting_cfg['char_bodypart_groups']):
-            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['depth_drivers']])
+            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['bvh_depth_drivers']])
             _bodypart_render_order.append((idx, bodypart_depth))
         _bodypart_render_order.sort(key=lambda x: x[1])
 
         # Add vertices belonging to joints in each segment group in the order they will be rendered
         indices = []
         for idx, _ in _bodypart_render_order:
-            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['joints']:
+            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['char_joints']:
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 
