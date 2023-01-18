@@ -342,13 +342,11 @@ class Retargeter():
         frame_idx = int(round(time / self.bvh.frame_time, 0))
 
         if frame_idx < 0:
-            msg = f'invalid frame_idx, first frame (0) instead: {frame_idx}'
-            logging.info(msg)
+            logging.info(f'invalid frame_idx ({frame_idx}), replacing with 0')
             frame_idx = 0
 
         if self.bvh.frame_max_num <= frame_idx:
-            msg = f'invalid frame_idx, last frame ({self.bvh.frame_max_num-1}) instead: {frame_idx}'
-            logging.info(msg)
+            logging.info(f'invalid frame_idx ({frame_idx}), replacing with last frame {self.bvh.frame_max_num-1}')
             frame_idx = self.bvh.frame_max_num-1
 
         if self.char_root_positions is None:
