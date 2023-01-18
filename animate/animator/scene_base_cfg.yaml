@@ -17,4 +17,3 @@ view:
 controller:
   KEYBOARD_TIMESTEP: 0.0333
   MODE: 'interactive'
-  OUTPUT_VIDEO_PATH: /Users/hjessmith/Desktop/output.mp4
