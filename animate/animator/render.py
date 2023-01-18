@@ -42,38 +42,6 @@ def start(user_cfg_fn: str):
     # create scene
     scene = Scene(cfg['scene'])
 
-    # populate scene
-    if cfg['DRAW_FLOOR']:
-        from animator.model.floor import Floor
-        scene.add_child(Floor())
-    
-    max_video_frames = 0
-    video_fps = None
-    # Add the Animated Drawing
-    from animator.model.animated_drawing import AnimatedDrawing
-    for ad_dict in cfg['ANIMATED_CHARACTERS']:
-        with open(ad_dict['motion_cfg'], 'r') as f:
-            motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
-        with open(ad_dict['retarget_cfg'], 'r') as f:
-            retarget_cfg = yaml.load(f, Loader=yaml.FullLoader)
-        with open(ad_dict['character_cfg'], 'r') as f:
-            char_cfg = yaml.load(f, Loader=yaml.FullLoader)
-            char_cfg['char_files_dir'] = str(Path(ad_dict['character_cfg']).parent)  # save the path so we can get image and mask from same directory
-
-        # add the character
-        ad = AnimatedDrawing(char_cfg, retarget_cfg, motion_cfg)
-        scene.add_child(ad)
-        if cfg['DRAW_AD_RETARGET_BVH']:
-            scene.add_child(ad.retargeter.bvh)
-
-        max_video_frames = max(max_video_frames, motion_cfg['end_frame_idx'] - motion_cfg['start_frame_idx'])
-        if video_fps is None:
-            video_fps = 1 / ad.retargeter.bvh.frame_time
-        elif video_fps != 1 / ad.retargeter.bvh.frame_time:
-            msg = 'BVH files with mismatching Frame Times in same scene. If using video, Frame Time of first BVH will be used'
-            logging.info(msg)
-
-
     # create controller
     if cfg['controller']['MODE'] == 'video_render':
         # calculate the number of frames we'll be rendering

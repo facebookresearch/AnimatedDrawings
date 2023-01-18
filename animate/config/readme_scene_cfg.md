@@ -5,22 +5,22 @@ Most of the available parameters are defined in `scene_base_cfg.yaml`. This file
 The rendering script will read the initial parameters from `scene_base_cfg.yaml` and overwrite any parameters specified within the new scene config file. 
 See `scene_interactive_window.yaml`, `scene_headless_video_export.yaml`, or `scene_window_video_export.yaml` for examples.
 
- <b>DRAW_FLOOR</b> <em>(bool)</em>:
-True if you'd like to see the floor within the scene. False to hide it.
+<b>scene</b> <em>(dict)</em>: Dictionary containing parameters used by the MVC's Model/Scene component.
 
- <b>DRAW_AD_RETARGET_BVH</b> <em>(bool)</em>:
- True if you'd like to visualize the original BVH motion that's being used to drive the Animated Drawing characters.
+&nbsp; &nbsp; &nbsp; &nbsp;<b>ADD_FLOOR</b> <em>(bool)</em>: If `True`, a floor will be added to the scene and rendered.
 
- <b>ANIMATED_CHARACTERS</b> <em>List[dict[str:str, str:str, str:str]]</em>:
+&nbsp; &nbsp; &nbsp; &nbsp; <b>ADD_AD_RETARGET_BVH</b> <em>(bool)</em>: If `True`, a visualization of the original BVH motion driving hte Animated Drawing characters will be added to the scene.
+
+&nbsp; &nbsp; &nbsp; &nbsp; <b>ANIMATED_CHARACTERS</b> <em>List[dict[str:str, str:str, str:str]]</em>:
  A list of dictionaries containing the filepaths of config files necessary to create and animated an Animated Drawing character. 
  Add more dictionaries to add more characters into a scene.
-  Contains the following key-value pairs:
+Contains the following key-value pairs:
 
-&nbsp; &nbsp; &nbsp; &nbsp; <b>character_cfg</b> <em>(str)</em>: Path to the character config file.
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <b>character_cfg</b> <em>(str)</em>: Path to the character config file.
 
-&nbsp; &nbsp; &nbsp; &nbsp; <b>motion_cfg</b> <em>(str)</em>: Path to the motion config file.
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <b>motion_cfg</b> <em>(str)</em>: Path to the motion config file.
 
-&nbsp; &nbsp; &nbsp; &nbsp; <b>retarget_cfg</b> <em>(str)</em>: Path to the retarget config file.
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <b>retarget_cfg</b> <em>(str)</em>: Path to the retarget config file.
 
 <b>view</b> <em>(dict)</em>: Dictionary containing parameters used by the MVC's View component.
 

@@ -1,4 +1,8 @@
+scene:
+  ANIMATED_CHARACTERS:
+    - character_cfg: /Users/hjessmith/Desktop/img/char_cfg.yaml
+      motion_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/motion_zombie.yaml
+      retarget_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/retarget.yaml
 controller:
   MODE: 'video_render'
-view:
-  USE_MESA: False
+  OUTPUT_VIDEO_PATH: /Users/hjessmith/Desktop/output_video.mp4
