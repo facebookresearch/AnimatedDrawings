@@ -29,7 +29,7 @@ class VideoRenderController(Controller):
         self._initialize_video_writer()
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
-        self.frames = []
+        self.frames_rendered = 0
 
     def _get_max_motion_frames_and_frame_time(self) -> Tuple[int, float]:
         """
@@ -60,17 +60,23 @@ class VideoRenderController(Controller):
     def _initialize_video_writer(self) -> None:
         """ Logic necessary for setting up the video writer. """
 
-        output_path = self.cfg['OUTPUT_VIDEO_PATH']
-        if not output_path.endswith('.mp4'):
-            msg = f'Only .mp4 output video files supported. Found {Path(output_path).suffix}'
+        # prep video output location
+        output_p = Path(self.cfg['OUTPUT_VIDEO_PATH'])
+        if not output_p.suffix == '.mp4':
+            msg = f'Only .mp4 output video files supported. Found {output_p.suffix}'
             logging.critical(msg)
             assert False, msg
+        output_p.parent.mkdir(exist_ok=True, parents=True)
+        logging.info(f'Writing video to {output_p.resolve()}')
 
+        # prep codec
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
+        # prep video dimensions
         self.video_width, self.video_height = self.view.get_framebuffer_size()
 
-        self.video_writer = cv2.VideoWriter(output_path, fourcc, 1 / self.delta_t, (self.video_width, self.video_height))
+        # initialize the video writer
+        self.video_writer = cv2.VideoWriter(str(output_p), fourcc, 1 / self.delta_t, (self.video_width, self.video_height))
 
     def _is_run_over(self):
         return self.frames_left_to_render == 0
@@ -91,12 +97,13 @@ class VideoRenderController(Controller):
         frame = self.frame_data[::-1, :, :3].copy()
         self.video_writer.write(frame)
         self.frames_left_to_render -= 1
+        self.frames_rendered += 1
 
     def _prep_for_run_loop(self):
         self.start_time = time.time()
 
     def _cleanup_after_run_loop(self):
-        logging.info(f'Rendered {len(self.frames)} frames in {time.time()-self.start_time} seconds.')
+        logging.info(f'Rendered {self.frames_rendered} frames in {time.time()-self.start_time} seconds.')
         _time = time.time()
         self.video_writer.release()
         logging.info(f'Wrote video to file in in {time.time()-_time} seconds.')
