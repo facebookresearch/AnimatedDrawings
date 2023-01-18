@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 
 
-def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_fn: str, char_cfg_fn: str):
+def start(user_cfg_fn: str):
 
     # ensure project root dir set as env var
     if 'AD_ROOT_DIR' not in os.environ:
@@ -23,7 +23,6 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
     cfg = defaultdict(dict, {**base_cfg, **user_cfg})
     cfg['controller'] = {**base_cfg['controller'], **user_cfg['controller']}
     cfg['view'] = {**base_cfg['view'], **user_cfg['view']}
-
 
     # create view
     if cfg['view']['USE_MESA']:
@@ -92,11 +91,6 @@ def start(user_cfg_fn: str, bvh_metadata_cfg_fn: str, char_bvh_retargeting_cfg_f
 if __name__ == '__main__':
     logging.basicConfig(filename='log.txt', level=logging.DEBUG)
 
-    user_cfg_fn = sys.argv[1]  # user-specified MVC configs
-    bvh_metadata_cfg_fn = sys.argv[2]  # bvh-specific metadata config
+    scene_cfg_fn = sys.argv[1]  # user-specified scene-level configuration filepath
 
-    char_bvh_retargeting_cfg_fn = sys.argv[3]  # bvh->character retargeting config
-
-    char_cfg_fn = sys.argv[4]  # character-specific config
-
-    start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
+    start(scene_cfg_fn)
