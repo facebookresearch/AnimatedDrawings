@@ -1,4 +1,4 @@
-filepath: /Users/hjessmith/Desktop/dab.bvh
+filepath: animate/bvh/dab.bvh
 start_frame_idx: 0
 end_frame_idx: 339 
 groundplane_joint: LeftFoot

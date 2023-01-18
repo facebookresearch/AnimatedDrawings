@@ -1,5 +1,5 @@
 scene:
   ANIMATED_CHARACTERS:
-    - character_cfg: /Users/hjessmith/Desktop/img/char_cfg.yaml
-      motion_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/motion_zombie.yaml
-      retarget_cfg: /Users/hjessmith/Projects/AnimatedDrawings/animate/config/retarget.yaml
+    - character_cfg: animate/example_characters/char2/char_cfg.yaml
+      motion_cfg: animate/config/motion_dab.yaml
+      retarget_cfg: animate/config/retarget.yaml
