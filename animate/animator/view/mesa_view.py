@@ -82,9 +82,6 @@ class MesaView(View):
         self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
         osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
 
-        GL.glEnable(GL.GL_BLEND)
-        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
-
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
 
     def set_scene(self, scene: Scene):
