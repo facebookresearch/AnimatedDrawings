@@ -6,10 +6,15 @@ skeleton:
   name: root
   parent: null
 - loc:
+  - 264
+  - 397
+  name: hip
+  parent: root
+- loc:
   - 247
   - 232
   name: torso
-  parent: root
+  parent: hip
 - loc:
   - 231
   - 119

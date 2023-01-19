@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Tuple
 import OpenGL.GL as GL
 from collections import defaultdict
 import heapq
+import math
 
 
 class AnimatedDrawingsJoint(Joint):
@@ -234,6 +235,9 @@ class AnimatedDrawing(Transform, TimeManager):
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
 
+        # perform runtime checks for character pose, modify retarget config accordingly
+        self._modify_retargeting_cfg_for_character()
+
         self.joint_to_tri_v_idx: dict = self._initialize_joint_to_triangles_dict()
         self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
@@ -251,6 +255,46 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # pose the animated drawing using the first frame of the bvh
         self.update()
+
+    def _modify_retargeting_cfg_for_character(self):
+        """
+        If the character is drawn in particular poses, the orientation-matching retargeting framework produce poor results.
+        Therefore, the retargeter config can specify a number of runtime checks and retargeting modifications to make if those checks fail.
+        """
+        for target_joint_name, position_test, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
+            if position_test == 'above':
+                """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it. 
+                This was added to account for head flipping when nose was below shoulders. """
+                
+                # get joints 1, 2 and target joint
+                joint1 = self.rig.root_joint.get_joint_by_name(joint1_name)
+                if joint1 is None:
+                    msg = f'Could not find joint1 in runtime check: {joint1_name}'
+                    logging.critical(msg)
+                    assert False, msg
+                joint2 = self.rig.root_joint.get_joint_by_name(joint2_name)
+                if joint2 is None:
+                    msg = f'Could not find joint2 in runtime check: {joint2_name}'
+                    logging.critical(msg)
+                    assert False, msg
+                target_joint = self.rig.root_joint.get_joint_by_name(target_joint_name)
+                if target_joint is None:
+                    msg = f'Could not find target_joint in runtime check: {target_joint_name}'
+                    logging.critical(msg)
+                    assert False, msg
+
+                # get world positions
+                joint1_xyz = joint1.get_world_position()
+                joint2_xyz = joint2.get_world_position()
+                target_joint_xyz = target_joint.get_world_position() 
+
+                # rotate target vector by inverse of test_vector angle. If then below x axis discard it.
+                test_vector = joint2_xyz - joint1_xyz
+                target_vector = target_joint_xyz - joint1_xyz
+                angle = math.atan2(test_vector[1], test_vector[0])
+                if (math.sin(-angle)*target_vector[0] + math.cos(-angle)*target_vector[1]) < 0:
+                    logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
+                    del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
 
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
