@@ -81,7 +81,8 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     # use them to build character skeleton rig
     skeleton = []
     skeleton.append({'loc':[round(x) for x in (kpts[11]+kpts[12])/2], 'name': 'root'          , 'parent': None})
-    skeleton.append({'loc':[round(x) for x in (kpts[5]+kpts[6])/2  ], 'name': 'torso'         , 'parent': 'root'})
+    skeleton.append({'loc':[round(x) for x in (kpts[11]+kpts[12])/2], 'name': 'hip'           , 'parent': 'root'})
+    skeleton.append({'loc':[round(x) for x in (kpts[5]+kpts[6])/2  ], 'name': 'torso'         , 'parent': 'hip'})
     skeleton.append({'loc':[round(x) for x in  kpts[0]             ], 'name': 'neck'          , 'parent': 'torso'})
     skeleton.append({'loc':[round(x) for x in  kpts[6]             ], 'name': 'right_shoulder', 'parent': 'torso'})
     skeleton.append({'loc':[round(x) for x in  kpts[8]             ], 'name': 'right_elbow'   , 'parent': 'right_shoulder'})

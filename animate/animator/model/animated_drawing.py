@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Tuple
 import OpenGL.GL as GL
 from collections import defaultdict
 import heapq
+import math
 
 
 class AnimatedDrawingsJoint(Joint):
@@ -209,12 +210,12 @@ class AnimatedDrawing(Transform, TimeManager):
     Afterwars, only the update() method needs to be called.
     """
 
-    def __init__(self, char_cfg: dict, char_bvh_retargeting_cfg: dict, bvh_metadata_cfg: dict):
+    def __init__(self, char_cfg: dict, retarget_cfg: dict, motion_cfg: dict):
         super().__init__()
 
-        self.char_bvh_retargeting_cfg: dict = char_bvh_retargeting_cfg
-
         self.char_cfg: dict = char_cfg
+
+        self.retarget_cfg: dict = retarget_cfg
 
         self.img_dim = max(self.char_cfg['height'], self.char_cfg['width'])
 
@@ -229,16 +230,20 @@ class AnimatedDrawing(Transform, TimeManager):
             joint['loc'][0] = joint['loc'][0] / self.img_dim  # width
             joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg['height']/self.img_dim)  # height
 
+        # generate the mesh
         self.mesh: dict = self._generate_mesh()
 
         self.rig = AnimatedDrawingRig(self.char_cfg)
         self.add_child(self.rig)
 
+        # perform runtime checks for character pose, modify retarget config accordingly
+        self._modify_retargeting_cfg_for_character()
+
         self.joint_to_tri_v_idx: dict = self._initialize_joint_to_triangles_dict()
         self.indices: np.ndarray = np.stack(self.mesh['triangles']).flatten()  # order in which to render triangles
 
         self.retargeter: Retargeter
-        self._initialize_retargeter_bvh(bvh_metadata_cfg, char_bvh_retargeting_cfg)
+        self._initialize_retargeter_bvh(motion_cfg, retarget_cfg)
 
         # initialize arap solver with original joint positions
         self.arap = ARAP(self.rig.get_joints_2D_positions(), self.mesh['triangles'], self.mesh['vertices'])
@@ -251,6 +256,46 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # pose the animated drawing using the first frame of the bvh
         self.update()
+
+    def _modify_retargeting_cfg_for_character(self):
+        """
+        If the character is drawn in particular poses, the orientation-matching retargeting framework produce poor results.
+        Therefore, the retargeter config can specify a number of runtime checks and retargeting modifications to make if those checks fail.
+        """
+        for target_joint_name, position_test, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
+            if position_test == 'above':
+                """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it. 
+                This was added to account for head flipping when nose was below shoulders. """
+                
+                # get joints 1, 2 and target joint
+                joint1 = self.rig.root_joint.get_joint_by_name(joint1_name)
+                if joint1 is None:
+                    msg = f'Could not find joint1 in runtime check: {joint1_name}'
+                    logging.critical(msg)
+                    assert False, msg
+                joint2 = self.rig.root_joint.get_joint_by_name(joint2_name)
+                if joint2 is None:
+                    msg = f'Could not find joint2 in runtime check: {joint2_name}'
+                    logging.critical(msg)
+                    assert False, msg
+                target_joint = self.rig.root_joint.get_joint_by_name(target_joint_name)
+                if target_joint is None:
+                    msg = f'Could not find target_joint in runtime check: {target_joint_name}'
+                    logging.critical(msg)
+                    assert False, msg
+
+                # get world positions
+                joint1_xyz = joint1.get_world_position()
+                joint2_xyz = joint2.get_world_position()
+                target_joint_xyz = target_joint.get_world_position() 
+
+                # rotate target vector by inverse of test_vector angle. If then below x axis discard it.
+                test_vector = joint2_xyz - joint1_xyz
+                target_vector = target_joint_xyz - joint1_xyz
+                angle = math.atan2(test_vector[1], test_vector[0])
+                if (math.sin(-angle)*target_vector[0] + math.cos(-angle)*target_vector[1]) < 0:
+                    logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
+                    del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
 
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
@@ -265,7 +310,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute ratio of character's leg length to bvh skel leg length
         c_limb_length = 0
-        c_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['char_joints']
+        c_joint_groups: List[List[str]] = self.retarget_cfg['char_bvh_root_offset']['char_joints']
         for b_joint_group in c_joint_groups:
             while len(b_joint_group) >= 2:
                 c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
@@ -278,7 +323,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 b_joint_group.pop(0)
 
         b_limb_length = 0
-        b_joint_groups: List[List[str]] = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_joints']
+        b_joint_groups: List[List[str]] = self.retarget_cfg['char_bvh_root_offset']['bvh_joints']
         for b_joint_group in b_joint_groups:
             while len(b_joint_group) >= 2:
                 b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
@@ -292,11 +337,11 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute character-bvh scale factor and send to retargeter
         scale_factor = float(c_limb_length / b_limb_length)
-        projection_bodypart_group_for_offset = self.char_bvh_retargeting_cfg['char_bvh_root_offset']['bvh_projection_bodypart_group_for_offset']
+        projection_bodypart_group_for_offset = self.retarget_cfg['char_bvh_root_offset']['bvh_projection_bodypart_group_for_offset']
         self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
 
         # compute the necessary orienations
-        for char_joint_name, (bvh_prox_joint_name, bvh_dist_joint_name) in self.char_bvh_retargeting_cfg['char_joint_bvh_joints_mapping'].items():
+        for char_joint_name, (bvh_prox_joint_name, bvh_dist_joint_name) in self.retarget_cfg['char_joint_bvh_joints_mapping'].items():
             self.retargeter.compute_orientations(bvh_prox_joint_name, bvh_dist_joint_name, char_joint_name)
 
     def update(self):
@@ -333,7 +378,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # sort segmentation groups by decreasing depth_driver's distance to camera
         _bodypart_render_order = []
-        for idx, bodypart_group_dict in enumerate(self.char_bvh_retargeting_cfg['char_bodypart_groups']):
+        for idx, bodypart_group_dict in enumerate(self.retarget_cfg['char_bodypart_groups']):
             bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['bvh_depth_drivers']])
             _bodypart_render_order.append((idx, bodypart_depth))
         _bodypart_render_order.sort(key=lambda x: x[1])
@@ -342,7 +387,7 @@ class AnimatedDrawing(Transform, TimeManager):
         indices = []
         for idx, dist in _bodypart_render_order:
             intra_bodypart_render_order = 1 if dist > 0 else -1  # if depth driver is behind plane, render bodyparts in reverse order
-            for joint_name in self.char_bvh_retargeting_cfg['char_bodypart_groups'][idx]['char_joints'][::intra_bodypart_render_order]:
+            for joint_name in self.retarget_cfg['char_bodypart_groups'][idx]['char_joints'][::intra_bodypart_render_order]:
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 

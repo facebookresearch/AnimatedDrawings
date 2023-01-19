@@ -42,6 +42,7 @@ char_bodypart_groups:
   - left_shoulder
   - right_hip
   - left_hip
+  - hip
   - torso
   - neck
 - bvh_depth_drivers:
@@ -93,6 +94,9 @@ char_joint_bvh_joints_mapping:
   left_knee: !!python/tuple
   - LeftUpLeg
   - LeftLeg
+  torso: !!python/tuple
+  - Hips
+  - Spine3
   neck: !!python/tuple
   - Hips
   - Neck
@@ -108,3 +112,8 @@ char_joint_bvh_joints_mapping:
   right_knee: !!python/tuple
   - RightUpLeg
   - RightLeg
+char_runtime_checks:
+  - - above
+    - neck
+    - right_shoulder
+    - left_shoulder

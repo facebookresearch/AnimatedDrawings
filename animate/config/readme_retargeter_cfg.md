@@ -79,3 +79,14 @@ This dictionary defines a set of mappings between a character rig joint and a se
 The dictionary keys are strings specifying the names of character rig joints.
 At each frame, the character rig's <em>bone</em> (whose distal joint name is specified by the key) is rotated to match the orientation of the vector from the first BVH skeletal joints to the second BVH skeletal joint.
 Note: the 2 BVH joints do not need to be directly connected within the BVH skeleton.
+
+<b>char_runtime_checks</b> <em>(list[list[str]])</em>:
+Depending upon the pose the character is drawn in, sometimes it's better to remove elements from `char_joint_bvh_joints_mapping`.
+The most frequent example of this occurs when <em>tadpole</em> people are drawn- characters in which the torso and the head are essentially the same.
+For such characters, the 'neck' of the character, as drawn, essentially points downward.
+When the neck is rotated to match the orientation of a human skeleton, this flips the character's face, producing poor results.
+For situations like this, you can specify runtime checks to do once the starting pose of the drawn character is known.
+Each item in the list is its own check to run; the first item in the list is the type of test to run, and the other list items are the parameters it needs.
+Currently, only `above` test is supported. 
+In this test, the second element is the name of a <em>target joint</em>, and the third and fourth elements are the names of <em>reference joints</em>.
+If the target joint is not `above` the vector from the first to the second reference joint, it is removed. 
