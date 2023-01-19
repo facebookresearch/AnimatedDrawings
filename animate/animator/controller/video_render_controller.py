@@ -1,3 +1,5 @@
+from __future__ import annotations
+from abc import abstractmethod
 from animator.controller.controller import Controller
 from animator.model.scene import Scene
 from animator.view.view import View
@@ -25,8 +27,9 @@ class VideoRenderController(Controller):
 
         self.video_width: int
         self.video_height: int
-        self.video_writer: cv2.VideoWriter
-        self._initialize_video_writer()
+        self.video_width, self.video_height = self.view.get_framebuffer_size()
+
+        self.video_writer: VideoWriter = VideoWriter.create_video_writer(self)
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
         self.frames_rendered = 0
@@ -57,24 +60,6 @@ class VideoRenderController(Controller):
 
         return max_frames, frame_time[0]
 
-    def _initialize_video_writer(self) -> None:
-        """ Logic necessary for setting up the video writer. """
-
-        # prep video output location
-        output_p = Path(self.cfg['OUTPUT_VIDEO_PATH'])
-        output_p.parent.mkdir(exist_ok=True, parents=True)
-        logging.info(f'Writing video to {output_p.resolve()}')
-
-        # prep codec
-        fourcc = cv2.VideoWriter_fourcc(*self.cfg['OUTPUT_VIDEO_CODEC'])
-        logging.info(f'Using {self.cfg["OUTPUT_VIDEO_CODEC"]}')
-
-        # prep video dimensions
-        self.video_width, self.video_height = self.view.get_framebuffer_size()
-
-        # initialize the video writer
-        self.video_writer = cv2.VideoWriter(str(output_p), fourcc, 1 / self.delta_t, (self.video_width, self.video_height))
-
     def _is_run_over(self):
         return self.frames_left_to_render == 0
 
@@ -88,11 +73,14 @@ class VideoRenderController(Controller):
         self.scene.update_transforms()
 
     def _render(self):
+        # render the scene
         self.view.render(self.scene)
 
+        # get pixel values from the frame buffer, send them to the video writer
         GL.glReadPixels(0, 0, self.video_height, self.video_width, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
-        frame = self.frame_data[::-1, :, :3].copy()
-        self.video_writer.write(frame)
+        self.video_writer.process_frame(self.frame_data[::-1, :, :].copy())
+
+        # update our counts
         self.frames_left_to_render -= 1
         self.frames_rendered += 1
 
@@ -101,6 +89,80 @@ class VideoRenderController(Controller):
 
     def _cleanup_after_run_loop(self):
         logging.info(f'Rendered {self.frames_rendered} frames in {time.time()-self.start_time} seconds.')
+
         _time = time.time()
-        self.video_writer.release()
+        self.video_writer.cleanup()
         logging.info(f'Wrote video to file in in {time.time()-_time} seconds.')
+
+
+class VideoWriter():
+    """ Wrapper to abstract the different backends necessary for writing different video filetypes """
+
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def process_frame(self, frame: np.ndarray):
+        """ Subclass must specify how to handle each frame of data received. """
+        pass
+
+    @abstractmethod
+    def cleanup(self):
+        """ Subclass must specify how to finish up after all frames have been received. """
+        pass
+
+    @staticmethod
+    def create_video_writer(controller: VideoRenderController) -> VideoWriter:
+        output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+        if output_p.suffix == '.gif':
+            return GIFWriter(controller)
+        elif output_p.suffix == '.mp4':
+            return MP4Writer(controller)
+        else:
+            msg = f'Unsupported output video file extension ({output_p.suffix}). Only .gif and .mp4 are supported.'
+            logging.critical(msg)
+            assert False, msg
+
+
+class GIFWriter(VideoWriter):
+    """ Video writer for creating transparent, animated GIFs with Pillow """
+
+    def __init__(self, controller: VideoRenderController):
+        self.output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+        self.duration = controller.delta_t*1000
+        self.frames = []
+
+    def process_frame(self, frame: np.ndarray):
+        """ Reorder channels and save frames as they arrive"""
+        self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA))
+
+    def cleanup(self):
+        """ Write all frames to output path specified."""
+        from PIL import Image
+        self.output_p.parent.mkdir(exist_ok=True, parents=True)
+        logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
+        ims = [Image.fromarray(a_frame) for a_frame in self.frames]
+        ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2)
+
+
+class MP4Writer(VideoWriter):
+    """ Video writer for creating mp4 videos with cv2.VideoWriter """
+
+    def __init__(self, controller: VideoRenderController):
+        output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+        output_p.parent.mkdir(exist_ok=True, parents=True)
+        logging.info(f'VideoWriter will write to {output_p.resolve()}')
+
+        fourcc = cv2.VideoWriter_fourcc(*controller.cfg['OUTPUT_VIDEO_CODEC'])
+        logging.info(f'Using codec {controller.cfg["OUTPUT_VIDEO_CODEC"]}')
+
+        frame_rate = round(1/controller.delta_t)
+
+        self.video_writer = cv2.VideoWriter(str(output_p), fourcc, frame_rate, (controller.video_width, controller.video_height))
+
+    def process_frame(self, frame: np.ndarray):
+        """ Remove the alpha channel and send to the video writer as it arrives. """
+        self.video_writer.write(frame[:, :, :3])
+
+    def cleanup(self):
+        self.video_writer.release()

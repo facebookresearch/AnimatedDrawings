@@ -56,5 +56,11 @@ The window, if it appears, is non-interactive.
 Only used in `interactive` mode.
 
 &nbsp; &nbsp; &nbsp; &nbsp; <b>OUTPUT_VIDEO_PATH</b> <em>(str)</em>: The full filepath where the output video will be saved. 
-Currently, only .mp4 video formats are supported.
 Only used in `video_render` mode.
+Currently, only `.gif` and `.mp4` video formats are supported. 
+Transparency is only available for `.gif` videos.
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; <b>OUTPUT_VIDEO_CODEC</b> <em>(str)</em>: 
+The codec to use when encoding the output video.
+Only used in `video_render` mode and only if a `.mp4` output video file is specified.
