@@ -262,7 +262,7 @@ class AnimatedDrawing(Transform, TimeManager):
         If the character is drawn in particular poses, the orientation-matching retargeting framework produce poor results.
         Therefore, the retargeter config can specify a number of runtime checks and retargeting modifications to make if those checks fail.
         """
-        for target_joint_name, position_test, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
+        for position_test, target_joint_name, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
             if position_test == 'above':
                 """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it. 
                 This was added to account for head flipping when nose was below shoulders. """
@@ -296,6 +296,10 @@ class AnimatedDrawing(Transform, TimeManager):
                 if (math.sin(-angle)*target_vector[0] + math.cos(-angle)*target_vector[1]) < 0:
                     logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
                     del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
+            else:
+                msg = f'Unrecognized char_runtime_checks position_test: {position_test}'
+                logging.critical(msg)
+                assert False, msg
 
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
