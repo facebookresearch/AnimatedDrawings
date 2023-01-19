@@ -142,7 +142,7 @@ class GIFWriter(VideoWriter):
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
-        ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2)
+        ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
 
 
 class MP4Writer(VideoWriter):
