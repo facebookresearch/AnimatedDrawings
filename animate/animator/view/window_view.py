@@ -86,9 +86,7 @@ class WindowView(View):
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())        # type: ignore
 
         GL.glEnable(GL.GL_CULL_FACE)
-        GL.glEnable(GL.GL_BLEND)
         GL.glEnable(GL.GL_DEPTH_TEST)
-        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         # GL parameters specified by the cfg go here
         GL.glClearColor(*self.cfg['CLEAR_COLOR'])
