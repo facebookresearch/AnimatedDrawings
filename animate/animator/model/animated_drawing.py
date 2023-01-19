@@ -406,7 +406,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joints_d: Dict[str, dict] = {}
         for joint in self.char_cfg['skeleton']:
             joints_d[joint['name']] = joint
-            joints_d[joint['name']]['loc'][1] = 1-(self.img_dim / self.char_cfg['height'] * joints_d[joint['name']]['loc'][1])
+            joints_d[joint['name']]['loc'][1] = 1 - joints_d[joint['name']]['loc'][1]
 
         # list of joints to aid with seed generation
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
