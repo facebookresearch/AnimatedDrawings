@@ -17,7 +17,8 @@ We provide a couple of example, ready-to-go mvc_configs for you to experiment wi
 To run one, run the following python commands from within the AnimatedDrawings root directory:
 
     from animated_drawings import render
-    render.start('./examples/config/mvc_interactive_window_example.yaml')
+
+    render.start(./examples/config/mvc_interactive_window_example.yaml)
 
 If everything is installed correctly, an interactive window should appear on your screen. 
 (Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
@@ -25,12 +26,19 @@ If everything is installed correctly, an interactive window should appear on you
 ![interactive_window_example](./media/interactive_window_example.gif)
 
 
+Suppose you'd like to save the animation as a video file instead of viewing it directly in a window. Specify this config path:
 
-Creating 
-Suppose one already 
+    from animated_drawings import render
 
-Suppose you
+    render.start('./examples/config/mvc_export_mp4_example.yaml')
 
+You should see a file, video.mp4, located in the same directory as your script.
+
+Perhaps you'd like a tranparent .GIF instead of an .mp4? Use this:
+
+    from animated_drawings import render
+
+    render.start('./examples/config/mvc_export_gif_example.yaml')
 
 To get an interactive window displaying the animation, run the following code from the AnimatedDrawings root directory
      AnimatedDrawings % python animated_drawings/render.py examples/config/mvc_interactive_window.yaml
