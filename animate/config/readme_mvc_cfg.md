@@ -44,6 +44,8 @@ Contains the following key-value pairs:
 Necessary for headless video rendering.  
 This cannot be used if using an `interactive` mode controller.
 
+&nbsp; &nbsp; &nbsp; &nbsp; <b>BACKGROUND_IMAGE</b> <em>(str)</em>: Path to an image to use for the video background. Will be stretched to fit WINDOW_DIMENSIONS.
+
 <b>controller</b> <em>(dict)</em>: Dictionary containing parameters used by the MVC's Controller component.
 
 &nbsp; &nbsp; &nbsp; &nbsp; <b>MODE</b> <em>(str)</em>: Specifies the 'mode' of the controller.

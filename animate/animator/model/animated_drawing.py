@@ -262,7 +262,7 @@ class AnimatedDrawing(Transform, TimeManager):
         If the character is drawn in particular poses, the orientation-matching retargeting framework produce poor results.
         Therefore, the retargeter config can specify a number of runtime checks and retargeting modifications to make if those checks fail.
         """
-        for target_joint_name, position_test, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
+        for position_test, target_joint_name, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
             if position_test == 'above':
                 """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it. 
                 This was added to account for head flipping when nose was below shoulders. """
@@ -296,6 +296,10 @@ class AnimatedDrawing(Transform, TimeManager):
                 if (math.sin(-angle)*target_vector[0] + math.cos(-angle)*target_vector[1]) < 0:
                     logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
                     del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
+            else:
+                msg = f'Unrecognized char_runtime_checks position_test: {position_test}'
+                logging.critical(msg)
+                assert False, msg
 
     def _initialize_retargeter_bvh(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
         """
@@ -402,7 +406,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joints_d: Dict[str, dict] = {}
         for joint in self.char_cfg['skeleton']:
             joints_d[joint['name']] = joint
-            joints_d[joint['name']]['loc'][1] = 1-(self.img_dim / self.char_cfg['height'] * joints_d[joint['name']]['loc'][1])
+            joints_d[joint['name']]['loc'][1] = 1 - joints_d[joint['name']]['loc'][1]
 
         # list of joints to aid with seed generation
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
@@ -515,7 +519,7 @@ class AnimatedDrawing(Transform, TimeManager):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        txtr[np.where(self.mask == 0)] = 0  # make pixels outside mask transparent
+        txtr[np.where(self.mask == 0)][:,3] = 0  # make pixels outside mask transparent
 
         return txtr
 
