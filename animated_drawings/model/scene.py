@@ -4,7 +4,7 @@ import yaml
 from pathlib import Path
 import os
 import logging
-from utils import resolve_ad_filepath
+from animated_drawings.utils import resolve_ad_filepath
 
 
 class Scene(Transform, TimeManager):

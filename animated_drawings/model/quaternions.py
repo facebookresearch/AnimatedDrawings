@@ -4,7 +4,7 @@ import logging
 from typing import Union
 from model.vectors import Vectors
 import math
-from utils import TOLERANCE
+from animated_drawings.utils import TOLERANCE
 from functools import reduce
 
 
