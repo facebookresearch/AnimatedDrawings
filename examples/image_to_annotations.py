@@ -3,7 +3,8 @@ import requests
 import cv2
 import json
 import numpy as np
-from segment import segment_mask
+from skimage import measure
+from scipy import ndimage
 from pathlib import Path
 import yaml
 import logging
@@ -56,7 +57,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     cropped = img[t:b, l:r]
 
     # get segmentation mask
-    mask = segment_mask(cropped)
+    mask = segment(cropped)
 
     # send cropped image to pose estimator
     data_file = {'data': cv2.imencode('.png', cropped)[1].tobytes()}
@@ -121,6 +122,63 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
         x, y, _ = pose_results[0]['keypoints'][idx]
         cv2.circle(joint_overlay, (int(x), int(y)), 5, (255, 0, 0), 5)
         cv2.imwrite(str(outdir/'joint_overlay.png'), joint_overlay)
+
+
+def segment(img: np.ndarray):
+    """ threshold """
+    img = np.min(img, axis=2)
+    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 8)
+    img = cv2.bitwise_not(img)
+
+    """ morphops """
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel, iterations=2)
+    img = cv2.morphologyEx(img, cv2.MORPH_DILATE, kernel, iterations=2)
+
+    """ floodfill """
+    mask = np.zeros([img.shape[0]+2, img.shape[1]+2], np.uint8)
+    mask[1:-1, 1:-1] = img.copy()
+
+    # im_floodfill is results of floodfill. Starts off all white
+    im_floodfill = np.full(img.shape, 255, np.uint8)
+
+    # choose 10 points along each image side. use as seed for floodfill.
+    h, w = img.shape[:2]
+    for x in range(0, w-1, 10):
+        cv2.floodFill(im_floodfill, mask, (x, 0), 0)
+        cv2.floodFill(im_floodfill, mask, (x, h-1), 0)
+    for y in range(0, h-1, 10):
+        cv2.floodFill(im_floodfill, mask, (0, y), 0)
+        cv2.floodFill(im_floodfill, mask, (w-1, y), 0)
+
+    # make sure edges aren't character. necessary for contour finding
+    im_floodfill[0, :] = 0
+    im_floodfill[-1, :] = 0
+    im_floodfill[:, 0] = 0
+    im_floodfill[:, -1] = 0
+
+    """ retain largest contour """
+    mask = None
+    biggest = 0
+
+    contours = measure.find_contours(im_floodfill, 0.0)
+    for c in contours:
+        x = np.zeros(im_floodfill.T.shape, np.uint8)
+        cv2.fillPoly(x, [np.int32(c)], 1)
+        size = len(np.where(x == 1)[0])
+        if size > biggest:
+            mask = x
+            biggest = size
+
+    if mask is None:
+        msg = 'Found no contours within image'
+        logging.critical(msg)
+        assert False, msg
+
+    mask = ndimage.binary_fill_holes(mask).astype(int)
+    mask = 255 * mask.astype(np.uint8)
+
+    return mask.T
 
 
 if __name__ == '__main__':
