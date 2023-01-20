@@ -8,6 +8,7 @@ from animator.model.scene import Scene
 from animator.model.transform import Transform
 from animator.view.view import View
 from animator.view.utils import get_projection_matrix
+from animator.utils import read_background_image
 from animator.view.shaders.shader import Shader
 
 import logging
@@ -32,7 +33,25 @@ class MesaView(View):
         self.shader_ids = {}
         self._prep_shaders()
 
+        if self.cfg['BACKGROUND_IMAGE']:
+            self._prep_background_image()
+
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
+
+    def _prep_background_image(self):
+        _txtr = read_background_image(self.cfg['BACKGROUND_IMAGE'])
+
+        self.txtr_h, self.txtr_w, _ = _txtr.shape
+        self.txtr_id = GL.glGenTextures(1)
+        GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_BASE_LEVEL, 0)
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_LEVEL, 0)
+        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, self.txtr_w, self.txtr_h, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, _txtr)
+
+        self.fboId: GL.GLint = GL.glGenFramebuffers(1)
+        GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
+        GL.glFramebufferTexture2D(GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
 
     def _prep_shaders(self):
         BVH_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.vert")
@@ -89,6 +108,13 @@ class MesaView(View):
 
     def render(self, transform: Transform):
         GL.glViewport(0, 0, *self.get_framebuffer_size())
+
+        # Draw the background
+        if self.cfg['BACKGROUND_IMAGE']:
+            GL.glBindFramebuffer(GL.GL_DRAW_FRAMEBUFFER, 0)
+            GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
+            win_w, win_h = self.get_framebuffer_size()
+            GL.glBlitFramebuffer(0, 0, self.txtr_w, self.txtr_h, 0, 0, win_w, win_h, GL.GL_COLOR_BUFFER_BIT, GL.GL_LINEAR)
 
         self._update_shaders_view_transform(self.camera)
 
