@@ -104,7 +104,7 @@ The contains information about the motion used to drive the Animated Drawing.
 Currently, only BVH (BioVision Hierarchy) files are supported, but there is considerable flexibility
 regarding the skeleton specified within the BVH (note- only BVH's with one skeleton are supported).
 
-<b>filepath</b> <em>(str)</em>: Path to the BVH file. This can be an absolute path, path relative to the current working directory, or path relative to ${AD_ROOT_DIR}.  
+<b>filepath</b> <em>(str)</em>: Path to the BVH file. This can be an absolute path, path relative to the current working directory, or path relative the AnimatedDrawings root directory.
 
 <b>start_frame_idx</b> <em>(int)</em>:
 If you want to skip beginning motion frames, this can be set to an int between 0 and `end_frame_idx`, inclusive.
