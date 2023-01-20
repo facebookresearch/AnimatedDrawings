@@ -1,4 +1,4 @@
-char_starting_location: [-1.0, 0.0, -3.0]
+char_starting_location: [0.0, 0.0, 0.0]
 bvh_projection_bodypart_groups:
 - bvh_joint_names:
   - RightShoulder
@@ -22,7 +22,7 @@ bvh_projection_bodypart_groups:
   - LeftLeg
   - LeftFoot
   - LeftToeBase
-  method: saggital
+  method: pca
   name: Lower Limbs
 - bvh_joint_names:
   - Hips

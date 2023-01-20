@@ -1,4 +1,4 @@
-filepath: examples/bvh/dab.bvh
+filepath: examples/bvh/capture1/dab.bvh
 start_frame_idx: 0
 end_frame_idx: 339 
 groundplane_joint: LeftFoot
