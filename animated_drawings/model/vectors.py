@@ -4,7 +4,7 @@ import logging
 from typing import Union
 from numbers import Number
 from copy import copy
-from utils import TOLERANCE
+from animated_drawings.utils import TOLERANCE
 
 
 class Vectors():

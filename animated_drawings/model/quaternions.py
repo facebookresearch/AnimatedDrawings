@@ -2,7 +2,7 @@ from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 import logging
 from typing import Union
-from model.vectors import Vectors
+from animated_drawings.model.vectors import Vectors
 import math
 from animated_drawings.utils import TOLERANCE
 from functools import reduce
