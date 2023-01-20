@@ -25,6 +25,11 @@ class View:
         pass
 
     @abstractmethod
+    def cleanup(self):
+        """ Cleanup after render loop is finished. """
+        pass
+
+    @abstractmethod
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of framebuffer. """
         pass
@@ -37,5 +42,5 @@ class View:
             from animated_drawings.view.mesa_view import MesaView
             return MesaView(view_cfg)
         else:
-            from view.window_view import WindowView
+            from animated_drawings.view.window_view import WindowView
             return WindowView(view_cfg)

@@ -8,7 +8,7 @@ from typing import Optional, Tuple, List
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.model.quaternions import Quaternions
 from pathlib import Path
-from utils import resolve_ad_filepath
+from animated_drawings.utils import resolve_ad_filepath
 
 x_axis = np.array([1.0, 0.0, 0.0])
 z_axis = np.array([0.0, 0.0, 1.0])

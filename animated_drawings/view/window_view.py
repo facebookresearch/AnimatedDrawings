@@ -101,7 +101,7 @@ class WindowView(View):
         win = glfw.create_window(width, height, 'Viewer', None, None)
         glfw.make_context_current(win)
 
-        print('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',  # type: ignore
+        logging.info('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',  # type: ignore
               GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +     # type: ignore
               ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())        # type: ignore
 
@@ -139,3 +139,7 @@ class WindowView(View):
 
     def clear_window(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
+    
+    def cleanup(self):
+        """ Destroy the window when it's no longer being used. """
+        glfw.destroy_window(self.win)
