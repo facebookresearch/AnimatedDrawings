@@ -158,12 +158,13 @@ def segment(img: np.ndarray):
     im_floodfill[:, -1] = 0
 
     """ retain largest contour """
+    mask2 = cv2.bitwise_not(im_floodfill)
     mask = None
     biggest = 0
 
-    contours = measure.find_contours(im_floodfill, 0.0)
+    contours = measure.find_contours(mask2, 0.0)
     for c in contours:
-        x = np.zeros(im_floodfill.T.shape, np.uint8)
+        x = np.zeros(mask2.T.shape, np.uint8)
         cv2.fillPoly(x, [np.int32(c)], 1)
         size = len(np.where(x == 1)[0])
         if size > biggest:
