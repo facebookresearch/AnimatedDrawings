@@ -64,8 +64,6 @@ As you waited, the image located at `drawings/garlic.png` was analyzed, the char
 The resulting animation was saved as `./garlic_out/video.gif`.
 
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
-We provid
-- Run torchserve script
 
 ### Fixing bad predictions
 You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were addition non-video files within `garlic_out`.
