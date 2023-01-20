@@ -11,10 +11,9 @@ In addition, this repo aims to be a useful creative tool in it's own right, allo
 ## Running (To be expanded later)
 
 ### Using the Rendering code
-We provide a couple of example mvc-level configuration files to demonstrate how to run the rendering code.
-Scenes are created and rendered given an *mvc configuration*.
-We provide a couple of example, ready-to-go mvc_configs for you to experiment with.
-To run one, run the following python commands from within the AnimatedDrawings root directory:
+We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
+Scenes are created and rendered according to the parmaeters within the mvc_config.
+To see for yourself, run the following python commands from within the AnimatedDrawings root directory:
 
     from animated_drawings import render
 
@@ -23,10 +22,10 @@ To run one, run the following python commands from within the AnimatedDrawings r
 If everything is installed correctly, an interactive window should appear on your screen. 
 (Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
 
-![interactive_window_example](./media/interactive_window_example.gif)
+<img src='./media/interactive_window_example.gif' width="256" height="256" /> </br></br></br>
 
 
-Suppose you'd like to save the animation as a video file instead of viewing it directly in a window. Specify this config path:
+Suppose you'd like to save the animation as a video file instead of viewing it directly in a window. Specify a different example mvc_config:
 
     from animated_drawings import render
 
@@ -34,15 +33,18 @@ Suppose you'd like to save the animation as a video file instead of viewing it d
 
 You should see a file, video.mp4, located in the same directory as your script.
 
-Perhaps you'd like a tranparent .GIF instead of an .mp4? Use this:
+<img src='./media/mp4_export_video.gif' width="256" height="256" /> </br></br></br>
+
+Perhaps you'd like a tranparent .gif instead of an .mp4? Use this:
 
     from animated_drawings import render
 
     render.start('./examples/config/mvc_export_gif_example.yaml')
 
-To get an interactive window displaying the animation, run the following code from the AnimatedDrawings root directory
-     AnimatedDrawings % python animated_drawings/render.py examples/config/mvc_interactive_window.yaml
-- Pass in a config to render.py
+You'll find video.gif residing within the same directory as your script.
+
+<img src='./media/gif_export_video.gif' width="256" height="256" /> </br></br></br>
+
 
 ### Creating an animation from an image
 - Run torchserve script
