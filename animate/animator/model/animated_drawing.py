@@ -519,7 +519,7 @@ class AnimatedDrawing(Transform, TimeManager):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        txtr[np.where(self.mask == 0)] = 0  # make pixels outside mask transparent
+        txtr[np.where(self.mask == 0)][:,3] = 0  # make pixels outside mask transparent
 
         return txtr
 
