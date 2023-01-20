@@ -1,8 +1,6 @@
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.time_manager import TimeManager
 import yaml
-from pathlib import Path
-import os
 import logging
 from animated_drawings.utils import resolve_ad_filepath
 

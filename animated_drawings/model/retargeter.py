@@ -16,7 +16,7 @@ z_axis = np.array([0.0, 0.0, 1.0])
 
 class Retargeter():
 
-    def __init__(self, bvh_metadata_cfg: dict, char_bvh_retargeting_cfg: dict):
+    def __init__(self, motion_cfg: dict, retarget_cfg: dict):
         """
         bvh_fn: path to bvh file containing animation data
         bvh_metadata_cfg: bvh metadata config dictionary
@@ -26,12 +26,12 @@ class Retargeter():
         logging.info(f'Using bvh file: {bvh_p}')
 
         # read start and end frame from config
-        start_frame_idx = bvh_metadata_cfg.get('start_frame_idx', 0)
-        end_frame_idx = bvh_metadata_cfg.get('end_frame_idx', None)
+        start_frame_idx = motion_cfg.get('start_frame_idx', 0)
+        end_frame_idx = motion_cfg.get('end_frame_idx', None)
 
         # instantiate the bvh
         try:
-            self.bvh = BVH.from_file(bvh_fn, start_frame_idx, end_frame_idx)
+            self.bvh = BVH.from_file(str(bvh_p), start_frame_idx, end_frame_idx)
         except Exception as e:
             msg = f'Error loading BVH: {e}'
             logging.critical(msg)
@@ -41,13 +41,13 @@ class Retargeter():
         self.bvh_joint_names = self.bvh.get_joint_names()
 
         # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to
-        self.forward_perp_vector_joint_names = bvh_metadata_cfg['forward_perp_joint_vectors']
+        self.forward_perp_vector_joint_names = motion_cfg['forward_perp_joint_vectors']
 
         # rotate BVH skeleton so up is +Y
-        if bvh_metadata_cfg['up'] == '+z':
+        if motion_cfg['up'] == '+z':
             self.bvh.set_rotation(Quaternions.from_euler_angles('yx', np.array([-90.0, -90.0])))
         else:
-            msg = f'bvh_metadata_cfg["up"] value not implemented: {bvh_metadata_cfg["up"]}'
+            msg = f'bvh_metadata_cfg["up"] value not implemented: {motion_cfg["up"]}'
             logging.warning(msg)
 
         # rotate BVH skeleton so forward is +X
@@ -57,7 +57,7 @@ class Retargeter():
 
         # scale BVH
         try:
-            self.bvh.set_scale(bvh_metadata_cfg['scale'])
+            self.bvh.set_scale(motion_cfg['scale'])
         except Exception as e:
             msg = f'Could not scale BVH: {e}'
             logging.warning(msg)
@@ -67,9 +67,9 @@ class Retargeter():
 
         # adjust bvh skeleton height
         try:
-            groundplane_joint = self.bvh.root_joint.get_joint_by_name(bvh_metadata_cfg['groundplane_joint'])
+            groundplane_joint = self.bvh.root_joint.get_joint_by_name(motion_cfg['groundplane_joint'])
             if groundplane_joint is None:
-                raise Exception(f'could not find groundplane_joint{bvh_metadata_cfg["groundplane_joint"]}')
+                raise Exception(f'could not find groundplane_joint{motion_cfg["groundplane_joint"]}')
             bvh_groundplane_y = groundplane_joint.get_world_position()[1]
             self.bvh.offset(np.array([0, -bvh_groundplane_y, 0]))  # reposition groundplane
         except Exception as e:
@@ -83,7 +83,7 @@ class Retargeter():
         self._compute_normalized_joint_positions_and_fwd_vectors()
 
         # cache the starting worldspace location of character's root joint
-        self.character_start_loc = np.array(char_bvh_retargeting_cfg['char_starting_location'])
+        self.character_start_loc = np.array(retarget_cfg['char_starting_location'])
 
         # holds world coordinates of character root joint after retargeting
         self.char_root_positions: Optional[np.ndarray] = None
@@ -91,7 +91,7 @@ class Retargeter():
         # get & save projection planes
         self.joint_group_name_to_projection_plane: dict = {}
         self.joint_to_projection_plane: dict = {}
-        for joint_projection_group in char_bvh_retargeting_cfg['bvh_projection_bodypart_groups']:
+        for joint_projection_group in retarget_cfg['bvh_projection_bodypart_groups']:
             group_name = joint_projection_group['name']
             joint_names = joint_projection_group['bvh_joint_names']
             projection_method: str = joint_projection_group['method']
