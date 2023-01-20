@@ -62,6 +62,7 @@ Run the following commands, starting from the AnimatedDrawings root directory:
 
 As you waited, the image located at `drawings/garlic.png` was analyzed, the character detected, segmented, and rigged, and it was animated using BVH motion data from a human actor.
 The animation was saved as `./garlic_out/video.gif`.
+
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
 We provid
 - Run torchserve script
