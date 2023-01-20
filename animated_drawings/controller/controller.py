@@ -89,7 +89,7 @@ class Controller():
     def create_controller(controller_cfg: dict, scene: Scene, view: View) -> Controller:
         """ Takes in a controller dictionary from mvc config file, scene, and view. Constructs and return appropriate controller."""
         if controller_cfg['MODE'] == 'video_render':
-            from controller.video_render_controller import VideoRenderController
+            from animated_drawings.controller.video_render_controller import VideoRenderController
             return VideoRenderController(controller_cfg, scene, view,)
         elif controller_cfg['MODE'] == 'interactive':
             from animated_drawings.controller.interactive_controller import InteractiveController
