@@ -3,6 +3,7 @@ scene:
   ADD_AD_RETARGET_BVH: False
 view:
   CLEAR_COLOR: [0.8, 0.8, 0.9, 0.1]
+  BACKGROUND_IMAGE: null
   WINDOW_DIMENSIONS: [500, 500]
   DRAW_AD_RIG: False
   DRAW_AD_TXTR: True
