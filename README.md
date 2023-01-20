@@ -61,30 +61,44 @@ Run the following commands, starting from the AnimatedDrawings root directory:
     python image_to_animation.py drawings/garlic.png garlic_out
 
 As you waited, the image located at `drawings/garlic.png` was analyzed, the character detected, segmented, and rigged, and it was animated using BVH motion data from a human actor.
-The animation was saved as `./garlic_out/video.gif`.
+The resulting animation was saved as `./garlic_out/video.gif`.
 
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
 We provid
 - Run torchserve script
 
-### Adding multiple characters to scene
-TBD
-
-### Adding multiple characters to scene
-TBD
-
 ### Fixing bad predictions
-TBD
+You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were addition non-video files within `garlic_out`.
+`mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
+If the predictions were incorrect, you can manually fix the annotations.
+The segmentation mask is a grayscale image that can be edited in Photoshop or Paint.
+The skeleton joint locations within char_cfg.yaml can be edited with a text editor (though you'll want to read about the character config parameters within config/README first though.)
+
+Once you've modified annotations, you can render an animation using them like so:
+
+    # run from AnimatedDrawings root directory
+
+    # ensure torchserve is running
+    cd torchserve
+    ./torchserve_start.sh
+
+    cd ../examples
+
+    # specify the folder where the update animations are located
+    python annotations_to_animation.py garlic_out
+
+### Adding multiple characters to scene
+Multiple characters can be added to a video by specifying multiple entries within the mvc-config scene's 'ANIMATED_CHARACTERS' list.
+To see for yourself, run the following python commands from within the AnimatedDrawings root directory:
+
+    from animated_drawings import render
+    render.start('./examples/config/mvc/multiple_characters_example.yaml')
+<img src='./examples/characters/char1/texture.png' height="256" />
+<img src='./examples/characters/char2/texture.png' height="256" />
+<img src='./media/video.gif' height="256" />
 
 ### Adding addition types of motion
 TBD
 
-### Example outputs and config files
-While our torchserve model's don't predict keypoints for non-humanoid skeletons, you could create them manually and create a custom `retarget_cfg` to retarget motion onto its joints.
-Likewise, custom `retarget_cfg` files can be written to support non-humanoid BVH skeletons.
-Examples to be added in the future.
-
-
-
-
-
+### Adding addition character skeletons
+TBD
