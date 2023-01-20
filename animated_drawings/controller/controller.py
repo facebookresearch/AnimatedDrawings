@@ -1,6 +1,6 @@
 from __future__ import annotations
-from animator.model.scene import Scene
-from animator.view.view import View
+from animated_drawings.model.scene import Scene
+from animated_drawings.view.view import View
 from typing import Optional
 from abc import abstractmethod
 import logging
@@ -92,7 +92,7 @@ class Controller():
             from controller.video_render_controller import VideoRenderController
             return VideoRenderController(controller_cfg, scene, view,)
         elif controller_cfg['MODE'] == 'interactive':
-            from animator.controller.interactive_controller import InteractiveController
+            from animated_drawings.controller.interactive_controller import InteractiveController
             return InteractiveController(controller_cfg, scene, view)
         else:
             msg = f'Unknown controller mode specified: {controller_cfg["MODE"]}'

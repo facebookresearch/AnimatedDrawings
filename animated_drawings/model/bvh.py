@@ -1,16 +1,16 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 from pathlib import Path
-from animator.model.transform import Transform
+from animated_drawings.model.transform import Transform
 from typing import List, Tuple, Optional
-from animator.model.box import Box
-from animator.model.quaternions import Quaternions
-from animator.model.vectors import Vectors
-from animator.model.joint import Joint
-from animator.model.time_manager import TimeManager
+from animated_drawings.model.box import Box
+from animated_drawings.model.quaternions import Quaternions
+from animated_drawings.model.vectors import Vectors
+from animated_drawings.model.joint import Joint
+from animated_drawings.model.time_manager import TimeManager
 import numpy as np
 import logging
 import os
-from animator.utils import resolve_ad_filepath
+from animated_drawings.utils import resolve_ad_filepath
 
 
 class BVH_Joint(Joint):

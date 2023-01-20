@@ -1,5 +1,5 @@
-from animator.model.transform import Transform
-from animator.model.vectors import Vectors
+from animated_drawings.model.transform import Transform
+from animated_drawings.model.vectors import Vectors
 
 
 class Camera(Transform):

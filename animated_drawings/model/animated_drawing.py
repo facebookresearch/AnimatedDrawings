@@ -1,10 +1,10 @@
-from animator.model.transform import Transform
-from animator.model.time_manager import TimeManager
-from animator.model.retargeter import Retargeter
-from animator.model.arap import ARAP
-from animator.model.joint import Joint
-from animator.model.quaternions import Quaternions
-from animator.model.vectors import Vectors
+from animated_drawings.model.transform import Transform
+from animated_drawings.model.time_manager import TimeManager
+from animated_drawings.model.retargeter import Retargeter
+from animated_drawings.model.arap import ARAP
+from animated_drawings.model.joint import Joint
+from animated_drawings.model.quaternions import Quaternions
+from animated_drawings.model.vectors import Vectors
 import logging
 import cv2
 import numpy as np

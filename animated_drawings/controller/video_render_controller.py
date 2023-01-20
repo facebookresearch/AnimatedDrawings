@@ -1,8 +1,8 @@
 from __future__ import annotations
 from abc import abstractmethod
-from animator.controller.controller import Controller
-from animator.model.scene import Scene
-from animator.view.view import View
+from animated_drawings.controller.controller import Controller
+from animated_drawings.model.scene import Scene
+from animated_drawings.view.view import View
 import time
 import cv2
 from OpenGL import GL

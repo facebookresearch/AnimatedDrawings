@@ -1,5 +1,5 @@
 from __future__ import annotations
-from animator.model.transform import Transform
+from animated_drawings.model.transform import Transform
 from typing import Optional
 
 

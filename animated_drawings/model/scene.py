@@ -1,5 +1,5 @@
-from animator.model.transform import Transform
-from animator.model.time_manager import TimeManager
+from animated_drawings.model.transform import Transform
+from animated_drawings.model.time_manager import TimeManager
 import yaml
 from pathlib import Path
 import os
@@ -20,11 +20,11 @@ class Scene(Transform, TimeManager):
 
         # add floor if required
         if cfg['ADD_FLOOR']:
-            from animator.model.floor import Floor
+            from animated_drawings.model.floor import Floor
             self.add_child(Floor())
 
         # Add the Animated Drawing
-        from animator.model.animated_drawing import AnimatedDrawing
+        from animated_drawings.model.animated_drawing import AnimatedDrawing
         for ad_dict in cfg['ANIMATED_CHARACTERS']:
 
             # get the motion config

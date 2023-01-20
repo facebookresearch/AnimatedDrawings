@@ -1,12 +1,12 @@
 import logging
-from animator.model.bvh import BVH
+from animated_drawings.model.bvh import BVH
 import numpy as np
 import math
-from animator.model.joint import Joint
+from animated_drawings.model.joint import Joint
 from sklearn.decomposition import PCA
 from typing import Optional, Tuple, List
-from animator.model.vectors import Vectors
-from animator.model.quaternions import Quaternions
+from animated_drawings.model.vectors import Vectors
+from animated_drawings.model.quaternions import Quaternions
 from pathlib import Path
 import os
 

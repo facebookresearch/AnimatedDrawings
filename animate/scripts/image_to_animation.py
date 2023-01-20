@@ -1,6 +1,6 @@
 from image_to_annotations import image_to_annotations
 from pathlib import Path
-import animator.render
+import animated_drawings.render
 import logging
 import sys
 import os
@@ -18,7 +18,7 @@ def image_to_animation(img_fn: str, out_dir: str,  user_cfg_fn: str, bvh_metadat
 
     char_cfg_fn = f'{Path(out_dir)}/char_cfg.yaml'
 
-    animator.render.start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
+    animated_drawings.render.start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
 
 
 if __name__ == '__main__':

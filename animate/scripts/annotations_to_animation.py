@@ -1,4 +1,4 @@
-import animator.render
+import animated_drawings.render
 import logging
 from pathlib import Path
 import sys
@@ -11,7 +11,7 @@ def annotations_to_animation(char_cfg_fn: str, user_cfg_fn: str, bvh_metadata_cf
     If rendering a video, video saved to directory containing the character config file.
     Intended use-case: image_to_annotations.py failed to properly prep the character for animation, so you can manually adjust the annotations before using this function to generate the animation.
     """
-    animator.render.start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
+    animated_drawings.render.start(user_cfg_fn, bvh_metadata_cfg_fn, char_bvh_retargeting_cfg_fn, char_cfg_fn)
 
 
 if __name__ == '__main__':

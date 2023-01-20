@@ -1,6 +1,6 @@
 import glfw
-from animator.controller.controller import Controller
-from animator.model.scene import Scene
+from animated_drawings.controller.controller import Controller
+from animated_drawings.model.scene import Scene
 from view.window_view import WindowView
 from typing import Optional
 import time

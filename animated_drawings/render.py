@@ -1,7 +1,7 @@
-from animator.model.scene import Scene
-from animator.view.view import View
-from animator.controller.controller import Controller
-from animator.utils import resolve_ad_filepath
+from animated_drawings.model.scene import Scene
+from animated_drawings.view.view import View
+from animated_drawings.controller.controller import Controller
+from animated_drawings.utils import resolve_ad_filepath
 import logging
 import yaml
 import sys
@@ -14,7 +14,7 @@ def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
     """ Combines and returns user-specified config file with base config file. """
 
     # prep the mvc base config
-    with open(f'{Path(os.environ["AD_ROOT_DIR"],"animate/animator/mvc_base_cfg.yaml")}', 'r') as f:
+    with open(f'{Path(os.environ["AD_ROOT_DIR"],"animated_drawings/mvc_base_cfg.yaml")}', 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
 
     # search for the user-specified mvc confing

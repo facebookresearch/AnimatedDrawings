@@ -1,5 +1,5 @@
-from animator.model.rectangle import Rectangle
-from animator.model.transform import Transform
+from animated_drawings.model.rectangle import Rectangle
+from animated_drawings.model.transform import Transform
 import numpy as np
 
 

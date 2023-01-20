@@ -1,7 +1,7 @@
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
-from animator.model.vectors import Vectors
-from animator.model.quaternions import Quaternions
+from animated_drawings.model.vectors import Vectors
+from animated_drawings.model.quaternions import Quaternions
 import logging
 from typing import Union, Optional, List
 

@@ -3,13 +3,13 @@ os.environ['PYOPENGL_PLATFORM'] = "osmesa"
 os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
 from OpenGL import GL, osmesa
 
-from animator.model.camera import Camera
-from animator.model.scene import Scene
-from animator.model.transform import Transform
-from animator.view.view import View
-from animator.view.utils import get_projection_matrix
-from animator.utils import read_background_image
-from animator.view.shaders.shader import Shader
+from animated_drawings.model.camera import Camera
+from animated_drawings.model.scene import Scene
+from animated_drawings.model.transform import Transform
+from animated_drawings.view.view import View
+from animated_drawings.view.utils import get_projection_matrix
+from animated_drawings.utils import read_background_image
+from animated_drawings.view.shaders.shader import Shader
 
 import logging
 from typing import Tuple
@@ -54,16 +54,16 @@ class MesaView(View):
         GL.glFramebufferTexture2D(GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
 
     def _prep_shaders(self):
-        BVH_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.vert")
-        BVH_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/bvh.frag")
+        BVH_VERT = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/bvh.vert")
+        BVH_FRAG = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/bvh.frag")
         self._initiatize_shader('bvh_shader', str(BVH_VERT), str(BVH_FRAG))
 
-        COLOR_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/color.vert")
-        COLOR_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/color.frag")
+        COLOR_VERT = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/color.vert")
+        COLOR_FRAG = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/color.frag")
         self._initiatize_shader('color_shader', str(COLOR_VERT), str(COLOR_FRAG))
 
-        TEXTURE_VERT = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/texture.vert")
-        TEXTURE_FRAG = Path(os.environ['AD_ROOT_DIR'], "animate/animator/view/shaders/texture.frag")
+        TEXTURE_VERT = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/texture.vert")
+        TEXTURE_FRAG = Path(os.environ['AD_ROOT_DIR'], "animated_drawings/view/shaders/texture.frag")
         self._initiatize_shader('texture_shader', str(TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
 
     def _update_shaders_view_transform(self, camera: Camera):

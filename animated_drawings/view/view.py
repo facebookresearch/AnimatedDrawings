@@ -34,7 +34,7 @@ class View:
         """ Takes in a view dictionary from mvc config file and returns the appropriate view. """
         # create view
         if view_cfg['USE_MESA']:
-            from animator.view.mesa_view import MesaView
+            from animated_drawings.view.mesa_view import MesaView
             return MesaView(view_cfg)
         else:
             from view.window_view import WindowView
