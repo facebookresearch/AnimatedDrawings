@@ -68,7 +68,6 @@ class Vectors():
 
         if np.min(ns) < TOLERANCE:
             logging.info(f"Encountered values close to zero in vector norm. Replacing with {TOLERANCE}")
-            print(f"Encountered values close to zero in vector norm. Replacing with {TOLERANCE}")
             ns[ns < TOLERANCE] = TOLERANCE
 
         self.vs = self.vs / np.expand_dims(ns, axis=-1)
