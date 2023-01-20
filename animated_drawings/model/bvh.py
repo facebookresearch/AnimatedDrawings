@@ -9,7 +9,6 @@ from animated_drawings.model.joint import Joint
 from animated_drawings.model.time_manager import TimeManager
 import numpy as np
 import logging
-import os
 from animated_drawings.utils import resolve_ad_filepath
 
 

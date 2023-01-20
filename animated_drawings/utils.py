@@ -4,6 +4,7 @@ import cv2
 from pathlib import Path
 import os
 import logging
+from pkg_resources import resource_filename
 
 TOLERANCE = 10**-5
 
@@ -16,8 +17,8 @@ def resolve_ad_filepath(file_name: str, file_type: str) -> Path:
     """
     if Path(file_name).exists():
         return Path(file_name)
-    elif Path(os.environ['AD_ROOT_DIR'], file_name).exists():
-        return Path(os.environ['AD_ROOT_DIR'], file_name)
+    elif Path(resource_filename(__name__, file_name)).exists():
+        return Path(resource_filename(__name__, file_name))
 
     msg = f'Could not find the {file_type} specified: {file_name}'
     logging.critical(msg)

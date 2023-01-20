@@ -7,14 +7,14 @@ import yaml
 import sys
 from collections import defaultdict
 from pathlib import Path
-import os
+from pkg_resources import resource_filename
 
 
 def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
     """ Combines and returns user-specified config file with base config file. """
 
     # prep the mvc base config
-    with open(f'{Path(os.environ["AD_ROOT_DIR"],"animated_drawings/mvc_base_cfg.yaml")}', 'r') as f:
+    with open(resource_filename(__name__, "mvc_base_cfg.yaml"), 'r') as f:
         base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader))
 
     # search for the user-specified mvc confing
@@ -33,12 +33,6 @@ def _build_config(user_mvc_cfg_fn: str) -> defaultdict:
 
 
 def start(user_mvc_cfg_fn: str):
-
-    # ensure project root dir set as env var
-    if 'AD_ROOT_DIR' not in os.environ:
-        msg = 'AD_ROOT_DIR environmental variable not set'
-        logging.critical(msg)
-        assert False, msg
 
     # build cfg
     cfg = _build_config(user_mvc_cfg_fn)
