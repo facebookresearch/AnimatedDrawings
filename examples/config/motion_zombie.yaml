@@ -1,4 +1,4 @@
-filepath: animate/bvh/zombie.bvh
+filepath: examples/bvh/zombie.bvh
 start_frame_idx: 0
 end_frame_idx: 779
 groundplane_joint: LeftFoot

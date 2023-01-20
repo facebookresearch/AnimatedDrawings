@@ -1,8 +1,0 @@
-scene:
-  ANIMATED_CHARACTERS:
-    - character_cfg: animate/example_characters/char1/char_cfg.yaml
-      motion_cfg: animate/config/motion_zombie.yaml
-      retarget_cfg: animate/config/retarget.yaml
-controller:
-  MODE: 'video_render'
-  OUTPUT_VIDEO_PATH: output_video/char1_zombie.mp4
