@@ -17,7 +17,7 @@ To see for yourself, run the following python commands from within the AnimatedD
 
     from animated_drawings import render
 
-    render.start(./examples/config/mvc_interactive_window_example.yaml)
+    render.start(./examples/config/mvc/interactive_window_example.yaml)
 
 If everything is installed correctly, an interactive window should appear on your screen. 
 (Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
@@ -29,7 +29,7 @@ Suppose you'd like to save the animation as a video file instead of viewing it d
 
     from animated_drawings import render
 
-    render.start('./examples/config/mvc_export_mp4_example.yaml')
+    render.start('./examples/config/mvc/export_mp4_example.yaml')
 
 You should see a file, video.mp4, located in the same directory as your script.
 
@@ -39,7 +39,7 @@ Perhaps you'd like a tranparent .gif instead of an .mp4? Use this:
 
     from animated_drawings import render
 
-    render.start('./examples/config/mvc_export_gif_example.yaml')
+    render.start('./examples/config/mvc/export_gif_example.yaml')
 
 You'll find video.gif residing within the same directory as your script.
 
@@ -47,10 +47,24 @@ You'll find video.gif residing within the same directory as your script.
 
 
 ### Creating an animation from an image
-- Run torchserve script
+All of the above examples use drawings with pre-existing annotations.
+But suppose you'd like to create an animation starring your own drawing? 
+We provide an example script specifically for that purpose.
+We use torchserve to pass data to our models, so you'll need to ensure it's properly installed first.
+Run the following commands, starting from the AnimatedDrawings root directory:
 
-### Creating a transparent aniamted GIF 
-TBD
+    # ensure torchserve is running
+    cd torchserve
+    ./torchserve_start.sh
+
+    cd ../examples
+    python image_to_animation.py drawings/garlic.png garlic_out
+
+As you waited, the image located at `drawings/garlic.png` was analyzed, the character detected, segmented, and rigged, and it was animated using BVH motion data from a human actor.
+The animation was saved as `./garlic_out/video.gif`.
+<img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
+We provid
+- Run torchserve script
 
 ### Adding multiple characters to scene
 TBD
