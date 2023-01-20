@@ -22,7 +22,7 @@ To run one, run the following python commands from within the AnimatedDrawings r
 If everything is installed correctly, an interactive window should appear on your screen. 
 (Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
 
-![interactive_window_example](./media/interactive_window_example.mp4)
+![interactive_window_example](./media/interactive_window_example.gif)
 
 
 
