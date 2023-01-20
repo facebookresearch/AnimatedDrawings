@@ -139,3 +139,7 @@ class WindowView(View):
 
     def clear_window(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
+    
+    def cleanup(self):
+        """ Destroy the window when it's no longer being used. """
+        glfw.destroy_window(self.win)

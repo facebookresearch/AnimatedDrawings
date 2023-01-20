@@ -1,7 +1,7 @@
 import glfw
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
-from view.window_view import WindowView
+from animated_drawings.view.window_view import WindowView
 from typing import Optional
 import time
 
@@ -94,3 +94,6 @@ class InteractiveController(Controller):
 
     def _finish_run_loop_iteration(self):
         self.view.swap_buffers()
+
+    def _cleanup_after_run_loop(self):
+        self.view.cleanup()

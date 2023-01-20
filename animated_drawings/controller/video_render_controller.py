@@ -91,6 +91,8 @@ class VideoRenderController(Controller):
     def _cleanup_after_run_loop(self):
         logging.info(f'Rendered {self.frames_rendered} frames in {time.time()-self.start_time} seconds.')
 
+        self.view.cleanup()
+
         _time = time.time()
         self.video_writer.cleanup()
         logging.info(f'Wrote video to file in in {time.time()-_time} seconds.')
