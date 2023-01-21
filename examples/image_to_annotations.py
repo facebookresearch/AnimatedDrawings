@@ -40,20 +40,22 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     resp = requests.post("http://localhost:8080/predictions/drawn_humanoid_detector", files=request_data, verify=False)
     detection_results = json.loads(resp.content)
 
+    # order results by score, descending
+    detection_results.sort(key= lambda x: x['score'], reverse=True)
+
     # if no drawn humanoids detected, abort
     if len(detection_results) == 0:
         msg = 'Could not detect any drawn humanoids in the image. Aborting'
         logging.critical(msg)
         assert False, msg
 
-    # otherwise, report # detected. Combine bounding boxes if greater than 1
-    msg = f'Detected {len(detection_results)} humanoids in image. If more than 1, combining bboxes'
+    # otherwise, report # detected and score of highest.
+    msg = f'Detected {len(detection_results)} humanoids in image. Using detection with highest score {detection_results[0]["score"]}.'
     logging.info(msg)
-    bboxes = np.array([d['bbox'] for d in detection_results])
-    l, t = [round(f) for f in np.min(bboxes, axis=0)[:2]]
-    r, b = [round(f) for f in np.max(bboxes, axis=0)[2:]]
 
     # crop the image around the character
+    bbox = np.array(detection_results[0]['bbox'])
+    l, t, r, b = [round(x) for x in bbox]
     cropped = img[t:b, l:r]
 
     # get segmentation mask
