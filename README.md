@@ -2,11 +2,15 @@
 This repo contains companion code for the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure.'
 In addition, this repo aims to be a useful creative tool in it's own right, allowing you to create your own animated drawings from your own computer. 
 
-## Installation (To be expanded later)
-1. create virtual env
-2. pip install -e .
-3. Install torchserve's java dependency 
-4. Obtain .mar files
+## Installation
+
+    git clone https://github.com/facebookresearch/fairmotion.git
+    cd AnimatedDrawings
+    pip install -e .
+
+In addition, if you want to automatically rig your own drawings, you'll need to [install torchserve and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
+and [obtain the necessary model weights](./torchserve/model_store/README.md)
+
 
 ## Running (To be expanded later)
 
