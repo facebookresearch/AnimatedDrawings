@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 from animated_drawings.model.vectors import Vectors

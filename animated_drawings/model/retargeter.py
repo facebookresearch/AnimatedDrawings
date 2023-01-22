@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import logging
 from animated_drawings.model.bvh import BVH
 import numpy as np

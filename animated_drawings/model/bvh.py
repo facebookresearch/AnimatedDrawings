@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations  # so we can refer to class Type inside class
 from pathlib import Path
 from animated_drawings.model.transform import Transform

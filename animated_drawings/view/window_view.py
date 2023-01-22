@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings.view.view import View
 from animated_drawings.view.shaders.shader import Shader
 from animated_drawings.view.utils import get_projection_matrix

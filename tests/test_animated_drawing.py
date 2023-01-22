@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from model.animated_drawing import AnimatedDrawing
 
 def test_init():

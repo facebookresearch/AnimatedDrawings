@@ -1,4 +1,5 @@
-from typing import Tuple
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import numpy as np
 import logging
 

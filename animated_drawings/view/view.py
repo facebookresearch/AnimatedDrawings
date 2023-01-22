@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations
 from abc import abstractmethod
 from typing import Tuple

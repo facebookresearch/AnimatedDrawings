@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations
 from animated_drawings.model.transform import Transform
 from typing import Optional

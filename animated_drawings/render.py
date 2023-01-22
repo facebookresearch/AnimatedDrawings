@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings.model.scene import Scene
 from animated_drawings.view.view import View
 from animated_drawings.controller.controller import Controller

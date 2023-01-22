@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import numpy as np
 from collections import defaultdict
 import logging

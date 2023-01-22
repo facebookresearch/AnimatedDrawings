@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from model.transform import Transform
 from model.quaternions import Quaternions
 import numpy as np

@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import glfw
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
