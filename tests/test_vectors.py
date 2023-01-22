@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-from model.vectors import Vectors
+from animated_drawings.model.vectors import Vectors
 import numpy as np
 
 

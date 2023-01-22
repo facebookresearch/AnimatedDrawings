@@ -1,80 +1,83 @@
+height: 602
 skeleton:
 - loc:
-  - 273
-  - 358
+  - 264
+  - 397
   name: root
   parent: null
 - loc:
-  - 273
-  - 346
-  name: torso
+  - 264
+  - 397
+  name: hip
   parent: root
 - loc:
-  - 211
+  - 247
+  - 232
+  name: torso
+  parent: hip
+- loc:
   - 231
+  - 119
+  name: neck
+  parent: torso
+- loc:
+  - 151
+  - 245
   name: right_shoulder
   parent: torso
 - loc:
-  - 182
-  - 277
+  - 99
+  - 278
   name: right_elbow
   parent: right_shoulder
 - loc:
-  - 133
-  - 367
+  - 46
+  - 311
   name: right_hand
   parent: right_elbow
 - loc:
-  - 302
-  - 232
+  - 343
+  - 218
   name: left_shoulder
   parent: torso
 - loc:
-  - 342
-  - 272
+  - 396
+  - 245
   name: left_elbow
   parent: left_shoulder
 - loc:
-  - 399
-  - 334
+  - 449
+  - 278
   name: left_hand
   parent: left_elbow
 - loc:
-  - 251
-  - 372
+  - 191
+  - 404
   name: right_hip
   parent: root
 - loc:
-  - 243
-  - 409
+  - 165
+  - 476
   name: right_knee
   parent: right_hip
 - loc:
-  - 231
-  - 478
+  - 138
+  - 556
   name: right_foot
   parent: right_knee
 - loc:
-  - 294
-  - 371
+  - 337
+  - 390
   name: left_hip
   parent: root
 - loc:
-  - 308
-  - 410
+  - 376
+  - 456
   name: left_knee
   parent: left_hip
 - loc:
-  - 324
-  - 477
+  - 409
+  - 549
   name: left_foot
   parent: left_knee
-- loc:
-  - 257
-  - 206
-  name: neck
-  parent: torso
-height: 515
-width: 415
-mask_filepath: 'tests/test_character/nick_cat_mask.png'
-txtr_filepath: 'tests/test_character/nick_cat.png'
+width: 508

@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-from model.quaternions import Quaternions
-from model.vectors import Vectors
+from animated_drawings.model.quaternions import Quaternions
+from animated_drawings.model.vectors import Vectors
 import numpy as np
 
 

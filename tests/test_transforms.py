@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-from model.transform import Transform
-from model.quaternions import Quaternions
+from animated_drawings.model.transform import Transform
+from animated_drawings.model.quaternions import Quaternions
 import numpy as np
 
 
