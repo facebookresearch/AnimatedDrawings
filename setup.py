@@ -18,7 +18,9 @@ setup(
         'PyOpenGL==3.1.6',
         'PyYAML==6.0',
         'requests==2.28.1',
-        'torchserve==0.7.0'
+        'torchserve==0.7.0',
+        'mmpose==0.29.0',
+        'mmdet==2.27.0'
     ],
     packages=find_packages(),
 )
