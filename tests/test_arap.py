@@ -1,5 +1,7 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import numpy as np
-from model.arap import ARAP, plot_mesh
+from animated_drawings.model.arap import ARAP, plot_mesh
 
 
 def test_single_triangle_mesh():

@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import animated_drawings.render
 import logging
 from pathlib import Path

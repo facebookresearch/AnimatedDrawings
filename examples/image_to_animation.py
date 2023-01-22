@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from image_to_annotations import image_to_annotations
 from annotations_to_animation import annotations_to_animation
 from pathlib import Path

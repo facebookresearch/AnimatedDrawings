@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 from animated_drawings.model.vectors import Vectors
@@ -130,7 +132,7 @@ class Transform():
 
     def look_at(self, fwd_: Union[np.ndarray, Vectors, None]) -> None:
         """Given a forward vector, rotate the transform to face that position"""
-        if not fwd_:
+        if fwd_ is None:
             fwd_ = Vectors(self.get_world_position())
         elif isinstance(fwd_, np.ndarray):
             fwd_ = Vectors(fwd_)

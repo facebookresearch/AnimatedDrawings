@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings.view.view import View
 from animated_drawings.view.shaders.shader import Shader
 from animated_drawings.view.utils import get_projection_matrix
@@ -101,9 +103,9 @@ class WindowView(View):
         win = glfw.create_window(width, height, 'Viewer', None, None)
         glfw.make_context_current(win)
 
-        logging.info('OpenGL', GL.glGetString(GL.GL_VERSION).decode() + ', GLSL',  # type: ignore
-              GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode() +     # type: ignore
-              ', Renderer', GL.glGetString(GL.GL_RENDERER).decode())        # type: ignore
+        logging.info(f'OpenGL Version: {GL.glGetString(GL.GL_VERSION).decode()}')
+        logging.info(f'GLSL: { GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode()}')
+        logging.info(f'Renderer: {GL.glGetString(GL.GL_RENDERER).decode()}')
 
         GL.glEnable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_DEPTH_TEST)

@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings.model.rectangle import Rectangle
 from animated_drawings.model.transform import Transform
 import numpy as np

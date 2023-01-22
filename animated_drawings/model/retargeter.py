@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import logging
 from animated_drawings.model.bvh import BVH
 import numpy as np
@@ -15,6 +17,13 @@ z_axis = np.array([0.0, 0.0, 1.0])
 
 
 class Retargeter():
+    """
+    Retargeter class takes in a motion_cfg file and retarget_cfg file.
+    Using the specifications listed within retarget_cfg, it converts the motion
+    specified in motion_cfg into a formal that can be applied to an animated drawing.
+    It is responsible for project 3D joint locations onto 2D planes, determining resulting
+    bone orientations, joint 'depths', and root offsets for each frame.
+    """
 
     def __init__(self, motion_cfg: dict, retarget_cfg: dict):
         """

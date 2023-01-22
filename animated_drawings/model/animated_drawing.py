@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.time_manager import TimeManager
 from animated_drawings.model.retargeter import Retargeter
