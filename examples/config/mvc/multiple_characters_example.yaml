@@ -2,10 +2,10 @@ scene:
   ANIMATED_CHARACTERS:
     - character_cfg: examples/characters/char1/char_cfg.yaml
       motion_cfg: examples/config/motion/dab.yaml
-      retarget_cfg: examples/config/retarget/human_dab_duo1.yaml
+      retarget_cfg: examples/config/retarget/human_ppf_duo1.yaml
     - character_cfg: examples/characters/char2/char_cfg.yaml
       motion_cfg: examples/config/motion/dab.yaml
-      retarget_cfg: examples/config/retarget/human_dab_duo2.yaml
+      retarget_cfg: examples/config/retarget/human_ppf_duo2.yaml
 controller:
   MODE: video_render
   OUTPUT_VIDEO_PATH: ./video.gif
