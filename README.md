@@ -95,9 +95,7 @@ To see for yourself, run the following python commands from within the AnimatedD
 
     from animated_drawings import render
     render.start('./examples/config/mvc/multiple_characters_example.yaml')
-<img src='./examples/characters/char1/texture.png' height="256" />
-<img src='./examples/characters/char2/texture.png' height="256" />
-<img src='./media/video.gif' height="256" />
+<img src='./examples/characters/char1/texture.png' height="256" /> <img src='./examples/characters/char2/texture.png' height="256" /> <img src='./media/multiple_characters_example.gif' height="256" />
 
 ### Adding a background image
 Suppose you'd like to add a background to the animation. You can do so by specifying the image path within the config. 
