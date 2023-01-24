@@ -107,9 +107,7 @@ Here's an example:
 
     render.start('./examples/config/mvc/background_example.yaml')
 
-<img src='./examples/characters/char4/texture.png' height="256" />
-<img src='./examples/characters/char4/background.png' height="256" />
-<img src='./media/background_example.gif' height="256" />
+<img src='./examples/characters/char4/texture.png' height="256" /> <img src='./examples/characters/char4/background.png' height="256" /> <img src='./media/background_example.gif' height="256" />
 
 ### Adding addition types of motion
 This can be extended to support different types of motions if they are in BVH format.
