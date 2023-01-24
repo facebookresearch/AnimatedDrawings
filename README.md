@@ -11,7 +11,7 @@ In addition, this repo aims to be a useful creative tool in it's own right, allo
 In addition, if you want to automatically rig your own drawings, you'll need to [install torchserve and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
 and [obtain the necessary model weights](./torchserve/model_store/README.md)
 
-## Using AnimatedDrawings
+## Using Animated Drawings
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parmaeters within the mvc_config.
 To see for yourself, run the following python commands from within the AnimatedDrawings root directory:
