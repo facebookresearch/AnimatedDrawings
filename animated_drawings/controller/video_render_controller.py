@@ -80,7 +80,7 @@ class VideoRenderController(Controller):
 
         # get pixel values from the frame buffer, send them to the video writer
         GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, 0)
-        GL.glReadPixels(0, 0, self.video_height, self.video_width, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
+        GL.glReadPixels(0, 0, self.video_width, self.video_height, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
         self.video_writer.process_frame(self.frame_data[::-1, :, :].copy())
 
         # update our counts
