@@ -108,9 +108,9 @@ Here's an example:
 <img src='./examples/characters/char4/texture.png' height="256" /> <img src='./examples/characters/char4/background.png' height="256" /> <img src='./media/background_example.gif' height="256" />
 
 ### Adding addition types of motion
-This can be extended to support different types of motions if they are in BVH format.
+You can add your own motion clips as long as they are in BVH format.
 
-Once you've obtained the BVH, you'll need to create an appropriate motion config file and retarget config file.
+Once you have the BVH, you'll need to create an appropriate motion config file and retarget config file.
 Once you've done that, you should be good to go. The following code and resulting clip uses a BVH with completely different skeleton.
 
     from animated_drawings import render
