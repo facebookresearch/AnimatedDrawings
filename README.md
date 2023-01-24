@@ -1,6 +1,5 @@
 # Animated Drawings
-This repo contains companion code for the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure.'
-In addition, this repo aims to be a useful creative tool in it's own right, allowing you to create your own animated drawings from your own computer. 
+This repo contains an implementation of the algorithm described within the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure.' In addition, this repo aims to be a useful creative tool in it's own right, allowing you to flexibly create animations starring your own drawn characters.
 
 ## Installation
 
