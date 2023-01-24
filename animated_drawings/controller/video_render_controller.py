@@ -80,7 +80,7 @@ class VideoRenderController(Controller):
 
         # get pixel values from the frame buffer, send them to the video writer
         GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, 0)
-        GL.glReadPixels(0, 0, self.video_height, self.video_width, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
+        GL.glReadPixels(0, 0, self.video_width, self.video_height, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
         self.video_writer.process_frame(self.frame_data[::-1, :, :].copy())
 
         # update our counts
@@ -134,7 +134,13 @@ class GIFWriter(VideoWriter):
 
     def __init__(self, controller: VideoRenderController):
         self.output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
-        self.duration = controller.delta_t*1000
+
+        self.duration = int(controller.delta_t*1000)
+        if self.duration < 20:
+            msg = f'Specified FPS of .gif is too high, replacing with 20: {self.duration}'
+            logging.warn(msg)
+            self.duration = 20
+
         self.frames = []
 
     def process_frame(self, frame: np.ndarray):

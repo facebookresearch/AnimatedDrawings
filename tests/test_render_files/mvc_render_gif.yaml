@@ -1,0 +1,8 @@
+scene:
+  ANIMATED_CHARACTERS:
+    - character_cfg: tests/test_render_files/char1/char_cfg.yaml
+      motion_cfg: tests/test_render_files/zombie.yaml
+      retarget_cfg: tests/test_render_files/human_zombie.yaml
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: .tests/test_render_files/video.gif
