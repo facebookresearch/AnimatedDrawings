@@ -132,7 +132,7 @@ Scaling the skeleton so it fits roughly within a (1, 1, 1) cube will visualize n
 <b>up</b> <em>(str)</em>:
 The direction corresponding to 'up' within the BVH.
 This is used during retargeting, not just BVH motion visualization.
-Currently, only `+z` is supported.
+Currently, only `+y` and `+z` are supported.
 
 ## Retarget Config File
 

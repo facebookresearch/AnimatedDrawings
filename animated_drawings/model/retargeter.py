@@ -53,11 +53,14 @@ class Retargeter():
         self.forward_perp_vector_joint_names = motion_cfg['forward_perp_joint_vectors']
 
         # rotate BVH skeleton so up is +Y
-        if motion_cfg['up'] == '+z':
+        if motion_cfg['up'] == '+y':
+            pass  # no rotation needed
+        elif motion_cfg['up'] == '+z':
             self.bvh.set_rotation(Quaternions.from_euler_angles('yx', np.array([-90.0, -90.0])))
         else:
-            msg = f'bvh_metadata_cfg["up"] value not implemented: {motion_cfg["up"]}'
-            logging.warning(msg)
+            msg = f'motion_cfg["up"] value not implemented: {motion_cfg["up"]}'
+            logging.critical(msg)
+            assert False, msg
 
         # rotate BVH skeleton so forward is +X
         skeleton_fwd: Vectors = self.bvh.get_skeleton_fwd(self.forward_perp_vector_joint_names)
