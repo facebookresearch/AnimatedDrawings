@@ -36,7 +36,7 @@ You should see a file, video.mp4, located in the same directory as your script.
 
 <img src='./media/mp4_export_video.gif' width="256" height="256" /> </br></br></br>
 
-Perhaps you'd like a tranparent .gif instead of an .mp4? Use this:
+Perhaps you'd like a transparent .gif instead of an .mp4? Use this:
 
     from animated_drawings import render
 
