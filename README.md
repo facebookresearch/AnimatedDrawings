@@ -119,3 +119,8 @@ Once you've done that, you should be good to go. The following code and resultin
 
 ### Adding addition character skeletons
 To be added later, if requested.
+
+## As-Rigid-As-Possible Shape Manipulation
+
+These characters are deformed using [As-Rigid-As-Possible (ARAP) shape manipulation](https://www-ui.is.s.u-tokyo.ac.jp/~takeo/papers/takeo_jgt09_arapFlattening.pdf).
+We have a Python implementation of the algorithm, located [here](https://github.com/fairinternal/AnimatedDrawings/blob/main/animated_drawings/model/arap.py), that might be of use to other developers.
