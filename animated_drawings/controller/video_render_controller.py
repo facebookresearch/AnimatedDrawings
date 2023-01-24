@@ -134,7 +134,13 @@ class GIFWriter(VideoWriter):
 
     def __init__(self, controller: VideoRenderController):
         self.output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
-        self.duration = controller.delta_t*1000
+
+        self.duration = int(controller.delta_t*1000)
+        if self.duration < 20:
+            msg = f'Specified FPS of .gif is too high, replacing with 20: {self.duration}'
+            logging.warn(msg)
+            self.duration = 20
+
         self.frames = []
 
     def process_frame(self, frame: np.ndarray):
