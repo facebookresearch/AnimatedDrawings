@@ -4,7 +4,7 @@ In addition, this repo aims to be a useful creative tool in it's own right, allo
 
 ## Installation
 
-    git clone https://github.com/facebookresearch/fairmotion.git
+    git clone https://github.com/facebookresearch/AnimatedDrawings.git
     cd AnimatedDrawings
     pip install -e .
 
