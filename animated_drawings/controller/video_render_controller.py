@@ -133,7 +133,7 @@ class GIFWriter(VideoWriter):
 
         self.duration = int(controller.delta_t*1000)
         if self.duration < 20:
-            msg = f'Specified FPS of .gif is too high, replacing with 20: {self.duration}'
+            msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
             logging.warn(msg)
             self.duration = 20
 
