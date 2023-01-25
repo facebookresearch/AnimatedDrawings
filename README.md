@@ -17,7 +17,7 @@ To see for yourself, run the following python commands from within the AnimatedD
 
     from animated_drawings import render
 
-    render.start(./examples/config/mvc/interactive_window_example.yaml)
+    render.start('./examples/config/mvc/interactive_window_example.yaml')
 
 If everything is installed correctly, an interactive window should appear on your screen. 
 (Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
@@ -120,7 +120,7 @@ Once you've done that, you should be good to go. The following code and resultin
 To be added later, if requested.
 
 ## Creating Your Own Config Files
-If you want to create your own config files, see the [configuration file documentation](examples/config/README.md)
+If you want to create your own config files, see the [configuration file documentation](examples/config/README.md).
 
 ## As-Rigid-As-Possible Shape Manipulation
 
