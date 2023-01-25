@@ -1,5 +1,4 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
-""" Contains AnimatedDrawings class and code"""
 import logging
 import ctypes
 import heapq
