@@ -1,16 +1,18 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 from __future__ import annotations  # so we can refer to class Type inside class
+import logging
 from pathlib import Path
-from animated_drawings.model.transform import Transform
 from typing import List, Tuple, Optional
+
+import numpy as np
+
+from animated_drawings.model.transform import Transform
 from animated_drawings.model.box import Box
 from animated_drawings.model.quaternions import Quaternions
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.model.joint import Joint
 from animated_drawings.model.time_manager import TimeManager
-import numpy as np
-import logging
 from animated_drawings.utils import resolve_ad_filepath
 
 

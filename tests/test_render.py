@@ -13,6 +13,7 @@ def test_render_gif():
 
     os.remove('.tests/test_render_files/video.gif')
 
+
 def test_render_mp4():
     render_mp4_cfg_fn = resource_filename(__name__, 'test_render_files/mvc_render_mp4.yaml')
 

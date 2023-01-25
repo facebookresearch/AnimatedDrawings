@@ -4,7 +4,6 @@ from PIL import Image, ImageOps
 import numpy as np
 import cv2
 from pathlib import Path
-import os
 import logging
 from pkg_resources import resource_filename
 
@@ -21,7 +20,7 @@ def resolve_ad_filepath(file_name: str, file_type: str) -> Path:
         return Path(file_name)
     elif Path(resource_filename(__name__, file_name)).exists():
         return Path(resource_filename(__name__, file_name))
-    elif Path(resource_filename(__name__, str(Path('..',file_name)))):
+    elif Path(resource_filename(__name__, str(Path('..', file_name)))):
         return Path(resource_filename(__name__, str(Path('..', file_name))))
 
     msg = f'Could not find the {file_type} specified: {file_name}'

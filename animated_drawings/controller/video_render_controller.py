@@ -4,6 +4,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
+from animated_drawings.model.animated_drawing import AnimatedDrawing
 from animated_drawings.view.view import View
 import time
 import cv2
@@ -46,15 +47,10 @@ class VideoRenderController(Controller):
         max_frames = 0
         frame_time = []
         for child in self.scene.get_children():
-            try:
-                max_frames = max(max_frames, child.retargeter.bvh.frame_max_num)
-                frame_time.append(child.retargeter.bvh.frame_time)
-            except AttributeError:
-                pass  # child wasn't an Animated Drawing. Fine to skip it
-            except Exception as e:
-                msg = f'Error attempting to compute video max_frames and frame_time: {e}'
-                logging.critical(msg)
-                assert False, msg
+            if not isinstance(child, AnimatedDrawing):
+                continue
+            max_frames = max(max_frames, child.retargeter.bvh.frame_max_num)
+            frame_time.append(child.retargeter.bvh.frame_time)
 
         if not all(x == frame_time[0] for x in frame_time):
             msg = f'frame time of BVH files don\'t match. Using first value: {frame_time[0]}'
