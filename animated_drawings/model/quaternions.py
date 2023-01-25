@@ -148,7 +148,7 @@ class Quaternions:
                 assert False, msg
 
             axis = np.zeros([*angles.shape[:-1], 3])
-            axis[...,ord(axis_char) - ord('x')] = 1.0
+            axis[..., ord(axis_char) - ord('x')] = 1.0
 
             _quats.insert(0, Quaternions.from_angle_axis(angle, Vectors(axis)))
 
@@ -173,14 +173,14 @@ class Quaternions:
 
         # Note: Mike Day's article uses row vectors, whereas we used column, so here use transpose of matrix
         MT = M.T
-        m00, m01, m02 = MT[0,0], MT[0,1], MT[0,2]
-        m10, m11, m12 = MT[1,0], MT[1,1], MT[1,2]
-        m20, m21, m22 = MT[2,0], MT[2,1], MT[2,2]
+        m00, m01, m02 = MT[0, 0], MT[0, 1], MT[0, 2]
+        m10, m11, m12 = MT[1, 0], MT[1, 1], MT[1, 2]
+        m20, m21, m22 = MT[2, 0], MT[2, 1], MT[2, 2]
 
         if m22 < 0:
             if m00 > m11:
                 t = 1 + m00 - m11 - m22
-                q = np.array([m12-m21,      t, m01+m10, m20+m02,])
+                q = np.array([m12-m21,      t, m01+m10, m20+m02])
             else:
                 t = 1 - m00 + m11 - m22
                 q = np.array([m20-m02, m01+m10,       t, m12+m21])

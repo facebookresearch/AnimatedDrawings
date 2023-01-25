@@ -74,9 +74,6 @@ class Transform():
         if self._parent:
             self._world_transform = self._parent._world_transform @ self._world_transform
 
-    def get_local_transform(self, update_ancestors: bool = True) -> np.ndarray:
-        raise NotImplementedError
-
     def get_world_transform(self, update_ancestors: bool = True) -> np.ndarray:
         """
         Get the transform's world matrix.

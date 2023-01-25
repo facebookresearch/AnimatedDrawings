@@ -7,6 +7,7 @@ from typing import Optional
 from abc import abstractmethod
 import logging
 
+
 class Controller():
     """
     Base Controller class from which all other Controllers be be derived.
@@ -95,6 +96,11 @@ class Controller():
             return VideoRenderController(controller_cfg, scene, view,)
         elif controller_cfg['MODE'] == 'interactive':
             from animated_drawings.controller.interactive_controller import InteractiveController
+            from animated_drawings.view.window_view import WindowView
+            if not isinstance(view, WindowView):
+                msg = f'Interactive Controller requires a WindowView. Received {type(view)}'
+                logging.critical(msg)
+                assert False, msg
             return InteractiveController(controller_cfg, scene, view)
         else:
             msg = f'Unknown controller mode specified: {controller_cfg["MODE"]}'

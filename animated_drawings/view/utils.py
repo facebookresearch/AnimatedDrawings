@@ -4,7 +4,7 @@ import numpy as np
 import logging
 
 
-def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str ='perspective'):
+def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str = 'perspective'):
 
     if type_ == 'perspective':
 

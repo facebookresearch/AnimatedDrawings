@@ -1,5 +1,18 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
+import logging
+import ctypes
+import heapq
+import math
+from typing import Dict, List, Optional
+from collections import defaultdict
 
+import cv2
+import numpy as np
+from skimage import measure
+from shapely import geometry
+from OpenGL import GL
+
+from scipy.spatial.qhull import Delaunay
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.time_manager import TimeManager
 from animated_drawings.model.retargeter import Retargeter
@@ -7,21 +20,11 @@ from animated_drawings.model.arap import ARAP
 from animated_drawings.model.joint import Joint
 from animated_drawings.model.quaternions import Quaternions
 from animated_drawings.model.vectors import Vectors
-import logging
-import cv2
-import numpy as np
-from skimage import measure
-import ctypes
-from scipy.spatial import Delaunay
-from shapely import geometry
-from typing import Dict, List, Optional, Tuple
-import OpenGL.GL as GL
-from collections import defaultdict
-import heapq
-import math
 
 
 class AnimatedDrawingsJoint(Joint):
+    """ Joints within Animated Drawings Rig."""
+
     def __init__(self):
         super().__init__()
         self.starting_theta: Optional[np.ndarray] = None
@@ -86,7 +89,7 @@ class AnimatedDrawingRig(Transform):
 
         self.joint_count = _joints_d['root'].joint_count()
 
-        self.vertices = np.zeros([2*(self.joint_count-1), 6], np.float32)
+        self.vertices = np.zeros([2 * (self.joint_count - 1), 6], np.float32)
 
         self._is_opengl_initialized: bool = False
         self._vertex_buffer_dirty_bit: bool = True
@@ -111,7 +114,7 @@ class AnimatedDrawingRig(Transform):
             p2 = parent.get_world_position()
 
             self.vertices[pointer[0], 0:3] = p1
-            self.vertices[pointer[0]+1, 0:3] = p2
+            self.vertices[pointer[0] + 1, 0:3] = p2
             pointer[0] += 2
 
             self._compute_buffer_vertices(c, pointer)
@@ -230,7 +233,7 @@ class AnimatedDrawing(Transform, TimeManager):
         # modify joint positions to account for new, padded image sizes
         for joint in self.char_cfg['skeleton']:
             joint['loc'][0] = joint['loc'][0] / self.img_dim  # width
-            joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg['height']/self.img_dim)  # height
+            joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg['height'] / self.img_dim)  # height
 
         # generate the mesh
         self.mesh: dict = self._generate_mesh()
@@ -266,9 +269,9 @@ class AnimatedDrawing(Transform, TimeManager):
         """
         for position_test, target_joint_name, joint1_name, joint2_name in self.retarget_cfg['char_runtime_checks']:
             if position_test == 'above':
-                """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it. 
+                """ Checks whether target_joint is 'above' the vector from joint1 to joint2. If it's below, removes it.
                 This was added to account for head flipping when nose was below shoulders. """
-                
+
                 # get joints 1, 2 and target joint
                 joint1 = self.rig.root_joint.get_joint_by_name(joint1_name)
                 if joint1 is None:
@@ -289,13 +292,13 @@ class AnimatedDrawing(Transform, TimeManager):
                 # get world positions
                 joint1_xyz = joint1.get_world_position()
                 joint2_xyz = joint2.get_world_position()
-                target_joint_xyz = target_joint.get_world_position() 
+                target_joint_xyz = target_joint.get_world_position()
 
                 # rotate target vector by inverse of test_vector angle. If then below x axis discard it.
-                test_vector = joint2_xyz - joint1_xyz
-                target_vector = target_joint_xyz - joint1_xyz
+                test_vector = np.subtract(joint2_xyz, joint1_xyz)
+                target_vector = np.subtract(target_joint_xyz, joint1_xyz)
                 angle = math.atan2(test_vector[1], test_vector[0])
-                if (math.sin(-angle)*target_vector[0] + math.cos(-angle)*target_vector[1]) < 0:
+                if (math.sin(-angle) * target_vector[0] + math.cos(-angle) * target_vector[1]) < 0:
                     logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
                     del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
             else:
@@ -414,7 +417,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg['skeleton']]
 
         # seed generation
-        heap: List[Tuple[int, Tuple[int, Tuple[int, int]]]] = []
+        heap = []
         for _, joint in joints_d.items():
             if joint['parent'] is None:  # skip root joint
                 continue
@@ -429,7 +432,7 @@ class AnimatedDrawing(Transform, TimeManager):
         while heap:
             distance, (joint_idx, (x, y)) = heapq.heappop(heap)
             neighbors = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
-            n_dist =    [     1.414,      1.0,      1.414,      1.0,      1.0,      1.414,      1.0,      1.414]
+            n_dist = [1.414, 1.0, 1.414, 1.0, 1.0, 1.414, 1.0, 1.414]
             for (n_x, n_y), n_dist in zip(neighbors, n_dist):
                 n_distance = distance + n_dist
                 if not 0 <= n_x < self.img_dim or not 0 <= n_y < self.img_dim:
@@ -497,8 +500,7 @@ class AnimatedDrawing(Transform, TimeManager):
         """ Load and perform preprocessing upon the drawing image """
         txtr_fn: str = f'{self.char_cfg["char_files_dir"]}/texture.png'
         try:
-            _txtr = cv2.imread(txtr_fn, cv2.IMREAD_IGNORE_ORIENTATION |
-                               cv2.IMREAD_UNCHANGED).astype(np.float32)
+            _txtr = cv2.imread(txtr_fn, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_UNCHANGED).astype(np.float32)
             _txtr = cv2.cvtColor(_txtr, cv2.COLOR_BGRA2RGBA)
             if _txtr is None:
                 raise ValueError('Could not read file')
@@ -521,7 +523,7 @@ class AnimatedDrawing(Transform, TimeManager):
         txtr = np.zeros([self.img_dim, self.img_dim, _txtr.shape[-1]], _txtr.dtype)
         txtr[0:_txtr.shape[0], 0:_txtr.shape[1], :] = _txtr
 
-        txtr[np.where(self.mask == 0)][:,3] = 0  # make pixels outside mask transparent
+        txtr[np.where(self.mask == 0)][:, 3] = 0  # make pixels outside mask transparent
 
         return txtr
 
