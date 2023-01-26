@@ -7,6 +7,9 @@ This repo contains an implementation of the algorithm described within the paper
     cd AnimatedDrawings
     pip install -e .
 
+If you get a `permission denied` erorr when trying to clone the repo, you don't have access. 
+To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
+
 In addition, if you want to automatically rig your own drawings, you'll need to [install torchserve and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
 and [obtain the necessary model weights](./torchserve/model_store/README.md)
 
