@@ -3,7 +3,7 @@ This repo contains an implementation of the algorithm described within the paper
 
 ## Installation
 
-    git clone https://github.com/facebookresearch/AnimatedDrawings.git
+    git clone git@github.com:fairinternal/AnimatedDrawings.git
     cd AnimatedDrawings
     pip install -e .
 
