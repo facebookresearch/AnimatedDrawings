@@ -34,6 +34,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 4:
         retarget_cfg_fn = sys.argv[4]
     else:
-        retarget_cfg_fn = resource_filename(__name__, 'config/retarget/human_dab.yaml')
+        retarget_cfg_fn = resource_filename(__name__, 'config/retarget/fair1_ppf.yaml')
 
     image_to_animation(img_fn, char_anno_dir, motion_cfg_fn, retarget_cfg_fn)

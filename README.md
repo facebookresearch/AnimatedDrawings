@@ -3,6 +3,14 @@ This repo contains an implementation of the algorithm described within the paper
 
 ## Installation
 
+We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
+Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands
+
+    # create and activate the virtual environment
+    conda create --name animated_drawings python=3.8.13
+    conda activate animated_drawings
+
+    # clone AnimatedDrawings and use pip to install
     git clone git@github.com:fairinternal/AnimatedDrawings.git
     cd AnimatedDrawings
     pip install -e .
@@ -10,13 +18,13 @@ This repo contains an implementation of the algorithm described within the paper
 If you get a `permission denied` erorr when trying to clone the repo, you don't have access. 
 To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
 
-In addition, if you want to automatically rig your own drawings, you'll need to [install torchserve and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
+In addition, if you want to automatically rig your own drawings, you'll need to [install TorchServe and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
 and [obtain the necessary model weights](./torchserve/model_store/README.md)
 
 ## Using Animated Drawings
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parameters within the mvc_config.
-To see for yourself, run the following python commands from within the AnimatedDrawings root directory:
+To see for yourself, launch a Python interpret from within the AnimatedDrawings root directory and run the following commands:
 
     from animated_drawings import render
 
@@ -52,13 +60,28 @@ You'll find video.gif residing within the same directory as your script.
 ### Creating an animation from an image
 All of the above examples use drawings with pre-existing annotations.
 But suppose you'd like to create an animation starring your own drawing? 
-We provide an example script specifically for that purpose.
-We use torchserve to pass data to our models, so you'll need to ensure it's properly installed first.
-Run the following commands, starting from the AnimatedDrawings root directory:
+To enable that functionality, you'll need to [install Docker](https://docs.docker.com/get-docker/) and follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
 
-    # ensure torchserve is running
+Run the following commands, starting from the Animated Drawings root directory:
+
     cd torchserve
-    ./torchserve_start.sh
+
+    # build the docker image... this may take some time
+    docker build -t docker_torchserve .
+
+    # start the docker container and expose the necessary ports
+    docker run -d --name docker_torchserve -p 8080:8080 -p 8081:8081 -v $(pwd)/torchserve:/home/torchserve docker_torchserve
+
+Wait a few seconds, then ensure Docker and TorchServe are working by pinging the server:
+
+    curl http://localhost:8080/ping
+
+    # should return:
+    # {
+    #   "status": "Healthy"
+    # }
+
+With that set up, you can now go directly from image -> animation with a single command:
 
     cd ../examples
     python image_to_animation.py drawings/garlic.png garlic_out
@@ -73,19 +96,12 @@ You may notice that, when you ran `python image_to_animation.py drawings/garlic.
 `mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
 If the predictions were incorrect, you can manually fix the annotations.
 The segmentation mask is a grayscale image that can be edited in Photoshop or Paint.
-The skeleton joint locations within char_cfg.yaml can be edited with a text editor (though you'll want to read about the character config parameters within config/README first though.)
+The skeleton joint locations within char_cfg.yaml can be edited with a text editor (though you'll want to read about the [character config](examples/config/README.md) files first.)
+
 
 Once you've modified annotations, you can render an animation using them like so:
 
-    # run from AnimatedDrawings root directory
-
-    # ensure torchserve is running
-    cd torchserve
-    ./torchserve_start.sh
-
-    cd ../examples
-
-    # specify the folder where the update animations are located
+    # specify the folder where the fixed annoations are located
     python annotations_to_animation.py garlic_out
 
 ### Adding multiple characters to scene

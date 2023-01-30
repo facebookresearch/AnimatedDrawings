@@ -9,7 +9,7 @@ setup(
     author_email='jesse.smith@meta.com',
     python_requires='>=3.8.13',
     install_requires=[
-        'numpy',
+        'numpy== 1.23.3',
         'scipy==1.9.3',
         'scikit-image==0.19.3',
         'scikit-learn==1.1.2',
@@ -21,8 +21,6 @@ setup(
         'PyYAML==6.0',
         'requests==2.28.1',
         'torchserve==0.7.0',
-        'mmpose==0.29.0',
-        'mmdet==2.27.0'
     ],
     packages=find_packages(),
 )
