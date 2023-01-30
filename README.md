@@ -21,7 +21,7 @@ To get permission, follow the instructions on [this page](https://www.internalfb
 ## Using Animated Drawings
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parameters within the mvc_config.
-To see for yourself, make sure the `animated_drawings` virtual environment is activated, then launch a Python interpret from within the AnimatedDrawings root directory and run the following commands:
+To see for yourself, make sure the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
 
     from animated_drawings import render
 
