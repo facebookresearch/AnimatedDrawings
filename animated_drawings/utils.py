@@ -13,7 +13,7 @@ TOLERANCE = 10**-5
 def resolve_ad_filepath(file_name: str, file_type: str) -> Path:
     """
     Given input filename, attempts to find the file, first by relative to cwd,
-    then by absolute, the relative to ${AD_ROOT_DIR} enivironmental variable.
+    then by absolute, the relative to animated_drawings root directory.
     If not found, prints error message indicating which file_type it is.
     """
     if Path(file_name).exists():

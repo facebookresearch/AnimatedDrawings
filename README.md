@@ -4,7 +4,7 @@ This repo contains an implementation of the algorithm described within the paper
 ## Installation
 
 We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
-Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands
+Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands:
 
     # create and activate the virtual environment
     conda create --name animated_drawings python=3.8.13
@@ -18,13 +18,10 @@ Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/proje
 If you get a `permission denied` erorr when trying to clone the repo, you don't have access. 
 To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
 
-In addition, if you want to automatically rig your own drawings, you'll need to [install TorchServe and it's dependencies](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) 
-and [obtain the necessary model weights](./torchserve/model_store/README.md)
-
 ## Using Animated Drawings
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parameters within the mvc_config.
-To see for yourself, launch a Python interpret from within the AnimatedDrawings root directory and run the following commands:
+To see for yourself, make sure the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
 
     from animated_drawings import render
 
