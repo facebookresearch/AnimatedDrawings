@@ -19,6 +19,8 @@ If you get a `permission denied` erorr when trying to clone the repo, you don't 
 To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
 
 ## Using Animated Drawings
+
+### Interactive Window
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parameters within the mvc_config.
 To see for yourself, make sure the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
@@ -32,6 +34,7 @@ If everything is installed correctly, an interactive window should appear on you
 
 <img src='./media/interactive_window_example.gif' width="256" height="256" /> </br></br></br>
 
+### Export MP4 video
 
 Suppose you'd like to save the animation as a video file instead of viewing it directly in a window. Specify a different example mvc_config:
 
@@ -42,6 +45,8 @@ Suppose you'd like to save the animation as a video file instead of viewing it d
 You should see a file, video.mp4, located in the same directory as your script.
 
 <img src='./media/mp4_export_video.gif' width="256" height="256" /> </br></br></br>
+
+### Export transparent .gif
 
 Perhaps you'd like a transparent .gif instead of an .mp4? Use this:
 
@@ -55,6 +60,7 @@ You'll find video.gif residing within the same directory as your script.
 
 
 ### Creating an animation from an image
+
 All of the above examples use drawings with pre-existing annotations.
 But suppose you'd like to create an animation starring your own drawing? 
 To enable that functionality, you'll need to [install Docker](https://docs.docker.com/get-docker/) and follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
@@ -69,7 +75,7 @@ Run the following commands, starting from the Animated Drawings root directory:
     # start the docker container and expose the necessary ports
     docker run -d --name docker_torchserve -p 8080:8080 -p 8081:8081 -v $(pwd)/torchserve:/home/torchserve docker_torchserve
 
-Wait a few seconds, then ensure Docker and TorchServe are working by pinging the server:
+Wait ~10 seconds, then ensure Docker and TorchServe are working by pinging the server:
 
     curl http://localhost:8080/ping
 
@@ -77,6 +83,9 @@ Wait a few seconds, then ensure Docker and TorchServe are working by pinging the
     # {
     #   "status": "Healthy"
     # }
+
+If, after waiting, the response is `curl: (52) Empty reply from server`, you may need increase the RAM of your Docker containers.
+Try increasing the [amount of memory](https://docs.docker.com/desktop/settings/mac/#advanced) available to your Docker containers to 16GB by modifying Docker Desktop's settings.
 
 With that set up, you can now go directly from image -> animation with a single command:
 
