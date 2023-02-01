@@ -138,6 +138,10 @@ class ARAP():
         self.tA2 = sp.csr_matrix(self.A2.transpose())
         self.G = sp.csr_matrix(G)
 
+        # perturbing singular matrix and calling det can trigger overflow warning- ignore it
+        old_settings = np.seterr(over='ignore')
+
+        # ensure our matrices aren't singular
         self.tA1xA1 = self.tA1 @ self.A1
         while np.linalg.det(self.tA1xA1) == 0.0:
             logging.info('tA1xA1 is singular. perturbing...')
@@ -150,6 +154,9 @@ class ARAP():
             self.tA2xA2 += 0.00000001 * np.identity(self.tA2xA2.shape[0])
         self.tA2xA2 = sp.csr_matrix(self.tA2xA2)
 
+        # revert np overflow warnings behavior
+        _ = np.seterr(**old_settings)
+        
     def solve(self, pins_xy) -> np.ndarray:
         """
         After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
