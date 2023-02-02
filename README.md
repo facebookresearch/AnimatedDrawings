@@ -58,6 +58,12 @@ You'll find video.gif residing within the same directory as your script.
 
 <img src='./media/gif_export_video.gif' width="256" height="256" /> </br></br></br>
 
+### Headless Rendering
+
+If you'd like to generate a video headlessly (e.g. on a remote server accessed via ssh), you'll need to specify `USE_MESA: True` within the `view` section of the mvc_config file.
+
+    view:
+      USE_MESA: True
 
 ### Creating an animation from an image
 
