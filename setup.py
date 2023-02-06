@@ -21,6 +21,7 @@ setup(
         'PyYAML==6.0',
         'requests==2.28.1',
         'torchserve==0.7.0',
+        'tqdm==4.64.1',
     ],
     packages=find_packages(),
 )
