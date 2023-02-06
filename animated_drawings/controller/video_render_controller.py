@@ -13,6 +13,7 @@ import numpy as np
 import logging
 from pathlib import Path
 from typing import Tuple
+from tqdm import tqdm
 
 
 class VideoRenderController(Controller):
@@ -36,6 +37,8 @@ class VideoRenderController(Controller):
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
         self.frames_rendered = 0
+
+        self.progress_bar = tqdm(total=self.frames_left_to_render)
 
     def _get_max_motion_frames_and_frame_time(self) -> Tuple[int, float]:
         """
@@ -79,9 +82,10 @@ class VideoRenderController(Controller):
         GL.glReadPixels(0, 0, self.video_width, self.video_height, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, self.frame_data)
         self.video_writer.process_frame(self.frame_data[::-1, :, :].copy())
 
-        # update our counts
+        # update our counts and progress_bar
         self.frames_left_to_render -= 1
         self.frames_rendered += 1
+        self.progress_bar.update(1)
 
     def _prep_for_run_loop(self):
         self.start_time = time.time()
