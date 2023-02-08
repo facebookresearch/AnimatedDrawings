@@ -75,7 +75,7 @@ Run the following commands, starting from the Animated Drawings root directory:
 
     cd torchserve
 
-    # build the docker image... this may take some time
+    # build the docker image... this takes a while (~5-7 minutes on Macbook Pro 2021)
     docker build -t docker_torchserve .
 
     # start the docker container and expose the necessary ports
