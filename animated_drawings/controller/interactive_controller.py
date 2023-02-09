@@ -19,8 +19,6 @@ class InteractiveController(Controller):
 
         glfw.init()
         glfw.set_key_callback(self.view.win, self._on_key)
-        glfw.set_cursor_pos_callback(self.view.win, self._on_mouse_move)
-        glfw.set_input_mode(self.view.win, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
     def _on_key(self, _win, key: int, _scancode, action, _mods):
         if not (action == glfw.PRESS or action == glfw.REPEAT):
