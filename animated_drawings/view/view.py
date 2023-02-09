@@ -18,24 +18,20 @@ class View:
         pass
 
     @abstractmethod
-    def render(self, scene):  # pyright: ignore[reportUnknownParameterType,reportMissingParameterType]
+    def render(self, scene) -> None:  # pyright: ignore[reportUnknownParameterType,reportMissingParameterType]
         """ Called by the controller to render the scene. """
-        pass
 
     @abstractmethod
-    def clear_window(self):
+    def clear_window(self) -> None:
         """ Clear output from previous render loop. """
-        pass
 
     @abstractmethod
-    def cleanup(self):
+    def cleanup(self) -> None:
         """ Cleanup after render loop is finished. """
-        pass
 
     @abstractmethod
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of framebuffer. """
-        pass
 
     @staticmethod
     def create_view(view_cfg: ViewConfig) -> View:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
+import numpy.typing as npt
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.model.quaternions import Quaternions
 import logging
@@ -74,7 +75,7 @@ class Transform():
         if self._parent:
             self._world_transform = self._parent._world_transform @ self._world_transform
 
-    def get_world_transform(self, update_ancestors: bool = True) -> np.ndarray:
+    def get_world_transform(self, update_ancestors: bool = True) -> npt.NDArray[np.float32]:
         """
         Get the transform's world matrix.
         If update is true, check to ensure the world_transform is current

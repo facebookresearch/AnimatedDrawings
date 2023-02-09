@@ -26,12 +26,22 @@ class Config():
         self.view: ViewConfig = ViewConfig({**base_cfg['view'], **user_cfg['view']})
         self.controller: ControllerConfig = ControllerConfig({**base_cfg['controller'], **user_cfg['controller']})
 
-        # check if video render controller, then output video path and codec cannot be none
+        # cannot use an interactive controller with a headless mesa viewer
+        if self.controller.mode == 'interact':
+            try:
+                assert self.view.use_mesa == False, 'cannot use interactive controller when USE_MESA is True'
+            except AssertionError as e:
+                msg = f'Config error: {e}'
+                logging.critical(msg)
+                assert False, msg
+
+        # TODO check if video render controller, then output video path cannot be none
+        # TODO if video render and .mp4,  codec cannot be none
 
 
 class SceneConfig():
 
-    def __init__(self, scene_cfg: dict) -> None:  # type: ignore
+    def __init__(self, scene_cfg: dict) -> None:
 
         # show or hide the floor
         self.add_floor: bool = scene_cfg['ADD_FLOOR']
@@ -66,7 +76,7 @@ class SceneConfig():
 
 class ViewConfig():
 
-    def __init__(self, view_cfg: dict) -> None:  # type: ignore
+    def __init__(self, view_cfg: dict) -> None:
 
         # set color used to clear render buffer
         self.clear_color: list[Union[float, int]] = view_cfg["CLEAR_COLOR"]
@@ -172,7 +182,7 @@ class ViewConfig():
 
 class ControllerConfig():
 
-    def __init__(self, controller_cfg: dict) -> None:  # type: ignore
+    def __init__(self, controller_cfg: dict) -> None:
 
         # set controller mode
         self.mode: str = controller_cfg["MODE"]

@@ -2,14 +2,15 @@
 
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.vectors import Vectors
+from typing import Union, List
 
 
 class Camera(Transform):
 
     def __init__(
         self,
-        pos: Vectors = Vectors([0.0, 0.0, 0.0]),
-        fwd: Vectors = Vectors([0.0, 0.0, 1.0])
+        pos: Union[Vectors, List[Union[float, int]]] = Vectors([0.0, 0.0, 0.0]),
+        fwd: Union[Vectors, List[Union[float, int]]] = Vectors([0.0, 0.0, 1.0])
     ):
         super().__init__()
 

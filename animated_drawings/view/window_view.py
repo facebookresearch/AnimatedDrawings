@@ -11,7 +11,7 @@ from animated_drawings.config import ViewConfig
 import glfw
 import OpenGL.GL as GL
 import logging
-from typing import Tuple
+from typing import Tuple, Dict
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
@@ -21,7 +21,7 @@ from pkg_resources import resource_filename
 class WindowView(View):
     """Window View for rendering into a visible window"""
 
-    def __init__(self, cfg: ViewConfig):
+    def __init__(self, cfg: ViewConfig) -> None:
         super().__init__(cfg)
 
         glfw.init()
@@ -31,15 +31,16 @@ class WindowView(View):
         self.win: glfw._GLFWwindow
         self._create_window(*cfg.window_dimensions)  # pyright: ignore[reportGeneralTypeIssues]
 
-        self.shaders = {}
-        self.shader_ids = {}
+        self.shaders: Dict[str, Shader]= {}
+        self.shader_ids: Dict[str, int] = {}
         self._prep_shaders()
 
+        self.fboId: GL.GLint
         self._prep_background_image()
 
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
 
-    def _prep_background_image(self):
+    def _prep_background_image(self) -> None:
         """ Initialize framebuffer object for background image, if specified. """
 
         # if nothing specified, return
@@ -63,7 +64,7 @@ class WindowView(View):
         GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
         GL.glFramebufferTexture2D(GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
 
-    def _prep_shaders(self):
+    def _prep_shaders(self) -> None:
         BVH_VERT = Path(resource_filename(__name__, "shaders/bvh.vert"))
         BVH_FRAG = Path(resource_filename(__name__, "shaders/bvh.frag"))
         self._initiatize_shader('bvh_shader', str(BVH_VERT), str(BVH_FRAG))
@@ -76,7 +77,7 @@ class WindowView(View):
         TEXTURE_FRAG = Path(resource_filename(__name__, "shaders/texture.frag"))
         self._initiatize_shader('texture_shader', str(TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
 
-    def _update_shaders_view_transform(self, camera: Camera):
+    def _update_shaders_view_transform(self, camera: Camera) -> None:
         try:
             view_transform: npt.NDArray[np.float32] = np.linalg.inv(camera.get_world_transform())
         except Exception as e:
@@ -89,15 +90,15 @@ class WindowView(View):
             view_loc = GL.glGetUniformLocation(self.shader_ids[shader_name], "view")
             GL.glUniformMatrix4fv(view_loc, 1, GL.GL_FALSE, view_transform.T)
 
-    def _set_shader_projections(self, proj_m: np.ndarray):
+    def _set_shader_projections(self, proj_m: npt.NDArray[np.float32]) -> None:
         for shader_id in self.shader_ids.values():
             GL.glUseProgram(shader_id)
             proj_loc = GL.glGetUniformLocation(shader_id, "proj")
             GL.glUniformMatrix4fv(proj_loc, 1, GL.GL_FALSE, proj_m.T)
 
-    def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs):
+    def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs) -> None:
         self.shaders[shader_name] = Shader(vert_path, frag_path)
-        self.shader_ids[shader_name] = self.shaders[shader_name].glid
+        self.shader_ids[shader_name] = self.shaders[shader_name].glid  # pyright: ignore[reportGeneralTypeIssues]
 
         if 'texture' in kwargs and kwargs['texture'] is True:
             GL.glUseProgram(self.shader_ids[shader_name])
@@ -124,10 +125,10 @@ class WindowView(View):
         logging.info(f'GLSL: { GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode()}')  # pyright: ignore[reportGeneralTypeIssues]
         logging.info(f'Renderer: {GL.glGetString(GL.GL_RENDERER).decode()}')  # pyright: ignore[reportGeneralTypeIssues]
 
-    def set_scene(self, scene: Scene):
+    def set_scene(self, scene: Scene) -> None:
         self.scene = scene
 
-    def render(self, transform: Transform):
+    def render(self, scene: Transform) -> None:
         GL.glViewport(0, 0, *self.get_framebuffer_size())
 
         # draw the background image if exists
@@ -139,18 +140,18 @@ class WindowView(View):
 
         self._update_shaders_view_transform(self.camera)
 
-        transform.draw(shader_ids=self.shader_ids, viewer_cfg=self.cfg)
+        scene.draw(shader_ids=self.shader_ids, viewer_cfg=self.cfg)
 
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of view's window. """
         return glfw.get_framebuffer_size(self.win)
 
-    def swap_buffers(self):
+    def swap_buffers(self) -> None:
         glfw.swap_buffers(self.win)
 
-    def clear_window(self):
+    def clear_window(self) -> None:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """ Destroy the window when it's no longer being used. """
         glfw.destroy_window(self.win)

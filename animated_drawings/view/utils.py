@@ -1,10 +1,11 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 import numpy as np
+import numpy.typing as npt
 import logging
 
 
-def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str = 'perspective'):
+def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str = 'perspective') -> npt.NDArray[np.float32]:
 
     if type_ == 'perspective':
 
@@ -25,7 +26,7 @@ def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str = 'perspectiv
         M_2_3 = (2 * far * near) / (near - far)
         M_3_2 = -1
 
-        M: np.ndarray = np.zeros([4, 4])
+        M: npt.NDArray[np.float32] = np.zeros([4, 4], dtype=np.float32)
         M[0, 0] = M_0_0
         M[0, 2] = M_0_2
         M[1, 1] = M_1_1

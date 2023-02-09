@@ -182,7 +182,7 @@ class AnimatedDrawingRig(Transform):
                 self._set_global_orientations(c, bvh_orientations)
 
     def _draw(self, **kwargs):
-        if 'DRAW_AD_RIG' not in kwargs['viewer_cfg'].keys() or kwargs['viewer_cfg']['DRAW_AD_RIG'] is False:
+        if not kwargs['viewer_cfg'].draw_ad_rig:
             return
 
         if not self._is_opengl_initialized:
@@ -674,7 +674,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         GL.glBindVertexArray(self.vao)
 
-        if 'DRAW_AD_TXTR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_TXTR'] is True:
+        if kwargs['viewer_cfg'].draw_ad_txtr:
             GL.glActiveTexture(GL.GL_TEXTURE0)
             GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
             GL.glDisable(GL.GL_DEPTH_TEST)
@@ -686,7 +686,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
             GL.glEnable(GL.GL_DEPTH_TEST)
 
-        if 'DRAW_AD_COLOR' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_COLOR'] is True:
+        if kwargs['viewer_cfg'].draw_ad_color:
             GL.glDisable(GL.GL_DEPTH_TEST)
 
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
@@ -697,7 +697,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
             GL.glEnable(GL.GL_DEPTH_TEST)
 
-        if 'DRAW_AD_MESH_LINES' in kwargs['viewer_cfg'].keys() and kwargs['viewer_cfg']['DRAW_AD_MESH_LINES'] is True:
+        if kwargs['viewer_cfg'].draw_ad_mesh_lines:
             GL.glDisable(GL.GL_DEPTH_TEST)
 
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
