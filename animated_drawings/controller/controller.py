@@ -1,11 +1,14 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
+""" Controller AbstractBase Class """
+
 from __future__ import annotations
-from animated_drawings.model.scene import Scene
-from animated_drawings.view.view import View
 from typing import Optional
 from abc import abstractmethod
 import logging
+
+from animated_drawings.model.scene import Scene
+from animated_drawings.view.view import View
 
 
 class Controller():
@@ -24,55 +27,48 @@ class Controller():
         self.view: Optional[View] = None
 
     def set_scene(self, scene: Scene):
+        """ Sets the scene attached to this controller."""
         self.scene = scene
 
     def set_view(self, view: View):
+        """ Sets the view attached to this controller."""
         self.view = view
 
     @abstractmethod
     def _tick(self):
         """Subclass and add logic is necessary to progress time"""
-        pass
 
     @abstractmethod
     def _update(self):
         """Subclass and add logic is necessary to update scene after progressing time"""
-        pass
 
     @abstractmethod
     def _is_run_over(self):
         """Subclass and add logic is necessary to end the scene"""
-        pass
 
     @abstractmethod
     def _start_run_loop_iteration(self):
         """Subclass and add code to start run loop iteration"""
-        pass
 
     @abstractmethod
     def _handle_user_input(self):
         """Subclass and add code to handle user input"""
-        pass
 
     @abstractmethod
     def _render(self):
         """Subclass and add logic needed to have viewer render the scene"""
-        pass
 
     @abstractmethod
     def _finish_run_loop_iteration(self):
         """Subclass and add steps necessary before starting next iteration of run loop. """
-        pass
 
     @abstractmethod
     def _prep_for_run_loop(self):
         """Subclass and add anything necessary to do immediately prior to run loop. """
-        pass
 
     @abstractmethod
     def _cleanup_after_run_loop(self):
         """Subclass and add anything necessary to do after run loop has finished. """
-        pass
 
     def run(self):
         """ The run loop. Subclassed controllers should overload and define functionality for each step in this function."""
@@ -92,11 +88,11 @@ class Controller():
     def create_controller(controller_cfg: dict, scene: Scene, view: View) -> Controller:
         """ Takes in a controller dictionary from mvc config file, scene, and view. Constructs and return appropriate controller."""
         if controller_cfg['MODE'] == 'video_render':
-            from animated_drawings.controller.video_render_controller import VideoRenderController
+            from animated_drawings.controller.video_render_controller import VideoRenderController  # pylint: disable=C0415
             return VideoRenderController(controller_cfg, scene, view,)
         elif controller_cfg['MODE'] == 'interactive':
-            from animated_drawings.controller.interactive_controller import InteractiveController
-            from animated_drawings.view.window_view import WindowView
+            from animated_drawings.controller.interactive_controller import InteractiveController  # pylint: disable=C0415
+            from animated_drawings.view.window_view import WindowView  # pylint: disable=C0415
             if not isinstance(view, WindowView):
                 msg = f'Interactive Controller requires a WindowView. Received {type(view)}'
                 logging.critical(msg)
