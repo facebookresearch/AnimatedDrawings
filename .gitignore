@@ -1,0 +1,21 @@
+# ignore auto-generated files
+**/.DS_Store
+**/__pycache__
+**/src.egg-info
+animated_drawings.egg-info
+
+# ignore the .mar files
+**/*.mar
+
+# ignore any vscode specific setting files
+.vscode
+
+# ignore any files created by following examples
+**/log.txt
+examples/garlic_out
+**/*.mp4
+**/*.gif
+
+# DO include .gifs used by the Readme
+!media/*.gif
+

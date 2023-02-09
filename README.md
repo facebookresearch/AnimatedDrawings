@@ -90,8 +90,9 @@ Wait ~10 seconds, then ensure Docker and TorchServe are working by pinging the s
     #   "status": "Healthy"
     # }
 
-If, after waiting, the response is `curl: (52) Empty reply from server`, you may need increase the RAM of your Docker containers.
-Try increasing the [amount of memory](https://docs.docker.com/desktop/settings/mac/#advanced) available to your Docker containers to 16GB by modifying Docker Desktop's settings.
+If, after waiting, the response is `curl: (52) Empty reply from server`, one of two things is likely happening.
+1. Torchserve hasn't finished initializing yet, so wait another 10 seconds and try again.
+2. Torchserve is failing because it doesn't have enough RAM.  Try [increasing the amount of memory available to your Docker containers](https://docs.docker.com/desktop/settings/mac/#advanced) to 16GB by modifying Docker Desktop's settings.
 
 With that set up, you can now go directly from image -> animation with a single command:
 
