@@ -12,6 +12,7 @@ from animated_drawings.view.view import View
 from animated_drawings.view.utils import get_projection_matrix
 from animated_drawings.utils import read_background_image
 from animated_drawings.view.shaders.shader import Shader
+from animated_drawings.config import ViewConfig
 
 import logging
 from typing import Tuple
@@ -23,10 +24,10 @@ from pkg_resources import resource_filename
 class MesaView(View):
     """ Mesa View for Headless Rendering """
 
-    def __init__(self, cfg: dict):
+    def __init__(self, cfg: ViewConfig):
         super().__init__(cfg)
 
-        self.camera: Camera = Camera(cfg['CAMERA_POS'], cfg['CAMERA_FWD'])
+        self.camera: Camera = Camera(self.cfg.camera_pos, self.cfg.camera_fwd)
 
         self.ctx: osmesa.OSMesaContext
         self.buffer: np.ndarray
@@ -36,13 +37,18 @@ class MesaView(View):
         self.shader_ids = {}
         self._prep_shaders()
 
-        if self.cfg['BACKGROUND_IMAGE']:
-            self._prep_background_image()
+        self._prep_background_image()
 
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
 
     def _prep_background_image(self):
-        _txtr = read_background_image(self.cfg['BACKGROUND_IMAGE'])
+        """ Initialize framebuffer object for background image, if specified. """
+
+        # if nothing specified, return
+        if not self.cfg.background_image:
+            return
+
+        _txtr = read_background_image(self.cfg.background_image)
 
         self.txtr_h, self.txtr_w, _ = _txtr.shape
         self.txtr_id = GL.glGenTextures(1)
@@ -99,12 +105,12 @@ class MesaView(View):
 
     def _initialize_mesa(self):
 
-        width, height = self.cfg['WINDOW_DIMENSIONS']
+        width, height = self.cfg.window_dimensions
         self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
         self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
         osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
 
-        GL.glClearColor(*self.cfg['CLEAR_COLOR'])
+        GL.glClearColor(*self.cfg.clear_color)
 
     def set_scene(self, scene: Scene):
         self.scene = scene
@@ -113,7 +119,7 @@ class MesaView(View):
         GL.glViewport(0, 0, *self.get_framebuffer_size())
 
         # Draw the background
-        if self.cfg['BACKGROUND_IMAGE']:
+        if self.cfg.background_image:
             GL.glBindFramebuffer(GL.GL_DRAW_FRAMEBUFFER, 0)
             GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
             win_w, win_h = self.get_framebuffer_size()

@@ -3,6 +3,7 @@
 from __future__ import annotations
 from abc import abstractmethod
 from typing import Tuple
+from animated_drawings.config import ViewConfig
 
 
 class View:
@@ -12,12 +13,12 @@ class View:
     Views are responsible for initiating the 'draw' methods for each object which they want to render.
     """
 
-    def __init__(self, cfg: dict):
-        self.cfg: dict = cfg
+    def __init__(self, cfg: ViewConfig):
+        self.cfg: ViewConfig = cfg
         pass
 
     @abstractmethod
-    def render(self, scene):
+    def render(self, scene):  # pyright: ignore[reportUnknownParameterType,reportMissingParameterType]
         """ Called by the controller to render the scene. """
         pass
 
@@ -37,10 +38,10 @@ class View:
         pass
 
     @staticmethod
-    def create_view(view_cfg: dict) -> View:
+    def create_view(view_cfg: ViewConfig) -> View:
         """ Takes in a view dictionary from mvc config file and returns the appropriate view. """
         # create view
-        if view_cfg['USE_MESA']:
+        if view_cfg.use_mesa:
             from animated_drawings.view.mesa_view import MesaView
             return MesaView(view_cfg)
         else:

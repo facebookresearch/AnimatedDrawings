@@ -17,11 +17,11 @@ def get_projection_matrix(buffer_w: int, buffer_h: int, type_: str = 'perspectiv
         bottom = -top
         left = -right
 
-        M_0_0 =       (2 * near) / (right - left)  # noqa: E222
-        M_0_2 =   (left + right) / (left - right)  # noqa: E222
-        M_1_1 =       (2 * near) / (top - bottom)  # noqa: E222
-        M_1_2 =   (bottom + top) / (bottom-top)    # noqa: E222
-        M_2_2 =     (far + near) / (near - far)    # noqa: E222
+        M_0_0 =       (2 * near) / (right - left)
+        M_0_2 =   (left + right) / (left - right)
+        M_1_1 =       (2 * near) / (top - bottom)
+        M_1_2 =   (bottom + top) / (bottom-top)
+        M_2_2 =     (far + near) / (near - far)
         M_2_3 = (2 * far * near) / (near - far)
         M_3_2 = -1
 
