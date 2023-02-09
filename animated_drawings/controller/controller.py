@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-""" Controller AbstractBase Class """
+""" Controller Abstract Base Class Module """
 
 from __future__ import annotations
 from typing import Optional
