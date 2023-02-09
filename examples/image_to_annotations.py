@@ -122,10 +122,12 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
 
     # create joint viz overlay for inspection purposes
     joint_overlay = cropped.copy()
-    for idx in range(np.array(pose_results[0]['keypoints']).shape[0]):
-        x, y, _ = pose_results[0]['keypoints'][idx]
-        cv2.circle(joint_overlay, (int(x), int(y)), 5, (255, 0, 0), 5)
-        cv2.imwrite(str(outdir/'joint_overlay.png'), joint_overlay)
+    for joint in skeleton:
+        x, y = joint['loc']
+        name = joint['name']
+        cv2.circle(joint_overlay, (int(x), int(y)), 5, (0, 0, 0), 5)
+        cv2.putText(joint_overlay, name, (int(x), int(y+15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, 2)
+    cv2.imwrite(str(outdir/'joint_overlay.png'), joint_overlay)
 
 
 def segment(img: np.ndarray):
