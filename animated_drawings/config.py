@@ -412,7 +412,7 @@ class RetargetConfig():
     class CharBvhRootOffset(TypedDict):
         bvh_projection_bodypart_group_for_offset: str
         bvh_joints: List[List[str]]
-        char_joint: List[List[str]]
+        char_joints: List[List[str]]
 
     def __init__(self, retarget_cfg_fn: str) -> None:
         retarget_cfg_p = resolve_ad_filepath(retarget_cfg_fn, 'retarget cfg')
@@ -458,7 +458,7 @@ class RetargetConfig():
         # TODO: Check that all char_joints are valid character joints
 
         # validate char bvh root offset
-        self.char_bvh_root_offset: List[RetargetConfig.CharBvhRootOffset]
+        self.char_bvh_root_offset: RetargetConfig.CharBvhRootOffset
         try:
             self.char_bvh_root_offset = retarget_cfg['char_bvh_root_offset']
             assert len(self.char_bvh_root_offset['bvh_joints']) > 0, 'bvh_joints list must be greater than zero' 

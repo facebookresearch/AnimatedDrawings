@@ -33,7 +33,7 @@ class ARAP():
     between (e' in E') and (e in E). This way, rotation is essentially free, while scaling is not.
     """
 
-    def __init__(self, pins_xy: np.ndarray, triangles: np.ndarray, vertices: np.ndarray, w: int = 1000):
+    def __init__(self, pins_xy: npt.NDArray[np.float32], triangles: List[npt.NDArray[np.int32]], vertices: npt.NDArray[np.float32], w: int = 1000):
         """
         Sets up the matrices needed for later solves.
 

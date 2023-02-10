@@ -305,7 +305,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 angle = math.atan2(test_vector[1], test_vector[0])
                 if (math.sin(-angle) * target_vector[0] + math.cos(-angle) * target_vector[1]) < 0:
                     logging.info(f'char_runtime_check failed, removing {target_joint_name} from retargeter :{target_joint_name, position_test, joint1_name, joint2_name}')
-                    del self.retarget_cfg['char_joint_bvh_joints_mapping'][target_joint_name]
+                    del self.retarget_cfg.char_joint_bvh_joints_mapping[target_joint_name]
             else:
                 msg = f'Unrecognized char_runtime_checks position_test: {position_test}'
                 logging.critical(msg)
@@ -313,12 +313,16 @@ class AnimatedDrawing(Transform, TimeManager):
 
     def _initialize_retargeter_bvh(self, motion_cfg: MotionConfig, retarget_cfg: RetargetConfig):
         """ Initializes the retargeter used to drive the animated character.  """
+
         # initialize retargeter
         self.retargeter = Retargeter(motion_cfg, retarget_cfg)
 
+        # a shorter alias 
+        char_bvh_root_offset: RetargetConfig.CharBvhRootOffset = self.retarget_cfg.char_bvh_root_offset
+
         # compute ratio of character's leg length to bvh skel leg length
         c_limb_length = 0
-        c_joint_groups: List[List[str]] = self.retarget_cfg.char_bvh_root_offset['char_joints']
+        c_joint_groups: List[List[str]] = char_bvh_root_offset['char_joints']
         for b_joint_group in c_joint_groups:
             while len(b_joint_group) >= 2:
                 c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
@@ -331,7 +335,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 b_joint_group.pop(0)
 
         b_limb_length = 0
-        b_joint_groups: List[List[str]] = self.retarget_cfg.char_bvh_root_offset['bvh_joints']
+        b_joint_groups: List[List[str]] = char_bvh_root_offset['bvh_joints']
         for b_joint_group in b_joint_groups:
             while len(b_joint_group) >= 2:
                 b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
@@ -345,7 +349,7 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # compute character-bvh scale factor and send to retargeter
         scale_factor = float(c_limb_length / b_limb_length)
-        projection_bodypart_group_for_offset = self.retarget_cfg.char_bvh_root_offset['bvh_projection_bodypart_group_for_offset']
+        projection_bodypart_group_for_offset = char_bvh_root_offset['bvh_projection_bodypart_group_for_offset']
         self.retargeter.scale_root_positions_for_character(scale_factor, projection_bodypart_group_for_offset)
 
         # compute the necessary orienations
@@ -386,14 +390,14 @@ class AnimatedDrawing(Transform, TimeManager):
     def _set_draw_indices(self, joint_depths: Dict[str, float]):
 
         # sort segmentation groups by decreasing depth_driver's distance to camera
-        _bodypart_render_order = []
+        _bodypart_render_order: List[Tuple[int, np.float32]] = []
         for idx, bodypart_group_dict in enumerate(self.retarget_cfg.char_bodypart_groups):
-            bodypart_depth = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['bvh_depth_drivers']])
+            bodypart_depth: np.float32 = np.mean([joint_depths[joint_name] for joint_name in bodypart_group_dict['bvh_depth_drivers']])
             _bodypart_render_order.append((idx, bodypart_depth))
-        _bodypart_render_order.sort(key=lambda x: x[1])
+        _bodypart_render_order.sort(key=lambda x: float(x[1]))
 
         # Add vertices belonging to joints in each segment group in the order they will be rendered
-        indices = []
+        indices: List[npt.NDArray[np.int32]] = []
         for idx, dist in _bodypart_render_order:
             intra_bodypart_render_order = 1 if dist > 0 else -1  # if depth driver is behind plane, render bodyparts in reverse order
             for joint_name in self.retarget_cfg.char_bodypart_groups[idx]['char_joints'][::intra_bodypart_render_order]:
@@ -408,12 +412,12 @@ class AnimatedDrawing(Transform, TimeManager):
         closest_joint_idx = np.full(self.mask.shape, -1, dtype=np.int8)  # track joint idx nearest each point
 
         # temp dictionary to help with seed generation
-        joints_d: Dict[str, dict] = {}
+        joints_d: Dict[str, CharacterConfig.JointDict] = {}
         for joint in self.char_cfg.skeleton:
             joints_d[joint['name']] = joint
             joints_d[joint['name']]['loc'][1] = 1 - joints_d[joint['name']]['loc'][1]
 
-        # list of joints to aid with seed generation
+        # store joint names and later reference by element location
         joint_name_to_idx: List[str] = [joint['name'] for joint in self.char_cfg.skeleton]
 
         # seed generation
@@ -462,7 +466,7 @@ class AnimatedDrawing(Transform, TimeManager):
         joint_to_tri_v_idx: Dict[str, npt.NDArray[np.int32]] = {}
         for key, val in joint_to_tri_v_idx_and_dist.items():
             # sort by distance, descending
-            val.sort(key=lambda x: x[1], reverse=True)
+            val.sort(key=lambda x: float(x[1]), reverse=True)
 
             # retain vertex indices, remove distance info
             val = [v[0] for v in val]
@@ -583,14 +587,12 @@ class AnimatedDrawing(Transform, TimeManager):
         self.vertices[:, 7] = self.mesh['vertices'][:, 0]                        # v tex
 
         # set per-joint triangle colors
-        r = np.linspace(0, 1, 4)
-        g = np.linspace(0, 1, 4)
-        b = np.linspace(0, 1, 4)
-        colors = set()
-        while len(colors) < len(self.joint_to_tri_v_idx):
+        color_set: set[Tuple[np.float32, np.float32, np.float32]] = set()
+        r = g = b = np.linspace(0, 1, 4, dtype=np.float32)
+        while len(color_set) < len(self.joint_to_tri_v_idx):
             color = (np.random.choice(r), np.random.choice(g), np.random.choice(b))
-            colors.add(color)
-        colors = np.array(list(colors), np.float32)
+            color_set.add(color)
+        colors: npt.NDArray[np.float32] = np.array(list(color_set), np.float32)
 
         for c_idx, v_idxs in enumerate(self.joint_to_tri_v_idx.values()):
             self.vertices[v_idxs, 3:6] = colors[c_idx]  # rgb colors
