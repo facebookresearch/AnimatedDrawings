@@ -2,8 +2,9 @@
 
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
+import numpy.typing as npt
 import logging
-from typing import Union
+from typing import Union, Tuple, List
 from numbers import Number
 from copy import copy
 from animated_drawings.utils import TOLERANCE
@@ -15,12 +16,18 @@ class Vectors():
     When passing in existing Vectors, new Vectors object will share the underlying nparray, so be careful.
     """
 
-    def __init__(self, vs_: Union[tuple, list, np.ndarray, Vectors]):
+    def __init__(self, vs_: Union[Tuple[Union[float, int, npt.NDArray[np.float32]], ...],
+                                  List[Union[float, int, npt.NDArray[np.float32]]],
+                                  npt.NDArray[np.float32],
+                                  Vectors]):
+
+        self.vs: npt.NDArray[np.float32]
+
         # initialize from single ndarray
         if isinstance(vs_, np.ndarray):
             if len(vs_.shape) == 1:
                 vs_ = np.expand_dims(vs_, axis=0)
-            vs = vs_
+            self.vs = vs_
 
         # initialize from tuple or list of numbers
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], Number):
@@ -32,7 +39,7 @@ class Vectors():
                 msg = f'Error initializing Vectors: {str(e)}'
                 logging.critical(msg)
                 assert False, msg
-            vs = vs_
+            self.vs = vs_
 
         # initialize from tuple or list of ndarrays
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], np.ndarray):
@@ -42,28 +49,27 @@ class Vectors():
                 msg = f'Error initializing Vectors: {str(e)}'
                 logging.critical(msg)
                 assert False, msg
-            vs = vs_
+            self.vs = vs_
 
         # initialize from tuple or list of Vectors
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], Vectors):
             try:
-                vs_ = np.stack([v.vs.squeeze() for v in vs_])
+                vs_ = np.stack([v.vs.squeeze() for v in vs_])  # pyright: ignore[reportGeneralTypeIssues]
             except Exception as e:
                 msg = f'Error initializing Vectors: {str(e)}'
                 logging.critical(msg)
                 assert False, msg
-            vs = vs_
+            self.vs = vs_
 
         # initialize from single Vectors
         elif isinstance(vs_, Vectors):
-            vs: np.ndarray = vs_.vs
+            self.vs =  vs_.vs
 
         else:
-            msg = 'Vectors must be constructed from Vectors or numpy array'
+            msg = 'Vectors must be constructed from Vectors, ndarray, or Tuples/List of floats/ints or Vectors'
             logging.critical(msg)
             assert False, msg
 
-        self.vs: np.ndarray = vs
 
     def norm(self):
         ns = np.linalg.norm(self.vs, axis=-1)

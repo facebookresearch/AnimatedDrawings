@@ -16,9 +16,9 @@ class Transform():
                  parent: Optional[Transform] = None,
                  name: Optional[str] = None,
                  children: List[Transform] = [],
-                 offset: Union[np.ndarray, Vectors, None] = None,
+                 offset: Union[npt.NDArray[np.float32], Vectors, None] = None,
                  **kwargs
-                 ):
+                 ) -> None:
 
         super().__init__(**kwargs)
 
@@ -30,15 +30,15 @@ class Transform():
 
         self.name: Optional[str] = name
 
-        self._translate_m: np.ndarray = np.identity(4, dtype=np.float32)
-        self._rotate_m: np.ndarray = np.identity(4, dtype=np.float32)
-        self._scale_m: np.ndarray = np.identity(4, dtype=np.float32)
+        self._translate_m: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
+        self._rotate_m: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
+        self._scale_m: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
 
-        if offset:
+        if offset is not None:
             self.offset(offset)
 
-        self._local_transform: np.ndarray = np.identity(4, dtype=np.float32)
-        self._world_transform: np.ndarray = np.identity(4, dtype=np.float32)
+        self._local_transform: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
+        self._world_transform: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
         self.dirty_bit: bool = True  # are world/local transforms stale?
 
     def update_transforms(self, parent_dirty_bit: bool = False, recurse_on_children: bool = True, update_ancestors=False) -> None:
@@ -88,7 +88,7 @@ class Transform():
         self._scale_m[:-1, :-1] = scale * np.identity(3, dtype=np.float32)
         self.dirty_bit = True
 
-    def set_position(self, pos: Union[np.ndarray, Vectors]) -> None:
+    def set_position(self, pos: Union[npt.NDArray[np.float32], Vectors]) -> None:
         """ Set the absolute values of the translational elements of transform """
         if isinstance(pos, Vectors):
             pos = pos.vs
@@ -105,13 +105,13 @@ class Transform():
         self._translate_m[:-1, -1] = pos
         self.dirty_bit = True
 
-    def get_local_position(self) -> np.ndarray:
+    def get_local_position(self) -> npt.NDArray[np.float32]:
         """ Ensure local transform is up-to-date and return local xyz coordinates """
         if self.dirty_bit:
             self.compute_local_transform()
         return np.copy(self._local_transform[:-1, -1])
 
-    def get_world_position(self, update_ancestors: bool = True) -> np.ndarray:
+    def get_world_position(self, update_ancestors: bool = True) -> npt.NDArray[np.float32]:
         """
         Ensure all parent transforms are update and return world xyz coordinates
         If update_ancestor_transforms is true, update ancestor transforms to ensure
@@ -122,13 +122,16 @@ class Transform():
 
         return np.copy(self._world_transform[:-1, -1])
 
-    def offset(self, pos: Union[np.ndarray, Vectors]) -> None:
+    def offset(self, pos: Union[npt.NDArray[np.float32], Vectors]) -> None:
         """ Translational offset by the specified amount """
+
         if isinstance(pos, Vectors):
             pos = pos.vs[0]
+        assert isinstance(pos, np.ndarray)
+
         self.set_position(self._translate_m[:-1, -1] + pos)
 
-    def look_at(self, fwd_: Union[np.ndarray, Vectors, None]) -> None:
+    def look_at(self, fwd_: Union[npt.NDArray[np.float32], Vectors, None]) -> None:
         """Given a forward vector, rotate the transform to face that position"""
         if fwd_ is None:
             fwd_ = Vectors(self.get_world_position())

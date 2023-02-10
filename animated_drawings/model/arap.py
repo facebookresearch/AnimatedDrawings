@@ -1,6 +1,7 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 import numpy as np
+import numpy.typing as npt
 from collections import defaultdict
 import logging
 from typing import List, Dict, Set, Tuple
@@ -157,7 +158,7 @@ class ARAP():
         # revert np overflow warnings behavior
         _ = np.seterr(**old_settings)
         
-    def solve(self, pins_xy) -> np.ndarray:
+    def solve(self, pins_xy: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
         """
         After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
         pins *must* be in the same order they were passed in during initialization

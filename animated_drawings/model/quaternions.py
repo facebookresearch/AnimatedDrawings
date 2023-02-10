@@ -2,6 +2,7 @@
 
 from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
+import numpy.typing as npt
 import logging
 from typing import Union
 from animated_drawings.model.vectors import Vectors
@@ -105,7 +106,7 @@ class Quaternions:
         return ret_q
 
     @classmethod
-    def from_angle_axis(cls, angles: np.ndarray, axes: Vectors) -> Quaternions:
+    def from_angle_axis(cls, angles: npt.NDArray[np.float32], axes: Vectors) -> Quaternions:
         axes.norm()
 
         if len(angles.shape) == 1:
@@ -121,7 +122,7 @@ class Quaternions:
         return Quaternions(qs)
 
     @classmethod
-    def from_euler_angles(cls, order: str, angles: np.ndarray) -> Quaternions:
+    def from_euler_angles(cls, order: str, angles: npt.NDArray[np.float32]) -> Quaternions:
         """
         Applies a series of euler angle rotations. Angles applied from right to left
         :param order: string comprised of x, y, and/or z

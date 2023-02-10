@@ -94,7 +94,7 @@ class Controller():
         elif controller_cfg.mode == 'interactive':
             from animated_drawings.controller.interactive_controller import InteractiveController
             from animated_drawings.view.window_view import WindowView
-            assert isinstance(view, WindowView)  # checks elsewhere ensure this always passes
+            assert isinstance(view, WindowView)  # for static analysis. checks elsewhere ensure this always passes
             return InteractiveController(controller_cfg, scene, view)
         else:
             msg = f'Unknown controller mode specified: {controller_cfg.mode}'
