@@ -1,5 +1,5 @@
 # Animated Drawings
-This repo contains an implementation of the algorithm described within the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure.' In addition, this repo aims to be a useful creative tool in it's own right, allowing you to flexibly create animations starring your own drawn characters.
+This repo contains an implementation of the algorithm described in the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure'. In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters.
 
 ## Installation
 
@@ -15,22 +15,24 @@ Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/proje
     cd AnimatedDrawings
     pip install -e .
 
-If you get a `permission denied` erorr when trying to clone the repo, you don't have access. 
+If you get a `permission denied` error when trying to clone the repo, you don't have access. 
 To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
+
+Mac M1/M2 users: if you get architecture errors, make sure your `~/.condarc` does not have `osx-64`, but only `osx-arm64` and `noarch` in its subdirs listing. You can see that it's going to go sideways as early as `conda create` because it will show `osx-64` instead of `osx-arm64` versions of libraries under "The following NEW packages will be INSTALLED".
 
 ## Using Animated Drawings
 
 ### Interactive Window
 We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
 Scenes are created and rendered according to the parameters within the mvc_config.
-To see for yourself, make sure the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
+To see for yourself, make sure that the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
 
     from animated_drawings import render
 
     render.start('./examples/config/mvc/interactive_window_example.yaml')
 
 If everything is installed correctly, an interactive window should appear on your screen. 
-(Use space to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
+(Use spacebar to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
 
 <img src='./media/interactive_window_example.gif' width="256" height="256" /> </br></br></br>
 
