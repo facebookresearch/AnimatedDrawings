@@ -106,13 +106,13 @@ class BVH(Transform, TimeManager):
 
         vectors_cw_perpendicular_to_fwd: List[Vectors] = []
         for (start_joint_name, end_joint_name) in forward_perp_vector_joint_names:
-            start_joint = self.root_joint.get_joint_by_name(start_joint_name)
+            start_joint = self.root_joint.get_transform_by_name(start_joint_name)
             if not start_joint:
                 msg = f'Could not find BVH joint with name: {start_joint}'
                 logging.critical(msg)
                 assert False, msg
 
-            end_joint = self.root_joint.get_joint_by_name(end_joint_name)
+            end_joint = self.root_joint.get_transform_by_name(end_joint_name)
             if not end_joint:
                 msg = f'Could not find BVH joint with name: {end_joint}'
                 logging.critical(msg)

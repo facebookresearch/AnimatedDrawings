@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from animated_drawings.model.transform import Transform
-from typing import Optional, List
+from typing import List
 
 
 class Joint(Transform):
@@ -46,21 +46,3 @@ class Joint(Transform):
                 continue
             self._get_chain_joint_names(c, joint_name_list)
         return joint_name_list
-
-    def get_joint_by_name(self, name: str) -> Optional[Joint]:
-        """ Search self and joint children for joint with matching name. Return it if found, None otherwise. """
-        # TODO: Make this a Transform method. No reason to restrict to just joints.
-
-        # are we match?
-        if self.name == name:
-            return self
-
-        # recurse to check if a child is match
-        for c in self.get_children():
-            if isinstance(c, Joint):
-                joint_or_none = c.get_joint_by_name(name)
-                if joint_or_none:  # if we found it
-                    return joint_or_none
-
-        # no match
-        return None

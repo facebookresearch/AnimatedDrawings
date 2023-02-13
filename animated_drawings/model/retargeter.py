@@ -71,7 +71,7 @@ class Retargeter():
 
         # adjust bvh skeleton y pos by getting groundplane joint...
         try:
-            groundplane_joint = self.bvh.root_joint.get_joint_by_name(motion_cfg.groundplane_joint)
+            groundplane_joint = self.bvh.root_joint.get_transform_by_name(motion_cfg.groundplane_joint)
             assert isinstance(groundplane_joint, Joint), f'could not find joint by name: {motion_cfg.groundplane_joint}'
         except Exception as e:
             msg = f'Error getting groundplane joint: {e}'
@@ -268,14 +268,14 @@ class Retargeter():
         """
 
         # get distal end joint
-        dist_joint = self.bvh.root_joint.get_joint_by_name(bvh_dist_joint_name)
+        dist_joint = self.bvh.root_joint.get_transform_by_name(bvh_dist_joint_name)
         if dist_joint is None:
             msg = 'error finding joint {bvh_dist_joint_name}'
             logging.critical(msg)
             assert False, msg
 
         # get prox joint
-        prox_joint = self.bvh.root_joint.get_joint_by_name(bvh_prox_joint_name)
+        prox_joint = self.bvh.root_joint.get_transform_by_name(bvh_prox_joint_name)
         if prox_joint is None or not isinstance(prox_joint, Joint):
             msg = 'joint {bvh_prox_joint_name} has no parent joint, therefore no bone orientation. Returning zero'
             logging.info(msg)

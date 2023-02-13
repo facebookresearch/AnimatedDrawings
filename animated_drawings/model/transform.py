@@ -203,6 +203,22 @@ class Transform():
     def get_parent(self) -> Optional[Transform]:
         return self._parent
 
+    def get_transform_by_name(self, name: str) -> Optional[Transform]:
+        """ Search self and children for transform with matching name. Return it if found, None otherwise. """
+
+        # are we match?
+        if self.name == name:
+            return self
+
+        # recurse to check if a child is match
+        for c in self.get_children():
+            transform_or_none = c.get_transform_by_name(name)
+            if transform_or_none:  # if we found it
+                return transform_or_none
+
+        # no match
+        return None
+
     def draw(self, recurse=True, **kwargs) -> None:
         """ Draw this transform and recurse on children """
         self._draw(**kwargs)

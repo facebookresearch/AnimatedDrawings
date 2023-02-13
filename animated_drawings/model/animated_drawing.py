@@ -278,17 +278,17 @@ class AnimatedDrawing(Transform, TimeManager):
                 This was added to account for head flipping when nose was below shoulders. """
 
                 # get joints 1, 2 and target joint
-                joint1 = self.rig.root_joint.get_joint_by_name(joint1_name)
+                joint1 = self.rig.root_joint.get_transform_by_name(joint1_name)
                 if joint1 is None:
                     msg = f'Could not find joint1 in runtime check: {joint1_name}'
                     logging.critical(msg)
                     assert False, msg
-                joint2 = self.rig.root_joint.get_joint_by_name(joint2_name)
+                joint2 = self.rig.root_joint.get_transform_by_name(joint2_name)
                 if joint2 is None:
                     msg = f'Could not find joint2 in runtime check: {joint2_name}'
                     logging.critical(msg)
                     assert False, msg
-                target_joint = self.rig.root_joint.get_joint_by_name(target_joint_name)
+                target_joint = self.rig.root_joint.get_transform_by_name(target_joint_name)
                 if target_joint is None:
                     msg = f'Could not find target_joint in runtime check: {target_joint_name}'
                     logging.critical(msg)
@@ -325,8 +325,8 @@ class AnimatedDrawing(Transform, TimeManager):
         c_joint_groups: List[List[str]] = char_bvh_root_offset['char_joints']
         for b_joint_group in c_joint_groups:
             while len(b_joint_group) >= 2:
-                c_dist_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[1])
-                c_prox_joint = self.rig.root_joint.get_joint_by_name(b_joint_group[0])
+                c_dist_joint = self.rig.root_joint.get_transform_by_name(b_joint_group[1])
+                c_prox_joint = self.rig.root_joint.get_transform_by_name(b_joint_group[0])
                 assert isinstance(c_dist_joint, AnimatedDrawingsJoint)
                 assert isinstance(c_prox_joint, AnimatedDrawingsJoint)
                 c_dist_joint_pos = c_dist_joint.get_world_position()
@@ -338,8 +338,8 @@ class AnimatedDrawing(Transform, TimeManager):
         b_joint_groups: List[List[str]] = char_bvh_root_offset['bvh_joints']
         for b_joint_group in b_joint_groups:
             while len(b_joint_group) >= 2:
-                b_dist_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[1])
-                b_prox_joint = self.retargeter.bvh.root_joint.get_joint_by_name(b_joint_group[0])
+                b_dist_joint = self.retargeter.bvh.root_joint.get_transform_by_name(b_joint_group[1])
+                b_prox_joint = self.retargeter.bvh.root_joint.get_transform_by_name(b_joint_group[0])
                 assert isinstance(b_dist_joint, Joint)
                 assert isinstance(b_prox_joint, Joint)
                 b_dist_joint_pos = b_dist_joint.get_world_position()
