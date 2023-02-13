@@ -9,6 +9,7 @@ import logging
 
 from animated_drawings.model.scene import Scene
 from animated_drawings.view.view import View
+from animated_drawings.config import ControllerConfig
 
 
 class Controller():
@@ -21,56 +22,56 @@ class Controller():
         - trigger the view's render method
     """
 
-    def __init__(self, cfg: dict, scene: Scene):
-        self.cfg: dict = cfg
+    def __init__(self, cfg: ControllerConfig, scene: Scene) -> None:
+        self.cfg: ControllerConfig = cfg
         self.scene: Scene = scene
         self.view: Optional[View] = None
 
-    def set_scene(self, scene: Scene):
+    def set_scene(self, scene: Scene) -> None:
         """ Sets the scene attached to this controller."""
         self.scene = scene
 
-    def set_view(self, view: View):
+    def set_view(self, view: View) -> None:
         """ Sets the view attached to this controller."""
         self.view = view
 
     @abstractmethod
-    def _tick(self):
+    def _tick(self) -> None:
         """Subclass and add logic is necessary to progress time"""
 
     @abstractmethod
-    def _update(self):
+    def _update(self) -> None:
         """Subclass and add logic is necessary to update scene after progressing time"""
 
     @abstractmethod
-    def _is_run_over(self):
+    def _is_run_over(self) -> bool:
         """Subclass and add logic is necessary to end the scene"""
 
     @abstractmethod
-    def _start_run_loop_iteration(self):
+    def _start_run_loop_iteration(self) -> None:
         """Subclass and add code to start run loop iteration"""
 
     @abstractmethod
-    def _handle_user_input(self):
+    def _handle_user_input(self) -> None:
         """Subclass and add code to handle user input"""
 
     @abstractmethod
-    def _render(self):
+    def _render(self) -> None:
         """Subclass and add logic needed to have viewer render the scene"""
 
     @abstractmethod
-    def _finish_run_loop_iteration(self):
+    def _finish_run_loop_iteration(self) -> None:
         """Subclass and add steps necessary before starting next iteration of run loop. """
 
     @abstractmethod
-    def _prep_for_run_loop(self):
+    def _prep_for_run_loop(self) -> None:
         """Subclass and add anything necessary to do immediately prior to run loop. """
 
     @abstractmethod
-    def _cleanup_after_run_loop(self):
+    def _cleanup_after_run_loop(self) -> None:
         """Subclass and add anything necessary to do after run loop has finished. """
 
-    def run(self):
+    def run(self) -> None:
         """ The run loop. Subclassed controllers should overload and define functionality for each step in this function."""
 
         self._prep_for_run_loop()
@@ -85,20 +86,17 @@ class Controller():
         self._cleanup_after_run_loop()
 
     @staticmethod
-    def create_controller(controller_cfg: dict, scene: Scene, view: View) -> Controller:
+    def create_controller(controller_cfg: ControllerConfig, scene: Scene, view: View) -> Controller:
         """ Takes in a controller dictionary from mvc config file, scene, and view. Constructs and return appropriate controller."""
-        if controller_cfg['MODE'] == 'video_render':
-            from animated_drawings.controller.video_render_controller import VideoRenderController  # pylint: disable=C0415
+        if controller_cfg.mode == 'video_render':
+            from animated_drawings.controller.video_render_controller import VideoRenderController
             return VideoRenderController(controller_cfg, scene, view,)
-        elif controller_cfg['MODE'] == 'interactive':
-            from animated_drawings.controller.interactive_controller import InteractiveController  # pylint: disable=C0415
-            from animated_drawings.view.window_view import WindowView  # pylint: disable=C0415
-            if not isinstance(view, WindowView):
-                msg = f'Interactive Controller requires a WindowView. Received {type(view)}'
-                logging.critical(msg)
-                assert False, msg
+        elif controller_cfg.mode == 'interactive':
+            from animated_drawings.controller.interactive_controller import InteractiveController
+            from animated_drawings.view.window_view import WindowView
+            assert isinstance(view, WindowView)  # for static analysis. checks elsewhere ensure this always passes
             return InteractiveController(controller_cfg, scene, view)
         else:
-            msg = f'Unknown controller mode specified: {controller_cfg["MODE"]}'
+            msg = f'Unknown controller mode specified: {controller_cfg.mode}'
             logging.critical(msg)
             assert False, msg

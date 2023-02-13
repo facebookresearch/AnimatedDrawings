@@ -2,16 +2,17 @@
 
 from animated_drawings.model.transform import Transform
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 import ctypes
 
 
 class TransformWidget(Transform):
-    def __init__(self, shader_name='color_shader'):
+    def __init__(self, shader_name: str='color_shader'):
 
         super().__init__()
 
-        self.points: np.ndarray = np.array([
+        self.points: npt.NDArray[np.float32] = np.array([
             [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
             [1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],

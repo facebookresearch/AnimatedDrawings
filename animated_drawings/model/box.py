@@ -8,7 +8,7 @@ from animated_drawings.model.transform import Transform
 
 class Box(Transform):
 
-    def __init__(self, shader_name='color_shader'):
+    def __init__(self, shader_name: str='color_shader') -> None:
         super().__init__()
 
         self.points = np.array([
@@ -81,7 +81,7 @@ class Box(Transform):
 
         self._is_opengl_initialized: bool = False  # keep track of whether self._initialize_opengl_resources was called.
 
-    def _initialize_opengl_resources(self):
+    def _initialize_opengl_resources(self) -> None:
         """ Method to initialize the OpenGL arrays and buffers necessary to draw the object.
         It's better to not initialize these things unless we're definitely going to be drawing the object,
         as calling GL functions without calling glfw.init() first can cause a mysterious segfault.
@@ -124,12 +124,12 @@ class Box(Transform):
 
         self._is_opengl_initialized = True
 
-    def rebuffer_vertex_data(self):
+    def rebuffer_vertex_data(self) -> None:
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, self.points, GL.GL_STATIC_DRAW)
 
-    def _draw(self, **kwargs):
+    def _draw(self, **kwargs) -> None:
 
         if not self._is_opengl_initialized:
             self._initialize_opengl_resources()
@@ -139,5 +139,4 @@ class Box(Transform):
         GL.glUniformMatrix4fv(model_loc, 1, GL.GL_FALSE, self._world_transform.T)
 
         GL.glBindVertexArray(self.vao)
-        # GL.glDrawElements(GL.GL_TRIANGLES, 3, GL.GL_UNSIGNED_INT, ctypes.c_void_p(3 * 4))
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 36)

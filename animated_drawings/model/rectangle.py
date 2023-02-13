@@ -8,7 +8,7 @@ import ctypes
 
 class Rectangle(Transform):
 
-    def __init__(self, color='white'):
+    def __init__(self, color: str='white') -> None:
 
         super().__init__()
 
@@ -55,7 +55,7 @@ class Rectangle(Transform):
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
         GL.glBindVertexArray(0)
 
-    def _draw(self, **kwargs):
+    def _draw(self, **kwargs) -> None:
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glUseProgram(kwargs['shader_ids']['color_shader'])

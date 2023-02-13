@@ -9,12 +9,13 @@ import glfw
 from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
 from animated_drawings.view.window_view import WindowView
+from animated_drawings.config import ControllerConfig
 
 
 class InteractiveController(Controller):
     """ Interactive Controller Class """
 
-    def __init__(self, cfg: dict, scene: Scene, view: WindowView) -> None:
+    def __init__(self, cfg: ControllerConfig, scene: Scene, view: WindowView) -> None:
         super().__init__(cfg, scene)
 
         self.view: WindowView = view
@@ -70,11 +71,11 @@ class InteractiveController(Controller):
 
         # step forward in time
         elif key == glfw.KEY_RIGHT:
-            self._tick(self.cfg['KEYBOARD_TIMESTEP'])
+            self._tick(self.cfg.keyboard_timestep)
 
         # step backward in time
         elif key == glfw.KEY_LEFT:
-            self._tick(-self.cfg['KEYBOARD_TIMESTEP'])
+            self._tick(-self.cfg.keyboard_timestep)
 
     def _is_run_over(self) -> None:
         return glfw.window_should_close(self.view.win)

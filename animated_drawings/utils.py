@@ -2,6 +2,7 @@
 
 from PIL import Image, ImageOps
 import numpy as np
+import numpy.typing as npt
 import cv2
 from pathlib import Path
 import logging
@@ -28,7 +29,7 @@ def resolve_ad_filepath(file_name: str, file_type: str) -> Path:
     assert False, msg
 
 
-def read_background_image(file_name: str) -> np.ndarray:
+def read_background_image(file_name: str) -> npt.NDArray[np.uint8]:
     """
     Given path to input image file, opens it, flips it based on EXIF tags, if present, and returns image with proper orientation.
     """
@@ -49,4 +50,4 @@ def read_background_image(file_name: str) -> np.ndarray:
     if len(image_np.shape) == 2:  # if grayscale
         image_np = cv2.cvtColor(image_np, cv2.COLOR_GRAY2RGBA)
 
-    return image_np
+    return image_np.astype(np.uint8)

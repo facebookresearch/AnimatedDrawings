@@ -1,12 +1,15 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 import numpy as np
+import numpy.typing as npt
 from collections import defaultdict
 import logging
 from typing import List, Dict, Set, Tuple
 import scipy.sparse.linalg as spla
 import scipy.sparse as sp
 
+
+csr_matrix = sp._csr.csr_matrix  # for typing  # pyright: ignore[reportPrivateUsage]
 
 class ARAP():
     """
@@ -32,7 +35,8 @@ class ARAP():
     between (e' in E') and (e in E). This way, rotation is essentially free, while scaling is not.
     """
 
-    def __init__(self, pins_xy: np.ndarray, triangles: np.ndarray, vertices: np.ndarray, w: int = 1000):
+
+    def __init__(self, pins_xy: npt.NDArray[np.float32], triangles: List[npt.NDArray[np.int32]], vertices: npt.NDArray[np.float32], w: int = 1000):
         """
         Sets up the matrices needed for later solves.
 
@@ -45,25 +49,28 @@ class ARAP():
 
         self.vertices = np.copy(vertices)
 
-        self.e_v_idxs: list = []  # build a deduplicated list of edge->vertex IDS
+        # build a deduplicated list of edge->vertex IDS...
+        self.e_v_idxs: List[Tuple[np.int32, np.int32]] = []
         for v0, v1, v2 in triangles:
             self.e_v_idxs.append(tuple(sorted((v0, v1))))
             self.e_v_idxs.append(tuple(sorted((v1, v2))))
             self.e_v_idxs.append(tuple(sorted((v2, v0))))
-        self.e_v_idxs = list(set(self.e_v_idxs))
+        self.e_v_idxs = list(set(self.e_v_idxs)) # ...and deduplicate it
 
-        _edge_vectors: List = []  # build list of edge vectors
+        # build list of edge vectors
+        _edge_vectors: List[npt.NDArray[np.float32]] = []
         for vi_idx, vj_idx in self.e_v_idxs:
             vi = self.vertices[vi_idx]
             vj = self.vertices[vj_idx]
             _edge_vectors.append(vj - vi)
-        self.edge_vectors: np.ndarray = np.array(_edge_vectors)
+        self.edge_vectors: npt.NDArray[np.float32] = np.array(_edge_vectors)
 
         # get barycentric coordinates of pins, and mask denoting which pins were initially outside the mesh
-        pins_bc, pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)
-        self.pin_mask = np.array(pin_mask)
+        pins_bc: List[Tuple[Tuple[np.int32, np.float32], Tuple[np.int32, np.float32], Tuple[np.int32, np.float32]]]
+        self.pin_mask = npt.NDArray[np.bool8]
+        pins_bc, self.pin_mask = self._xy_to_barycentric_coords(pins_xy, vertices, triangles)
 
-        v_vnbr_idxs: Dict[int, Set[int]] = defaultdict(set)  # build a dict mapping vertex ID -> neighbor vertex IDs
+        v_vnbr_idxs: Dict[np.int32, Set[np.int32]] = defaultdict(set)  # build a dict mapping vertex ID -> neighbor vertex IDs
         for v0, v1, v2 in triangles:
             v_vnbr_idxs[v0] |= {v1, v2}
             v_vnbr_idxs[v1] |= {v2, v0}
@@ -73,8 +80,8 @@ class ARAP():
         self.vert_num = len(self.vertices)
         self.pin_num = len(pins_xy[self.pin_mask])
 
-        self.A1: np.ndarray = np.zeros([2 * (self.edge_num + self.pin_num), 2 * self.vert_num])
-        G: np.ndarray = np.zeros([2 * self.edge_num, 2 * self.vert_num])  # holds edge rotation calculations
+        self.A1: npt.NDArray[np.float32] = np.zeros([2 * (self.edge_num + self.pin_num), 2 * self.vert_num], dtype=np.float32)
+        G: npt.NDArray[np.float32] = np.zeros([2 * self.edge_num, 2 * self.vert_num], dtype=np.float32)  # holds edge rotation calculations
 
         # populate top half of A1, one row per edge
         for k, (vi_idx, vj_idx) in enumerate(self.e_v_idxs):
@@ -84,22 +91,22 @@ class ARAP():
             self.A1[2*k:2*(k+1), 2*vj_idx:2*(vj_idx+1)] = np.identity(2)
 
             # Find the 'neighbor' vertices for this edge: {v_i, v_j,v_r, v_l}
-            vi_vnbr_idxs: set = v_vnbr_idxs[vi_idx]
-            vj_vnbr_idxs: set = v_vnbr_idxs[vj_idx]
-            e_vnbr_idxs: list = list(vi_vnbr_idxs.intersection(vj_vnbr_idxs))
+            vi_vnbr_idxs: Set[np.int32] = v_vnbr_idxs[vi_idx]
+            vj_vnbr_idxs: Set[np.int32] = v_vnbr_idxs[vj_idx]
+            e_vnbr_idxs: List[np.int32] = list(vi_vnbr_idxs.intersection(vj_vnbr_idxs))
             e_vnbr_idxs.insert(0, vi_idx)
             e_vnbr_idxs.insert(1, vj_idx)
 
-            e_vnbr_xys: list = [self.vertices[v_idx] for v_idx in e_vnbr_idxs]
+            e_vnbr_xys: Tuple[np.float32, np.float32] = tuple([self.vertices[v_idx] for v_idx in e_vnbr_idxs])
 
-            _: list = []
+            _: List[Tuple[float, float]] = []
             for v in e_vnbr_xys[1:]:
-                vx = v[0] - e_vnbr_xys[0][0]
-                vy = v[1] - e_vnbr_xys[0][1]
+                vx: float = v[0] - e_vnbr_xys[0][0]
+                vy: float = v[1] - e_vnbr_xys[0][1]
                 _.extend(((vx, vy), (vy, -vx)))
-            G_k: np.ndarray = np.array(_)
+            G_k: npt.NDArray[np.float32] = np.array(_)
 
-            G_k_star: np.ndarray = np.linalg.inv(G_k.T @ G_k) @ G_k.T
+            G_k_star: npt.NDArray[np.float32] = np.linalg.inv(G_k.T @ G_k) @ G_k.T
 
             e_kx, e_ky = self.edge_vectors[k]
             e = np.array([
@@ -121,43 +128,44 @@ class ARAP():
                 self.A1[2*self.edge_num + 2*pin_idx  , 2*v_idx]     = self.w * v_w  # x component
                 self.A1[2*self.edge_num + 2*pin_idx+1, 2*v_idx + 1] = self.w * v_w  # y component
 
-        A2_top = np.zeros([self.edge_num, self.vert_num])
+        A2_top: npt.NDArray[np.float32] = np.zeros([self.edge_num, self.vert_num], dtype=np.float32)
         for k, (vi_idx, vj_idx) in enumerate(self.e_v_idxs):
             A2_top[k, vi_idx] = -1
             A2_top[k, vj_idx] = 1
 
-        A2_bot = np.zeros([self.pin_num, self.vert_num])
+        A2_bot: npt.NDArray[np.float32] = np.zeros([self.pin_num, self.vert_num], dtype=np.float32)
         for pin_idx, pin_bc in enumerate(pins_bc):
             for v_idx, v_w in pin_bc:
                 A2_bot[pin_idx, v_idx] = self.w * v_w
 
-        self.A2: np.ndarray = np.vstack([A2_top, A2_bot])
+        self.A2: npt.NDArray[np.float32] = np.vstack([A2_top, A2_bot])
 
         # for speed, convert to sparse matrices and cache for later
-        self.tA1 = sp.csr_matrix(self.A1.transpose())
-        self.tA2 = sp.csr_matrix(self.A2.transpose())
-        self.G = sp.csr_matrix(G)
+        self.tA1: csr_matrix = sp.csr_matrix(self.A1.transpose())
+        self.tA2: csr_matrix = sp.csr_matrix(self.A2.transpose())
+        self.G: csr_matrix = sp.csr_matrix(G)
 
         # perturbing singular matrix and calling det can trigger overflow warning- ignore it
         old_settings = np.seterr(over='ignore')
 
-        # ensure our matrices aren't singular
-        self.tA1xA1 = self.tA1 @ self.A1
-        while np.linalg.det(self.tA1xA1) == 0.0:
+        # ensure tA1xA1 matrix isn't singular and cache sparse repsentation
+        tA1xA1_dense: npt.NDArray[np.float32] = self.tA1 @ self.A1
+        while np.linalg.det(tA1xA1_dense) == 0.0:
             logging.info('tA1xA1 is singular. perturbing...')
-            self.tA1xA1 += 0.00000001 * np.identity(self.tA1xA1.shape[0])
-        self.tA1xA1 = sp.csr_matrix(self.tA1xA1)
+            tA1xA1_dense += 0.00000001 * np.identity(tA1xA1_dense.shape[0])
+        self.tA1xA1: csr_matrix = sp.csr_matrix(tA1xA1_dense)
 
-        self.tA2xA2 = self.tA2 @ self.A2
-        while np.linalg.det(self.tA2xA2) == 0.0:
+        # ensure tA2xA2 matrix isn't singular and cache sparse repsentation
+        tA2xA2_dense: npt.NDArray[np.float32] = self.tA2 @ self.A2
+        while np.linalg.det(tA2xA2_dense) == 0.0:
             logging.info('tA2xA2 is singular. perturbing...')
-            self.tA2xA2 += 0.00000001 * np.identity(self.tA2xA2.shape[0])
-        self.tA2xA2 = sp.csr_matrix(self.tA2xA2)
+            tA2xA2_dense += 0.00000001 * np.identity(tA2xA2_dense.shape[0])
+        self.tA2xA2: csr_matrix = sp.csr_matrix(tA2xA2_dense)
 
         # revert np overflow warnings behavior
-        _ = np.seterr(**old_settings)
+        np.seterr(**old_settings)
         
-    def solve(self, pins_xy) -> np.ndarray:
+    def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
         """
         After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
         pins *must* be in the same order they were passed in during initialization
@@ -166,17 +174,19 @@ class ARAP():
         return: ndarray [N, 2], the updated xy locations of each vertex in the mesh
         """
 
-        pins_xy = pins_xy[self.pin_mask]  # remove any pins that were orgininally outside the mesh
+        # remove any pins that were orgininally outside the mesh
+        pins_xy: npt.NDArray[np.float32] = pins_xy_[self.pin_mask]  # pyright: ignore[reportGeneralTypeIssues]
+
         assert len(pins_xy) == self.pin_num
 
-        self.b1 = np.hstack([np.zeros([2 * self.edge_num]), self.w * pins_xy.reshape([-1, ])])
-        v1 = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1.T)
+        self.b1: npt.NDArray[np.float64] = np.hstack([np.zeros([2 * self.edge_num], dtype=np.float64), self.w * pins_xy.reshape([-1, ])])
+        v1: npt.NDArray[np.float64] = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1.T)
 
-        T1 = self.G @ v1
-        b2_top = np.empty([self.edge_num, 2])
+        T1: npt.NDArray[np.float64] = self.G @ v1
+        b2_top = np.empty([self.edge_num, 2], dtype=np.float64)
         for idx, e0 in enumerate(self.edge_vectors):
-            c = T1[2*idx]
-            s = T1[2*idx + 1]
+            c: np.float64 = T1[2*idx]
+            s: np.float64 = T1[2*idx + 1]
             scale = 1.0 / np.sqrt(c * c + s * s)
             c *= scale
             s *= scale
@@ -187,12 +197,19 @@ class ARAP():
         b2x = b2[:, 0]
         b2y = b2[:, 1]
 
-        v2x = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
-        v2y = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
+        v2x: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
+        v2y: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
 
         return np.vstack((v2x, v2y)).T
 
-    def _xy_to_barycentric_coords(self, points: np.ndarray, vertices: np.ndarray, triangles: np.ndarray) -> Tuple[list, list]:
+    def _xy_to_barycentric_coords(self,
+                                  points: npt.NDArray[np.float32],
+                                  vertices: npt.NDArray[np.float32],
+                                  triangles: List[npt.NDArray[np.int32]]
+                                ) -> Tuple[
+                                    List[Tuple[Tuple[np.int32, np.float32], Tuple[np.int32, np.float32], Tuple[np.int32, np.float32]]],
+                                    npt.NDArray[np.bool8]
+                                ]:
         """
         Given and array containing xy locations and the vertices & triangles making up a mesh,
         find the triangle that each points in within and return it's representation using barycentric coordinates.
@@ -207,21 +224,20 @@ class ARAP():
         Needed for removing pins during subsequent solve steps.
 
         """
-        def det(u, v):
+        def det(u: npt.NDArray[np.float32], v: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
             """ helper function returns determinents of two [N,2] arrays"""
             ux, uy = u[:, 0], u[:, 1]
             vx, vy = v[:, 0], v[:, 1]
             return ux*vy - uy*vx
 
-        _ = [vertices[t].flatten() for t in triangles]
-        tv_locs: np.ndarray = np.asarray(_)  # triangle->vertex locations, [T x 6] array
+        tv_locs: npt.NDArray[np.float32] = np.asarray([vertices[t].flatten() for t in triangles])  # triangle->vertex locations, [T x 6] array
 
         v0 = tv_locs[:, :2]
         v1 = np.subtract(tv_locs[:, 2:4], v0)
         v2 = np.subtract(tv_locs[:, 4: ], v0)
 
-        b_coords = []
-        pin_mask = []
+        b_coords: List[Tuple[Tuple[np.int32, np.float32], Tuple[np.int32, np.float32], Tuple[np.int32, np.float32]]] = []
+        pin_mask: List[bool] = []
 
         for p_xy in points:
 
@@ -252,12 +268,17 @@ class ARAP():
             vertex_ids = triangles[t_idx]                               # get ids of verts in triangle
             a_xy, b_xy, c_xy = vertices[vertex_ids]                     # get xy coords of verts
             uvw = self._get_barycentric_coords(p_xy, a_xy, b_xy, c_xy)  # get barycentric coords
-            b_coords.append(list(zip(vertex_ids, uvw)))                 # append to our list
+            b_coords.append(list(zip(vertex_ids, uvw)))                 # append to our list  # pyright: ignore[reportGeneralTypeIssues]
             pin_mask.append(True)
 
-        return (b_coords, pin_mask)
+        return (b_coords, np.array(pin_mask, dtype=np.bool8))
 
-    def _get_barycentric_coords(self, p: np.ndarray, a: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
+    def _get_barycentric_coords(self,
+                                p: npt.NDArray[np.float32],
+                                a: npt.NDArray[np.float32],
+                                b: npt.NDArray[np.float32],
+                                c: npt.NDArray[np.float32]
+                                ) -> npt.NDArray[np.float32]:
         """
         As described in Christer Ericson's Real-Time Collision Detection.
         p: the input point
@@ -265,18 +286,18 @@ class ARAP():
 
         Returns ndarray [u, v, w], the barycentric coordinates of p wrt vertices a, b, c
         """
-        v0 = np.subtract(b, a)
-        v1 = np.subtract(c, a)
-        v2 = np.subtract(p, a)
-        d00 = np.dot(v0, v0)
-        d01 = np.dot(v0, v1)
-        d11 = np.dot(v1, v1)
-        d20 = np.dot(v2, v0)
-        d21 = np.dot(v2, v1)
+        v0: npt.NDArray[np.float32] = np.subtract(b, a)
+        v1: npt.NDArray[np.float32] = np.subtract(c, a)
+        v2: npt.NDArray[np.float32] = np.subtract(p, a)
+        d00: np.float32 = np.dot(v0, v0)
+        d01: np.float32 = np.dot(v0, v1)
+        d11: np.float32 = np.dot(v1, v1)
+        d20: np.float32 = np.dot(v2, v0)
+        d21: np.float32 = np.dot(v2, v1)
         denom = d00 * d11 - d01 * d01
-        v: np.ndarray = (d11 * d20 - d01 * d21) / denom
-        w: np.ndarray = (d00 * d21 - d01 * d20) / denom
-        u: np.ndarray = 1.0 - v - w
+        v: npt.NDArray[np.float32] = (d11 * d20 - d01 * d21) / denom  # pyright: ignore[reportGeneralTypeIssues]
+        w: npt.NDArray[np.float32] = (d00 * d21 - d01 * d20) / denom  # pyright: ignore[reportGeneralTypeIssues]
+        u: npt.NDArray[np.float32] = 1.0 - v - w
 
         return np.array([u, v, w]).squeeze()
 

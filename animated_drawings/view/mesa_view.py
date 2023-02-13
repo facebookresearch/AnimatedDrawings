@@ -12,10 +12,12 @@ from animated_drawings.view.view import View
 from animated_drawings.view.utils import get_projection_matrix
 from animated_drawings.utils import read_background_image
 from animated_drawings.view.shaders.shader import Shader
+from animated_drawings.config import ViewConfig
 
 import logging
-from typing import Tuple
+from typing import Tuple, Dict
 import numpy as np
+import numpy.typing as npt
 from pathlib import Path
 from pkg_resources import resource_filename
 
@@ -23,26 +25,31 @@ from pkg_resources import resource_filename
 class MesaView(View):
     """ Mesa View for Headless Rendering """
 
-    def __init__(self, cfg: dict):
+    def __init__(self, cfg: ViewConfig) -> None:
         super().__init__(cfg)
 
-        self.camera: Camera = Camera(cfg['CAMERA_POS'], cfg['CAMERA_FWD'])
+        self.camera: Camera = Camera(self.cfg.camera_pos, self.cfg.camera_fwd)
 
         self.ctx: osmesa.OSMesaContext
-        self.buffer: np.ndarray
+        self.buffer: npt.NDArray[np.uint8]
         self._initialize_mesa()
 
-        self.shaders = {}
-        self.shader_ids = {}
+        self.shaders: Dict[str, Shader]= {}
+        self.shader_ids: Dict[str, int] = {}
         self._prep_shaders()
 
-        if self.cfg['BACKGROUND_IMAGE']:
-            self._prep_background_image()
+        self._prep_background_image()
 
         self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
 
-    def _prep_background_image(self):
-        _txtr = read_background_image(self.cfg['BACKGROUND_IMAGE'])
+    def _prep_background_image(self) -> None:
+        """ Initialize framebuffer object for background image, if specified. """
+
+        # if nothing specified, return
+        if not self.cfg.background_image:
+            return
+
+        _txtr = read_background_image(self.cfg.background_image)
 
         self.txtr_h, self.txtr_w, _ = _txtr.shape
         self.txtr_id = GL.glGenTextures(1)
@@ -56,7 +63,7 @@ class MesaView(View):
         GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
         GL.glFramebufferTexture2D(GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
 
-    def _prep_shaders(self):
+    def _prep_shaders(self) -> None:
         BVH_VERT = Path(resource_filename(__name__, "shaders/bvh.vert"))
         BVH_FRAG = Path(resource_filename(__name__, "shaders/bvh.frag"))
         self._initiatize_shader('bvh_shader', str(BVH_VERT), str(BVH_FRAG))
@@ -69,9 +76,9 @@ class MesaView(View):
         TEXTURE_FRAG = Path(resource_filename(__name__, "shaders/texture.frag"))
         self._initiatize_shader('texture_shader', str(TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
 
-    def _update_shaders_view_transform(self, camera: Camera):
+    def _update_shaders_view_transform(self, camera: Camera) -> None:
         try:
-            view_transform: np.ndarray = np.linalg.inv(camera.get_world_transform())
+            view_transform: npt.NDArray[np.float32] = np.linalg.inv(camera.get_world_transform())
         except Exception as e:
             msg = f'Error inverting camera world transform: {e}'
             logging.critical(msg)
@@ -82,38 +89,38 @@ class MesaView(View):
             view_loc = GL.glGetUniformLocation(self.shader_ids[shader_name], "view")
             GL.glUniformMatrix4fv(view_loc, 1, GL.GL_FALSE, view_transform.T)
 
-    def _set_shader_projections(self, proj_m: np.ndarray):
+    def _set_shader_projections(self, proj_m: npt.NDArray[np.float32]) -> None:
         for shader_id in self.shader_ids.values():
             GL.glUseProgram(shader_id)
             proj_loc = GL.glGetUniformLocation(shader_id, "proj")
             GL.glUniformMatrix4fv(proj_loc, 1, GL.GL_FALSE, proj_m.T)
 
-    def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs):
+    def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs) -> None:
         self.shaders[shader_name] = Shader(vert_path, frag_path)
-        self.shader_ids[shader_name] = self.shaders[shader_name].glid
+        self.shader_ids[shader_name] = self.shaders[shader_name].glid  # pyright: ignore[reportGeneralTypeIssues]
 
         if 'texture' in kwargs and kwargs['texture'] is True:
             GL.glUseProgram(self.shader_ids[shader_name])
             GL.glUniform1i(GL.glGetUniformLocation(
                 self.shader_ids[shader_name], 'texture0'), 0)
 
-    def _initialize_mesa(self):
+    def _initialize_mesa(self) -> None:
 
-        width, height = self.cfg['WINDOW_DIMENSIONS']
+        width, height = self.cfg.window_dimensions
         self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
-        self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
+        self.buffer: npt.NDArray[np.uint8] = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
         osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
 
-        GL.glClearColor(*self.cfg['CLEAR_COLOR'])
+        GL.glClearColor(*self.cfg.clear_color)
 
-    def set_scene(self, scene: Scene):
+    def set_scene(self, scene: Scene) -> None:
         self.scene = scene
 
-    def render(self, transform: Transform):
+    def render(self, scene: Transform) -> None:
         GL.glViewport(0, 0, *self.get_framebuffer_size())
 
         # Draw the background
-        if self.cfg['BACKGROUND_IMAGE']:
+        if self.cfg.background_image:
             GL.glBindFramebuffer(GL.GL_DRAW_FRAMEBUFFER, 0)
             GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
             win_w, win_h = self.get_framebuffer_size()
@@ -121,15 +128,14 @@ class MesaView(View):
 
         self._update_shaders_view_transform(self.camera)
 
-        transform.draw(shader_ids=self.shader_ids, viewer_cfg=self.cfg)
+        scene.draw(shader_ids=self.shader_ids, viewer_cfg=self.cfg)
 
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of view's window. """
         return self.buffer.shape[:2][::-1]
 
-    def clear_window(self):
+    def clear_window(self) -> None:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """ No need to destroy a window, as none was created. """
-        pass
