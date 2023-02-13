@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 
 import numpy as np
+import numpy.typing as npt
 
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.box import Box
@@ -20,7 +21,7 @@ class BVH_Joint(Joint):
     """
         Joint class with channel order attribute and specialized vis widget
     """
-    def __init__(self, channel_order: List[str] = [], widget: bool = True, **kwargs):
+    def __init__(self, channel_order: List[str] = [], widget: bool = True, **kwargs) -> None:
         super().__init__(**kwargs)
 
         self.channel_order = channel_order
@@ -47,9 +48,9 @@ class BVH(Transform, TimeManager):
                  root_joint: BVH_Joint,
                  frame_max_num: int,
                  frame_time: float,
-                 pos_data: np.ndarray,
-                 rot_data: np.ndarray
-                 ):
+                 pos_data: npt.NDArray[np.float32],
+                 rot_data: npt.NDArray[np.float32]
+                 ) -> None:
         """
         Don't recommend calling this method directly.  Instead, use BVH.from_file().
         """
@@ -58,8 +59,8 @@ class BVH(Transform, TimeManager):
         self.name: str = name
         self.frame_max_num: int = frame_max_num
         self.frame_time: float = frame_time
-        self.pos_data: np.ndarray = pos_data
-        self.rot_data: np.ndarray = rot_data
+        self.pos_data: npt.NDArray[np.float32] = pos_data
+        self.rot_data: npt.NDArray[np.float32] = rot_data
 
         self.root_joint = root_joint
         self.add_child(self.root_joint)
@@ -68,7 +69,7 @@ class BVH(Transform, TimeManager):
         self.cur_frame = 0  # initialize skeleton pose to first frame
         self.apply_frame(self.cur_frame)
 
-    def get_joint_names(self):
+    def get_joint_names(self) -> List[str]:
         """ Get names of joints in skeleton in the order in which BVH rotation data is stored. """
         return self.root_joint.get_chain_joint_names()
 
@@ -79,11 +80,11 @@ class BVH(Transform, TimeManager):
         self.apply_frame(cur_frame)
 
     def apply_frame(self, frame_num: int) -> None:
-        """ Apply root position and joint rotation data for specified frame_num.  """
+        """ Apply root position and joint rotation data for specified frame_num """
         self.root_joint.set_position(self.pos_data[frame_num])
         self._apply_frame_rotations(self.root_joint, frame_num, ptr=np.array(0))
 
-    def _apply_frame_rotations(self, joint: BVH_Joint, frame_num: int, ptr: np.ndarray):
+    def _apply_frame_rotations(self, joint: BVH_Joint, frame_num: int, ptr: npt.NDArray[np.int32]) -> None:
         q = Quaternions(self.rot_data[frame_num, ptr])
         joint.set_rotation(q)
 
@@ -94,7 +95,7 @@ class BVH(Transform, TimeManager):
                 continue
             self._apply_frame_rotations(c, frame_num, ptr)
 
-    def get_skeleton_fwd(self, forward_perp_vector_joint_names: List[Tuple[str, str]], update=True) -> Vectors:
+    def get_skeleton_fwd(self, forward_perp_vector_joint_names: List[Tuple[str, str]], update: bool =True) -> Vectors:
         """
         Get current forward vector of skeleton in world coords. If update=True, ensure skeleton transforms are current.
         Input forward_perp_vector_joint_names, a list of pairs of joint names (e.g. [[leftshould, rightshoulder], [lefthip, righthip]])
@@ -159,8 +160,8 @@ class BVH(Transform, TimeManager):
             assert False, msg
 
         # Split logically distinct root position data from joint euler angle rotation data
-        pos_data: np.ndarray
-        rot_data: np.ndarray
+        pos_data: npt.NDArray[np.float32]
+        rot_data: npt.NDArray[np.float32]
         pos_data, rot_data = BVH._process_frame_data(root_joint, frames)
 
         # TODO: Move all user input verification checks into a central location instead of scattered throughout code
@@ -240,7 +241,7 @@ class BVH(Transform, TimeManager):
             assert False, msg
 
         # Recurse for children
-        children = []
+        children: List[BVH_Joint]= []
         while lines[0].strip() != '}':
             children.append(BVH._parse_skeleton(lines))
         lines.pop(0)  # }
@@ -248,7 +249,7 @@ class BVH(Transform, TimeManager):
         return BVH_Joint(name=joint_name, offset=offset, channel_order=channel_order, children=children)
 
     @classmethod
-    def _process_frame_data(cls, skeleton: BVH_Joint, frames: List[List[float]]) -> Tuple[np.ndarray, np.ndarray]:
+    def _process_frame_data(cls, skeleton: BVH_Joint, frames: List[List[float]]) -> Tuple[npt.NDArray[np.float32], npt.NDArray[np.float32]]:
         """ Given skeleton and frame data, return root position data and joint quaternion data, separately"""
 
         # split root pose data and joint euler angle data
@@ -261,7 +262,7 @@ class BVH(Transform, TimeManager):
         return pos_data, rot_data
 
     @classmethod
-    def _pose_ea_to_q(cls, joint: BVH_Joint, ea_rots: np.ndarray, q_rots: np.ndarray, p1: int = 0, p2: int = 0):
+    def _pose_ea_to_q(cls, joint: BVH_Joint, ea_rots: npt.NDArray[np.float32], q_rots: npt.NDArray[np.float32], p1: int = 0, p2: int = 0) -> Tuple[int, int]:
         """
         Given joint and array of euler angle rotation data, converts to quaternions and stores in q_rots.
         Only called by _process_frame_data(). Modifies q_rots inplace.
