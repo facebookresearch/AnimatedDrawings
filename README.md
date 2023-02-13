@@ -44,7 +44,7 @@ Suppose you'd like to save the animation as a video file instead of viewing it d
 
     render.start('./examples/config/mvc/export_mp4_example.yaml')
 
-You should see a file, video.mp4, located in the same directory as your script.
+Instead of an interactive window, the animation was saved to a file, video.mp4, located in the same directory as your script.
 
 <img src='./media/mp4_export_video.gif' width="256" height="256" /> </br></br></br>
 
@@ -56,7 +56,7 @@ Perhaps you'd like a transparent .gif instead of an .mp4? Use this:
 
     render.start('./examples/config/mvc/export_gif_example.yaml')
 
-You'll find video.gif residing within the same directory as your script.
+Instead of an interactive window, the animation was saved to a file, video.gif, located in the same directory as your script.
 
 <img src='./media/gif_export_video.gif' width="256" height="256" /> </br></br></br>
 
