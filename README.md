@@ -1,5 +1,8 @@
 # Animated Drawings
-This repo contains an implementation of the algorithm described in the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure'. In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters.
+This repo contains an implementation of the algorithm described in the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure'. 
+
+In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#fairanimateddrawings**
+
 
 ## Installation
 
