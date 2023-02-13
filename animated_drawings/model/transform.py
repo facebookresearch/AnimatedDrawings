@@ -6,7 +6,7 @@ import numpy.typing as npt
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.model.quaternions import Quaternions
 import logging
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Tuple
 
 
 class Transform():
@@ -41,7 +41,7 @@ class Transform():
         self._world_transform: npt.NDArray[np.float32] = np.identity(4, dtype=np.float32)
         self.dirty_bit: bool = True  # are world/local transforms stale?
 
-    def update_transforms(self, parent_dirty_bit: bool = False, recurse_on_children: bool = True, update_ancestors=False) -> None:
+    def update_transforms(self, parent_dirty_bit: bool = False, recurse_on_children: bool = True, update_ancestors: bool = False) -> None:
         """
         Updates transforms if stale.
         If own dirty bit is set, recompute local matrix
@@ -157,7 +157,7 @@ class Transform():
         right.norm()
         up.norm()
 
-        rotate_m = np.identity(4)
+        rotate_m = np.identity(4, dtype=np.float32)
         rotate_m[:-1, 0] = np.squeeze(right.vs)
         rotate_m[:-1, 1] = np.squeeze(up.vs)
         rotate_m[:-1, 2] = np.squeeze(fwd.vs)
@@ -165,11 +165,11 @@ class Transform():
         self._rotate_m = rotate_m
         self.dirty_bit = True
 
-    def get_right_up_fwd_vectors(self):
-        inverted: np.ndarray = np.linalg.inv(self.get_world_transform())
-        right: np.ndarray = inverted[:-1, 0]
-        up: np.ndarray = inverted[:-1, 1]
-        fwd: np.ndarray = inverted[:-1, 2]
+    def get_right_up_fwd_vectors(self) -> Tuple[npt.NDArray[np.float32], npt.NDArray[np.float32], npt.NDArray[np.float32]]:
+        inverted: npt.NDArray[np.float32] = np.linalg.inv(self.get_world_transform())
+        right: npt.NDArray[np.float32] = inverted[:-1, 0]
+        up: npt.NDArray[np.float32] = inverted[:-1, 1]
+        fwd: npt.NDArray[np.float32] = inverted[:-1, 2]
 
         return right, up, fwd
 
@@ -219,7 +219,7 @@ class Transform():
         # no match
         return None
 
-    def draw(self, recurse=True, **kwargs) -> None:
+    def draw(self, recurse: bool =True, **kwargs) -> None:
         """ Draw this transform and recurse on children """
         self._draw(**kwargs)
 
@@ -227,6 +227,5 @@ class Transform():
             for child in self.get_children():
                 child.draw(**kwargs)
 
-    def _draw(self, **kwargs):
+    def _draw(self, **kwargs) -> None:
         """Transforms default to not being drawn. Subclasses must implement how they appear"""
-        pass
