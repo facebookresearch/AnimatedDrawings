@@ -4,7 +4,7 @@ from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 import numpy.typing as npt
 import logging
-from typing import Union
+from typing import Union, Iterable, List, Tuple
 from animated_drawings.model.vectors import Vectors
 import math
 from animated_drawings.utils import TOLERANCE
@@ -18,7 +18,10 @@ class Quaternions:
     Strongly influenced by Daniel Holden's excellent Quaternions class.
     """
 
-    def __init__(self, qs: Union[tuple, list, np.ndarray, Quaternions]):
+    def __init__(self, qs: Union[Iterable[Union[int, float]], npt.NDArray[np.float32], Quaternions]) -> None:
+
+        self.qs: npt.NDArray[np.float32]
+
         if isinstance(qs, np.ndarray):
             if not qs.shape[-1] == 4:
                 msg = f'Final dimension passed to Quaternions must be 4. Found {qs.shape[-1]}'
@@ -55,7 +58,7 @@ class Quaternions:
     def normalize(self) -> None:
         self.qs = self.qs / np.expand_dims(np.sum(self.qs ** 2.0, axis=-1) ** 0.5, axis=-1)
 
-    def to_rotation_matrix(self) -> np.ndarray:
+    def to_rotation_matrix(self) -> npt.NDArray[np.float32]:
         """
         From Ken Shoemake
         https://www.ljll.math.upmc.fr/~frey/papers/scientific%20visualisation/Shoemake%20K.,%20Quaternions.pdf
@@ -98,7 +101,7 @@ class Quaternions:
         Computes quaternion rotating from v1 to v2.
         """
         # TODO: Modify this so it is called instead of the 'look_at' function within Transform
-        xyz: list = v1.cross(v2).vs.squeeze().tolist()
+        xyz: List[float] = v1.cross(v2).vs.squeeze().tolist()
         w: float = math.sqrt((v1.length**2) * (v2.length**2)) + np.dot(v1.vs.squeeze(), v2.vs.squeeze())
 
         ret_q = Quaternions([w, *xyz])
@@ -117,7 +120,7 @@ class Quaternions:
         return Quaternions(np.concatenate([cs, axes.vs * ss], axis=-1))
 
     @classmethod
-    def identity(cls, ret_shape) -> Quaternions:
+    def identity(cls, ret_shape: Tuple[int]) -> Quaternions:
         qs = np.broadcast_to(np.array([1.0, 0.0, 0.0, 0.0]), [*ret_shape, 4])
         return Quaternions(qs)
 
@@ -157,7 +160,7 @@ class Quaternions:
         return ret_q
 
     @classmethod
-    def from_rotation_matrix(cls, M: np.ndarray) -> Quaternions:
+    def from_rotation_matrix(cls, M: npt.NDArray[np.float32]) -> Quaternions:
         """
         As described here: https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf
         """
