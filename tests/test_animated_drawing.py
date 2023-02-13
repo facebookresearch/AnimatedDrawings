@@ -1,10 +1,8 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 from animated_drawings.model.animated_drawing import AnimatedDrawing
-import yaml
-from pathlib import Path
+from animated_drawings.config import Config
 from pkg_resources import resource_filename
-
 
 def test_init():
     import OpenGL.GL as GL
@@ -17,17 +15,10 @@ def test_init():
     win = glfw.create_window(100, 100, 'Viewer', None, None)
     glfw.make_context_current(win)
 
-    char_cfg_fn = resource_filename(__name__, 'test_animated_drawing_files/char1/char_cfg.yaml')
-    with open(char_cfg_fn, 'r') as f:
-        char_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    char_cfg['char_files_dir'] = str(Path(char_cfg_fn).parent)
+    mvc_cfg_fn = resource_filename(__name__, 'test_animated_drawing_files/test_mvc.yaml')
+    mvc_config = Config(mvc_cfg_fn)
+    char_cfg, retarget_cfg, motion_cfg = mvc_config.scene.animated_characters[0]
 
-    motion_cfg_fn = resource_filename(__name__, 'test_animated_drawing_files/zombie.yaml')
-    with open(motion_cfg_fn, 'r') as f:
-        motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    retarget_cfg_fn = resource_filename(__name__, 'test_animated_drawing_files/human_zombie.yaml')
-    with open(retarget_cfg_fn, 'r') as f:
-        retarget_cfg = yaml.load(f, Loader=yaml.FullLoader)
-    AnimatedDrawing(char_cfg, retarget_cfg, motion_cfg)
+    AnimatedDrawing( char_cfg, retarget_cfg, motion_cfg)
 
     assert True

@@ -4,7 +4,7 @@ import ctypes
 import heapq
 import math
 import time
-from typing import Dict, List, Tuple, Optional, Union, TypedDict, DefaultDict
+from typing import Dict, List, Tuple, Optional, TypedDict, DefaultDict
 from collections import defaultdict
 from pathlib import Path
 
@@ -15,7 +15,7 @@ from skimage import measure
 from shapely import geometry
 from OpenGL import GL
 
-from scipy.spatial.qhull import Delaunay
+from scipy.spatial import Delaunay
 from animated_drawings.model.transform import Transform
 from animated_drawings.model.time_manager import TimeManager
 from animated_drawings.model.retargeter import Retargeter

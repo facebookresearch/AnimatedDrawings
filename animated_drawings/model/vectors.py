@@ -16,10 +16,7 @@ class Vectors():
     When passing in existing Vectors, new Vectors object will share the underlying nparray, so be careful.
     """
 
-    def __init__(self, vs_: Union[Iterable[Union[float, int]],
-                                  npt.NDArray[np.float32],
-                                  List[Vectors],
-                                  Vectors]) -> None:
+    def __init__(self, vs_: Union[Iterable[Union[float, int, Vectors, npt.NDArray[np.float32]]], Vectors]) -> None:
 
         self.vs: npt.NDArray[np.float32]
 

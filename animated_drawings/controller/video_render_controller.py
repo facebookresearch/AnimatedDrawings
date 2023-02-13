@@ -5,9 +5,11 @@
 from __future__ import annotations
 import time
 import logging
+from typing import List
 from pathlib import Path
 from abc import abstractmethod
 import numpy as np
+import numpy.typing as npt
 import cv2
 from OpenGL import GL
 from tqdm import tqdm
@@ -16,12 +18,15 @@ from animated_drawings.controller.controller import Controller
 from animated_drawings.model.scene import Scene
 from animated_drawings.model.animated_drawing import AnimatedDrawing
 from animated_drawings.view.view import View
+from animated_drawings.config import ControllerConfig
+
+NoneType = type(None)  # for type checking below
 
 
 class VideoRenderController(Controller):
     """ Video Render Controller is used to non-interactively generate a video file """
 
-    def __init__(self, cfg: dict, scene: Scene, view: View) -> None:
+    def __init__(self, cfg: ControllerConfig, scene: Scene, view: View) -> None:
         super().__init__(cfg, scene)
 
         self.view: View = view
@@ -53,7 +58,7 @@ class VideoRenderController(Controller):
         """
 
         max_frames = 0
-        frame_time = []
+        frame_time: List[float] = []
         for child in self.scene.get_children():
             if not isinstance(child, AnimatedDrawing):
                 continue
@@ -115,7 +120,7 @@ class VideoWriter():
         pass
 
     @abstractmethod
-    def process_frame(self, frame: np.ndarray) -> None:
+    def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
         """ Subclass must specify how to handle each frame of data received. """
         pass
 
@@ -126,7 +131,8 @@ class VideoWriter():
 
     @staticmethod
     def create_video_writer(controller: VideoRenderController) -> VideoWriter:
-        output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+        assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
+        output_p = Path(controller.cfg.output_video_path)
         if output_p.suffix == '.gif':
             return GIFWriter(controller)
         elif output_p.suffix == '.mp4':
@@ -141,7 +147,8 @@ class GIFWriter(VideoWriter):
     """ Video writer for creating transparent, animated GIFs with Pillow """
 
     def __init__(self, controller: VideoRenderController) -> None:
-        self.output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+        assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
+        self.output_p = Path(controller.cfg.output_video_path)
 
         self.duration = int(controller.delta_t*1000)
         if self.duration < 20:
@@ -149,11 +156,11 @@ class GIFWriter(VideoWriter):
             logging.warn(msg)
             self.duration = 20
 
-        self.frames = []
+        self.frames: List[npt.NDArray[np.uint8]] = []
 
-    def process_frame(self, frame: np.ndarray) -> None:
+    def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
         """ Reorder channels and save frames as they arrive"""
-        self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA))
+        self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
 
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
@@ -166,20 +173,32 @@ class GIFWriter(VideoWriter):
 
 class MP4Writer(VideoWriter):
     """ Video writer for creating mp4 videos with cv2.VideoWriter """
-
     def __init__(self, controller: VideoRenderController) -> None:
-        output_p = Path(controller.cfg['OUTPUT_VIDEO_PATH'])
+
+        # validate and prep output path
+        if isinstance(controller.cfg.output_video_path, NoneType):
+            msg = 'output video path not specified for mp4 video writer'
+            logging.critical(msg)
+            assert False, msg
+        output_p = Path(controller.cfg.output_video_path)
         output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {output_p.resolve()}')
 
-        fourcc = cv2.VideoWriter_fourcc(*controller.cfg['OUTPUT_VIDEO_CODEC'])
-        logging.info(f'Using codec {controller.cfg["OUTPUT_VIDEO_CODEC"]}')
+        # validate and prep codec
+        if isinstance(controller.cfg.output_video_codec, NoneType):
+            msg = 'output video codec not specified for mp4 video writer'
+            logging.critical(msg)
+            assert False, msg
+        fourcc = cv2.VideoWriter_fourcc(*controller.cfg.output_video_codec)
+        logging.info(f'Using codec {controller.cfg.output_video_codec}')
 
+        # calculate video writer framerate
         frame_rate = round(1/controller.delta_t)
 
+        # initialize the video writer
         self.video_writer = cv2.VideoWriter(str(output_p), fourcc, frame_rate, (controller.video_width, controller.video_height))
 
-    def process_frame(self, frame: np.ndarray) -> None:
+    def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
         """ Remove the alpha channel and send to the video writer as it arrives. """
         self.video_writer.write(frame[:, :, :3])
 

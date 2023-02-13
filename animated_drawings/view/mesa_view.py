@@ -15,7 +15,7 @@ from animated_drawings.view.shaders.shader import Shader
 from animated_drawings.config import ViewConfig
 
 import logging
-from typing import Tuple
+from typing import Tuple, Dict
 import numpy as np
 import numpy.typing as npt
 from pathlib import Path
@@ -31,11 +31,11 @@ class MesaView(View):
         self.camera: Camera = Camera(self.cfg.camera_pos, self.cfg.camera_fwd)
 
         self.ctx: osmesa.OSMesaContext
-        self.buffer: np.ndarray
+        self.buffer: npt.NDArray[np.uint8]
         self._initialize_mesa()
 
-        self.shaders = {}
-        self.shader_ids = {}
+        self.shaders: Dict[str, Shader]= {}
+        self.shader_ids: Dict[str, int] = {}
         self._prep_shaders()
 
         self._prep_background_image()
@@ -89,7 +89,7 @@ class MesaView(View):
             view_loc = GL.glGetUniformLocation(self.shader_ids[shader_name], "view")
             GL.glUniformMatrix4fv(view_loc, 1, GL.GL_FALSE, view_transform.T)
 
-    def _set_shader_projections(self, proj_m: np.ndarray) -> None:
+    def _set_shader_projections(self, proj_m: npt.NDArray[np.float32]) -> None:
         for shader_id in self.shader_ids.values():
             GL.glUseProgram(shader_id)
             proj_loc = GL.glGetUniformLocation(shader_id, "proj")
@@ -97,7 +97,7 @@ class MesaView(View):
 
     def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs) -> None:
         self.shaders[shader_name] = Shader(vert_path, frag_path)
-        self.shader_ids[shader_name] = self.shaders[shader_name].glid
+        self.shader_ids[shader_name] = self.shaders[shader_name].glid  # pyright: ignore[reportGeneralTypeIssues]
 
         if 'texture' in kwargs and kwargs['texture'] is True:
             GL.glUseProgram(self.shader_ids[shader_name])
@@ -108,7 +108,7 @@ class MesaView(View):
 
         width, height = self.cfg.window_dimensions
         self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
-        self.buffer = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
+        self.buffer: npt.NDArray[np.uint8] = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
         osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
 
         GL.glClearColor(*self.cfg.clear_color)
@@ -134,9 +134,8 @@ class MesaView(View):
         """ Return (width, height) of view's window. """
         return self.buffer.shape[:2][::-1]
 
-    def clear_window(self):
+    def clear_window(self) -> None:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """ No need to destroy a window, as none was created. """
-        pass

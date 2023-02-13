@@ -48,7 +48,7 @@ class WindowView(View):
             return
 
         # load background image
-        _txtr: npt.NDArray[np.uint16] = read_background_image(self.cfg.background_image)
+        _txtr: npt.NDArray[np.uint8] = read_background_image(self.cfg.background_image)
 
         # create the opengl texture and send it data
         self.txtr_h, self.txtr_w, _ = _txtr.shape
