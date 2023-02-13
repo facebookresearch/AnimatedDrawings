@@ -80,8 +80,8 @@ class ARAP():
         self.vert_num = len(self.vertices)
         self.pin_num = len(pins_xy[self.pin_mask])
 
-        self.A1: np.ndarray = np.zeros([2 * (self.edge_num + self.pin_num), 2 * self.vert_num])
-        G: np.ndarray = np.zeros([2 * self.edge_num, 2 * self.vert_num])  # holds edge rotation calculations
+        self.A1: npt.NDArray[np.float32] = np.zeros([2 * (self.edge_num + self.pin_num), 2 * self.vert_num], dtype=np.float32)
+        G: npt.NDArray[np.float32] = np.zeros([2 * self.edge_num, 2 * self.vert_num], dtype=np.float32)  # holds edge rotation calculations
 
         # populate top half of A1, one row per edge
         for k, (vi_idx, vj_idx) in enumerate(self.e_v_idxs):
@@ -128,12 +128,12 @@ class ARAP():
                 self.A1[2*self.edge_num + 2*pin_idx  , 2*v_idx]     = self.w * v_w  # x component
                 self.A1[2*self.edge_num + 2*pin_idx+1, 2*v_idx + 1] = self.w * v_w  # y component
 
-        A2_top = np.zeros([self.edge_num, self.vert_num])
+        A2_top: npt.NDArray[np.float32] = np.zeros([self.edge_num, self.vert_num], dtype=np.float32)
         for k, (vi_idx, vj_idx) in enumerate(self.e_v_idxs):
             A2_top[k, vi_idx] = -1
             A2_top[k, vj_idx] = 1
 
-        A2_bot = np.zeros([self.pin_num, self.vert_num])
+        A2_bot: npt.NDArray[np.float32] = np.zeros([self.pin_num, self.vert_num], dtype=np.float32)
         for pin_idx, pin_bc in enumerate(pins_bc):
             for v_idx, v_w in pin_bc:
                 A2_bot[pin_idx, v_idx] = self.w * v_w
@@ -165,7 +165,7 @@ class ARAP():
         # revert np overflow warnings behavior
         np.seterr(**old_settings)
         
-    def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
+    def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
         """
         After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
         pins *must* be in the same order they were passed in during initialization
@@ -179,14 +179,14 @@ class ARAP():
 
         assert len(pins_xy) == self.pin_num
 
-        self.b1 = np.hstack([np.zeros([2 * self.edge_num]), self.w * pins_xy.reshape([-1, ])])
-        v1 = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1.T)
+        self.b1: npt.NDArray[np.float64] = np.hstack([np.zeros([2 * self.edge_num], dtype=np.float64), self.w * pins_xy.reshape([-1, ])])
+        v1: npt.NDArray[np.float64] = spla.spsolve(self.tA1xA1, self.tA1 @ self.b1.T)
 
-        T1 = self.G @ v1
-        b2_top = np.empty([self.edge_num, 2])
+        T1: npt.NDArray[np.float64] = self.G @ v1
+        b2_top = np.empty([self.edge_num, 2], dtype=np.float64)
         for idx, e0 in enumerate(self.edge_vectors):
-            c: np.float32 = T1[2*idx]
-            s: np.float32 = T1[2*idx + 1]
+            c: np.float64 = T1[2*idx]
+            s: np.float64 = T1[2*idx + 1]
             scale = 1.0 / np.sqrt(c * c + s * s)
             c *= scale
             s *= scale
@@ -197,8 +197,8 @@ class ARAP():
         b2x = b2[:, 0]
         b2y = b2[:, 1]
 
-        v2x: npt.NDArray[np.float32] = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
-        v2y: npt.NDArray[np.float32] = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
+        v2x: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2x)
+        v2y: npt.NDArray[np.float64] = spla.spsolve(self.tA2xA2, self.tA2 @ b2y)
 
         return np.vstack((v2x, v2y)).T
 
@@ -295,8 +295,8 @@ class ARAP():
         d20: np.float32 = np.dot(v2, v0)
         d21: np.float32 = np.dot(v2, v1)
         denom = d00 * d11 - d01 * d01
-        v: npt.NDArray[np.float32] = (d11 * d20 - d01 * d21) / denom
-        w: npt.NDArray[np.float32] = (d00 * d21 - d01 * d20) / denom
+        v: npt.NDArray[np.float32] = (d11 * d20 - d01 * d21) / denom  # pyright: ignore[reportGeneralTypeIssues]
+        w: npt.NDArray[np.float32] = (d00 * d21 - d01 * d20) / denom  # pyright: ignore[reportGeneralTypeIssues]
         u: npt.NDArray[np.float32] = 1.0 - v - w
 
         return np.array([u, v, w]).squeeze()
