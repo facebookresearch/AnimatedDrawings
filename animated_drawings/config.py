@@ -22,8 +22,8 @@ class Config():
             user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})  # pyright: ignore[reportUnknownMemberType]
 
         # overlay user specified mvc options onto base mvc, use to generate subconfig classes
-        self.scene: SceneConfig = SceneConfig({**base_cfg['scene'], **user_cfg['scene']})
         self.view: ViewConfig = ViewConfig({**base_cfg['view'], **user_cfg['view']})
+        self.scene: SceneConfig = SceneConfig({**base_cfg['scene'], **user_cfg['scene']})
         self.controller: ControllerConfig = ControllerConfig({**base_cfg['controller'], **user_cfg['controller']})
 
         # cannot use an interactive controller with a headless mesa viewer
