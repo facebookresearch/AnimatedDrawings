@@ -4,7 +4,7 @@ from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 import numpy.typing as npt
 import logging
-from typing import Union, Tuple, List
+from typing import Union, List, Iterable, Tuple
 from numbers import Number
 from copy import copy
 from animated_drawings.utils import TOLERANCE
@@ -16,10 +16,10 @@ class Vectors():
     When passing in existing Vectors, new Vectors object will share the underlying nparray, so be careful.
     """
 
-    def __init__(self, vs_: Union[Tuple[Union[float, int, npt.NDArray[np.float32]], ...],
-                                  List[Union[float, int, npt.NDArray[np.float32]]],
+    def __init__(self, vs_: Union[Iterable[Union[float, int]],
                                   npt.NDArray[np.float32],
-                                  Vectors]):
+                                  List[Vectors],
+                                  Vectors]) -> None:
 
         self.vs: npt.NDArray[np.float32]
 
@@ -44,12 +44,13 @@ class Vectors():
         # initialize from tuple or list of ndarrays
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], np.ndarray):
             try:
-                vs_ = np.stack(vs_)
+                vs_ = np.stack(vs_)  # pyright: ignore[reportGeneralTypeIssues]
             except Exception as e:
                 msg = f'Error initializing Vectors: {str(e)}'
                 logging.critical(msg)
                 assert False, msg
-            self.vs = vs_
+            self.vs = vs_  # pyright: ignore[reportGeneralTypeIssues]
+
 
         # initialize from tuple or list of Vectors
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], Vectors):
@@ -70,9 +71,8 @@ class Vectors():
             logging.critical(msg)
             assert False, msg
 
-
-    def norm(self):
-        ns = np.linalg.norm(self.vs, axis=-1)
+    def norm(self) -> None:
+        ns: npt.NDArray[np.float64] = np.linalg.norm(self.vs, axis=-1)
 
         if np.min(ns) < TOLERANCE:
             logging.info(f"Encountered values close to zero in vector norm. Replacing with {TOLERANCE}")
@@ -80,7 +80,7 @@ class Vectors():
 
         self.vs = self.vs / np.expand_dims(ns, axis=-1)
 
-    def cross(self, v2: Vectors):
+    def cross(self, v2: Vectors) -> Vectors:
         """ Cross product of a series of 2 or 3 dimensional vectors. All dimensions of vs must match."""
 
         if self.vs.shape != v2.vs.shape:
@@ -95,7 +95,7 @@ class Vectors():
 
         return Vectors(np.cross(self.vs, v2.vs))
 
-    def perpendicular(self, ccw=True):
+    def perpendicular(self, ccw: bool=True) -> Vectors:
         """
         Returns ndarray of vectors perpendicular to the original ones.
         Only 2D and 3D vectors are supported.
@@ -120,13 +120,16 @@ class Vectors():
         """ Return the average of a collection of vectors, along the first axis"""
         return Vectors(np.mean(self.vs, axis=0))
 
+    def copy(self) -> Vectors:
+        return copy(self)
+
     @property
-    def shape(self):
+    def shape(self) -> Tuple[int, ...]:
         return self.vs.shape
 
     @property
-    def length(self):
-        return np.linalg.norm(self.vs, axis=-1)
+    def length(self) -> npt.NDArray[np.float32]:
+        return np.linalg.norm(self.vs, axis=-1).astype(np.float32)
 
     def __mul__(self, val: float) -> Vectors:
         return Vectors(self.vs * val)
@@ -147,9 +150,6 @@ class Vectors():
             logging.critical(msg)
             assert False, msg
         return Vectors(np.add(self.vs, other.vs))
-
-    def copy(self) -> Vectors:
-        return copy(self)
 
     def __copy__(self) -> Vectors:
         return Vectors(self)
