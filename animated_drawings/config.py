@@ -35,8 +35,23 @@ class Config():
                 logging.critical(msg)
                 assert False, msg
 
-        # TODO check if video render controller, then output video path cannot be none
-        # TODO if video render and .mp4,  codec cannot be none
+        # output video path must be set for render controller
+        if self.controller.mode == 'video_render':
+            try:
+                assert self.controller.output_video_path is not None, 'output_video_path must be set when using video_render controller'
+            except AssertionError as e:
+                msg = f'Config error: {e}'
+                logging.critical(msg)
+                assert False, msg
+
+        # output video codec must be set for render controller with .mp4 output filetype
+        if self.controller.mode == 'video_render' and self.controller.output_video_path is not None and self.controller.output_video_path.endswith('.mp4'):
+            try:
+                assert self.controller.output_video_codec is not None, 'output_video_codec must be set when using video_render controller'
+            except AssertionError as e:
+                msg = f'Config error: {e}'
+                logging.critical(msg)
+                assert False, msg
 
 
 class SceneConfig():
@@ -368,7 +383,6 @@ class MotionConfig():
             msg = f'Error validating forward_perp_joint_vectors: {e}'
             logging.critical(msg)
             assert False, msg  
-        #TODO: check that all joints within forward perp joint vectors are valid bvh joints
 
         # validate scale 
         try:
@@ -397,6 +411,16 @@ class MotionConfig():
             logging.critical(msg)
             assert False, msg  
 
+    def validate_bvh(self, bvh_joint_names: List[str]) -> None:
+        """ Performs all the validation steps that depend upon knowing the BVH joint names. This should be called once the BVH had been leaded """
+        try:
+            for prox_joint_name, dist_joint_name in self.forward_perp_joint_vectors:
+                assert prox_joint_name in bvh_joint_names, f'invalid prox_joint name in motion_cfg.forward_perp_joint_vectors: {prox_joint_name}'
+                assert dist_joint_name in bvh_joint_names, f'invalid dist_joint name in motion_cfg.forward_perp_joint_vectors: {dist_joint_name}'
+        except (AssertionError, ValueError) as e:
+            msg = f'Error validating forward_perp_joint_vector joints: {e}'
+            logging.critical(msg)
+            assert False, msg              
 
 class RetargetConfig():
 
@@ -441,8 +465,15 @@ class RetargetConfig():
             msg = f'Error validating bvh_projection_bodypart_groups: {e}'
             logging.critical(msg)
             assert False, msg   
-        # TODO: Check that joints within bvh_joint_names all exist within the BVH skeleton
-        # TODO: Check that group names are unique
+
+        # Check that group names are unique
+        try:
+            group_names = [group['name'] for group in self.bvh_projection_bodypart_groups]
+            assert len(group_names) == len(set(group_names)), 'group names are not unique'
+        except AssertionError as e:
+            msg = f'Error validating bvh_projection_bodypart_groups: {e}'
+            logging.critical(msg)
+            assert False, msg   
         
         # validate char bodypart groups
         self.char_bodypart_groups: List[RetargetConfig.CharBodypartGroup]
@@ -454,8 +485,6 @@ class RetargetConfig():
             msg = f'Error validating char_bodypart_groups: {e}'
             logging.critical(msg)
             assert False, msg   
-        # TODO: Check that bvh joint drivers are valid bvh joints
-        # TODO: Check that all char_joints are valid character joints
 
         # validate char bvh root offset
         self.char_bvh_root_offset: RetargetConfig.CharBvhRootOffset
@@ -474,9 +503,6 @@ class RetargetConfig():
             msg = f'Error validating char_bvh_root_offset: {e}'
             logging.critical(msg)
             assert False, msg   
-        #TODO check that bvh_projection_bodypart_group_for_offset matches a bvh_projection_bodypart_group name
-        #TODO: check these are valid bvh_joints: List[List[str]]
-        #TODO: check these are valid char_joint: List[List[str]]
 
         # validate char joint bvh joints mapping
         self.char_joint_bvh_joints_mapping: Dict[str, Tuple[str, str]]
@@ -492,15 +518,12 @@ class RetargetConfig():
             logging.critical(msg)
             assert False, msg              
 
-        # TODO: check that dict keys correspond to valid character joints
-        # TODO: check that dict values correspond to valid bvh joint
 
         # validate char runtime checks
         self.char_runtime_checks: List[str]
         try:
             self.char_runtime_checks = retarget_cfg['char_runtime_checks']
             for check in self.char_runtime_checks:
-
                 assert check[0] in ['above'], 'currently only above check is supported'
                 if check[0] == 'above':
                     assert len(check) == 4, 'above check needs 3 additional parameters'
@@ -509,6 +532,80 @@ class RetargetConfig():
             logging.critical(msg)
             assert False, msg             
 
-        # TODO: check that, if above test, following 3 params are valid character joint names
+    def validate_char_and_bvh_joint_names(self, char_joint_names: List[str], bvh_joint_names: List[str]) -> None:
+
+        # validate bvh_projection_bodypart_groups
+        try:
+            for group in self.bvh_projection_bodypart_groups:
+                for bvh_joint_name in group['bvh_joint_names']:
+                    assert bvh_joint_name in bvh_joint_names, f'bvh_joint_name not valid: {bvh_joint_name}'
+        except AssertionError as e:
+            msg = f'Error validating bvh_projection_bodypart_groups: {e}'
+            logging.critical(msg)
+            assert False, msg   
+                
+        # validate char_bodypart_groups
+        try:
+            for group in self.char_bodypart_groups:
+                # check that bvh joint drivers are valid bvh joints
+                for bvh_joint_name in group['bvh_depth_drivers']:
+                    assert bvh_joint_name in bvh_joint_names, f'bvh_depth_driver joint name invalid: {bvh_joint_name}'
+                
+                # check that all char_joints are valid character joints
+                for char_joint_name in group['char_joints']:
+                    assert char_joint_name in char_joint_names, f'char_joints joint name invalid: {char_joint_name}'
+        except AssertionError as e:
+            msg = f'Error validating char_bodypart_groups: {e}'
+            logging.critical(msg)
+            assert False, msg   
+
+        # validate char_bvh_root_offset
+        try:
+            # check that bvh_projection_bodypart_group_for_offset matches a bvh_projection_bodypart_group name
+            group_names = [group['name'] for group in self.bvh_projection_bodypart_groups]
+            assert self.char_bvh_root_offset['bvh_projection_bodypart_group_for_offset'] in group_names, 'invalid bvh_projection_bodypart_group_for_offset'
+
+            # check bvh_joints contains valid joints
+            for bvh_joint_name_group in self.char_bvh_root_offset['bvh_joints']:
+                for joint_name in bvh_joint_name_group:
+                    assert joint_name in bvh_joint_names, f'invalid joint name in bvh_joints: {joint_name}'
+
+            # check char_joints are valid joints
+            for char_joint_name_group in self.char_bvh_root_offset['char_joints']:
+                for joint_name in char_joint_name_group:
+                    assert joint_name in char_joint_names, f'invalid joint name in char_joints: {joint_name}'
+        except AssertionError as e:
+            msg = f'Error validating char_bvh_root_offset: {e}'
+            logging.critical(msg)
+            assert False, msg   
+        
+        # validate char_joint_bvh_joints_mapping
+        try:
+            # check that dict keys correspond to valid character joints
+            for char_joint_name in self.char_joint_bvh_joints_mapping.keys():
+                assert char_joint_name in char_joint_names, f'invalid char_joint_name: {char_joint_name}'
+
+            # check that dict values correspond to valid bvh joints
+            for bvh_prox_joint_name, bvh_dist_joint_name in self.char_joint_bvh_joints_mapping.values():
+                assert bvh_prox_joint_name in bvh_joint_names, f'invalid bvh_prox_joint_name: {bvh_prox_joint_name}'
+                assert bvh_dist_joint_name in bvh_joint_names, f'invalid bvh_dist_joint_name: {bvh_dist_joint_name}'
+        except AssertionError as e:
+            msg = f'Error validating char_joint_bvh_joints_mapping: {e}'
+            logging.critical(msg)
+            assert False, msg  
+
+        # validate char runtime checks 
+        try:
+            for check in self.char_runtime_checks:
+                if check[0] == 'above':
+                    # check that, if above test, following 3 params are valid character joint names
+                    _, target_joint_name, joint1_name, joint2_name = check
+                    assert target_joint_name in char_joint_names, f'above test target_joint_name invalid {target_joint_name}'
+                    assert joint1_name in char_joint_names, f'above test joint1_name invalid {joint1_name}'
+                    assert joint2_name in char_joint_names, f'above test joint2_name invalid {joint2_name}'
+        except AssertionError as e:
+            msg = f'Error validating char_runtime_checks: {e}'
+            logging.critical(msg)
+            assert False, msg  
 
 NoneType = type(None)  # needed for type checking

@@ -231,12 +231,6 @@ class AnimatedDrawing(Transform, TimeManager):
         # load texture and pad to square
         self.txtr: npt.NDArray[np.uint8] = self._load_txtr()
 
-        # modify joint positions to account for new, padded image sizes
-        # TODO Move this into CharacterConfig processing
-        # for joint in self.char_cfg.skeleton:
-        #     joint['loc'][0] = joint['loc'][0] / self.img_dim  # width
-        #     joint['loc'][1] = joint['loc'][1] / self.img_dim + (1 - self.char_cfg.img_height / self.img_dim)  # height
-
         # generate the mesh
         self.mesh: AnimatedDrawingMesh
         self._generate_mesh()
@@ -316,6 +310,12 @@ class AnimatedDrawing(Transform, TimeManager):
 
         # initialize retargeter
         self.retargeter = Retargeter(motion_cfg, retarget_cfg)
+
+        # validate the motion and retarget config files, now that we know char/bvh joint names
+        char_joint_names: List[str] = self.rig.root_joint.get_chain_joint_names()
+        bvh_joint_names = self.retargeter.bvh_joint_names
+        motion_cfg.validate_bvh(bvh_joint_names)
+        retarget_cfg.validate_char_and_bvh_joint_names(char_joint_names, bvh_joint_names)
 
         # a shorter alias 
         char_bvh_root_offset: RetargetConfig.CharBvhRootOffset = self.retarget_cfg.char_bvh_root_offset
