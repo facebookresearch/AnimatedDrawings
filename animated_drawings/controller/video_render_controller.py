@@ -131,8 +131,16 @@ class VideoWriter():
 
     @staticmethod
     def create_video_writer(controller: VideoRenderController) -> VideoWriter:
+
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
+
         output_p = Path(controller.cfg.output_video_path)
+        output_p.parent.mkdir(exist_ok=True, parents=True)
+
+        msg = f' Writing video to: {output_p.resolve()}'
+        logging.info(msg)
+        print(msg)
+
         if output_p.suffix == '.gif':
             return GIFWriter(controller)
         elif output_p.suffix == '.mp4':
