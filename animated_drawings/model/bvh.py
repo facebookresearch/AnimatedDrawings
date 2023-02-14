@@ -164,13 +164,6 @@ class BVH(Transform, TimeManager):
         rot_data: npt.NDArray[np.float32]
         pos_data, rot_data = BVH._process_frame_data(root_joint, frames)
 
-        # TODO: Move all user input verification checks into a central location instead of scattered throughout code
-        # Ensure start_frame_idx is >= 0
-        if start_frame_idx < 0:
-            msg = f'config specified bvh start_frame < 0, replacing with 0: {start_frame_idx}'
-            logging.warning(msg)
-            start_frame_idx = 0
-
         # Set end_frame if not passed in
         if not end_frame_idx:
             end_frame_idx = frame_max_num
@@ -180,12 +173,6 @@ class BVH(Transform, TimeManager):
             msg = f'config specified end_frame_idx > bvh frame_max_num ({end_frame_idx} > {frame_max_num}). Replacing with frame_max_num.'
             logging.warning(msg)
             end_frame_idx = frame_max_num
-
-        # Ensure start_frame_idx < end_frame_idx
-        if start_frame_idx >= end_frame_idx:
-            msg = f'start_frame_idx >= end_frame_idx: {start_frame_idx}>={end_frame_idx}. Aborting.'
-            logging.critical(msg)
-            assert False, msg
 
         # slice position and rotation data using start and end frame indices
         pos_data = pos_data[start_frame_idx:end_frame_idx, :]
