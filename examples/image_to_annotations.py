@@ -42,6 +42,10 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     resp = requests.post("http://localhost:8080/predictions/drawn_humanoid_detector", files=request_data, verify=False)
     detection_results = json.loads(resp.content)
 
+    # error check detection_results
+    if type(detection_results) == dict and 'code' in detection_results.keys() and detection_results['code'] == 404:
+        assert False, f'Error performing detection. Check that drawn_humanoid_detector.mar was properly downloaded. Response: {detection_results}'
+
     # order results by score, descending
     detection_results.sort(key=lambda x: x['score'], reverse=True)
 
@@ -67,6 +71,10 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     data_file = {'data': cv2.imencode('.png', cropped)[1].tobytes()}
     resp = requests.post("http://localhost:8080/predictions/drawn_humanoid_pose_estimator", files=data_file, verify=False)
     pose_results = json.loads(resp.content)
+
+    # error check pose_results
+    if type(pose_results) == dict and 'code' in pose_results.keys() and pose_results['code'] == 404:
+        assert False, f'Error performing pose estimation. Check that drawn_humanoid_pose_estimator.mar was properly downloaded. Response: {pose_results}'
 
     # if more than one skeleton detected, abort
     if len(pose_results) == 0:
