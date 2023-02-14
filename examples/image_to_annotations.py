@@ -22,8 +22,15 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
         out_dir: directory where outputs will be saved
     """
 
+    # create output directory
+    outdir = Path(out_dir)
+    outdir.mkdir(exist_ok=True)
+
     # read image
     img = cv2.imread(img_fn)
+
+    # copy the original image into the output_dir
+    cv2.imwrite(str(outdir/'image.png'), img)
 
     # ensure it's rgb
     if len(img.shape) != 3:
@@ -59,9 +66,20 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     msg = f'Detected {len(detection_results)} humanoids in image. Using detection with highest score {detection_results[0]["score"]}.'
     logging.info(msg)
 
-    # crop the image around the character
+    # calculate the coordinates of the character bounding box
     bbox = np.array(detection_results[0]['bbox'])
     l, t, r, b = [round(x) for x in bbox]
+
+    # dump the bounding box results to file
+    with open(str(outdir/'bounding_box.yaml'), 'w') as f:
+        yaml.dump({
+            'left': l,
+            'top': t,
+            'right': r,
+            'bottom': b
+        }, f)
+
+    # crop the image
     cropped = img[t:b, l:r]
 
     # get segmentation mask
@@ -112,10 +130,6 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
 
     # create the character config dictionary
     char_cfg = {'skeleton': skeleton, 'height': cropped.shape[0], 'width': cropped.shape[1]}
-
-    # create output directory
-    outdir = Path(out_dir)
-    outdir.mkdir(exist_ok=True)
 
     # convert texture to RGBA and save
     cropped = cv2.cvtColor(cropped, cv2.COLOR_BGR2BGRA)
