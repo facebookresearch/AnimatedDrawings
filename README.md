@@ -95,10 +95,13 @@ If you'd like to generate a video headlessly (e.g. on a remote server accessed v
 ### Creating an animation from an image
 
 All of the above examples use drawings with pre-existing annotations.
-But suppose you'd like to create an animation starring your own drawing? 
-To enable that functionality, you'll need to [install Docker](https://docs.docker.com/get-docker/) and follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
+But suppose you'd like to create an animation starring your own drawing?
+We can do that too, but you'll need to follow a few more setup steps.
 
-Run the following commands, starting from the Animated Drawings root directory:
+1. [Install Docker Desktop](https://docs.docker.com/get-docker/)
+2. Follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
+3. Ensure Docker Desktop is running.
+4. Run the following commands, starting from the Animated Drawings root directory:
 
 ````bash
     (animated_drawings) AnimatedDrawings % cd torchserve
