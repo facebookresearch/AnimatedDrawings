@@ -46,8 +46,8 @@ Now that everything's set up, let's animate some drawings! To get started, follo
 
 4. Copy and paste the follow two lines into the interpreter:
 ````python
-    from animated_drawings import render
-    render.start('./examples/config/mvc/interactive_window_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/interactive_window_example.yaml')
 ````
     
 If everything is installed correctly, an interactive window should appear on your screen. 
@@ -62,8 +62,8 @@ There's a lot happening behind the scenes here. Characters, motions, scenes, and
 Suppose you'd like to save the animation as a video file instead of viewing it directly in a window. Specify a different example config by copying these lines into the Python interpreter:
 
 ````python
-    from animated_drawings import render
-    render.start('./examples/config/mvc/export_mp4_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/export_mp4_example.yaml')
 ````
 
 Instead of an interactive window, the animation was saved to a file, video.mp4, located in the same directory as your script.
@@ -75,8 +75,8 @@ Instead of an interactive window, the animation was saved to a file, video.mp4, 
 Perhaps you'd like a transparent .gif instead of an .mp4? Copy these lines in the Python interpreter intead:
 
 ````python
-    from animated_drawings import render
-    render.start('./examples/config/mvc/export_gif_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/export_gif_example.yaml')
 ````
 
 Instead of an interactive window, the animation was saved to a file, video.gif, located in the same directory as your script.
@@ -163,8 +163,8 @@ Multiple characters can be added to a video by specifying multiple entries withi
 To see for yourself, run the following commands from a Python interpreter within the AnimatedDrawings root directory:
 
 ````bash
-    from animated_drawings import render
-    render.start('./examples/config/mvc/multiple_characters_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/multiple_characters_example.yaml')
 ````
 <img src='./examples/characters/char1/texture.png' height="256" /> <img src='./examples/characters/char2/texture.png' height="256" /> <img src='./media/multiple_characters_example.gif' height="256" />
 
@@ -173,8 +173,8 @@ Suppose you'd like to add a background to the animation. You can do so by specif
 Run the following commands from a Python interpreter within the AnimatedDrawings root directory:
 
 ````python
-    from animated_drawings import render
-    render.start('./examples/config/mvc/background_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/background_example.yaml')
 ````
 
 <img src='./examples/characters/char4/texture.png' height="256" /> <img src='./examples/characters/char4/background.png' height="256" /> <img src='./media/background_example.gif' height="256" />
@@ -187,8 +187,8 @@ Once you've done that, you should be good to go. The following code and resultin
 Run the following commands from a Python interpreter within the AnimatedDrawings root directory:
 
 ````python
-    from animated_drawings import render
-    render.start('./examples/config/mvc/different_bvh_skeleton_example.yaml')
+from animated_drawings import render
+render.start('./examples/config/mvc/different_bvh_skeleton_example.yaml')
 ````
 
 <img src='./media/different_bvh_skeleton_example.gif' height="256" />
