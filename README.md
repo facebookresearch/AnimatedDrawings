@@ -97,6 +97,9 @@ If you'd like to generate a video headlessly (e.g. on a remote server accessed v
 All of the above examples use drawings with pre-existing annotations.
 But suppose you'd like to create an animation starring your own drawing?
 We can do that too, but you'll need to follow a few more setup steps.
+These steps will set up Docker container that runs Torchserve. 
+This allows us show your image to our machine learning models, which will detect a character within it and detect joint locations for that character.
+We use these model predictions to 'rig' the character before applying motion capture data to animate it.
 
 1. [Install Docker Desktop](https://docs.docker.com/get-docker/)
 2. Follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
