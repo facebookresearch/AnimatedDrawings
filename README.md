@@ -193,6 +193,12 @@ Run the following commands from a Python interpreter within the AnimatedDrawings
 
 <img src='./media/different_bvh_skeleton_example.gif' height="256" />
 
+You may be wondering how you can create BVH files of your own. Luckily, there are simple and accessible options for recording 3D motion data from a single RGB camera. 
+For example, our designer recorded this with his phone and used Rokoko to convert it to a BVH. 
+By modifying the AnimatedDrawings motion_cfg and retarget_cfg, we can apply his motion directly onto a drawn character.
+
+<img src='./media/annon_wave.gif' height="256" />
+
 ### Adding addition character skeletons
 To be added later, if requested.
 
