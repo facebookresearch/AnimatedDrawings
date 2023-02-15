@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Union, List, Tuple, Dict, TypedDict
+from typing import Union, List, Tuple, Dict, TypedDict, Optional
 import yaml
 from pkg_resources import resource_filename
 from animated_drawings.utils import resolve_ad_filepath
@@ -349,6 +349,7 @@ class MotionConfig():
         # validate start_frame_idx
         try:
             self.start_frame_idx: int = motion_cfg.get('start_frame_idx', 0)
+            assert isinstance(self.start_frame_idx, int), 'type not int'
             assert self.start_frame_idx >= 0, 'start_frame_idx must be > 0'
         except (AssertionError, ValueError) as e:
             msg = f'Error validating start_frame_idx: {e}'
@@ -357,8 +358,10 @@ class MotionConfig():
 
         # validate end_frame_idx
         try:
-            self.end_frame_idx: int = motion_cfg.get('end_frame_idx', None)
-            assert self.end_frame_idx >= self.start_frame_idx, 'end_frame_idx must be > start_frame_idx'
+            self.end_frame_idx: Optional[int] = motion_cfg.get('end_frame_idx', None)
+            assert isinstance(self.end_frame_idx, (NoneType, int)), 'type not NoneType or int'
+            if isinstance(self.end_frame_idx, int):
+                assert self.end_frame_idx >= self.start_frame_idx, 'end_frame_idx must be > start_frame_idx'
         except (AssertionError, ValueError) as e:
             msg = f'Error validating end_frame_idx: {e}'
             logging.critical(msg)
