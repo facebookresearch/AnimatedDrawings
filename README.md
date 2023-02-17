@@ -24,9 +24,6 @@ Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/proje
     pip install -e .
 ````
 
-If you get a `permission denied` error when trying to clone the repo, you don't have access. 
-To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
-
 Mac M1/M2 users: if you get architecture errors, make sure your `~/.condarc` does not have `osx-64`, but only `osx-arm64` and `noarch` in its subdirs listing. You can see that it's going to go sideways as early as `conda create` because it will show `osx-64` instead of `osx-arm64` versions of libraries under "The following NEW packages will be INSTALLED".
 
 ## Using Animated Drawings
