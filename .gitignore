@@ -16,8 +16,12 @@ examples/garlic_out
 **/*.mp4
 **/*.gif
 
-# DO include .gifs used by the Readme
+# DO include .gifs used by the Readme and Github Pages
 !media/*.gif
+!public/assets/images/*.gif
+!public/assets/images/*.mp4
+!site/assets/images/*.gif
+!site/assets/videos/*.mp4
 
 # ### website ###
 
