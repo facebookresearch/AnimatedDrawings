@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from animated_drawings import render
 from pkg_resources import resource_filename
 import os
