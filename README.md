@@ -93,19 +93,24 @@ If you'd like to generate a video headlessly (e.g. on a remote server accessed v
       USE_MESA: True
 ````
 
-### Creating an animation from an image
+### Animating Your Own Drawing
 
-All of the above examples use drawings with pre-existing annotations.
-But suppose you'd like to create an animation starring your own drawing?
-We can do that too, but you'll need to follow a few more setup steps.
-These steps will set up Docker container that runs Torchserve. 
-This allows us show your image to our machine learning models, which will detect a character within it and detect joint locations for that character.
-We use these model predictions to 'rig' the character before applying motion capture data to animate it.
+All of the examples above use drawings with pre-existing annotations.
+To understand what we mean by *annotations* here, look at one of the 'pre-rigged' character's [annotation files](examples/characters/char1/).
+You can use whatever process you'd like to create those annotations files and, as long as they are valid, AnimatedDrawings will give you an animation.
+
+So you'd like to animate your own drawn character.
+I wouldn't want to you to create those annotation files manually. That would be tedious.
+To make it fast and easy, we've trained a drawn humanoid figure detector and pose estimator and provided scripts to automatically generate annotation files from the model predictions.
+
+To get it working, you'll need to set up a Docker container that runs TorchServe.
+This allows us to quickly show your image to our machine learning models and receive their predictions.
+
+To set up the container, follow these steps:
 
 1. [Install Docker Desktop](https://docs.docker.com/get-docker/)
-2. Follow [these steps](torchserve/torchserve/model-store/README.md) to download the necessary model weights.
-3. Ensure Docker Desktop is running.
-4. Run the following commands, starting from the Animated Drawings root directory:
+2. Ensure Docker Desktop is running.
+3. Run the following commands, starting from the Animated Drawings root directory:
 
 ````bash
     (animated_drawings) AnimatedDrawings % cd torchserve
@@ -114,7 +119,7 @@ We use these model predictions to 'rig' the character before applying motion cap
     (animated_drawings) torchserve % docker build -t docker_torchserve .
 
     # start the docker container and expose the necessary ports
-    (animated_drawings) torchserve % docker run -d --name docker_torchserve -p 8080:8080 -p 8081:8081 -v $(pwd)/torchserve:/home/torchserve docker_torchserve
+    (animated_drawings) torchserve % docker run -d --name docker_torchserve -p 8080:8080 -p 8081:8081 docker_torchserve
 ````
 
 Wait ~10 seconds, then ensure Docker and TorchServe are working by pinging the server:
