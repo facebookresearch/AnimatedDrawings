@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 from __future__ import annotations
 import logging
 from collections import defaultdict
