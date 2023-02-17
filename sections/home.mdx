@@ -1,0 +1,127 @@
+---
+title: "Home"
+order: 0
+---
+
+<Hero video="/assets/videos/jesse_dance.mp4" overlay fullHeight>
+  <FeatureSummary>
+  # Animated Drawings
+  ###### Create animations starring your own drawn characters. This is an implementation of the algorithm described in the paper, 'A Method for Automatically Animating Children's Drawings of the Human Figure'.
+  </FeatureSummary>
+</Hero>
+
+<Content spaceTop spaceBottom>
+
+# Animated Drawings
+
+This repo contains an implementation of the algorithm described in the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure' (currenly under peer review). 
+
+In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#fairanimateddrawings**
+
+</Content>
+
+<Content spaceBottom>
+
+## Installation
+
+We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
+Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands:
+
+```bash
+# create and activate the virtual environment
+conda create --name animated_drawings python=3.8.13
+conda activate animated_drawings
+
+# clone AnimatedDrawings and use pip to install
+git clone git@github.com:fairinternal/AnimatedDrawings.git
+cd AnimatedDrawings
+pip install -e .
+```
+
+If you get a `permission denied` error when trying to clone the repo, you don't have access. 
+To get permission, follow the instructions on [this page](https://www.internalfb.com/intern/wiki/FAIR/Platforms/Getting_started/fairinternal-github/).
+
+Mac M1/M2 users: if you get architecture errors, make sure your `~/.condarc` does not have `osx-64`, but only `osx-arm64` and `noarch` in its subdirs listing. You can see that it's going to go sideways as early as `conda create` because it will show `osx-64` instead of `osx-arm64` versions of libraries under "The following NEW packages will be INSTALLED".
+
+</Content>
+
+<Content spaceBottom>
+
+## Using Animated Drawings
+
+<Spacer />
+
+### Interactive Window
+
+We provide some example top-level configuration files (or 'mvc_configs') to demonstrate how to run the rendering code.
+Scenes are created and rendered according to the parameters within the mvc_config.
+To see for yourself, make sure that the `animated_drawings` virtual environment is activated, then launch a Python interpreter from within the AnimatedDrawings root directory and run the following commands:
+
+```python
+from animated_drawings import render
+render.start('./examples/config/mvc/interactive_window_example.yaml')
+```
+
+If everything is installed correctly, an interactive window should appear on your screen. 
+(Use spacebar to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
+
+<Image url="/assets/images/interactive_window_example.gif" />
+
+</Content>
+
+<Content color="red-50" spaceTop>
+
+### Adding multiple characters to scene
+Multiple characters can be added to a video by specifying multiple entries within the mvc-config scene's 'ANIMATED_CHARACTERS' list.
+To see for yourself, run the following python commands from within the AnimatedDrawings root directory:
+
+```python
+from animated_drawings import render
+render.start('./examples/config/mvc/multiple_characters_example.yaml')
+```
+
+</Content>
+
+<Gallery columns={3} color="red-50" spaceBottom>
+  <Image url="/assets/images/char1.png" />
+  <Image url="/assets/images/char2.png" />
+  <Image url="/assets/images/multiple_characters_example.gif" />
+</Gallery>
+
+<Content color="red-50" spaceTop>
+
+### Adding a background image
+Suppose you'd like to add a background to the animation. You can do so by specifying the image path within the config.
+Run the following commands from a Python interpreter within the AnimatedDrawings root directory:
+
+```python
+from animated_drawings import render
+render.start('./examples/config/mvc/background_example.yaml')
+```
+
+</Content>
+
+<Gallery columns={2} color="red-50" spaceBottom>
+  <Image url="/assets/images/char4_original_image.png" />
+  <Image url="/assets/images/background_example.gif" />
+</Gallery>
+
+<Content color="red-50" spaceTop>
+
+### Want to learn more?
+For more information, see the GitHub Repo.
+</Content>
+
+<Content spaceTop spaceBottom>
+## Give feedback
+
+This project is in an early stage. Please give feedback. We would love to see what you make with this too. If you do create something fun with this, let us know! Use hashtag **#fairanimateddrawings**
+
+</Content>
+
+<Footer columns>
+  <div>
+  [**Animated Drawings**](https://github.com/fairinternal/AnimatedDrawings/)    
+  </div>
+</Footer>
+

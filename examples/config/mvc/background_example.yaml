@@ -1,0 +1,12 @@
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: ./video.gif
+view:
+  CAMERA_POS: [0.1, 1.3, 2.7]
+  WINDOW_DIMENSIONS: [300, 400]
+  BACKGROUND_IMAGE: examples/characters/char4/background.png
+scene:
+  ANIMATED_CHARACTERS:
+  - character_cfg: examples/characters/char4/char_cfg.yaml
+    motion_cfg: examples/config/motion/dab.yaml
+    retarget_cfg: examples/config/retarget/fair1_ppf.yaml

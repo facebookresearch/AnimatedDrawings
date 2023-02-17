@@ -1,0 +1,20 @@
+{
+  "title": "Web Starter Kit",
+  "logo": "logo.png",
+  "description": "",
+  "showHomeLink": true,
+
+  "thumbnail": "/assets/thumbnail.png",
+  "theme": "purple",
+  "shade": 100,
+  "paper": "white",
+  "footerBackground": "gray-50",
+  "footerText": "gray-600",
+
+  "rightNav": [
+    {
+      "title": "Github",
+      "url": "https://github.com/fairinternal/AnimatedDrawings"
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+@font-face {
+  font-family: "Inter";
+  src: local("Inter"),
+    url(../public/fonts/Inter-VariableFont.ttf) format("truetype-variations");
+}
+*/
+
+@layer base {
+  @font-face {
+    font-family: "Optimistic Display";
+    src: url(../public/fonts/optimistic/Optimistic_Display_W_Md.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Display_W_Md.woff) format("woff");
+    font-weight: 500;
+  }
+
+  @font-face {
+    font-family: "Optimistic Display";
+    src: url(../public/fonts/optimistic/Optimistic_Display_W_SBd.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Display_W_SBd.woff) format("woff");
+    font-weight: 600;
+  }
+
+  @font-face {
+    font-family: "Optimistic Display";
+    src: url(../public/fonts/optimistic/Optimistic_Display_W_Bd.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Display_W_Bd.woff) format("woff");
+    font-weight: 700;
+  }
+
+  @font-face {
+    font-family: "Optimistic Text";
+    src: url(../public/fonts/optimistic/Optimistic_Text_W_Rg.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Text_W_Rg.woff) format("woff");
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: "Optimistic Text";
+    src: url(../public/fonts/optimistic/Optimistic_Text_W_Md.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Text_W_Md.woff) format("woff");
+    font-weight: 500;
+  }
+
+  @font-face {
+    font-family: "Optimistic Text";
+    src: url(../public/fonts/optimistic/Optimistic_Text_W_Bd.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Text_W_Bd.woff) format("woff");
+    font-weight: 700;
+  }
+
+  @font-face {
+    font-family: "Optimistic Text";
+    src: url(../public/fonts/optimistic/Optimistic_Text_W_XBd.woff2) format("woff2"),
+         url(../public/fonts/optimistic/Optimistic_Text_W_XBd.woff) format("woff");
+    font-weight: 800;
+  }
+
+  body {
+    font-family: "Optimistic Text", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #465a69;
+  }
+
+  /* Base (mobile) typography, overriding tailwind typography (.prose) defatuls */
+  /* Also review the theme in tailwind.config.js */
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Optimistic Display", sans-serif;
+  }
+
+  .prose .display h1 {
+    @apply text-4xl text-gray-800 font-medium leading-tight;
+  }
+
+  .prose .display h2 {
+    @apply text-gray-800 font-medium leading-tight;
+    font-size: 2.5rem;
+  }
+
+  .prose h1 {
+    @apply text-3xl text-gray-800 font-medium leading-tight mt-2 mb-4;    
+    letter-spacing: 0.016rem;
+  }
+
+  .prose h2 {
+    @apply text-2xl text-gray-800 font-medium leading-tight my-2;
+    letter-spacing: 0.01rem;
+  }
+
+  .prose h3 {
+    @apply text-xl text-gray-800 font-medium leading-tight my-2;
+    letter-spacing: 0.005rem;
+  }
+
+  .prose h4 {
+    @apply text-lg text-gray-800 font-medium leading-tight my-2;
+  }
+
+  .prose h5 {
+    @apply text-xl text-gray-600 font-normal leading-normal my-2;
+    letter-spacing: 0.005rem;
+  }
+
+  .prose h6 {
+    @apply text-base text-gray-600 font-normal leading-normal my-2;
+  }
+
+  .prose p  {
+    @apply text-sm text-gray-600 font-normal leading-normal;
+  }
+
+  .prose ol, .prose ul  {
+    @apply text-sm text-gray-600 font-normal leading-normal;
+    padding-right: 2rem;
+  }
+
+
+  /* Non-mobile typography */
+  @media screen(lg) {
+    .prose .display h1 {
+      @apply text-6xl;
+    }
+
+    .prose .display h2 {
+      @apply text-5xl;
+    }
+
+    .prose h1 {
+      @apply text-4xl;
+    }
+  
+    .prose h2 {
+      @apply text-3xl;
+    }
+  
+    .prose h3 {
+      @apply text-2xl;
+    }
+  
+    .prose h4 {
+      @apply text-lg text-gray-800;
+    }
+  
+    .prose h5 {
+      @apply text-2xl;
+    }
+  
+    .prose h6 {
+      @apply text-base;
+    }
+
+    .prose ol, .prose ul  {
+      padding-right: 3rem;
+    }
+  }
+
+  .dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4, .dark-mode h5, ≈{
+    @apply text-white;
+  }
+
+  .dark-mode h4, .dark-mode h6 {
+    @apply text-gray-200;
+  }
+
+  code {
+    font-family: Menlo, Consolas, monospace;
+  }
+
+  .prose code {
+    @apply inline text-sm font-semibold break-words;
+    background-color: rgba(0,0,0,.05);
+  }
+
+  .prose code::before, .prose code::after {
+    content: none;
+  }
+
+  pre {
+    max-width: 80vw;
+  }
+
+  pre code {
+    @apply inline-block;
+    max-width: 20vw;
+    word-break: inherit;
+  }
+
+  .prose blockquote {
+    @apply font-normal opacity-80 text-gray-600;
+  }
+}
+
+/**
+ * Custom CSS classes
+ */
+.justify-start-only {
+  justify-content: start;
+}
+
+.text-white code {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.comp_button * {
+  margin: 0;
+}
+
+.flex-grow-2 {
+  flex-grow: 2;
+}
+
+.flex-grow-3 {
+  flex-grow: 3;
+}
+
+.flex-grow-4 {
+  flex-grow: 4;
+}
+
+.flex-grow-5 {
+  flex-grow: 5;
+}
+
+/* -------- */
+
+/* PrismJS 1.28.0
+https://prismjs.com/download.html#themes=prism-okaidia&languages=css */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #f8f8f2;
+  background: 0 0;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+  font-family: "Menlo", "Consolas", "Ubuntu Mono", monospace;
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+pre[class*="language-"] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+  border-radius: 0.3em;
+}
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: #111;
+}
+:not(pre) > code[class*="language-"] {
+  padding: 0.1em;
+  border-radius: 0.3em;
+  white-space: normal;
+}
+.token.cdata,
+.token.comment,
+.token.doctype,
+.token.prolog {
+  color: #8292a2;
+}
+.token.punctuation {
+  color: #f8f8f2;
+}
+.token.namespace {
+  opacity: 0.7;
+}
+.token.constant,
+.token.deleted,
+.token.property,
+.token.symbol,
+.token.tag {
+  color: #f92672;
+}
+.token.boolean,
+.token.number {
+  color: #ae81ff;
+}
+.token.attr-name,
+.token.builtin,
+.token.char,
+.token.inserted,
+.token.selector,
+.token.string {
+  color: #a6e22e;
+}
+.language-css .token.string,
+.style .token.string,
+.token.entity,
+.token.operator,
+.token.url,
+.token.variable {
+  color: #f8f8f2;
+}
+.token.atrule,
+.token.attr-value,
+.token.class-name,
+.token.function {
+  color: #e6db74;
+}
+.token.keyword {
+  color: #66d9ef;
+}
+.token.important,
+.token.regex {
+  color: #fd971f;
+}
+.token.bold,
+.token.important {
+  font-weight: 700;
+}
+.token.italic {
+  font-style: italic;
+}
+.token.entity {
+  cursor: help;
+}

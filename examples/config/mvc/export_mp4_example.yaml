@@ -1,0 +1,12 @@
+scene:
+  ANIMATED_CHARACTERS:
+    - character_cfg: examples/characters/char1/char_cfg.yaml
+      motion_cfg: examples/config/motion/zombie.yaml
+      retarget_cfg: examples/config/retarget/fair1_spf.yaml
+view:
+  CAMERA_POS: [2.0, 0.7, 8.0]
+  CAMERA_FWD: [0.0, 0.5, 8.0]
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: ./video.mp4
+  OUTPUT_VIDEO_CODEC: avc1

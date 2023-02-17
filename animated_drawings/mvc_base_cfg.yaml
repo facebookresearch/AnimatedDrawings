@@ -1,0 +1,19 @@
+scene:
+  ADD_FLOOR: False
+  ADD_AD_RETARGET_BVH: False
+view:
+  CLEAR_COLOR: [1.0, 1.0, 1.0, 0.0]
+  BACKGROUND_IMAGE: null
+  WINDOW_DIMENSIONS: [500, 500]
+  DRAW_AD_RIG: False
+  DRAW_AD_TXTR: True
+  DRAW_AD_COLOR: False
+  DRAW_AD_MESH_LINES: False
+  USE_MESA: False
+  CAMERA_POS: [0.0, 0.7, 2.0]
+  CAMERA_FWD: [0.0, 0.5, 2.0]
+controller:
+  MODE: 'interactive'
+  KEYBOARD_TIMESTEP: 0.0333  # only used if mode is 'interactive'
+  OUTPUT_VIDEO_PATH: ./output_video.mp4  # only used if mode is 'video_render'
+  OUTPUT_VIDEO_CODEC: avc1  # only used if mode is 'video_render'
