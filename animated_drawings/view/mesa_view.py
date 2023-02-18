@@ -34,7 +34,7 @@ class MesaView(View):
         self.buffer: npt.NDArray[np.uint8]
         self._initialize_mesa()
 
-        self.shaders: Dict[str, Shader]= {}
+        self.shaders: Dict[str, Shader] = {}
         self.shader_ids: Dict[str, int] = {}
         self._prep_shaders()
 

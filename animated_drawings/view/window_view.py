@@ -31,7 +31,7 @@ class WindowView(View):
         self.win: glfw._GLFWwindow
         self._create_window(*cfg.window_dimensions)  # pyright: ignore[reportGeneralTypeIssues]
 
-        self.shaders: Dict[str, Shader]= {}
+        self.shaders: Dict[str, Shader] = {}
         self.shader_ids: Dict[str, int] = {}
         self._prep_shaders()
 

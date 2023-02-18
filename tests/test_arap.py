@@ -30,7 +30,7 @@ def test_single_triangle_mesh():
         [-5.0, 0.0],
         [0.0, 1.0],
         [5.0, 0.0]
-        ])).all()
+    ])).all()
 
 
 def test_two_triangle_mesh():

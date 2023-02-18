@@ -25,7 +25,7 @@ class InteractiveController(Controller):
         glfw.init()
         glfw.set_key_callback(self.view.win, self._on_key)
 
-    def _on_key(self, _win, key: int, _scancode, action, _mods) -> None:
+    def _on_key(self, _win, key: int, _scancode, action, _mods) -> None:  # noqa: C901
 
         if action not in (glfw.PRESS, glfw.REPEAT):
             return

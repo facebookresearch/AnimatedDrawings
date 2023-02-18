@@ -8,7 +8,7 @@ import ctypes
 
 class Rectangle(Transform):
 
-    def __init__(self, color: str='white') -> None:
+    def __init__(self, color: str = 'white') -> None:
 
         super().__init__()
 

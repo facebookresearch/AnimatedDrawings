@@ -8,7 +8,7 @@ from animated_drawings.model.transform import Transform
 
 class Box(Transform):
 
-    def __init__(self, shader_name: str='color_shader') -> None:
+    def __init__(self, shader_name: str = 'color_shader') -> None:
         super().__init__()
 
         self.points = np.array([
@@ -56,10 +56,10 @@ class Box(Transform):
 
         ], np.float32)
 
-        self.indices = np.array([2,  1,  0,
-                                 5,  4,  3,
-                                 6,  7,  8,
-                                 9, 10, 11,
+        self.indices = np.array([2,   1,  0,
+                                 5,   4,  3,
+                                 6,   7,  8,
+                                 9,  10, 11,
                                  14, 13, 12,
                                  17, 16, 15,
                                  18, 19, 20,
@@ -102,7 +102,6 @@ class Box(Transform):
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, self.indices, GL.GL_STATIC_DRAW)
 
         vert_bytes     = 4 * self.points.shape[1]  # 4 is byte size of np.float32
-
         pos_offset     = 4 * 0
         color_offset   = 4 * 3
         normals_offset = 4 * 6

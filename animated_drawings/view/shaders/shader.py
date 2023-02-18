@@ -1,6 +1,5 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-import os
 import OpenGL.GL as GL
 import logging
 
@@ -52,5 +51,3 @@ class Shader:
             msg = f'Errror creating shader program: {GL.glGetProgramInfoLog(self.glid).decode("ascii")}'
             logging.critical(msg)
             assert False, msg
-
-

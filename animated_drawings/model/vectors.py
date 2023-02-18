@@ -4,7 +4,7 @@ from __future__ import annotations  # so we can refer to class Type inside class
 import numpy as np
 import numpy.typing as npt
 import logging
-from typing import Union, List, Iterable, Tuple
+from typing import Union, Iterable, Tuple
 from numbers import Number
 from copy import copy
 from animated_drawings.utils import TOLERANCE
@@ -16,7 +16,7 @@ class Vectors():
     When passing in existing Vectors, new Vectors object will share the underlying nparray, so be careful.
     """
 
-    def __init__(self, vs_: Union[Iterable[Union[float, int, Vectors, npt.NDArray[np.float32]]], Vectors]) -> None:
+    def __init__(self, vs_: Union[Iterable[Union[float, int, Vectors, npt.NDArray[np.float32]]], Vectors]) -> None:  # noqa: C901
 
         self.vs: npt.NDArray[np.float32]
 
@@ -47,7 +47,6 @@ class Vectors():
                 logging.critical(msg)
                 assert False, msg
             self.vs = vs_  # pyright: ignore[reportGeneralTypeIssues]
-
 
         # initialize from tuple or list of Vectors
         elif isinstance(vs_, (tuple, list)) and isinstance(vs_[0], Vectors):
@@ -92,7 +91,7 @@ class Vectors():
 
         return Vectors(np.cross(self.vs, v2.vs))
 
-    def perpendicular(self, ccw: bool=True) -> Vectors:
+    def perpendicular(self, ccw: bool = True) -> Vectors:
         """
         Returns ndarray of vectors perpendicular to the original ones.
         Only 2D and 3D vectors are supported.

@@ -4,6 +4,7 @@ from animated_drawings.model.animated_drawing import AnimatedDrawing
 from animated_drawings.config import Config
 from pkg_resources import resource_filename
 
+
 def test_init():
     import OpenGL.GL as GL
     import glfw
@@ -19,6 +20,6 @@ def test_init():
     mvc_config = Config(mvc_cfg_fn)
     char_cfg, retarget_cfg, motion_cfg = mvc_config.scene.animated_characters[0]
 
-    AnimatedDrawing( char_cfg, retarget_cfg, motion_cfg)
+    AnimatedDrawing(char_cfg, retarget_cfg, motion_cfg)
 
     assert True

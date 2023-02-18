@@ -70,7 +70,7 @@ class Retargeter():
             msg = f'Error getting groundplane joint: {e}'
             logging.warning(msg)
             assert False
-        
+
         # ... and moving the bvh so it is on the y=0 plane
         bvh_groundplane_y = groundplane_joint.get_world_position()[1]
         self.bvh.offset(np.array([0, -bvh_groundplane_y, 0]))

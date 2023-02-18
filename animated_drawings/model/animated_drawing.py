@@ -25,9 +25,11 @@ from animated_drawings.model.quaternions import Quaternions
 from animated_drawings.model.vectors import Vectors
 from animated_drawings.config import CharacterConfig, MotionConfig, RetargetConfig
 
+
 class AnimatedDrawingMesh(TypedDict):
-        vertices: npt.NDArray[np.float32]
-        triangles: List[npt.NDArray[np.int32]]
+    vertices: npt.NDArray[np.float32]
+    triangles: List[npt.NDArray[np.int32]]
+
 
 class AnimatedDrawingsJoint(Joint):
     """ Joints within Animated Drawings Rig."""
@@ -317,7 +319,7 @@ class AnimatedDrawing(Transform, TimeManager):
         motion_cfg.validate_bvh(bvh_joint_names)
         retarget_cfg.validate_char_and_bvh_joint_names(char_joint_names, bvh_joint_names)
 
-        # a shorter alias 
+        # a shorter alias
         char_bvh_root_offset: RetargetConfig.CharBvhRootOffset = self.retarget_cfg.char_bvh_root_offset
 
         # compute ratio of character's leg length to bvh skel leg length
@@ -404,7 +406,7 @@ class AnimatedDrawing(Transform, TimeManager):
                 indices.append(self.joint_to_tri_v_idx[joint_name])
         self.indices = np.hstack(indices)
 
-    def _initialize_joint_to_triangles_dict(self) -> None:
+    def _initialize_joint_to_triangles_dict(self) -> None:  # noqa: C901
         """
         Uses BFS to find and return the closest joint bone (line segment between joint and parent) to each triangle centroid.
         """
@@ -482,9 +484,9 @@ class AnimatedDrawing(Transform, TimeManager):
         try:
             _mask: npt.NDArray[np.uint8] = cv2.imread(str(mask_p), cv2.IMREAD_GRAYSCALE).astype(np.uint8)
             if _mask.shape[0] != self.char_cfg.img_height:
-                raise AssertionError( 'height in character config and mask height do not match')
+                raise AssertionError('height in character config and mask height do not match')
             if _mask.shape[1] != self.char_cfg.img_width:
-                raise AssertionError( 'width in character config and mask height do not match')
+                raise AssertionError('width in character config and mask height do not match')
         except Exception as e:
             msg = f'Error loading mask {mask_p}: {str(e)}'
             logging.critical(msg)
@@ -507,9 +509,9 @@ class AnimatedDrawing(Transform, TimeManager):
             if _txtr.shape[-1] != 4:
                 raise AssertionError('texture must be RGBA')
             if _txtr.shape[0] != self.char_cfg.img_height:
-                raise AssertionError( 'height in character config and txtr height do not match')
+                raise AssertionError('height in character config and txtr height do not match')
             if _txtr.shape[1] != self.char_cfg.img_width:
-                raise AssertionError( 'width in character config and txtr height do not match')
+                raise AssertionError('width in character config and txtr height do not match')
         except Exception as e:
             msg = f'Error loading texture {txtr_p}: {str(e)}'
             logging.critical(msg)
@@ -539,7 +541,7 @@ class AnimatedDrawing(Transform, TimeManager):
             logging.info(msg)
             contours.sort(key=len, reverse=True)
 
-        outside_vertices: npt.NDArray[np.float64] = measure.approximate_polygon( contours[0], tolerance=0.25)
+        outside_vertices: npt.NDArray[np.float64] = measure.approximate_polygon(contours[0], tolerance=0.25)
         character_outline = geometry.Polygon(contours[0])
 
         # add some internal vertices to ensure a good mesh is created
