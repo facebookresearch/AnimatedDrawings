@@ -8,7 +8,7 @@ import ctypes
 
 
 class TransformWidget(Transform):
-    def __init__(self, shader_name: str='color_shader'):
+    def __init__(self, shader_name: str = 'color_shader'):
 
         super().__init__()
 

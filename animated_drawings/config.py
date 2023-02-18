@@ -31,7 +31,7 @@ class Config():
         # cannot use an interactive controller with a headless mesa viewer
         if self.controller.mode == 'interact':
             try:
-                assert self.view.use_mesa == False, 'cannot use interactive controller when USE_MESA is True'
+                assert self.view.use_mesa is False, 'cannot use interactive controller when USE_MESA is True'
             except AssertionError as e:
                 msg = f'Config error: {e}'
                 logging.critical(msg)
@@ -85,28 +85,17 @@ class SceneConfig():
         for each in scene_cfg['ANIMATED_CHARACTERS']:
             char_cfg_fn: str = each['character_cfg']
             motion_cfg_fn: str = each['motion_cfg']
-            retarget_cfg_fn:str = each['retarget_cfg']
+            retarget_cfg_fn: str = each['retarget_cfg']
             self.animated_characters.append((
                 CharacterConfig(char_cfg_fn),
                 RetargetConfig(retarget_cfg_fn),
                 MotionConfig(motion_cfg_fn)
             ))
 
-        #self.animated_characters: list[dict[str, str]] = scene_cfg['ANIMATED_CHARACTERS']
-        # try:
-        #     for dict_ in self.animated_characters:
-        #         assert 'character_cfg' in dict_.keys(), 'missing character_cfg'
-        #         assert 'motion_cfg' in dict_.keys(), 'missing motion_cfg'
-        #         assert 'retarget_cfg' in dict_.keys(), 'missing retarget_cfg'
-        # except AssertionError as e:
-        #     msg = f'Error in ANIMATED_CHARACTERS config parameter: {e}'
-        #     logging.critical(msg)
-        #     assert False, msg
-
 
 class ViewConfig():
 
-    def __init__(self, view_cfg: dict) -> None:
+    def __init__(self, view_cfg: dict) -> None:  # noqa: C901
 
         # set color used to clear render buffer
         try:
@@ -254,6 +243,7 @@ class ControllerConfig():
             logging.critical(msg)
             assert False, msg
 
+
 class CharacterConfig():
 
     class JointDict(TypedDict):
@@ -261,7 +251,7 @@ class CharacterConfig():
         name: str
         parent: Union[None, str]
 
-    def __init__(self, char_cfg_fn: str) -> None:
+    def __init__(self, char_cfg_fn: str) -> None:  # noqa: C901
         character_cfg_p = resolve_ad_filepath(char_cfg_fn, 'character cfg')
         with open(str(character_cfg_p), 'r') as f:
             char_cfg = yaml.load(f, Loader=yaml.FullLoader)
@@ -285,10 +275,10 @@ class CharacterConfig():
             msg = f'Error in character width config parameter: {e}'
             logging.critical(msg)
             assert False, msg
-        
+
         # based on height and width, determine what final img dimension will be (post padding)
         self.img_dim: int = max(self.img_height, self.img_width)
-        
+
         # validate skeleton
         try:
             self.skeleton: List[CharacterConfig.JointDict] = []
@@ -302,7 +292,7 @@ class CharacterConfig():
                 assert loc[1] >= 0, 'y val must be >= 0'
                 assert loc[1] < self.img_height, 'y val must be < image height'
 
-                #... then scale to between 0-1 based on img dim
+                # ... then scale to between 0-1 based on img dim
                 loc_x: float = loc[0] / self.img_dim  # width
                 loc_y: float = loc[1] / self.img_dim + (1 - self.img_height / self.img_dim)  # height
 
@@ -319,7 +309,7 @@ class CharacterConfig():
             msg = f'Error in character skeleton: {e}'
             logging.critical(msg)
             assert False, msg
-        
+
         # validate skeleton joint parents
         try:
             names: List[str] = [joint['name'] for joint in self.skeleton]
@@ -328,7 +318,7 @@ class CharacterConfig():
         except AssertionError as e:
             msg = f'Error in character skeleton: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # validate mask and texture files
         try:
@@ -339,11 +329,12 @@ class CharacterConfig():
         except AssertionError as e:
             msg = f'Error validating character files: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
+
 
 class MotionConfig():
 
-    def __init__(self, motion_cfg_fn: str) -> None:
+    def __init__(self, motion_cfg_fn: str) -> None:  # noqa: C901
         motion_cfg_p = resolve_ad_filepath(motion_cfg_fn, 'motion cfg')
         with open(str(motion_cfg_p), 'r') as f:
             motion_cfg = yaml.load(f, Loader=yaml.FullLoader)
@@ -356,7 +347,7 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating start_frame_idx: {e}'
             logging.critical(msg)
-            assert False, msg           
+            assert False, msg
 
         # validate end_frame_idx
         try:
@@ -367,7 +358,7 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating end_frame_idx: {e}'
             logging.critical(msg)
-            assert False, msg      
+            assert False, msg
 
         # validate groundplane joint
         try:
@@ -376,8 +367,8 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating groundplane joint: {e}'
             logging.critical(msg)
-            assert False, msg  
-        
+            assert False, msg
+
         # validate forward_perp_joint_vectors
         try:
             self.forward_perp_joint_vectors: List[Tuple[str, str]] = motion_cfg['forward_perp_joint_vectors']
@@ -387,9 +378,9 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating forward_perp_joint_vectors: {e}'
             logging.critical(msg)
-            assert False, msg  
+            assert False, msg
 
-        # validate scale 
+        # validate scale
         try:
             self.scale: float = motion_cfg['scale']
             assert isinstance(self.scale, (int, float)), 'scale must be float or int'
@@ -397,8 +388,8 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating scale: {e}'
             logging.critical(msg)
-            assert False, msg              
-        
+            assert False, msg
+
         # validate up
         try:
             self.up: str = motion_cfg['up']
@@ -406,15 +397,15 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating up: {e}'
             logging.critical(msg)
-            assert False, msg  
-        
+            assert False, msg
+
         # validate bvh_p
         try:
             self.bvh_p: Path = resolve_ad_filepath(motion_cfg['filepath'], 'bvh filepath')
         except (AssertionError, ValueError) as e:
             msg = f'Error validating bvh_p: {e}'
             logging.critical(msg)
-            assert False, msg  
+            assert False, msg
 
     def validate_bvh(self, bvh_joint_names: List[str]) -> None:
         """ Performs all the validation steps that depend upon knowing the BVH joint names. This should be called once the BVH had been leaded """
@@ -425,7 +416,8 @@ class MotionConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating forward_perp_joint_vector joints: {e}'
             logging.critical(msg)
-            assert False, msg              
+            assert False, msg
+
 
 class RetargetConfig():
 
@@ -443,11 +435,11 @@ class RetargetConfig():
         bvh_joints: List[List[str]]
         char_joints: List[List[str]]
 
-    def __init__(self, retarget_cfg_fn: str) -> None:
+    def __init__(self, retarget_cfg_fn: str) -> None:  # noqa: C901
         retarget_cfg_p = resolve_ad_filepath(retarget_cfg_fn, 'retarget cfg')
         with open(str(retarget_cfg_p), 'r') as f:
             retarget_cfg = yaml.load(f, Loader=yaml.FullLoader)
-        
+
         # validate character starting location
         try:
             self.char_start_loc = retarget_cfg['char_starting_location']
@@ -457,7 +449,7 @@ class RetargetConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating char start location: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # validate bvh project bodypart groups
         self.bvh_projection_bodypart_groups: List[RetargetConfig.BvhProjectionBodypartGroup]
@@ -469,7 +461,7 @@ class RetargetConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating bvh_projection_bodypart_groups: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # Check that group names are unique
         try:
@@ -478,8 +470,8 @@ class RetargetConfig():
         except AssertionError as e:
             msg = f'Error validating bvh_projection_bodypart_groups: {e}'
             logging.critical(msg)
-            assert False, msg   
-        
+            assert False, msg
+
         # validate char bodypart groups
         self.char_bodypart_groups: List[RetargetConfig.CharBodypartGroup]
         try:
@@ -489,25 +481,25 @@ class RetargetConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating char_bodypart_groups: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # validate char bvh root offset
         self.char_bvh_root_offset: RetargetConfig.CharBvhRootOffset
         try:
             self.char_bvh_root_offset = retarget_cfg['char_bvh_root_offset']
-            assert len(self.char_bvh_root_offset['bvh_joints']) > 0, 'bvh_joints list must be greater than zero' 
+            assert len(self.char_bvh_root_offset['bvh_joints']) > 0, 'bvh_joints list must be greater than zero'
             for each in self.char_bvh_root_offset['bvh_joints']:
                 assert len(each) > 0, 'each list in bvh_joints must have len > 0'
 
-            assert len(self.char_bvh_root_offset['char_joints']) > 0, 'char_joints list must be greater than zero' 
+            assert len(self.char_bvh_root_offset['char_joints']) > 0, 'char_joints list must be greater than zero'
             for each in self.char_bvh_root_offset['char_joints']:
                 assert len(each) > 0, 'each list in char_joints must have len > 0'
-            
+
             assert isinstance(self.char_bvh_root_offset['bvh_projection_bodypart_group_for_offset'], str), 'bvh_projection_bodypart_group_for_offset must be str'
         except (AssertionError, ValueError) as e:
             msg = f'Error validating char_bvh_root_offset: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # validate char joint bvh joints mapping
         self.char_joint_bvh_joints_mapping: Dict[str, Tuple[str, str]]
@@ -521,8 +513,7 @@ class RetargetConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating char_bvh_root_offset: {e}'
             logging.critical(msg)
-            assert False, msg              
-
+            assert False, msg
 
         # validate char runtime checks
         self.char_runtime_checks: List[str]
@@ -535,9 +526,9 @@ class RetargetConfig():
         except (AssertionError, ValueError) as e:
             msg = f'Error validating char_runtime_checks: {e}'
             logging.critical(msg)
-            assert False, msg             
+            assert False, msg
 
-    def validate_char_and_bvh_joint_names(self, char_joint_names: List[str], bvh_joint_names: List[str]) -> None:
+    def validate_char_and_bvh_joint_names(self, char_joint_names: List[str], bvh_joint_names: List[str]) -> None:  # noqa: C901
 
         # validate bvh_projection_bodypart_groups
         try:
@@ -547,22 +538,22 @@ class RetargetConfig():
         except AssertionError as e:
             msg = f'Error validating bvh_projection_bodypart_groups: {e}'
             logging.critical(msg)
-            assert False, msg   
-                
+            assert False, msg
+
         # validate char_bodypart_groups
         try:
             for group in self.char_bodypart_groups:
                 # check that bvh joint drivers are valid bvh joints
                 for bvh_joint_name in group['bvh_depth_drivers']:
                     assert bvh_joint_name in bvh_joint_names, f'bvh_depth_driver joint name invalid: {bvh_joint_name}'
-                
+
                 # check that all char_joints are valid character joints
                 for char_joint_name in group['char_joints']:
                     assert char_joint_name in char_joint_names, f'char_joints joint name invalid: {char_joint_name}'
         except AssertionError as e:
             msg = f'Error validating char_bodypart_groups: {e}'
             logging.critical(msg)
-            assert False, msg   
+            assert False, msg
 
         # validate char_bvh_root_offset
         try:
@@ -582,8 +573,8 @@ class RetargetConfig():
         except AssertionError as e:
             msg = f'Error validating char_bvh_root_offset: {e}'
             logging.critical(msg)
-            assert False, msg   
-        
+            assert False, msg
+
         # validate char_joint_bvh_joints_mapping
         try:
             # check that dict keys correspond to valid character joints
@@ -597,9 +588,9 @@ class RetargetConfig():
         except AssertionError as e:
             msg = f'Error validating char_joint_bvh_joints_mapping: {e}'
             logging.critical(msg)
-            assert False, msg  
+            assert False, msg
 
-        # validate char runtime checks 
+        # validate char runtime checks
         try:
             for check in self.char_runtime_checks:
                 if check[0] == 'above':
@@ -611,6 +602,7 @@ class RetargetConfig():
         except AssertionError as e:
             msg = f'Error validating char_runtime_checks: {e}'
             logging.critical(msg)
-            assert False, msg  
+            assert False, msg
+
 
 NoneType = type(None)  # needed for type checking

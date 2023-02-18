@@ -11,6 +11,7 @@ import scipy.sparse as sp
 
 csr_matrix = sp._csr.csr_matrix  # for typing  # pyright: ignore[reportPrivateUsage]
 
+
 class ARAP():
     """
     Implementation of:
@@ -35,8 +36,7 @@ class ARAP():
     between (e' in E') and (e in E). This way, rotation is essentially free, while scaling is not.
     """
 
-
-    def __init__(self, pins_xy: npt.NDArray[np.float32], triangles: List[npt.NDArray[np.int32]], vertices: npt.NDArray[np.float32], w: int = 1000):
+    def __init__(self, pins_xy: npt.NDArray[np.float32], triangles: List[npt.NDArray[np.int32]], vertices: npt.NDArray[np.float32], w: int = 1000):  # noqa: C901
         """
         Sets up the matrices needed for later solves.
 
@@ -55,7 +55,7 @@ class ARAP():
             self.e_v_idxs.append(tuple(sorted((v0, v1))))
             self.e_v_idxs.append(tuple(sorted((v1, v2))))
             self.e_v_idxs.append(tuple(sorted((v2, v0))))
-        self.e_v_idxs = list(set(self.e_v_idxs)) # ...and deduplicate it
+        self.e_v_idxs = list(set(self.e_v_idxs))  # ...and deduplicate it
 
         # build list of edge vectors
         _edge_vectors: List[npt.NDArray[np.float32]] = []
@@ -164,7 +164,7 @@ class ARAP():
 
         # revert np overflow warnings behavior
         np.seterr(**old_settings)
-        
+
     def solve(self, pins_xy_: npt.NDArray[np.float32]) -> npt.NDArray[np.float64]:
         """
         After ARAP has been initialized, pass in new pin xy positions and receive back the new mesh vertex positions
@@ -206,10 +206,8 @@ class ARAP():
                                   points: npt.NDArray[np.float32],
                                   vertices: npt.NDArray[np.float32],
                                   triangles: List[npt.NDArray[np.int32]]
-                                ) -> Tuple[
-                                    List[Tuple[Tuple[np.int32, np.float32], Tuple[np.int32, np.float32], Tuple[np.int32, np.float32]]],
-                                    npt.NDArray[np.bool8]
-                                ]:
+                                  ) -> Tuple[List[Tuple[Tuple[np.int32, np.float32], Tuple[np.int32, np.float32], Tuple[np.int32, np.float32]]],
+                                             npt.NDArray[np.bool8]]:
         """
         Given and array containing xy locations and the vertices & triangles making up a mesh,
         find the triangle that each points in within and return it's representation using barycentric coordinates.

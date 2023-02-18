@@ -28,4 +28,3 @@ def test_render_mp4():
     assert os.path.getsize('.tests/test_render_files/video.mp4') > 100
 
     os.remove('.tests/test_render_files/video.mp4')
-

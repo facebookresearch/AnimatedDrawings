@@ -31,7 +31,7 @@ class Scene(Transform, TimeManager):
             # add bvh to the scene if we're going to visualize it
             if cfg.add_ad_retarget_bvh:
                 self.add_child(ad.retargeter.bvh)
-            
+
     def progress_time(self, delta_t: float) -> None:
         """
         Entry point called to update time in the scene by delta_t seconds.

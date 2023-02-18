@@ -95,7 +95,7 @@ class BVH(Transform, TimeManager):
                 continue
             self._apply_frame_rotations(c, frame_num, ptr)
 
-    def get_skeleton_fwd(self, forward_perp_vector_joint_names: List[Tuple[str, str]], update: bool =True) -> Vectors:
+    def get_skeleton_fwd(self, forward_perp_vector_joint_names: List[Tuple[str, str]], update: bool = True) -> Vectors:
         """
         Get current forward vector of skeleton in world coords. If update=True, ensure skeleton transforms are current.
         Input forward_perp_vector_joint_names, a list of pairs of joint names (e.g. [[leftshould, rightshoulder], [lefthip, righthip]])
@@ -228,7 +228,7 @@ class BVH(Transform, TimeManager):
             assert False, msg
 
         # Recurse for children
-        children: List[BVH_Joint]= []
+        children: List[BVH_Joint] = []
         while lines[0].strip() != '}':
             children.append(BVH._parse_skeleton(lines))
         lines.pop(0)  # }

@@ -219,7 +219,7 @@ class Transform():
         # no match
         return None
 
-    def draw(self, recurse: bool =True, **kwargs) -> None:
+    def draw(self, recurse: bool = True, **kwargs) -> None:
         """ Draw this transform and recurse on children """
         self._draw(**kwargs)
 
