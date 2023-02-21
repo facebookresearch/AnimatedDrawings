@@ -1,38 +1,59 @@
 const Site = require("../site.json");
 import React from "react";
 import { chunkArray, zipArray } from "../lib/util";
+import { useBreakpoint } from "./useBreakPoint";
+
+export type GalleryProps = {
+  color?: "theme" | "white" | "gray" | "blue" | "red" | "yellow" | "green";
+  whiteText?: boolean;
+  columns?: number | number[];
+  layout?: "vertical" | "grid" | "horizontal";
+  fullWidth?: boolean;
+  noteLeft?: string;
+  noteRight?: string;
+  spaceTop?: boolean;
+  spaceBottom?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
+  children: React.ReactNode;
+};
 
 export default function Gallery({
   color,
   whiteText,
   columns = 1,
-  flowVertical,
-  grid,
+  layout = 'grid',
   fullWidth,
   noteLeft,
   noteRight,
   spaceTop,
   spaceBottom,
   style,
+  className='',
   children,
-}) {
+}: GalleryProps ) {
   const bgColor = color ? `bg-${color}` : `bg-${Site.paper}`;
   const textColor = whiteText ? "text-white" : "text-gray-700";
   const padTop = spaceTop ? "pt-20" : "pt-4";
   const padBottom = spaceBottom ? "pb-20" : "pb-4";
 
+  // Makes the gallery responsive to the screen size (mobile 'md' or desktop)
+  const breakpoints:any = useBreakpoint();
+  const responsiveCols:boolean = Array.isArray(columns) && columns.length > 1;
+  const totalCols:number = responsiveCols ? ( breakpoints['md'] ? columns[1] : columns[0] ) : columns as number;
+
   const itemsCount = React.Children.count(children);
   const isSingle = itemsCount < 2;
-  const cols = itemsCount / columns;
+  const cols = itemsCount / totalCols;
   const chunks = isSingle
     ? []
-    : flowVertical
+    : layout === "vertical"
     ? chunkArray(children, cols)
-    : zipArray(chunkArray(children, children.length / cols));
+    : zipArray(chunkArray(children, React.Children.count(children) / cols));
 
   return (
     <div
-      className={`comp_gallery flex w-screen justify-center self-stretch ${bgColor} ${textColor}`}
+      className={`comp_gallery flex w-screen justify-center self-stretch ${bgColor} ${textColor} ${className}`}
       style={style}
     >
       <div
@@ -49,12 +70,12 @@ export default function Gallery({
             fullWidth ? "" : "mx-4"
           }`}
         >
-          {!isSingle &&
+          {!isSingle && layout !== "horizontal" && 
             chunks.map((chs, k) => (
               <div className="flex-col flex-1" key={`group${k}`}>
-                {chs.map((c, i) => (
+                {chs.map((c:React.ReactNode, i:number) => (
                   <div
-                    className={`p-1 ${grid ? "aspect-[1/1]" : "aspect-auto"}`}
+                    className={`p-1 ${layout==='grid' ? "aspect-[1/1]" : "aspect-auto"}`}
                     key={`img${i}`}
                   >
                     {c}
@@ -62,6 +83,14 @@ export default function Gallery({
                 ))}
               </div>
             ))}
+
+          {!isSingle && layout === "horizontal" && 
+            <div>
+              {React.Children.map(children, (c:React.ReactNode, i:number) => (
+                <div className="inline-block mr-2" key={`img${i}`}>{c}</div>
+              ))}
+            </div>
+          }
           {isSingle && <div className="p-1 aspect-auto">{children}</div>}
         </div>
 
