@@ -112,12 +112,16 @@
   }
 
   .prose p  {
-    @apply text-sm text-gray-600 font-normal leading-normal;
+    @apply text-base text-gray-600 font-normal leading-normal;
   }
 
   .prose ol, .prose ul  {
     @apply text-sm text-gray-600 font-normal leading-normal;
     padding-right: 2rem;
+  }
+
+  .prose small {
+    font-size: 0.875em;
   }
 
 
