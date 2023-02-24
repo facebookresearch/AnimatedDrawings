@@ -207,7 +207,7 @@ But now, thankfully, there are simple and accessible options for getting 3D moti
 For example, I created this Readme's banner animation by: 
 1. Recording myself doing a silly dance with my phone's camera.
 2. Using [Rokoko](https://www.rokoko.com/) to export a BVH from my video.
-3. Creating new motion config and retarget config files to fit the skeleton exported by Rokoko.
+3. Creating a new [motion config file](examples/config/README.md#motion) and [retarget config file](examples/config/README.md#retarget) to fit the skeleton exported by Rokoko.
 4. Using AnimatedDrawings to animate the characters and export a transparent animated gif.
 5. Combining the animated gif, original video, and original drawings in Adobe Premiere.
 
