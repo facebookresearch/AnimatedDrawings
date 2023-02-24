@@ -7,7 +7,7 @@ There are four different types of configuration files:
 - Retarget Configuration Files
 
 
-## MVC Config File
+## <a name="mvc"></a>MVC Config File
 This is the top-level configuration file, passed into `render.start()` to generate the animation. All parameters and options not specifically related to the Animated Drawing character, the BVH file, or the retargeting process go in here.
 Such parameters belong to one of three subgroups, in alignment with the Model-View-Controller design pattern. (Note: the 'Model' element of MVC is referred to as 'scene')
 Most of the available parameters are defined in [animated_drawings/mvc_base_cfg.yaml](../../animated_drawings/mvc_base_cfg.yaml). This file should **not** be changed. Instead, create a new mvc config file containg *only* the parameters that need to be modified.
@@ -76,7 +76,7 @@ Transparency is only available for `.gif` videos.
 The codec to use when encoding the output video.
 Only used in `video_render` mode and only if a `.mp4` output video file is specified.
 
-## Character Config File
+## <a name="character"></a>Character Config File
 
 This configuration file (referred to below as `char_cfg`) contains the information necessary to create an instance of the Animated Drawing class. In addition to the fields below, which are explicitly listed within `char_cfg`, the <em>filepath</em> of `char_cfg` is used to store the location of the character's texture and mask files. Essentally, just make sure the associated `texture.png` and `mask.png` files are in the same directory as `char_cfg`.
 
@@ -98,7 +98,7 @@ The name of the joint.
 The name of the joint's parent joint within the skeletal chain. All joints must have another skeletal joint as their parent, with the exception of the joint named 'root', who's parent must be `null`.
 
 
-## Motion Config File
+## <a name="motion"></a>Motion Config File
 
 This contains information about the motion used to drive the Animated Drawing.
 Currently, only BVH (BioVision Hierarchy) files are supported, but there is considerable flexibility
@@ -134,7 +134,7 @@ The direction corresponding to 'up' within the BVH.
 This is used during retargeting, not just BVH motion visualization.
 Currently, only `+y` and `+z` are supported.
 
-## Retarget Config File
+## <a name="retarget"></a>Retarget Config File
 
 This file contains the information necessary to apply the motion specified by the motion config onto the Animated Drawing character specified in the character config. Note: below we refer to the BVH actor's skeleton as <em>skeleton</em> and we refer to the Animated Drawing character's rig as <em>rig</em> or <em>character rig</em>.
 
