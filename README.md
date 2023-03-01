@@ -152,20 +152,19 @@ The resulting animation was saved as `./garlic_out/video.gif`.
 ### Fixing bad predictions
 You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were additional non-video files within `garlic_out`.
 `mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
-If the predictions are incorrect, you can run `python fix_annotations.py` to launch a web interface to visualize, correct, and update the annotations.
+If the mask predictions are incorrect, you can edit the mask with an image editing program like Paint or Photoshop.
+If the joint predictions are incorrect, you can run `python fix_annotations.py` to launch a web interface to visualize, correct, and update the annotations. Pass it the location of the folder containing incorrect joint predictions (here we use `garlic_out/` as an example):
 
 ````bash
-    (animated_drawings) examples % python fix_annotations.py garlic_out
+    (animated_drawings) examples % python fix_annotations.py garlic_out/
     ...
      * Running on http://127.0.0.1:5050
     Press CTRL+C to quit
 ````
 
-The segmentation mask is a grayscale image that can be edited in Photoshop or Paint.
-The skeleton joint locations within `char_cfg.yaml` can be edited with a text editor (though you'll want to read about the [character config](examples/config/README.md) files first.)
+Navigate to `http://127.0.0.1:5050` in your browser to access the web interface. Drag the joints into the appropriate positions, and hit `Submit` to save your edits.
 
-
-Once you've modified annotations, you can render an animation using them like so:
+Once you've modified the annotations, you can render an animation using them like so:
 
 ````bash
     # specify the folder where the fixed annoations are located
