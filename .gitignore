@@ -4,6 +4,10 @@
 **/src.egg-info
 animated_drawings.egg-info
 
+# for the fixer app at examples/fixer_app
+.parcel-cache/
+node_modules
+
 # ignore the .mar files
 **/*.mar
 
