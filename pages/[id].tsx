@@ -11,6 +11,8 @@ import Nav from "../components/Nav";
 import Components from "../components/_export";
 import {getBasePath} from "../lib/paths";
 
+import { BreakpointProvider } from "../components/useBreakPoint";
+
 const Site = require("../site.json");
 
 const postsDirectory = path.join(process.cwd(), "sections");
@@ -116,10 +118,18 @@ export default function Post({ currentMetaData, allMetaData, mdxSource }) {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <Nav items={allMetaData} selected={currentMetaData.id} />
-      <div className="prose prose-starter">
-        <MDXRemote {...mdxSource} components={Components} />
-      </div>
+      <BreakpointProvider queries={{
+        sm: "(max-width: 640px)",
+        md: "(max-width: 768px)",
+        lg: "(max-width: 1024px)",
+        xl: "(max-width: 1280px)",
+        or: '(orientation: portrait)',
+      }}>
+        <Nav items={allMetaData} selected={currentMetaData.id} />
+        <div className="prose prose-starter">
+          <MDXRemote {...mdxSource} components={Components} />
+        </div>
+      </BreakpointProvider>
     </div>
   );
 }

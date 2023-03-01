@@ -5,8 +5,8 @@
   "showHomeLink": true,
 
   "thumbnail": "/assets/thumbnail.png",
-  "theme": "purple",
-  "shade": 100,
+  "theme": "red",
+  "shade": 50,
   "paper": "white",
   "footerBackground": "gray-50",
   "footerText": "gray-600",
