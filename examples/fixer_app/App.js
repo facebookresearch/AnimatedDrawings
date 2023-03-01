@@ -4,11 +4,13 @@ import Circle from "./Pose/Circle";
 import Line from "./Pose/Line";
 
 export default function App() {
+  // grab global vars inserted by the Flask app
   const cfg = window.cfg;
+  const imageData = window.image.data; 
+
   const imageHeight = cfg.height;
   const imageWidth = cfg.width;
   const originalPoints = cfg.skeleton;
-  const imageData = image.data;
 
   const [points, setPoints] = React.useState(() =>
     JSON.parse(JSON.stringify(originalPoints))
