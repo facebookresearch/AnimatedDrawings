@@ -1,26 +1,28 @@
 import argparse
 import base64
-from flask import Flask, cli, render_template, request
+from flask import Flask, render_template, request
 import json
 import os
 import sys
 import yaml
-from yaml import Loader, Dumper
 
 global cfg_path
 global char_folder
 app = Flask(__name__, template_folder=os.path.abspath("./fixer_app/"))
 
+
 def load_cfg(path):
     with open(path, "r") as f:
         cfg_text = f.read()
-        cfg_yaml = yaml.load(cfg_text, Loader=Loader)
+        cfg_yaml = yaml.load(cfg_text, Loader=yaml.Loader)
     return cfg_yaml
+
 
 def write_cfg(path, cfg):
     with open(path, "w") as f:
         yaml.dump(cfg, f)
-        
+
+
 @app.route("/")
 def index():
     global cfg_path
@@ -33,39 +35,40 @@ def index():
 
     return render_template('dist/index.html', cfg=cfg, image=base64_img)
 
+
 @app.route("/annotations/submit", methods=["POST"])
 def post_cfg():
     output, message = process(request)
-    if output: print(output)
+    if output:
+        print(output)
     return render_template('submit.html', code=output, message=message)
+
 
 def process(request):
     try:
         formdata = request.form.get('data')
-    except:
-        return None, "Error parsing data from request. No JSON data was found"
+    except Exception as e:
+        return None, f"Error parsing data from request. No JSON data was found: {e}"
 
     try:
         jsondata = json.loads(formdata)
-    except:
-        return None, "Error parsing submission data into JSON. Invalid format?"
+    except Exception as e:
+        return None, f"Error parsing submission data into JSON. Invalid format?: {e}"
 
     try:
         new_cfg = yaml.dump(jsondata)
-    except:
-        return None, "Error converting submission to YAML data. Invalid format?"
+    except Exception as e:
+        return None, f"Error converting submission to YAML data. Invalid format?: {e}"
 
     try:
         write_cfg(os.path.join(cfg_path), jsondata)
-    except:
-        return None, f"Error saving down file to `{cfg_path}`"
-    
+    except Exception as e:
+        return None, f"Error saving down file to `{cfg_path}: {e}`"
+
     return new_cfg, f"Successfully saved config to `{cfg_path}`"
 
 
 if __name__ == "__main__":
-    # global cfg_path
-    # global char_folder
     parser = argparse.ArgumentParser()
     parser.add_argument('char_folder', type=str, help="the location of the character bundle")
     parser.add_argument('--port', type=int, default=5050, help="the port the tool launches on")
@@ -75,7 +78,6 @@ if __name__ == "__main__":
     cfg_path = os.path.join(char_folder, "char_cfg.yaml")
 
     if not os.path.isfile(cfg_path):
-        print(f"[Error] File not found. Expected config file at: {cfg_path}");
+        print(f"[Error] File not found. Expected config file at: {cfg_path}")
         sys.exit(1)
     app.run(port=args.port, debug=False)
-
