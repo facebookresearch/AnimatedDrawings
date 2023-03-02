@@ -55,6 +55,11 @@ def process(request):
     except Exception as e:
         return None, f"Error parsing submission data into JSON. Invalid format?: {e}"
 
+    # convert joint locations from floats to ints
+    for joint in jsondata['skeleton']:
+        joint['loc'][0] = round(joint['loc'][0])
+        joint['loc'][1] = round(joint['loc'][1])
+
     try:
         new_cfg = yaml.dump(jsondata)
     except Exception as e:
