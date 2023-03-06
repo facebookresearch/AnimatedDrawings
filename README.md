@@ -9,6 +9,7 @@ In addition, this repo aims to be a useful creative tool in its own right, allow
 
 
 ## Installation
+*This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating sytem, you may encounter issues.*
 
 We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
 Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands:
