@@ -20,7 +20,7 @@ Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/proje
     conda activate animated_drawings
 
     # clone AnimatedDrawings and use pip to install
-    git clone git@github.com:fairinternal/AnimatedDrawings.git
+    git clone https://github.com/facebookresearch/AnimatedDrawings.git
     cd AnimatedDrawings
     pip install -e .
 ````
