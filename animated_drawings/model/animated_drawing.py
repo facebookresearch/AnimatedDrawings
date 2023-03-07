@@ -403,7 +403,7 @@ class AnimatedDrawing(Transform, TimeManager):
         for idx, dist in _bodypart_render_order:
             intra_bodypart_render_order = 1 if dist > 0 else -1  # if depth driver is behind plane, render bodyparts in reverse order
             for joint_name in self.retarget_cfg.char_bodypart_groups[idx]['char_joints'][::intra_bodypart_render_order]:
-                indices.append(self.joint_to_tri_v_idx[joint_name])
+                indices.append(self.joint_to_tri_v_idx.get(joint_name, np.array([], dtype=np.int32)))
         self.indices = np.hstack(indices)
 
     def _initialize_joint_to_triangles_dict(self) -> None:  # noqa: C901
