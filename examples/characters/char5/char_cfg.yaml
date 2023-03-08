@@ -1,0 +1,143 @@
+height: 279
+skeleton:
+- loc:
+  - 135
+  - 245
+  name: root
+  parent: null
+- loc:
+  - 135
+  - 245
+  name: hip
+  parent: root
+- loc:
+  - 137
+  - 140
+  name: torso
+  parent: hip
+- loc:
+  - 123
+  - 64
+  name: neck
+  parent: torso
+- loc:
+  - 82
+  - 186
+  name: right_shoulder1
+  parent: torso
+- loc:
+  - 63
+  - 193
+  name: right_elbow1
+  parent: right_shoulder1
+- loc:
+  - 45
+  - 198
+  name: right_hand1
+  parent: right_elbow1
+- loc:
+  - 85
+  - 141
+  name: right_shoulder2
+  parent: torso
+- loc:
+  - 54
+  - 142
+  name: right_elbow2
+  parent: right_shoulder2
+- loc:
+  - 27
+  - 155
+  name: right_hand2
+  parent: right_elbow2
+- loc:
+  - 89
+  - 126
+  name: right_shoulder3
+  parent: torso
+- loc:
+  - 53
+  - 111
+  name: right_elbow3
+  parent: right_shoulder3
+- loc:
+  - 14
+  - 114
+  name: right_hand3
+  parent: right_elbow3
+- loc:
+  - 194
+  - 187
+  name: left_shoulder1
+  parent: torso
+- loc:
+  - 210
+  - 195
+  name: left_elbow1
+  parent: left_shoulder1
+- loc:
+  - 227
+  - 199
+  name: left_hand1
+  parent: left_elbow1
+- loc:
+  - 193
+  - 142
+  name: left_shoulder2
+  parent: torso
+- loc:
+  - 221
+  - 142
+  name: left_elbow2
+  parent: left_shoulder2
+- loc:
+  - 249
+  - 149
+  name: left_hand2
+  parent: left_elbow2
+- loc:
+  - 186
+  - 124
+  name: left_shoulder3
+  parent: torso
+- loc:
+  - 213
+  - 113
+  name: left_elbow3
+  parent: left_shoulder3
+- loc:
+  - 245
+  - 111
+  name: left_hand3
+  parent: left_elbow3
+- loc:
+  - 107
+  - 255
+  name: right_hip
+  parent: root
+- loc:
+  - 82
+  - 262
+  name: right_knee
+  parent: right_hip
+- loc:
+  - 56
+  - 267
+  name: right_foot
+  parent: right_knee
+- loc:
+  - 166
+  - 248
+  name: left_hip
+  parent: root
+- loc:
+  - 186
+  - 252
+  name: left_knee
+  parent: left_hip
+- loc:
+  - 208
+  - 255
+  name: left_foot
+  parent: left_knee
+width: 257

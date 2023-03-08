@@ -151,14 +151,21 @@ The resulting animation was saved as `./garlic_out/video.gif`.
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
 
 ### Fixing bad predictions
-You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were addition non-video files within `garlic_out`.
+You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were additional non-video files within `garlic_out`.
 `mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
-If the predictions were incorrect, you can manually fix the annotations.
-The segmentation mask is a grayscale image that can be edited in Photoshop or Paint.
-The skeleton joint locations within char_cfg.yaml can be edited with a text editor (though you'll want to read about the [character config](examples/config/README.md) files first.)
+If the mask predictions are incorrect, you can edit the mask with an image editing program like Paint or Photoshop.
+If the joint predictions are incorrect, you can run `python fix_annotations.py` to launch a web interface to visualize, correct, and update the annotations. Pass it the location of the folder containing incorrect joint predictions (here we use `garlic_out/` as an example):
 
+````bash
+    (animated_drawings) examples % python fix_annotations.py garlic_out/
+    ...
+     * Running on http://127.0.0.1:5050
+    Press CTRL+C to quit
+````
 
-Once you've modified annotations, you can render an animation using them like so:
+Navigate to `http://127.0.0.1:5050` in your browser to access the web interface. Drag the joints into the appropriate positions, and hit `Submit` to save your edits.
+
+Once you've modified the annotations, you can render an animation using them like so:
 
 ````bash
     # specify the folder where the fixed annoations are located
@@ -216,8 +223,26 @@ For example, I created this Readme's banner animation by:
 <img src='https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif' height="256" />
 
 
-### Adding addition character skeletons
-To be added later, if requested.
+### Adding Addition Character Skeletons
+All of the example animations above depict "human-like" characters; they have two arms and two legs.
+Our method is primarily designed with these human-like characters is mind, and the provided pose estimation model assumes a human-like skeleton is present. 
+But you can manually specify a different skeletons within the `character config` and modify the specified `retarget config` to support it.
+If you're interested, look at the configuration files specified in the two examples below.
+
+
+````python
+from animated_drawings import render
+render.start('./examples/config/mvc/six_arms_example.yaml')
+````
+
+<img src='https://user-images.githubusercontent.com/6675724/223584962-925ee5aa-11de-47e5-ace2-a6d5940b34ae.png' height="256" /><img src='https://user-images.githubusercontent.com/6675724/223585000-dc8acf4e-974d-4cae-998b-94543f5f42c8.gif' width="256" height="256" /></br></br></br>
+
+````python
+from animated_drawings import render
+render.start('./examples/config/mvc/four_legs_example.yaml')
+````
+
+<img src='https://user-images.githubusercontent.com/6675724/223585033-f11e4e66-0443-405a-80e5-09b6aa0e335d.png' height="256" /><img src='https://user-images.githubusercontent.com/6675724/223585043-7ce9eac0-bb4c-4547-b038-c63ca2852ef2.gif' width="256" height="256" /></br></br></br>
 
 ### Creating Your Own Config Files
 If you want to create your own config files, see the [configuration file documentation](examples/config/README.md).
