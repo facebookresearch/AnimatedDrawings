@@ -222,8 +222,26 @@ For example, I created this Readme's banner animation by:
 <img src='https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif' height="256" />
 
 
-### Adding addition character skeletons
-To be added later, if requested.
+### Adding Addition Character Skeletons
+All of the example animations above depict "human-like" characters; they have two arms and two legs.
+Our method is primarily designed with these human-like characters is mind, and the provided pose estimation model assumes a human-like skeleton is present. 
+But you can manually specify a different skeletons within the `character config` and modify the specified `retarget config` to support it.
+If you're interested, look at the configuration files specified in the two examples below.
+
+
+````python
+from animated_drawings import render
+render.start('./examples/config/mvc/six_arms_example.yaml')
+````
+
+<img src='https://user-images.githubusercontent.com/6675724/223584962-925ee5aa-11de-47e5-ace2-a6d5940b34ae.png' height="256" /><img src='https://user-images.githubusercontent.com/6675724/223585000-dc8acf4e-974d-4cae-998b-94543f5f42c8.gif' width="256" height="256" /></br></br></br>
+
+````python
+from animated_drawings import render
+render.start('./examples/config/mvc/four_legs_example.yaml')
+````
+
+<img src='https://user-images.githubusercontent.com/6675724/223585033-f11e4e66-0443-405a-80e5-09b6aa0e335d.png' height="256" /><img src='https://user-images.githubusercontent.com/6675724/223585043-7ce9eac0-bb4c-4547-b038-c63ca2852ef2.gif' width="256" height="256" /></br></br></br>
 
 ### Creating Your Own Config Files
 If you want to create your own config files, see the [configuration file documentation](examples/config/README.md).
