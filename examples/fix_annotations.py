@@ -1,3 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
 import argparse
 import base64
 from flask import Flask, render_template, request
