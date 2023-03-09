@@ -1,3 +1,5 @@
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+
 const Line = ({ isActive, ...props }) => {
   return (
     <>
