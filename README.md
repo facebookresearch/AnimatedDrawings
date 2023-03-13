@@ -5,7 +5,7 @@
 
 This repo contains an implementation of the algorithm described in the paper, `A Method for Automatically Animating Children's Drawings of the Human Figure' (currenly under peer review). 
 
-In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**
+In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
 
 
 ## Installation
