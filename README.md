@@ -7,6 +7,8 @@ This repo contains an implementation of the algorithm described in the paper, `A
 
 In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
 
+Project website: [http://www.fairanimateddrawings.com](http://www.fairanimateddrawings.com)
+
 
 ## Installation
 *This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating sytem, you may encounter issues.*
