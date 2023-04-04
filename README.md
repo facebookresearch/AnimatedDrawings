@@ -270,9 +270,3 @@ If you find this repo helpful in your own work, please consider citing the accom
 
 These characters are deformed using [As-Rigid-As-Possible (ARAP) shape manipulation](https://www-ui.is.s.u-tokyo.ac.jp/~takeo/papers/takeo_jgt09_arapFlattening.pdf).
 We have a Python implementation of the algorithm, located [here](https://github.com/fairinternal/AnimatedDrawings/blob/main/animated_drawings/model/arap.py), that might be of use to other developers.
-
-## Licensing
-
-This work is released under a [Creative Commons Attribution-NonCommercial 4.0 license](https://creativecommons.org/licenses/by-nc/4.0/).
-This license precludes commercial use. 
-**If you are interested in using this work commercially, please email jesse dot smith at meta dot com.**
