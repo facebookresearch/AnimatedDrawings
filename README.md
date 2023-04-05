@@ -255,6 +255,8 @@ If you'd like to animate a drawing of your own, but don't want to deal with down
 
 [www.sketch.metademolab.com](https://sketch.metademolab.com/)
 
+## License
+Animated Drawings is released under the [MIT license](https://github.com/fairinternal/AnimatedDrawings/blob/main/LICENSE).
 
 ## Citation
  <i>The accompanying paper has been accepted to Transactions on Graphics and will be presented at SIGGRAPH 2023. Official citation will be added later, but for now you can access the paper on arxiv: [A Method for Animating Children's Drawings of The Human Figure](https://arxiv.org/abs/2303.12741) </i>
