@@ -266,7 +266,18 @@ If you find this repo helpful in your own work, please consider citing the accom
 (citation information to be added later)
 
 ## Amateur Drawings Dataset
-(Instructions for how to obtain dataset to be added later).
+
+To obtain the Amateur Drawings Dataset, run the following two commands from the command line:
+
+````bash
+# download annotations (~275Mb)
+wget http://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings_annotations.json
+
+# download images (~50Gb)
+wget http://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings.tar
+````
+
+If you have feedback about the dataset, please fill out [this form](https://forms.gle/kE66yskh9uhtLbFz9).
 
 ## As-Rigid-As-Possible Shape Manipulation
 
