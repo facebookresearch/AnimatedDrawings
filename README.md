@@ -281,6 +281,10 @@ wget https://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings.tar
 
 If you have feedback about the dataset, please fill out [this form](https://forms.gle/kE66yskh9uhtLbFz9).
 
+## Trained Model Weights
+
+Trained model weights for human-like figure detection and pose estimation are included in the [repo releases](https://github.com/facebookresearch/AnimatedDrawings/releases). Model weights are released under [MIT license](https://github.com/facebookresearch/AnimatedDrawings/blob/main/LICENSE). The .mar files were generated using the OpenMMLab framework ([OpenMMDet Apache 2.0 License](https://github.com/open-mmlab/mmdetection/blob/main/LICENSE), [OpenMMPose Apache 2.0 License](https://github.com/open-mmlab/mmpose/blob/main/LICENSE))
+
 ## As-Rigid-As-Possible Shape Manipulation
 
 These characters are deformed using [As-Rigid-As-Possible (ARAP) shape manipulation](https://www-ui.is.s.u-tokyo.ac.jp/~takeo/papers/takeo_jgt09_arapFlattening.pdf).
