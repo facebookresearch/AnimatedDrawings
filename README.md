@@ -9,6 +9,8 @@ In addition, this repo aims to be a useful creative tool in its own right, allow
 
 Project website: [http://www.fairanimateddrawings.com](http://www.fairanimateddrawings.com)
 
+Video Overview of [Animated Drawings OS Project](https://www.youtube.com/watch?v=WsMUKQLVsOI)
+
 
 ## Installation
 *This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating sytem, you may encounter issues.*
