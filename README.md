@@ -9,7 +9,7 @@ In addition, this repo aims to be a useful creative tool in its own right, allow
 
 Project website: [http://www.fairanimateddrawings.com](http://www.fairanimateddrawings.com)
 
-Video Overview of [Animated Drawings OS Project](https://www.youtube.com/watch?v=WsMUKQLVsOI)
+Video overview of [Animated Drawings OS Project](https://www.youtube.com/watch?v=WsMUKQLVsOI)
 
 
 ## Installation
