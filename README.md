@@ -273,10 +273,10 @@ To obtain the Amateur Drawings Dataset, run the following two commands from the 
 
 ````bash
 # download annotations (~275Mb)
-wget http://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings_annotations.json
+wget https://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings_annotations.json
 
 # download images (~50Gb)
-wget http://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings.tar
+wget https://dl.fbaipublicfiles.com/amateur_drawings/amateur_drawings.tar
 ````
 
 If you have feedback about the dataset, please fill out [this form](https://forms.gle/kE66yskh9uhtLbFz9).
