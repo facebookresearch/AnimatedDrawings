@@ -32,5 +32,5 @@ outlined on that page and do not file a public issue.
 * Please try to follow [PEP8](https://peps.python.org/pep-0008/) style guidelines
 
 ## License
-By contributing to __________, you agree that your contributions will be licensed
+By contributing to AnimatedDrawings, you agree that your contributions will be licensed
 under the LICENSE file in the root directory of this source tree.
