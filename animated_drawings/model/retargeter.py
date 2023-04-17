@@ -113,7 +113,7 @@ class Retargeter():
         Called during initialization.
         Computes fwd vector for bvh skeleton at each frame.
         Extracts all bvh skeleton joint locations for all frames.
-        Repositions them so root is above the orign.
+        Repositions them so root is above the origin.
         Rotates them so skeleton faces along the +X axis.
         """
         # get joint positions and forward vectors
@@ -128,7 +128,7 @@ class Retargeter():
         self.bvh_root_positions = self.joint_positions[:, :3]
         self.joint_positions = self.joint_positions - np.tile(self.bvh_root_positions, [1, len(self.bvh_joint_names)])
 
-        # compute angle between skelton's forward vector and x axis
+        # compute angle between skeleton's forward vector and x axis
         v1 = np.tile(np.array([1.0, 0.0], dtype=np.float32), reps=(self.joint_positions.shape[0], 1))
         v2 = self.fwd_vectors
         dot: npt.NDArray[np.float32] = v1[:, 0]*v2[:, 0] + v1[:, 1]*v2[:, 2]
@@ -157,7 +157,7 @@ class Retargeter():
         if projection_method == 'frontal':
             logging.info(f'{group_name} projection_method is {projection_method}. Using {x_axis}')
             return x_axis
-        elif projection_method == 'saggital':
+        elif projection_method == 'sagittal':
             logging.info(f'{group_name} projection_method is {projection_method}. Using {z_axis}')
             return z_axis
         elif projection_method == 'pca':
@@ -240,7 +240,7 @@ class Retargeter():
         self.char_root_positions[0] = [0, 0]
         for idx in range(1, self.bvh_root_positions.shape[0]):
 
-            if np.array_equal(projection_plane, np.array([0.0, 0.0, 1.0])):  # if saggital projection
+            if np.array_equal(projection_plane, np.array([0.0, 0.0, 1.0])):  # if sagittal projection
                 v1 = self.fwd_vectors[idx]                                   # we're interested in forward motion
             else:                                                            # if frontal projection
                 v1 = self.fwd_vectors[idx][::-1]*np.array([-1, 1, -1])       # we're interested in lateral motion
@@ -316,7 +316,7 @@ class Retargeter():
     def get_retargeted_frame_data(self, time: float) -> Tuple[Dict[str, float], Dict[str, float], npt.NDArray[np.float32]]:
         """
         Input: time, in seconds, used to select the correct BVH frame.
-        Caculate the proper frame and, for it, returns:
+        Calculate the proper frame and, for it, returns:
             - orientations, dictionary mapping from character joint names to world orientations (degrees CCW from +Y axis)
             - joint_depths, dictionary mapping from BVH skeleton's joint names to distance from joint to projection plane
             - root_positions, the position of the character's root at this frame.

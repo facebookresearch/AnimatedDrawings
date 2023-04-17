@@ -587,7 +587,7 @@ class AnimatedDrawing(Transform, TimeManager):
         # initialize xy positions of mesh vertices
         self.vertices[:, :2] = self.arap.solve(self.rig.get_joints_2D_positions()).reshape([-1, 2])
 
-        # initialize texture coordiantes
+        # initialize texture coordinates
         self.vertices[:, 6] = self.mesh['vertices'][:, 1]                        # u tex
         self.vertices[:, 7] = self.mesh['vertices'][:, 0]                        # v tex
 

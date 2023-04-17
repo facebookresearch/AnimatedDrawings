@@ -135,7 +135,7 @@ class Quaternions:
             angles = np.expand_dims(angles, axis=0)
 
         if len(order) != angles.shape[-1]:
-            msg = 'lengh of orders and angles does not match'
+            msg = 'length of orders and angles does not match'
             logging.critical(msg)
             assert False, msg
 

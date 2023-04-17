@@ -11,7 +11,7 @@ bvh_projection_bodypart_groups:
   - LeftForeArm
   - LeftHand
   - LeftHandEnd
-  method: saggital
+  method: sagittal
   name: Upper Limbs
 - bvh_joint_names:
   - RightUpLeg

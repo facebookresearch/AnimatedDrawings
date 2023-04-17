@@ -19,7 +19,7 @@ class Config():
         with open(resource_filename(__name__, "mvc_base_cfg.yaml"), 'r') as f:
             base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})  # pyright: ignore[reportUnknownMemberType])
 
-        # search for the user-specified mvc confing
+        # search for the user-specified mvc config
         user_mvc_cfg_p: Path = resolve_ad_filepath(user_mvc_cfg_fn, 'user mvc config')
         logging.info(f'Using user-specified mvc config file located at {user_mvc_cfg_p.resolve()}')
         with open(str(user_mvc_cfg_p), 'r') as f:
@@ -410,7 +410,7 @@ class MotionConfig():
             assert False, msg
 
     def validate_bvh(self, bvh_joint_names: List[str]) -> None:
-        """ Performs all the validation steps that depend upon knowing the BVH joint names. This should be called once the BVH had been leaded """
+        """ Performs all the validation steps that depend upon knowing the BVH joint names. This should be called once the BVH had been loaded."""
         try:
             for prox_joint_name, dist_joint_name in self.forward_perp_joint_vectors:
                 assert prox_joint_name in bvh_joint_names, f'invalid prox_joint name in motion_cfg.forward_perp_joint_vectors: {prox_joint_name}'
@@ -459,7 +459,7 @@ class RetargetConfig():
             self.bvh_projection_bodypart_groups = retarget_cfg['bvh_projection_bodypart_groups']
 
             for group in self.bvh_projection_bodypart_groups:
-                assert group['method'] in ['pca', 'saggital', 'frontal'], 'group method must be "pca", "saggital", or "frontal"'
+                assert group['method'] in ['pca', 'sagittal', 'frontal'], 'group method must be "pca", "sagittal", or "frontal"'
         except (AssertionError, ValueError) as e:
             msg = f'Error validating bvh_projection_bodypart_groups: {e}'
             logging.critical(msg)

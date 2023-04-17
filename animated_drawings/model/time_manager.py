@@ -16,7 +16,7 @@ class TimeManager():
         self._is_paused: bool = False
 
     def tick(self, delta_t: float) -> None:
-        """ Progress objects interal time by delta_t seconds if not paused """
+        """ Progress objects interval time by delta_t seconds if not paused """
         if not self._is_paused:
             self._time += delta_t
             self.update()
