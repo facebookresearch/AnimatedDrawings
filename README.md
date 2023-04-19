@@ -222,9 +222,20 @@ For example, I created this Readme's banner animation by:
 3. Creating a new [motion config file](examples/config/README.md#motion) and [retarget config file](examples/config/README.md#retarget) to fit the skeleton exported by Rokoko.
 4. Using AnimatedDrawings to animate the characters and export a transparent animated gif.
 5. Combining the animated gif, original video, and original drawings in Adobe Premiere.
-
-
 <img src='https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif' height="256" />
+
+Here is an example of the configs I used apply my motion to a character. To use these config files, ensure that the Rokoko exports the BVH with the Mixamo skeleton preset:
+
+ ````python
+from animated_drawings import render
+render.start('./examples/config/mvc/rokoko_motion_example.yaml')
+ ````
+
+It will show this in a new window:
+
+![Sequence 01](https://user-images.githubusercontent.com/6675724/233157474-1506d219-c085-49f9-a537-43d6c1bae93a.gif)
+
+
 
 
 ### Adding Addition Character Skeletons
