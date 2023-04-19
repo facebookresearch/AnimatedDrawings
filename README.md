@@ -231,6 +231,10 @@ from animated_drawings import render
 render.start('./examples/config/mvc/rokoko_motion_example.yaml')
  ````
 
+It will show this in a new window:
+
+![Sequence 01](https://user-images.githubusercontent.com/6675724/233157474-1506d219-c085-49f9-a537-43d6c1bae93a.gif)
+
 
 
 
