@@ -222,9 +222,16 @@ For example, I created this Readme's banner animation by:
 3. Creating a new [motion config file](examples/config/README.md#motion) and [retarget config file](examples/config/README.md#retarget) to fit the skeleton exported by Rokoko.
 4. Using AnimatedDrawings to animate the characters and export a transparent animated gif.
 5. Combining the animated gif, original video, and original drawings in Adobe Premiere.
-
-
 <img src='https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif' height="256" />
+
+Here is an example of the configs I used apply my motion to a character:
+
+ ````python
+from animated_drawings import render
+render.start('./examples/config/mvc/rokoko_motion_example.yaml')
+ ````
+
+
 
 
 ### Adding Addition Character Skeletons
