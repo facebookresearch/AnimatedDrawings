@@ -240,7 +240,7 @@ It will show this in a new window:
 
 ### Adding Addition Character Skeletons
 All of the example animations above depict "human-like" characters; they have two arms and two legs.
-Our method is primarily designed with these human-like characters is mind, and the provided pose estimation model assumes a human-like skeleton is present. 
+Our method is primarily designed with these human-like characters in mind, and the provided pose estimation model assumes a human-like skeleton is present. 
 But you can manually specify a different skeletons within the `character config` and modify the specified `retarget config` to support it.
 If you're interested, look at the configuration files specified in the two examples below.
 
