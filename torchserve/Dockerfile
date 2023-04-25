@@ -3,6 +3,7 @@
 FROM continuumio/miniconda3
 
 # install os dependencies
+RUN mkdir -p /usr/share/man/man1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
