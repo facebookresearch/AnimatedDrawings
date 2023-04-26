@@ -50,6 +50,6 @@ class Shader:
 
         status: bool = GL.glGetProgramiv(self.glid, GL.GL_LINK_STATUS)
         if not status:
-            msg = f'Errror creating shader program: {GL.glGetProgramInfoLog(self.glid).decode("ascii")}'
+            msg = f'Error creating shader program: {GL.glGetProgramInfoLog(self.glid).decode("ascii")}'
             logging.critical(msg)
             assert False, msg

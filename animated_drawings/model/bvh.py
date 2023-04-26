@@ -138,7 +138,7 @@ class BVH(Transform, TimeManager):
             lines = f.read().splitlines()
 
         if lines.pop(0) != 'HIERARCHY':
-            msg = f'Malformed BVH in line preceeding {lines}'
+            msg = f'Malformed BVH in line preceding {lines}'
             logging.critical(msg)
             assert False, msg
 
@@ -146,7 +146,7 @@ class BVH(Transform, TimeManager):
         root_joint: BVH_Joint = BVH._parse_skeleton(lines)
 
         if lines.pop(0) != 'MOTION':
-            msg = f'Malformed BVH in line preceeding {lines}'
+            msg = f'Malformed BVH in line preceding {lines}'
             logging.critical(msg)
             assert False, msg
 
@@ -206,13 +206,13 @@ class BVH(Transform, TimeManager):
             assert False, msg
 
         if lines.pop(0).strip() != '{':
-            msg = f'Malformed BVH in line preceeding {lines}'
+            msg = f'Malformed BVH in line preceding {lines}'
             logging.critical(msg)
             assert False, msg
 
         # Get offset
         if not lines[0].strip().startswith('OFFSET'):
-            msg = f'Malformed BVH in line preceeding {lines}'
+            msg = f'Malformed BVH in line preceding {lines}'
             logging.critical(msg)
             assert False, msg
         _, *xyz = lines.pop(0).strip().split(' ')
@@ -225,7 +225,7 @@ class BVH(Transform, TimeManager):
         else:
             channel_num, channel_order = 0, []
         if int(channel_num) != len(channel_order):
-            msg = f'Malformed BVH in line preceeding {lines}'
+            msg = f'Malformed BVH in line preceding {lines}'
             logging.critical(msg)
             assert False, msg
 

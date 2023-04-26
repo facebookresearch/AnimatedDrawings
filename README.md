@@ -13,7 +13,7 @@ Video overview of [Animated Drawings OS Project](https://www.youtube.com/watch?v
 
 
 ## Installation
-*This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating sytem, you may encounter issues.*
+*This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating system, you may encounter issues.*
 
 We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
 Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands:
@@ -78,7 +78,7 @@ Instead of an interactive window, the animation was saved to a file, video.mp4, 
 
 ### Export transparent .gif
 
-Perhaps you'd like a transparent .gif instead of an .mp4? Copy these lines in the Python interpreter intead:
+Perhaps you'd like a transparent .gif instead of an .mp4? Copy these lines in the Python interpreter instead:
 
 ````python
 from animated_drawings import render

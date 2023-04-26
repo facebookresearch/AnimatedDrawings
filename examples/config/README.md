@@ -10,7 +10,7 @@ There are four different types of configuration files:
 ## <a name="mvc"></a>MVC Config File
 This is the top-level configuration file, passed into `render.start()` to generate the animation. All parameters and options not specifically related to the Animated Drawing character, the BVH file, or the retargeting process go in here.
 Such parameters belong to one of three subgroups, in alignment with the Model-View-Controller design pattern. (Note: the 'Model' element of MVC is referred to as 'scene')
-Most of the available parameters are defined in [animated_drawings/mvc_base_cfg.yaml](../../animated_drawings/mvc_base_cfg.yaml). This file should **not** be changed. Instead, create a new mvc config file containg *only* the parameters that need to be modified.
+Most of the available parameters are defined in [animated_drawings/mvc_base_cfg.yaml](../../animated_drawings/mvc_base_cfg.yaml). This file should **not** be changed. Instead, create a new mvc config file containing *only* the parameters that need to be modified.
 The rendering script will read the initial parameters from `mvc_base_cfg.yaml` and overwrite any parameters specified within the new mvc config file. 
 See the [example mvc config files](mvc) for examples.
 
@@ -18,7 +18,7 @@ See the [example mvc config files](mvc) for examples.
 
     - <b>ADD_FLOOR</b> <em>(bool)</em>: If `True`, a floor will be added to the scene and rendered.
 
-    - <b>ADD_AD_RETARGET_BVH</b> <em>(bool)</em>: If `True`, a visualization of the original BVH motion driving hte Animated Drawing characters will be added to the scene.
+    - <b>ADD_AD_RETARGET_BVH</b> <em>(bool)</em>: If `True`, a visualization of the original BVH motion driving the Animated Drawing characters will be added to the scene.
 
     - <b>ANIMATED_CHARACTERS</b> <em>List[dict[str:str, str:str, str:str]]</em>:
  A list of dictionaries containing the filepaths of config files necessary to create and animated an Animated Drawing character. 
@@ -78,7 +78,7 @@ Only used in `video_render` mode and only if a `.mp4` output video file is speci
 
 ## <a name="character"></a>Character Config File
 
-This configuration file (referred to below as `char_cfg`) contains the information necessary to create an instance of the Animated Drawing class. In addition to the fields below, which are explicitly listed within `char_cfg`, the <em>filepath</em> of `char_cfg` is used to store the location of the character's texture and mask files. Essentally, just make sure the associated `texture.png` and `mask.png` files are in the same directory as `char_cfg`.
+This configuration file (referred to below as `char_cfg`) contains the information necessary to create an instance of the Animated Drawing class. In addition to the fields below, which are explicitly listed within `char_cfg`, the <em>filepath</em> of `char_cfg` is used to store the location of the character's texture and mask files. Essentially, just make sure the associated `texture.png` and `mask.png` files are in the same directory as `char_cfg`.
 
 - <b>height</b> <em>(int)</em>:
 Height, in pixels, of `texture.png` and `mask.png` files located in same directory as `char_cfg`.
@@ -145,7 +145,7 @@ The starting xzy position of the character's root.
 The big-picture goal of the retargeter is to use 3D skeletal motion data to drive a 2D character rig.
 As part of this process, we project the skeletal joint positions onto 2D planes.
 But we don't need to use the same 2D plane for every joint within the skeleton.
-Depending upon the motion of particular skeletal bodyparts, it may be preferrable to use different planes (e.g. a <em>frontal</em> projection plane for the skeletal arms and torso, but a <em>saggital</em> projection plane for the legs).
+Depending upon the motion of particular skeletal bodyparts, it may be preferable to use different planes (e.g. a <em>frontal</em> projection plane for the skeletal arms and torso, but a <em>sagittal</em> projection plane for the legs).
 `projection_bodypart_groups` contains a list of bodypart groups, corresponding the BVH skeletal joints which should all be projected onto the same plane. Each bodypart group is a dictionary with the follow key-value pairs:
 
     - <b>joint_names</b> <em>(list[str])</em>:
@@ -161,17 +161,17 @@ Currently, three options supported:
         - `'frontal'`:
 Joints are projected onto the frontal plane of the skeleton, as determined by its forward vector.
 
-        - `'saggital'`:
-Joints are projected onto the saggital plane of the skeleton, who's normal vector is <em>clockwise</em> perpendicular to the skeleton's forward vector.
+        - `'sagittal'`:
+Joints are projected onto the sagittal plane of the skeleton, who's normal vector is <em>clockwise</em> perpendicular to the skeleton's forward vector.
 
         - `'pca'`:
-We attempt to automatically choose the best plane (`frontal` or `saggital`) using the following method:
+We attempt to automatically choose the best plane (`frontal` or `sagittal`) using the following method:
 
             1. Subtract the skeleton root's xy position from each frame, fixing it above the origin.
             2. Rotate the skeleton so it's forward vector is facing along the +x axis at each frame.
             3. Create a point cloud comprised of the xzy locations of every joint within the bodypart group at every frame. 
             4. Perform principal component analysis upon the point cloud. <em>(The first 1st and 2nd components define a projection plane that preserves the maximal variance within the point cloud. The 3rd component defines this plane's normal vector)</em>
-            5. Take the 3rd component and compute it's cosine similarity to the skeleton's `forward` vector and `saggital` vector. Use the projection plane who's normal vector is more similar to the 3rd component.
+            5. Take the 3rd component and compute it's cosine similarity to the skeleton's `forward` vector and `sagittal` vector. Use the projection plane who's normal vector is more similar to the 3rd component.
 
 - <b>char_bodypart_groups</b> <em>(list[dict])</em>:
 If there is overlap between the character's torso and its arm, for example, one should be rendered in front of the other. 
@@ -192,7 +192,7 @@ the average depth is calculated, then character bodypart groups are rendered fro
 Unless the BVH skeleton stands in the same place for the entirety of motion clip, the root joint of the character rig must be offset to account for the skeleton's translation.
 But the proportion of the skeleton and character rig may be very different.
 Additionally, the skeleton moves in three dimensions while the character rig is restricted to two dimensions.
-The fields within this dicionary are necessary to account for these issues.
+The fields within this dictionary are necessary to account for these issues.
 
     - <b>bvh_joints</b> <em>(list[list[str]])</em>:
 A list of one or more lists of joints defining a series of joint chains within the BVH skeleton (but joints do not need to be directly connected within the BVH skeleton).
