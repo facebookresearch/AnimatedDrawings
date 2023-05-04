@@ -148,7 +148,7 @@ But we don't need to use the same 2D plane for every joint within the skeleton.
 Depending upon the motion of particular skeletal bodyparts, it may be preferable to use different planes (e.g. a <em>frontal</em> projection plane for the skeletal arms and torso, but a <em>sagittal</em> projection plane for the legs).
 `projection_bodypart_groups` contains a list of bodypart groups, corresponding the BVH skeletal joints which should all be projected onto the same plane. Each bodypart group is a dictionary with the follow key-value pairs:
 
-    - <b>joint_names</b> <em>(list[str])</em>:
+    - <b>bvh_joint_names</b> <em>(list[str])</em>:
 A list containing the names of joints within the BVH skeleton.
 
     - <b>name</b> <em>(str)</em>:
