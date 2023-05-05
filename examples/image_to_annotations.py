@@ -48,7 +48,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     # convert to bytes and send to torchserve
     img_b = cv2.imencode('.png', img)[1].tobytes()
     request_data = {'data': img_b}
-    resp = requests.post("http://localhost:8080/predictions/drawn_humanoid_detector", files=request_data, verify=False)
+    resp = requests.post("http://dev-60yfmd-alb-647026402.ap-northeast-1.elb.amazonaws.com/predictions/drawn_humanoid_detector", files=request_data, verify=False)
     if resp is None or resp.status_code >= 300:
         raise Exception(f"Failed to get bounding box, please check if the 'docker_torchserve' is running and healthy, resp: {resp}")
 
@@ -92,7 +92,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
 
     # send cropped image to pose estimator
     data_file = {'data': cv2.imencode('.png', cropped)[1].tobytes()}
-    resp = requests.post("http://localhost:8080/predictions/drawn_humanoid_pose_estimator", files=data_file, verify=False)
+    resp = requests.post("http://dev-60yfmd-alb-647026402.ap-northeast-1.elb.amazonaws.com/predictions/drawn_humanoid_pose_estimator", files=data_file, verify=False)
     if resp is None or resp.status_code >= 300:
         raise Exception(f"Failed to get skeletons, please check if the 'docker_torchserve' is running and healthy, resp: {resp}")
 
