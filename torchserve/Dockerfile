@@ -32,4 +32,5 @@ RUN wget https://github.com/facebookresearch/AnimatedDrawings/releases/download/
 COPY config.properties /home/torchserve/config.properties
 
 # starting command
+EXPOSE 8080
 CMD /opt/conda/bin/torchserve --start --ts-config /home/torchserve/config.properties && sleep infinity

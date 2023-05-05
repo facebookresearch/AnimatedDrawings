@@ -15,9 +15,9 @@ terraform {
 
 locals {
   common = {
-    env = "dev"
+    env      = "dev"
     app_name = "60yfmd"
-    region  = "ap-northeast-1"
+    region   = "ap-northeast-1"
   }
 }
 
@@ -25,7 +25,7 @@ module "ecr" {
   source = "../../modules/ecr"
   common = {
     app_name = local.common.app_name
-    env       = local.common.env
+    env      = local.common.env
   }
 }
 
@@ -58,27 +58,42 @@ module "network" {
   }
 }
 
-# module "ecs" {
-#   source = "../../modules/ecs"
-#   common = {
-#     app_name = local.common.app_name
-#     env      = local.common.env
-#   }
-#   task = {
-#     family = "${local.common.env}-${local.common.app_name}-ecs-task"
-#     cpu    = "4 vCPU"
-#     memory = "8 GB"
-#     container_definitions = [
-#       {
-#         name         = "${local.common.env}-${local.common.app_name}-container-definition"
-#         image        = "${module.ecr.repo.repository_url}:latest"
-#         essential    = true
-#         portMappings = []
-#         command      = []
-#         entryPoint   = []
-#         environment  = []
-#         secrets      = []
-#       }
-#     ]
-#   }
-# }
+module "ecs" {
+  source = "../../modules/ecs"
+  common = {
+    app_name = local.common.app_name
+    env      = local.common.env
+  }
+  network = {
+    vpc_id             = module.network.vpc_id
+    private_subnet_ids = module.network.private_subnet_ids
+  }
+  task = {
+    family = "${local.common.env}-${local.common.app_name}-ecs-task"
+    cpu    = "8 vCPU"
+    memory = "16 GB"
+    container_definitions = [
+      {
+        name      = "${local.common.env}-${local.common.app_name}-container-definition"
+        image     = "${module.ecr.repo.repository_url}:latest"
+        essential = true
+        portMappings = [
+          {
+            containerPort = 8080,
+            hostPort      = 8080,
+            protocol      = "tcp"
+          },
+          {
+            containerPort = 8081,
+            hostPort      = 8081,
+            protocol      = "tcp"
+          }
+        ]
+        command     = []
+        entryPoint  = []
+        environment = []
+        secrets     = []
+      }
+    ]
+  }
+}
