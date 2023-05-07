@@ -30,4 +30,4 @@ COPY . .
 RUN pip install -e .
 
 # starting command
-# RUN python handler.py
+ENTRYPOINT ["python examples/handler.py"]

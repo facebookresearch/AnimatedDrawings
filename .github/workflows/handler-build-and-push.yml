@@ -1,0 +1,57 @@
+name: "handler push"
+on:
+  push:
+
+env:
+  ECR_REPOSITORY: dev-60yfmd-ecr
+  ECS_CLUSTER: dev-60yfmd-ecs-cluster
+  ECS_SERVICE: dev-60yfmd-handler-ecs-service
+  ECS_TASK: dev-60yfmd-handler-ecs-task
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:handler -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:handler . -f handler/Dockerfile
+          docker push -a $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}
+
+      - name: Fetch latest ECS task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${ECS_TASK} | \
+          jq '
+            .taskDefinition | 
+            del(.compatibilities, .taskDefinitionArn, .requiresAttributes, .revision, .status, .registeredAt, .registeredBy, nulls)
+          ' | \
+          tee task-definition.json
+
+      - uses: aws-actions/amazon-ecs-render-task-definition@v1
+        id: render
+        with:
+          task-definition: task-definition.json
+          container-name: dev-60yfmd-handler-ecs-task
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          task-definition: ${{ steps.render.outputs.task-definition }}
