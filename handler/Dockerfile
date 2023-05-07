@@ -30,4 +30,4 @@ COPY . .
 RUN pip install -e .
 
 # starting command
-ENTRYPOINT ["python examples/handler.py"]
+ENTRYPOINT ["/bin/bash", "-c", "python ./examples/handler.py"]

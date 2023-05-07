@@ -25,7 +25,8 @@ setup(
         'torchserve==0.7.0',
         'tqdm==4.64.1',
         'Flask==2.3.2',
-        'boto3==1.15.0'
+        'boto3==1.15.0',
+        'waitress==2.1.2'
     ],
     packages=find_packages(),
 )
