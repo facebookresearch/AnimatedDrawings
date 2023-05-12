@@ -2,6 +2,7 @@ import { Container, Ticker } from "pixi.js";
 import { Character } from "./Character";
 import { CharacterCircle } from "./CharacterCircle";
 import { Firework } from "./Firework";
+import { Sounds } from "./Sounds";
 import { DebugMsg } from "./DebugMsg";
 
 export class Scene extends Container {
@@ -13,6 +14,7 @@ export class Scene extends Container {
   private characters: Character[] = [];
   private characterCircles: CharacterCircle[] = [];
   private firework: Firework = new Firework(this);
+  private sound: Sounds = new Sounds();
   private debugText: DebugMsg = new DebugMsg();
   constructor(screenWidth: number, screenHeight: number) {
     super();
@@ -44,6 +46,9 @@ export class Scene extends Container {
       this.characterCircles.push(chara);
       this.addChild(chara);
     }
+
+    // sound
+    this.sound.playBgm();
 
     // debug
     this.addChild(this.debugText);
