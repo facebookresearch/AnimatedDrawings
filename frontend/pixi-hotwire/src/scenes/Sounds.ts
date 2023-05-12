@@ -1,22 +1,26 @@
 import { sound } from "@pixi/sound";
 
 export class Sounds {
-  constructor() {
+  public static initialize() {
     const a = sound.add("bgm", "../bonodori.mp3");
     console.log(a);
     sound.add("se-firework", "../firework.mp3");
   }
 
-  public playBgm(): void {
+  public static playBgm(): void {
     sound.play("bgm", { loop: true });
     console.log(sound.isPlaying());
   }
 
-  public pauseBgm(): void {
+  public static pauseBgm(): void {
     sound.pause("bgm");
   }
 
-  public playFirework(): void {
+  public static isPlaying(): boolean {
+    return sound.isPlaying();
+  }
+
+  public static playFirework(): void {
     sound.play("se-firework");
   }
 }
