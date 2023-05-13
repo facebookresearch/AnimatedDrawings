@@ -4,6 +4,7 @@
 
 from image_to_annotations import image_to_annotations
 from annotations_to_animation import annotations_to_animation
+from upload_s3 import upload_s3
 from pathlib import Path
 import logging
 import sys
@@ -12,7 +13,7 @@ from pkg_resources import resource_filename
 
 def image_to_animation(
         img_fn: str,         # image path
-        char_anno_dir: str,  # annotation path
+        char_anno_dir: str,  # annotation path, out dir
         motion_cfg_fn: str,  # motion config path  ... set this for your original motion
         retarget_cfg_fn: str # skeleton model path ... set this for your original skeleton model
     ):
@@ -25,6 +26,9 @@ def image_to_animation(
 
     # create the animation
     annotations_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
+
+    # upload gif
+    upload_s3(char_anno_dir)
 
 
 if __name__ == '__main__':

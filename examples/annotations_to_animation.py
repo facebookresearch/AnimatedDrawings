@@ -23,21 +23,9 @@ def annotations_to_animation(char_anno_dir: str, motion_cfg_fn: str, retarget_cf
         'retarget_cfg': str(Path(retarget_cfg_fn).resolve())
     }
 
-    # TODO: need to change to import cfg of other characters
-    other = {
-      'character_cfg': 'examples/characters/char2/char_cfg.yaml',
-      'motion_cfg': 'examples/config/motion/dab.yaml',
-      'retarget_cfg': 'examples/config/retarget/fair1_ppf_duo2.yaml',
-    }
-
     # create mvc config
     mvc_cfg = {
-        'scene': {'ANIMATED_CHARACTERS': [animated_drawing_dict, other]},  # add the character to the scene
-        # TODO: need to change background image
-        'view': {
-            'CAMERA_POS':[0.1, 1.3, 2.7],
-            'WINDOW_DIMENSIONS': [300, 400],
-            'BACKGROUND_IMAGE': 'examples/characters/char4/background.png'},
+        'scene': {'ANIMATED_CHARACTERS': [animated_drawing_dict]},  # add the character to the scene
         'controller': {
             'MODE': 'video_render',  # 'video_render' or 'interactive'
             'OUTPUT_VIDEO_PATH': str(Path(char_anno_dir, 'video.gif').resolve())}  # set the output location
