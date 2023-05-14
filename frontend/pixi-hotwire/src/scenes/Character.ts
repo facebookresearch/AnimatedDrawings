@@ -10,17 +10,20 @@ export class Character extends Container {
   private boundary_top: number = 0;
   private boundary_bottom: number = 1000;
 
-  constructor(image: string) {
+  constructor(imagePath: string, loadedImage?: Sprite) {
     super();
-    this.initialize(image);
+    this.initialize(imagePath, loadedImage);
   }
 
-  private async initialize(image: string): Promise<void> {
-    this.character = await Assets.load(image);
+  private async initialize(
+    imagePath: string,
+    loadedImage?: Sprite
+  ): Promise<void> {
+    this.character = loadedImage ? loadedImage : await Assets.load(imagePath);
     this.character.anchor.set(0.5);
     this.character.scale.set(1);
     this.addChild(this.character);
-    console.log(image);
+    console.log(imagePath);
   }
 
   public setPos(x: number, y: number): void {

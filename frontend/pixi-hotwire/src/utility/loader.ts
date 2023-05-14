@@ -1,21 +1,21 @@
 import AWS from "aws-sdk";
-import fileLoader from "file-loader";
-
+import * as PIXI from "pixi.js";
+import { Character } from "../scenes/Character";
+const region = "ap-northeast-1";
 const s3 = new AWS.S3({
   credentials: {
     accessKeyId: "your_access_key",
     secretAccessKey: "your_secret_key",
   },
-  region: "ap-northeast-1",
+  region,
 });
 const bucketName = "dev-60yfmd-input-drawings-bucket";
 const prefix = "image_"; // ここにファイル名の接頭辞を入力してください
 const suffix = ".gif"; // ここにファイル名の拡張子を入力してください
 
-export async function loader(): Promise<void> {
+export async function loader(): Promise<Character[]> {
   const context = require.context("./", true, /\.(gif)$/);
   const images = context.keys().map(context);
-  console.log(images);
 
   const downloadedFiles = images.length
     ? context.keys().map((key: any) => key.match(/\/([^/]+)$/)[1])
@@ -27,40 +27,32 @@ export async function loader(): Promise<void> {
     Prefix: prefix,
   };
 
-  s3.listObjectsV2(params, (err, data) => {
-    if (err) {
-      console.log(err, err.stack);
-    } else {
-      const objects = data.Contents || [];
-      console.log(objects);
-      const gifs = objects.filter((object: AWS.S3.Object) =>
-        object.Key?.endsWith(suffix)
-      );
+  const chars: Character[] = [];
 
-      const newGifs = gifs.filter(
-        (gif: AWS.S3.Object) => !downloadedFiles.includes(gif.Key!)
-      );
-      if (!newGifs.length) return;
+  const data = await s3.listObjectsV2(params).promise();
+  const objects = data.Contents || [];
+  const gifs = objects.filter((object: AWS.S3.Object) =>
+    object.Key?.endsWith(suffix)
+  );
+  const newGifs = gifs.filter(
+    (gif: AWS.S3.Object) => !downloadedFiles.includes(gif.Key!)
+  );
+  if (!newGifs.length) return chars;
 
-      newGifs.map((g) => {
-        const params: AWS.S3.GetObjectRequest = {
-          Bucket: bucketName,
-          Key: g.Key!,
-        };
+  return await Promise.all(
+    newGifs.map(async (g) => {
+      const appLoader = PIXI.Assets.loader;
+      try {
+        const char = await appLoader.load(
+          `https://${bucketName}.s3.${region}.amazonaws.com/${g.Key!}`
+        );
+        return new Character(g.Key!, char);
+      } catch (e) {
+        console.log(e);
+        return new Character(`garlic1.gif`); //失敗したらガーリックが増えることにしよう
+      }
+    })
+  );
 
-        s3.getObject(params, (err, data) => {
-          if (err) {
-            console.error(err);
-          } else {
-            const objectContent = data.Body?.toString();
-            console.log("oc", typeof objectContent);
-            const fileUrl = fileLoader(objectContent);
-            console.log(`File downloaded and loaded from ${fileUrl}`);
-          }
-        });
-      });
-    }
-  });
-
-  setTimeout(loader, 30000); // 30秒後に再度呼び出す
+  // setTimeout(loader, 30000); // 30秒後に再度呼び出す
 }

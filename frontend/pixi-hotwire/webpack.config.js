@@ -1,5 +1,4 @@
 const webpack = require("webpack");
-const nodePolyFill = require("node-polyfill");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -60,20 +59,6 @@ module.exports = (env, argv) => {
           test: /\.ts(x)?$/,
           loader: "ts-loader",
           exclude: /node_modules/,
-        },
-        {
-          test: /\.(gif)$/i,
-          use: [
-            {
-              loader: "file-loader",
-              options: {
-                esModule: false,
-                name: "[name].[ext]",
-                outputPath: "/",
-                publicPath: "/",
-              },
-            },
-          ],
         },
       ],
     },
