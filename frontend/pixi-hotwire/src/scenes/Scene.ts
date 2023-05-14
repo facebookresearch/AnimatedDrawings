@@ -3,6 +3,8 @@ import { Character } from "./Character";
 import { CharacterCircle } from "./CharacterCircle";
 import { Firework } from "./Firework";
 import { DebugMsg } from "./DebugMsg";
+import { generator } from "../utility/generator";
+import { loader } from "../utility/loader";
 
 export class Scene extends Container {
   private readonly screenWidth: number;
@@ -44,6 +46,21 @@ export class Scene extends Container {
       this.characterCircles.push(chara);
       this.addChild(chara);
     }
+
+    await loader();
+
+    // characters from s3
+    const chars = generator().map((c, i) => {
+      c.setPos(5 * i + (250 + (i % 10) * 100), 5 * i + 400);
+      c.setVelocity(
+        Math.random() * 2 * this.speed - this.speed,
+        Math.random() * 2 * this.speed - this.speed
+      );
+      c.setPattern(0, this.screenWidth, 0, this.screenHeight);
+      this.addChild(c);
+      return c;
+    });
+    this.characters = this.characters.concat(chars);
 
     // debug
     this.addChild(this.debugText);

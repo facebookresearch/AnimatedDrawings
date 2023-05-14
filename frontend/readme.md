@@ -8,6 +8,7 @@
 cd frontend/pixi-hotwire
 npm install
 npm run build
+npm run start
 # access to http://localhost:1234/
 ```
 

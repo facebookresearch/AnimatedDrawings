@@ -10,7 +10,7 @@ def upload_s3(char_dir: str):
     target_dir = str(Path(char_dir, 'video.gif').resolve())
 
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    file_name = 'image_{}.jpg'.format(timestamp)
+    file_name = 'image_{}.gif'.format(timestamp)
     logging.info(file_name)
 
     s3.upload_file(target_dir, 'dev-60yfmd-input-drawings-bucket', file_name)
