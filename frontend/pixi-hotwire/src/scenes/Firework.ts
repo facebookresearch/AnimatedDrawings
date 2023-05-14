@@ -10,10 +10,11 @@ export class Firework extends Container {
   constructor(root: Container) {
     super();
     this.particleContainer = new ParticleContainer();
+    this.particleContainer.zIndex = 2;
     root.addChild(this.particleContainer);
     this.emitter = new Emitter(
       this.particleContainer,
-      upgradeConfig(particleConfig, [Texture.from("particle.png")])
+      upgradeConfig(particleConfig, [Texture.from("particle_red.png")])
     );
     this.emitter.autoUpdate = true;
     this.emitter.updateSpawnPos(400, 400);

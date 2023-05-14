@@ -18,6 +18,7 @@ export class CharacterCircle extends Container {
     this.character.anchor.set(0.5);
     this.character.scale.set(1);
     this.addChild(this.character);
+    this.zIndex = 10;
     console.log(image);
   }
 

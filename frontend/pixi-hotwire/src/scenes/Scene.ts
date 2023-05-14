@@ -1,6 +1,7 @@
 import { Container, Ticker } from "pixi.js";
 import { Character } from "./Character";
 import { CharacterCircle } from "./CharacterCircle";
+import { Background } from "./Background";
 import { Firework } from "./Firework";
 import { Sounds } from "./Sounds";
 import { Keyboard } from "./Keyboard";
@@ -15,15 +16,20 @@ export class Scene extends Container {
   private characters: Character[] = [];
   private characterCircles: CharacterCircle[] = [];
   private firework: Firework = new Firework(this);
+  private background: Background;
   private debugText: DebugMsg = new DebugMsg();
   constructor(screenWidth: number, screenHeight: number) {
     super();
     this.screenWidth = screenWidth;
     this.screenHeight = screenHeight;
+    this.background = new Background(screenWidth, screenHeight);
     this.initialize();
   }
 
   private async initialize(): Promise<void> {
+    // background
+    this.addChild(this.background);
+
     // character
     for (let i = 1; i <= this.numCharacters; i++) {
       const chara = new Character(`woman${i}.gif`);
@@ -55,6 +61,8 @@ export class Scene extends Container {
     // debug
     this.addChild(this.debugText);
 
+    this.sortChildren();
+
     Ticker.shared.add(this.update, this);
     this.addChild;
   }
@@ -72,6 +80,7 @@ export class Scene extends Container {
 
     // handle interaction
     this.handleKeyboard();
+    this.sortChildren();
   }
 
   private lastKeyP: boolean | undefined = false;

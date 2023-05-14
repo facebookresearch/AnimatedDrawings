@@ -12,9 +12,10 @@ export class DebugMsg extends Container {
     this.text.style = {
       fontFamily: "Arial",
       fontSize: 24,
-      fill: "white",
+      fill: "blue",
     };
     this.addChild(this.text);
+    this.zIndex = 1000;
   }
 
   public update(_: number): void {
