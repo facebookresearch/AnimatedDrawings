@@ -23,7 +23,7 @@ export class DebugMsg extends Container {
     const deltaTime = (now - this.lastTime) / 1000;
     this.frameCount++;
     if (deltaTime >= 1) {
-      this.text.text = `FPS: ${this.frameCount}`;
+      this.text.text = `FPS: ${this.frameCount}\nS: play sound\nA: add dancer`;
       this.frameCount = 0;
       this.lastTime = now;
     }

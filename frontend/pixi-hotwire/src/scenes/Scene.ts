@@ -16,6 +16,7 @@ export class Scene extends Container {
 
   private characters: Character[] = [];
   private characterCircles: CharacterCircle[] = [];
+  private numCharacters = 0;
   private firework: Firework = new Firework(this);
   private background: Background;
   private debugText: DebugMsg = new DebugMsg();
@@ -31,7 +32,7 @@ export class Scene extends Container {
     // background
     this.addChild(this.background);
 
-    // character
+    // mobs
     for (let i = 1; i <= this.numMobs; i++) {
       const chara = new Character(`woman${i}.gif`);
       chara.setPos(5 * i + (250 + (i % 10) * 100), 5 * i + 400);
@@ -44,7 +45,7 @@ export class Scene extends Container {
       this.addChild(chara);
     }
 
-    // character
+    // characters
     for (let i = 1; i <= this.numDefaultDancers; i++) {
       const chara = new CharacterCircle(`garlic${i}.gif`);
       chara.radius = Math.random() * 200 + 200;
@@ -54,6 +55,7 @@ export class Scene extends Container {
       chara.center.y = this.screenHeight / 2;
       this.characterCircles.push(chara);
       this.addChild(chara);
+      this.numCharacters++;
     }
 
     // interaction
@@ -92,7 +94,7 @@ export class Scene extends Container {
   private handleKeyboard(): void {
     const stateKeyP = Keyboard.state.get("KeyP");
     const stateKeyS = Keyboard.state.get("KeyS");
-    const stateKeyA = Keyboard.state.get("KeyS");
+    const stateKeyA = Keyboard.state.get("KeyA");
     if (stateKeyP && this.lastKeyP !== stateKeyP) {
       console.log("playBGM");
       if (!Sounds.isPlaying()) {
@@ -106,6 +108,15 @@ export class Scene extends Container {
     // TODO: サーバからWSSでデータ追加通知を受けたタイミングに変更する
     if (stateKeyA && this.lastKeyA !== stateKeyA) {
       console.log("add character");
+      const chara = new CharacterCircle(`garlic${this.numCharacters}.gif`);
+      chara.radius = Math.random() * 200 + 200;
+      chara.degree = Math.random() * 360;
+      chara.speed = Math.random() * 0.2;
+      chara.center.x = this.screenWidth / 2;
+      chara.center.y = this.screenHeight / 2;
+      this.characterCircles.push(chara);
+      this.addChild(chara);
+      this.numCharacters++;
     }
 
     this.lastKeyP = stateKeyP;
