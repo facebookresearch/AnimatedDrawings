@@ -3,6 +3,8 @@ import "@pixi/gif";
 
 export class CharacterCircle extends Container {
   private character: Sprite = new Sprite();
+  private readonly ellipse_ratio = 0.75;
+  private readonly depth_size_ratio = 0.9;
   public speed = 1;
   public degree = 0;
   public radius = 100;
@@ -31,21 +33,14 @@ export class CharacterCircle extends Container {
     this.x =
       this.radius * Math.cos((this.degree * Math.PI) / 180) + this.center.x;
     this.y =
-      this.radius * Math.sin((this.degree * Math.PI) / 180) + this.center.y;
+      this.ellipse_ratio *
+        this.radius *
+        Math.sin((this.degree * Math.PI) / 180) +
+      this.center.y;
 
-    // this.character.x += this.dx * deltaTime;
-    // this.character.y += this.dy * deltaTime;
-    // if (
-    //   this.character.x < this.boundary_left ||
-    //   this.character.x > this.boundary_right
-    // ) {
-    //   this.dx *= -1;
-    // }
-    // if (
-    //   this.character.y < this.boundary_top ||
-    //   this.character.y > this.boundary_bottom
-    // ) {
-    //   this.dy *= -1;
-    // }
+    // 位置によってスケールを変える
+    this.character.scale.set(
+      (this.depth_size_ratio * (this.y - this.center.y)) / this.center.y + 1
+    );
   }
 }

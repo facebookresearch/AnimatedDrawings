@@ -49,6 +49,8 @@ export class Scene extends Container {
       chara.radius = Math.random() * 200 + 200;
       chara.degree = Math.random() * 360;
       chara.speed = Math.random() * 0.2;
+      chara.center.x = this.screenWidth / 2;
+      chara.center.y = this.screenHeight / 2;
       this.characterCircles.push(chara);
       this.addChild(chara);
     }

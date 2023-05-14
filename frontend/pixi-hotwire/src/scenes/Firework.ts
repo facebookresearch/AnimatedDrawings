@@ -23,9 +23,12 @@ export class Firework extends Container {
 
   public update(deltaTime: number): void {
     this.emitCounter += deltaTime;
-    if (this.emitter && this.emitCounter > 50) {
+    if (this.emitter && this.emitCounter > 25) {
       this.emitCounter = 0;
-      this.emitter.updateSpawnPos(Math.random() * 600, Math.random() * 600);
+      this.emitter.updateSpawnPos(
+        Math.random() * 900 + 450,
+        Math.random() * 300
+      );
       this.emitter.resetPositionTracking();
       this.emitter.emit = true;
     }
