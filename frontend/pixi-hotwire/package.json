@@ -9,6 +9,7 @@
   "dependencies": {
     "@pixi/gif": "^2.1.0",
     "@pixi/particle-emitter": "^5.0.8",
+    "@pixi/sound": "^5.1.2",
     "pixi.js": "^7.2.4"
   },
   "devDependencies": {
