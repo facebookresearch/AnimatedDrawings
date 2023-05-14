@@ -5,10 +5,10 @@ export class Character extends Container {
   private character: Sprite = new Sprite();
   private dx: number = 500;
   private dy: number = 500;
-  private boundary_left: number = 0;
-  private boundary_right: number = 1000;
-  private boundary_top: number = 0;
-  private boundary_bottom: number = 1000;
+  private boundaryLeft: number = 0;
+  private boundaryRight: number = 1000;
+  private boundaryTop: number = 0;
+  private boundaryBottom: number = 1000;
 
   constructor(image: string) {
     super();
@@ -40,24 +40,24 @@ export class Character extends Container {
 
   // TODO: 本来は定義されたパターンを設定する
   public setPattern(left: number, right: number, top: number, bottom: number) {
-    this.boundary_left = left;
-    this.boundary_right = right;
-    this.boundary_top = top;
-    this.boundary_bottom = bottom;
+    this.boundaryLeft = left;
+    this.boundaryRight = right;
+    this.boundaryTop = top;
+    this.boundaryBottom = bottom;
   }
 
   public update(deltaTime: number): void {
     this.character.x += this.dx * deltaTime;
     this.character.y += this.dy * deltaTime;
     if (
-      this.character.x < this.boundary_left ||
-      this.character.x > this.boundary_right
+      this.character.x < this.boundaryLeft ||
+      this.character.x > this.boundaryRight
     ) {
       this.dx *= -1;
     }
     if (
-      this.character.y < this.boundary_top ||
-      this.character.y > this.boundary_bottom
+      this.character.y < this.boundaryTop ||
+      this.character.y > this.boundaryBottom
     ) {
       this.dy *= -1;
     }

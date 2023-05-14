@@ -10,7 +10,8 @@ import { DebugMsg } from "./DebugMsg";
 export class Scene extends Container {
   private readonly screenWidth: number;
   private readonly screenHeight: number;
-  private readonly numCharacters: number = 5;
+  private readonly numMobs: number = 5;
+  private readonly numDefaultDancers: number = 10;
   private readonly speed: number = 0.5;
 
   private characters: Character[] = [];
@@ -31,7 +32,7 @@ export class Scene extends Container {
     this.addChild(this.background);
 
     // character
-    for (let i = 1; i <= this.numCharacters; i++) {
+    for (let i = 1; i <= this.numMobs; i++) {
       const chara = new Character(`woman${i}.gif`);
       chara.setPos(5 * i + (250 + (i % 10) * 100), 5 * i + 400);
       chara.setVelocity(
@@ -44,7 +45,7 @@ export class Scene extends Container {
     }
 
     // character
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= this.numDefaultDancers; i++) {
       const chara = new CharacterCircle(`garlic${i}.gif`);
       chara.radius = Math.random() * 200 + 200;
       chara.degree = Math.random() * 360;
@@ -87,9 +88,11 @@ export class Scene extends Container {
 
   private lastKeyP: boolean | undefined = false;
   private lastKeyS: boolean | undefined = false;
+  private lastKeyA: boolean | undefined = false;
   private handleKeyboard(): void {
     const stateKeyP = Keyboard.state.get("KeyP");
     const stateKeyS = Keyboard.state.get("KeyS");
+    const stateKeyA = Keyboard.state.get("KeyS");
     if (stateKeyP && this.lastKeyP !== stateKeyP) {
       console.log("playBGM");
       if (!Sounds.isPlaying()) {
@@ -100,7 +103,13 @@ export class Scene extends Container {
       console.log("playFirework");
       Sounds.playFirework();
     }
+    // TODO: サーバからWSSでデータ追加通知を受けたタイミングに変更する
+    if (stateKeyA && this.lastKeyA !== stateKeyA) {
+      console.log("add character");
+    }
+
     this.lastKeyP = stateKeyP;
     this.lastKeyS = stateKeyS;
+    this.lastKeyA = stateKeyA;
   }
 }
