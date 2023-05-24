@@ -16,6 +16,10 @@ To utilize this tool, follow these simple steps:
 I hope you all find this tool beneficial and enjoyable to use. My next step will involve the Docker part of AnimatedDrawings, though I'm still familiarizing myself with it, so stay tuned for more developments!
 
 
+### Demo Video
+Uploading Screen Recording 2023-05-24 at 20.27.40.mov…
+
+
 # Animated Drawings
 
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
