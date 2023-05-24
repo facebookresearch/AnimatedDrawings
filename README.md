@@ -1,5 +1,5 @@
 # Gradio UI for Animated Drawings
-I really love the Animated Drawings tool, but it was quite hard to explain how to use it to friends. This is why i decided to crate this more convinient way using a Gradio Interface.
+I really love the Animated Drawings tool, but it was quite hard to explain how to use it to friends. This is why i decided to create this more convinient way using a Gradio Interface.
 
 To utilize this tool, follow these simple steps:
 
