@@ -17,7 +17,7 @@ I hope you all find this tool beneficial and enjoyable to use. My next step will
 
 
 ### Demo Video
-Uploading Screen Recording 2023-05-24 at 20.27.40.mov…
+https://github.com/vensu-art/AnimatedDrawingsGradio/assets/116193678/107204cc-b4c4-42d0-8abf-510c5df4c46a
 
 
 # Animated Drawings
