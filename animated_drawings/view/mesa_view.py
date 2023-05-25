@@ -140,4 +140,5 @@ class MesaView(View):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
     def cleanup(self) -> None:
-        """ No need to destroy a window, as none was created. """
+        """ Destroy the context when it is finished. """
+        osmesa.OSMesaDestroyContext(self.ctx)
