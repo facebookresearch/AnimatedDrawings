@@ -1,0 +1,8 @@
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: /home/ajay/Animations/AnimatedDrawings/output/video.gif
+scene:
+  ANIMATED_CHARACTERS:
+  - character_cfg: /home/ajay/Animations/AnimatedDrawings/output/char_cfg.yaml
+    motion_cfg: /home/ajay/Animations/AnimatedDrawings/config/motion/dab.yaml
+    retarget_cfg: /home/ajay/Animations/AnimatedDrawings/config/retarget/fair1_ppf.yaml

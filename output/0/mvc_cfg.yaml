@@ -1,0 +1,8 @@
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: /home/ajay/Animations/AnimatedDrawings/output/0/video.gif
+scene:
+  ANIMATED_CHARACTERS:
+  - character_cfg: /home/ajay/Animations/AnimatedDrawings/output/0/char_cfg.yaml
+    motion_cfg: /home/ajay/Animations/AnimatedDrawings/config/motion/jumping_jacks.yaml
+    retarget_cfg: /home/ajay/Animations/AnimatedDrawings/newretarget_0.yaml
