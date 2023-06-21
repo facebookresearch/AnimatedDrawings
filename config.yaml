@@ -1,0 +1,18 @@
+controller:
+  MODE: video_render
+  OUTPUT_VIDEO_PATH: ./video.gif
+scene:
+  ANIMATED_CHARACTERS:
+  - character_cfg: ./output/0/char_cfg.yaml
+    motion_cfg: ./config/motion/jumping_jacks.yaml
+    retarget_cfg: ./newretarget_0.yaml
+  - character_cfg: ./output/1/char_cfg.yaml
+    motion_cfg: ./config/motion/jumping_jacks.yaml
+    retarget_cfg: ./newretarget_1.yaml
+  - character_cfg: ./output/2/char_cfg.yaml
+    motion_cfg: ./config/motion/jumping_jacks.yaml
+    retarget_cfg: ./newretarget_2.yaml
+view:
+  WINDOW_DIMENSIONS:
+  - 1500
+  - 800
