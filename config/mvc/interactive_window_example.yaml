@@ -1,0 +1,5 @@
+scene:
+  ANIMATED_CHARACTERS:
+    - character_cfg: examples/characters/char2/char_cfg.yaml
+      motion_cfg: examples/config/motion/dab.yaml
+      retarget_cfg: examples/config/retarget/fair1_ppf.yaml

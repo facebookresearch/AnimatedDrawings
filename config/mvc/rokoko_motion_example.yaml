@@ -1,0 +1,5 @@
+scene:
+  ANIMATED_CHARACTERS:
+    - character_cfg: examples/characters/char3/char_cfg.yaml
+      motion_cfg: examples/config/motion/jesse_dance.yaml
+      retarget_cfg: examples/config/retarget/mixamo_fff.yaml

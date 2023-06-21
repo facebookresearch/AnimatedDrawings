@@ -1,0 +1,11 @@
+filepath: examples/bvh/fair1/Walking_L_t_R.bvh
+start_frame_idx: 0
+end_frame_idx: 60
+groundplane_joint: LeftAnkle
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftHip
+    - RightHip
+scale: 0.025
+up: +z

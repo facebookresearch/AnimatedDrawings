@@ -1,0 +1,11 @@
+filepath: ./examples/bvh/fair1/Twisted_Running_Left_to_Right.bvh
+start_frame_idx: 0
+end_frame_idx: 70
+groundplane_joint: LeftAnkle
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftHip
+    - RightHip
+scale: 0.025
+up: +z

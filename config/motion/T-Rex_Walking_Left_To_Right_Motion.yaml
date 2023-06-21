@@ -1,0 +1,11 @@
+filepath: examples/bvh/fair1/T-Rex_Walking_Left_To_Right.bvh
+start_frame_idx: 1
+end_frame_idx: 175
+groundplane_joint: LeftFoot
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftUpLeg
+    - RightUpLeg
+scale: 0.025
+up: +z
