@@ -13,5 +13,6 @@ controller:
 
 view:
   WINDOW_DIMENSIONS: [600, 600]
+  USE_MESA: True
 
 
