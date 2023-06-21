@@ -6,3 +6,5 @@ scene:
 controller:
   MODE: video_render
   OUTPUT_VIDEO_PATH: ./vedio.gif
+view:
+  USE_MESA: True
