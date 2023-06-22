@@ -21,6 +21,8 @@ def resolve_ad_filepath(file_name: str, file_type: str) -> Path:
     """
     if Path(file_name).exists():
         return Path(file_name)
+    elif Path.joinpath(Path.cwd(), file_name).exists():
+        return Path.joinpath(Path.cwd(), file_name)
     elif Path(resource_filename(__name__, file_name)).exists():
         return Path(resource_filename(__name__, file_name))
     elif Path(resource_filename(__name__, str(Path('..', file_name)))):
