@@ -244,7 +244,15 @@ class ControllerConfig():
             msg = f'Error in OUTPUT_VIDEO_CODEC config parameter: {e}'
             logging.critical(msg)
             assert False, msg
-
+            
+        # set frame time (override bvh frame time)
+        try:
+            self.frame_time: Union[None,float] = controller_cfg['FRAME_TIME']
+            assert isinstance(self.frame_time, (NoneType,float)), 'is not None or float'
+        except (AssertionError, ValueError) as e:
+            msg = f'Error in FRAME_TIME config parameter: {e}'
+            logging.critical(msg)
+            assert False, msg
 
 class CharacterConfig():
 
