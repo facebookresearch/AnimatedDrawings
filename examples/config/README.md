@@ -76,6 +76,9 @@ Transparency is only available for `.gif` videos.
 The codec to use when encoding the output video.
 Only used in `video_render` mode and only if a `.mp4` output video file is specified.
 
+    - <b>FRAME_TIME</b> <em>(float)</em>: 
+Overrideing BVH frame time value.
+
 ## <a name="character"></a>Character Config File
 
 This configuration file (referred to below as `char_cfg`) contains the information necessary to create an instance of the Animated Drawing class. In addition to the fields below, which are explicitly listed within `char_cfg`, the <em>filepath</em> of `char_cfg` is used to store the location of the character's texture and mask files. Essentially, just make sure the associated `texture.png` and `mask.png` files are in the same directory as `char_cfg`.
