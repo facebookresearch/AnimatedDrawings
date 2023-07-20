@@ -268,15 +268,32 @@ If you'd like to animate a drawing of your own, but don't want to deal with down
 
 [www.sketch.metademolab.com](https://sketch.metademolab.com/)
 
-## License
-Animated Drawings is released under the [MIT license](https://github.com/fairinternal/AnimatedDrawings/blob/main/LICENSE).
+## Paper & Citation
+ If you find the resources in this repo helpful, please consider citing the accompanying paper, [A Method for Animating Children's Drawings of The Human Figure](https://dl.acm.org/doi/10.1145/3592788)).
 
-## Citation
- <i>The accompanying paper has been accepted to Transactions on Graphics and will be presented at SIGGRAPH 2023. Official citation will be added later, but for now you can access the paper here: [A Method for Animating Children's Drawings of The Human Figure](https://dl.acm.org/doi/10.1145/3592788) </i>
+Citation:
 
-If you find this repo helpful in your own work, please consider citing the accompanying paper: 
-
-(citation information to be added later)
+```
+@article{10.1145/3592788,
+author = {Smith, Harrison Jesse and Zheng, Qingyuan and Li, Yifei and Jain, Somya and Hodgins, Jessica K.},
+title = {A Method for Animating Children’s Drawings of the Human Figure},
+year = {2023},
+issue_date = {June 2023},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {42},
+number = {3},
+issn = {0730-0301},
+url = {https://doi.org/10.1145/3592788},
+doi = {10.1145/3592788},
+abstract = {Children’s drawings have a wonderful inventiveness, creativity, and variety to them. We present a system that automatically animates children’s drawings of the human figure, is robust to the variance inherent in these depictions, and is simple and straightforward enough for anyone to use. We demonstrate the value and broad appeal of our approach by building and releasing the Animated Drawings Demo, a freely available public website that has been used by millions of people around the world. We present a set of experiments exploring the amount of training data needed for fine-tuning, as well as a perceptual study demonstrating the appeal of a novel twisted perspective retargeting technique. Finally, we introduce the Amateur Drawings Dataset, a first-of-its-kind annotated dataset, collected via the public demo, containing over 178,000 amateur drawings and corresponding user-accepted character bounding boxes, segmentation masks, and joint location annotations.},
+journal = {ACM Trans. Graph.},
+month = {jun},
+articleno = {32},
+numpages = {15},
+keywords = {2D animation, motion retargeting, motion stylization, Skeletal animation}
+}
+```
 
 ## Amateur Drawings Dataset
 
@@ -300,3 +317,6 @@ Trained model weights for human-like figure detection and pose estimation are in
 
 These characters are deformed using [As-Rigid-As-Possible (ARAP) shape manipulation](https://www-ui.is.s.u-tokyo.ac.jp/~takeo/papers/takeo_jgt09_arapFlattening.pdf).
 We have a Python implementation of the algorithm, located [here](https://github.com/fairinternal/AnimatedDrawings/blob/main/animated_drawings/model/arap.py), that might be of use to other developers.
+
+## License
+Animated Drawings is released under the [MIT license](https://github.com/fairinternal/AnimatedDrawings/blob/main/LICENSE).
