@@ -363,7 +363,7 @@ class MotionConfig():
 
         # validate frame time override
         try:
-            self.frame_time: Optional[float] = motion_cfg.get('frame_rate', None)
+            self.frame_time: Optional[float] = motion_cfg.get('frame_time', None)
             assert isinstance(self.frame_time, (NoneType, float)), 'is not None or float'
         except (AssertionError, ValueError) as e:
             msg = f'Error in frame_time config parameter: {e}'
