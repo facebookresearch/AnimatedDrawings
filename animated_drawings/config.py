@@ -245,6 +245,7 @@ class ControllerConfig():
             logging.critical(msg)
             assert False, msg
 
+
 class CharacterConfig():
 
     class JointDict(TypedDict):
