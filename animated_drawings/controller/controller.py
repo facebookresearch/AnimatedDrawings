@@ -16,7 +16,7 @@ from animated_drawings.config import ControllerConfig
 
 class Controller():
     """
-    Base Controller class from which all other Controllers be be derived.
+    Base Controller class from which all other Controllers will be derived.
     Controllers are responsible for:
         - running the game loop.
         - handling user input and forwarding it to the view or scene.
