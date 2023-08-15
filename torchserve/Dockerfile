@@ -21,9 +21,16 @@ RUN apt-get update && \
 RUN pip install openmim
 RUN pip install torch
 RUN mim install mmcv-full==1.7.0
-RUN pip install mmpose==0.29.0
 RUN pip install mmdet==2.27.0
 RUN pip install torchserve
+
+# bugfix for xtcocoapi, an mmpose dependency
+RUN git clone https://github.com/hjessmith/xtcocoapi-bugfix.git
+WORKDIR xtcocoapi-bugfix
+RUN pip install -r requirements.txt
+RUN python setup.py install
+WORKDIR /
+RUN pip install mmpose==0.29.0
 
 # prep torchserve
 RUN mkdir -p /home/torchserve/model-store
