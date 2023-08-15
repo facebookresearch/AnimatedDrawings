@@ -76,8 +76,6 @@ Transparency is only available for `.gif` videos.
 The codec to use when encoding the output video.
 Only used in `video_render` mode and only if a `.mp4` output video file is specified.
 
-    - <b>FRAME_TIME</b> <em>(float)</em>: 
-Overrideing BVH frame time value.
 
 ## <a name="character"></a>Character Config File
 
@@ -114,6 +112,9 @@ If you want to skip beginning motion frames, this can be set to an int between 0
 
 - <b>end_frame_idx</b> <em>(int)</em>:
 If you want to skip ending motion frames, this can be set to an int between `start_frame_idx+1` and the BVH Frames Count, inclusive.
+
+- <b>frame_time</b> <em>(float)</em>: 
+If you want to override the frame time specified within the BVH, you can set it here.
 
 - <b>groundplane_joint</b> <em>(str)</em>:
 The name of a joint that exists within the BVH's skeleton.

@@ -244,15 +244,6 @@ class ControllerConfig():
             msg = f'Error in OUTPUT_VIDEO_CODEC config parameter: {e}'
             logging.critical(msg)
             assert False, msg
-            
-        # set frame time (override bvh frame time)
-        try:
-            self.frame_time: Union[None,float] = controller_cfg['FRAME_TIME']
-            assert isinstance(self.frame_time, (NoneType,float)), 'is not None or float'
-        except (AssertionError, ValueError) as e:
-            msg = f'Error in FRAME_TIME config parameter: {e}'
-            logging.critical(msg)
-            assert False, msg
 
 class CharacterConfig():
 
@@ -367,6 +358,15 @@ class MotionConfig():
                 assert self.end_frame_idx >= self.start_frame_idx, 'end_frame_idx must be > start_frame_idx'
         except (AssertionError, ValueError) as e:
             msg = f'Error validating end_frame_idx: {e}'
+            logging.critical(msg)
+            assert False, msg
+
+        # validate frame time override
+        try:
+            self.frame_time: Optional[float] = motion_cfg.get('frame_rate', None)
+            assert isinstance(self.frame_time, (NoneType, float)), 'is not None or float'
+        except (AssertionError, ValueError) as e:
+            msg = f'Error in frame_time config parameter: {e}'
             logging.critical(msg)
             assert False, msg
 

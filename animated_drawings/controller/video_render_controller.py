@@ -34,7 +34,6 @@ class VideoRenderController(Controller):
         self.view: View = view
 
         self.scene: Scene = scene
-        self.cfg: ControllerConfig = cfg
 
         self.frames_left_to_render: int  # when this becomes zero, stop rendering
         self.delta_t: float              # amount of time to progress scene between renders
@@ -66,13 +65,6 @@ class VideoRenderController(Controller):
             if not isinstance(child, AnimatedDrawing):
                 continue
             max_frames = max(max_frames, child.retargeter.bvh.frame_max_num)
-            #  check if overriding frame time
-            if self.cfg.frame_time:
-                msg = f'overriding BVH Frame Time value: {child.retargeter.bvh.frame_time} -> {self.cfg.frame_time}.'
-                logging.info(msg)
-                child.retargeter.bvh.frame_time = self.cfg.frame_time
-                print(msg)
-
             frame_time.append(child.retargeter.bvh.frame_time)
 
         if not all(x == frame_time[0] for x in frame_time):
