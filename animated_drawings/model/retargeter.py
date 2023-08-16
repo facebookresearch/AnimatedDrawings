@@ -43,6 +43,10 @@ class Retargeter():
         # bvh joints defining a set of vectors that skeleton's fwd is perpendicular to
         self.forward_perp_vector_joint_names: List[Tuple[str, str]] = motion_cfg.forward_perp_joint_vectors
 
+        # override the frame_time, if one was specified within motion_cfg
+        if motion_cfg.frame_time:
+            self.bvh.frame_time = motion_cfg.frame_time
+
         # rotate BVH skeleton so up is +Y
         if motion_cfg.up == '+y':
             pass  # no rotation needed
