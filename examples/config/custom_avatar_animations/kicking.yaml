@@ -1,0 +1,11 @@
+filepath: examples/bvh/custom_avatar_animations/kicking.bvh
+start_frame_idx: 0
+end_frame_idx: 80
+groundplane_joint: LeftFoot
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftThigh
+    - RightThigh
+scale: 0.005
+up: +y

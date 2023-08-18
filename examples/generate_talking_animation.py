@@ -69,7 +69,7 @@ def make_gif(frames_path):
     frames = [Image.open(image) for image in frames_path.glob('*')]
     frame_one = frames[0]
 
-    # saves the talkign gif in the previously created directory
+    # saves the talking gif in the previously created directory
     frame_one.save(f'{frames_path}/talking.gif', format='GIF', append_images=frames, save_all=True, duration=100, loop=0)
 
 if __name__ == '__main__':

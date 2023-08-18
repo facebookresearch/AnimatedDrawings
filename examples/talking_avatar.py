@@ -9,22 +9,23 @@ from scipy import ndimage
 from pathlib import Path
 import yaml
 import logging
+import uuid
+import os.path
 from annotations_to_animation import annotations_to_animation
-from pkg_resources import resource_filename
 
 
-def generate_image(input_url):
+def generate_image(input_url, id):
     url = input_url
 
     # saves link's content in variable called data
     data = requests.get(url).content
 
     # opens a new file called avatar_image.png that will store the data's content
-    f = open('avatar_img.png', 'wb')
+    f = open(f'./custom_avatars/{id}.png', 'wb')
     f.write(data)
     f.close()
 
-    img = Image.open('avatar_img.png')
+    img = Image.open(f'./custom_avatars/{id}.png')
     datas = img.getdata()
 
     # stores data for new image
@@ -38,8 +39,8 @@ def generate_image(input_url):
             new_datas.append(item)
     
     img.putdata(new_datas)
-    img.save('avatar_image_2.png', 'PNG')
-    img.show()
+    img.save(f'./custom_avatars/{id}.png', 'PNG')
+    # img.show()
 
     return img
 
@@ -49,7 +50,7 @@ def merge_masks(im1, im2, outdir):
     img = Image.composite(im1, im2, mask)
     img.save(str(outdir/'mask.png'))
 
-    img.show()
+    # img.show()
 
 def determine_template(url):
     if "gender=1" in url:
@@ -91,7 +92,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     """
 
     # create output directory
-    outdir = Path(out_dir)
+    outdir = Path(f'custom_avatars/{out_dir}')
     outdir.mkdir(exist_ok=True)
 
     # read image
@@ -227,6 +228,8 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
         cv2.putText(joint_overlay, name, (int(x), int(y+15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, 2)
     cv2.imwrite(str(outdir/'joint_overlay.png'), joint_overlay)
 
+    return outdir
+
 
 def segment(img: np.ndarray):
     """ threshold """
@@ -291,11 +294,19 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f'{log_dir}/log.txt', level=logging.DEBUG)
 
     url = sys.argv[1]
-    out_dir = sys.argv[2]
+    if len(sys.argv) > 2:
+        out_dir = sys.argv[2]
+    else:
+        out_dir = uuid.uuid1()    
 
-    generate_image(url)
+    generate_image(url, out_dir)
+    img_fn = f'custom_avatars/{out_dir}.png'
+    outdir = image_to_annotations(img_fn, out_dir)
 
-    img_fn = 'avatar_image_2.png'
-    image_to_annotations(img_fn, out_dir)
+    animations_outdir = Path(f'{outdir}/animations')
+    animations_outdir.mkdir(exist_ok=True)
 
-    annotations_to_animation(out_dir, resource_filename(__name__, 'config/motion/dab.yaml'), resource_filename(__name__, 'config/retarget/fair1_ppf.yaml'))
+    for motion_cfg_fn in os.listdir('./config/custom_avatar_animations'):
+        motion_name = motion_cfg_fn[:len(motion_cfg_fn)-5]
+        annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
+        os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')

@@ -1,0 +1,9 @@
+Animations for body type 4 is currently not supported, as separating 
+the arms from the rest of the body via the mask would result in having 
+to completely remove the avatar's hands.
+
+The mask is less accurate on thicker outfits as the masks used to separate the arms 
+from the rest of the body were created based off of the avatars base clothes.
+
+Hairstyles that extend to the shoulder may result in the mask not separating the head
+and body properly.
