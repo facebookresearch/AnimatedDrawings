@@ -6,7 +6,7 @@ This is a fork of Facebook's [Animated Drawings](https://github.com/facebookrese
 
 In order to generate the animations for your character, we need to generate annotation files. Rather than do so manually, Facebook has trained a drawn humanoid figure detector and post estimator to generate the annotation files using the model predictions.
 
-To use the model, you'll need to set up a Docker container that runs TorchServe.
+To use the model, you must set up a Docker container that runs TorchServe.
 
 To set up the container,
 
@@ -46,8 +46,9 @@ Now you can generate body animations for your character by doing the following:
     (animated_drawings) examples % python talking_avatar.py "https://preview.bitmoji.com/avatar-builder-v3/preview/body?scale=3&gender=1&style=1&rotation=0&outfit=" talking_avatar_out
 ````
 
-An image of the avatar you previously customized is generated and then analyzed to generate an animation using BVH motion data from a human actor. The resulting animation was saved as './talking_avatar_out/video.gif'
+An image of the avatar you previously customized is generated and then analyzed to create multiple animations using BVH motion data from a human actor. The resulting animations will be saved in './custom_animations'. Each avatar you create will have its own image and folder containing that avatar's animations named as your input or, if not provided, a randomly generated id.
 
+<!--
 
 ### Generating Talking Animation
 
@@ -58,3 +59,4 @@ To generate talking animations, navigate to the root directory of the project. T
 ````
 
 An image of the avatar you customized is generated using the url. Then, various mouth shapes are overlayed and combined to form a gif that is the character's talking animation. The resulting gif was saved as './talking_animation_out.gif'
+-->
