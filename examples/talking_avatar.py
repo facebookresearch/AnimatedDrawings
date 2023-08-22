@@ -1,5 +1,5 @@
 import requests
-from PIL import Image
+from PIL import Image, ImageOps, ImageSequence
 import numpy as np
 import sys
 import cv2
@@ -13,8 +13,10 @@ import uuid
 import os.path
 from annotations_to_animation import annotations_to_animation
 
+
 # Function to download and preprocess an image from a given URL
 def generate_image(input_url, id, path_to_image):
+
     url = input_url
     data = requests.get(url).content
     f = open(f'{path_to_image}/{id}.png', 'wb')
@@ -37,13 +39,23 @@ def generate_image(input_url, id, path_to_image):
     img.save(f'{path_to_image}/{id}.png', 'PNG')
     return img
 
+
 # Function to merge masks using a template
 def merge_masks(im1, im2, outdir):
     mask = Image.open('templates/rectangle_mask.png')
     img = Image.composite(im1, im2, mask)
     img.save(str(outdir/'mask.png'))
 
+
 def determine_template(url):
+    """
+    A helper function that determines what template to use when generating
+    the merged masks
+    Arguments:
+        url: the original url of the avatar
+    Returns:
+        the path to the template
+    """
     if "gender=1" in url:
         if "body=0" in url:
             return 'templates/male_templates/male_body_1.png'
@@ -285,6 +297,7 @@ def my_exec(url, out_dir, path_to_image):
     log_dir.mkdir(exist_ok=True, parents=True)
     logging.basicConfig(filename=f'{log_dir}/log.txt', level=logging.DEBUG)
 
+
     # Generate image from URL
     generate_image(url, out_dir, path_to_image)
     img_fn = f'{path_to_image}/{out_dir}.png'
@@ -292,8 +305,11 @@ def my_exec(url, out_dir, path_to_image):
     # Process image and generate annotations
     outdir = image_to_annotations(img_fn, out_dir, path_to_image, url)
 
+
+    # make directory to store all animations within outdir named "animations"
     animations_outdir = Path(f'{outdir}/animations')
     animations_outdir.mkdir(exist_ok=True)
+
 
     # Process motion configurations and generate animations
     for motion_cfg_fn in os.listdir('./config/custom_avatar_animations'):
@@ -301,6 +317,11 @@ def my_exec(url, out_dir, path_to_image):
         print(f"Processing {motion_name}...")
         annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
         os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')
+        
+    # generate animation to kick right by reversing initial kicking animation
+    kicking_gif = Image.open(f'{animations_outdir}/kicking.gif')
+    reverse_frames = [ImageOps.mirror(frame.copy()) for frame in ImageSequence.Iterator(kicking_gif)]
+    reverse_frames[0].save(f'{animations_outdir}/kicking_right.gif', format='GIF', save_all=True, disposal=2, append_images=reverse_frames[1:])
 
 # Main entry point of the script
 if __name__ == '__main__':
@@ -312,3 +333,4 @@ if __name__ == '__main__':
         out_dir = uuid.uuid1()
     # Execute the processing
     my_exec(url, out_dir, "./custom_avatars")
+
