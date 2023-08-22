@@ -1,5 +1,5 @@
 import requests
-from PIL import Image
+from PIL import Image, ImageOps, ImageSequence
 import numpy as np
 import sys
 import cv2
@@ -15,6 +15,14 @@ from annotations_to_animation import annotations_to_animation
 
 
 def generate_image(input_url, id):
+    """
+    A function that generates the original image of the avatar
+    Arguments:
+        input_url: the url of the custom avatar
+        id: a unique identifier for the avatar and its corresponding folder
+    Returns:
+        None
+    """
     url = input_url
 
     # saves link's content in variable called data
@@ -40,19 +48,34 @@ def generate_image(input_url, id):
     
     img.putdata(new_datas)
     img.save(f'./custom_avatars/{id}.png', 'PNG')
-    # img.show()
 
-    return img
 
 def merge_masks(im1, im2, outdir):
+    """
+    A helper function that merges the machine learning generated masks with 
+    templates to separate the avatar's arms from the rest of the body
+    Arguments:
+        im1: the image to be separated
+        im2: the mask template
+        outdir: the directory to save the merged masks
+    Returns:
+        None
+    """
 
     mask = Image.open('templates/rectangle_mask.png')
     img = Image.composite(im1, im2, mask)
     img.save(str(outdir/'mask.png'))
 
-    # img.show()
 
 def determine_template(url):
+    """
+    A helper function that determines what template to use when generating
+    the merged masks
+    Arguments:
+        url: the original url of the avatar
+    Returns:
+        the path to the template
+    """
     if "gender=1" in url:
         if "body=0" in url:
             return 'templates/male_templates/male_body_1.png'
@@ -293,20 +316,32 @@ if __name__ == '__main__':
     log_dir.mkdir(exist_ok=True, parents=True)
     logging.basicConfig(filename=f'{log_dir}/log.txt', level=logging.DEBUG)
 
+    # get input from user and assign to variables
     url = sys.argv[1]
     if len(sys.argv) > 2:
         out_dir = sys.argv[2]
     else:
         out_dir = uuid.uuid1()    
 
+    # generate the initial image and place it in outdir
     generate_image(url, out_dir)
     img_fn = f'custom_avatars/{out_dir}.png'
+
+    # generate the annotations for the image
     outdir = image_to_annotations(img_fn, out_dir)
 
+    # make directory to store all animations within outdir named "animations"
     animations_outdir = Path(f'{outdir}/animations')
     animations_outdir.mkdir(exist_ok=True)
 
+    # generate animations 
     for motion_cfg_fn in os.listdir('./config/custom_avatar_animations'):
-        motion_name = motion_cfg_fn[:len(motion_cfg_fn)-5]
-        annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
-        os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')
+        if '.yaml' in motion_cfg_fn:
+            motion_name = motion_cfg_fn[:len(motion_cfg_fn)-5]
+            annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
+            os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')
+
+    # generate animation to kick right by reversing initial kicking animation
+    kicking_gif = Image.open(f'{animations_outdir}/kicking.gif')
+    reverse_frames = [ImageOps.mirror(frame.copy()) for frame in ImageSequence.Iterator(kicking_gif)]
+    reverse_frames[0].save(f'{animations_outdir}/kicking_right.gif', format='GIF', save_all=True, disposal=2, append_images=reverse_frames[1:])

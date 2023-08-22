@@ -1,4 +1,4 @@
-Animations for body type 4 is currently not supported, as separating 
+Animations for body type 5 is currently not supported, as separating 
 the arms from the rest of the body via the mask would result in having 
 to completely remove the avatar's hands.
 
@@ -7,3 +7,7 @@ from the rest of the body were created based off of the avatars base clothes.
 
 Hairstyles that extend to the shoulder may result in the mask not separating the head
 and body properly.
+
+There seems to be some hairstyles that are wider than the default width of the bounding_box.
+The code to generate the animations will need to be updated alongside the mask templates to
+account for this.

@@ -1,6 +1,6 @@
-filepath: examples/bvh/custom_avatar_animations/right_hand_on_head.bvh
-start_frame_idx: 1
-end_frame_idx: 175
+filepath: examples/bvh/custom_avatar_animations/right_hand_on_head_2.bvh
+start_frame_idx: 0
+end_frame_idx: null
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
   - - LeftShoulder
