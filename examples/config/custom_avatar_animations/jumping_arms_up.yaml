@@ -1,4 +1,4 @@
-filepath: examples/bvh/custom_avatar_animations/jumping_arms_up.bvh
+filepath: examples/bvh/custom_avatar_animations/jumping_arms_up_2.bvh
 start_frame_idx: 0
 end_frame_idx: null
 groundplane_joint: LeftFoot
