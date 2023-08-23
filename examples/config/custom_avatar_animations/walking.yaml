@@ -1,4 +1,4 @@
-filepath: examples/bvh/custom_avatar_animations/walking_2.bvh
+filepath: examples/bvh/custom_avatar_animations/walking.bvh
 start_frame_idx: 0
 end_frame_idx: null
 groundplane_joint: LeftFoot

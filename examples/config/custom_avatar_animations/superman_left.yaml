@@ -1,6 +1,6 @@
-filepath: examples/bvh/custom_avatar_animations/superman_left_2.bvh
-start_frame_idx: 0 #1
-end_frame_idx: null #110
+filepath: examples/bvh/custom_avatar_animations/superman_left.bvh
+start_frame_idx: 0
+end_frame_idx: null
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
   - - LeftShoulder
