@@ -13,6 +13,7 @@ import uuid
 import os.path
 from annotations_to_animation import annotations_to_animation
 
+animations = ['boxing.yaml', 'facepalm.yaml', 'head_tilt.yaml', 'jumping_arms_up.yaml', 'jumping_in_place.yaml', 'kicking_left.yaml', 'left_hand_on_head.yaml', 'left_hand_wave.yaml', 'looking_around.yaml', 'right_hand_on_head.yaml', 'right_hand_wave.yaml', 'superman_left.yaml', 'superman_right.yaml', 'two_hand_wave.yaml', 'walking.yaml', 'wave_dance.yaml']
 
 # Function to download and preprocess an image from a given URL
 def generate_image(input_url, id, path_to_image):
@@ -47,15 +48,8 @@ def merge_masks(im1, im2, outdir):
     img.save(str(outdir/'mask.png'))
 
 
+# Function to determine what template to use when generating merged masks
 def determine_template(url):
-    """
-    A helper function that determines what template to use when generating
-    the merged masks
-    Arguments:
-        url: the original url of the avatar
-    Returns:
-        the path to the template
-    """
     if "gender=1" in url:
         if "body=0" in url:
             return 'templates/male_templates/male_body_1.png'
@@ -82,7 +76,22 @@ def determine_template(url):
             return 'templates/female_templates/female_body_5.png'
         else:
             return 'templates/female_templates/female_body_1.png'
-     
+
+
+# Function to process and generate an animation given its configuration file   
+def generate_animations(outdir, animations_outdir, motion_cfg_fn):
+    motion_name = motion_cfg_fn[:len(motion_cfg_fn)-5]
+    print(f"Processing {motion_name}...")
+    annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
+    os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')
+
+
+# Function to generate kicking_right animation by mirroring kicking_left animation
+def generate_kicking_right_animation(animations_outdir):
+    kicking_left_gif = Image.open(f'{animations_outdir}/kicking_left.gif')
+    reverse_frames = [ImageOps.mirror(frame.copy()) for frame in ImageSequence.Iterator(kicking_left_gif)]
+    reverse_frames[0].save(f'{animations_outdir}/kicking_right.gif', format='GIF', save_all=True, disposal=2, append_images=reverse_frames[1:])
+
 
 def image_to_annotations(img_fn: str, out_dir: str, path_to_image, url) -> None:
     """
@@ -292,7 +301,7 @@ def segment(img: np.ndarray):
     return mask.T
 
 # Main function for execution
-def my_exec(url, out_dir, path_to_image):
+def my_exec(url, out_dir, path_to_image, motion_cfg_fn):
     log_dir = Path('./logs')
     log_dir.mkdir(exist_ok=True, parents=True)
     logging.basicConfig(filename=f'{log_dir}/log.txt', level=logging.DEBUG)
@@ -311,18 +320,24 @@ def my_exec(url, out_dir, path_to_image):
     animations_outdir.mkdir(exist_ok=True)
 
 
-    # Process motion configurations and generate animations
-    for motion_cfg_fn in os.listdir('./config/custom_avatar_animations'):
-        if '.yaml' in motion_cfg_fn:
-            motion_name = motion_cfg_fn[:len(motion_cfg_fn)-5]
-            print(f"Processing {motion_name}...")
-            annotations_to_animation(outdir, f'./config/custom_avatar_animations/{motion_cfg_fn}', 'config/retarget/retarget_custom_avatar_animations.yaml')
-            os.rename(f'{outdir}/video.gif', f'{animations_outdir}/{motion_name}.gif')
-        
+    # Process given motion configuration and generate animations
+    if (motion_cfg_fn):
+        generate_animations(outdir, animations_outdir, motion_cfg_fn)
+
+        # generates kicking_right animation if animation generated was kicking_left
+        if ('kicking_left' in motion_cfg_fn):
+            generate_kicking_right_animation(animations_outdir)
+
+        return
+
+
+    # Process all motion configurations and generate animations
+    for motion_cfg_fn in animations:
+        generate_animations(outdir, animations_outdir, motion_cfg_fn)
+            
     # generate animation to kick right by reversing initial kicking animation
-    kicking_left_gif = Image.open(f'{animations_outdir}/kicking_left.gif')
-    reverse_frames = [ImageOps.mirror(frame.copy()) for frame in ImageSequence.Iterator(kicking_left_gif)]
-    reverse_frames[0].save(f'{animations_outdir}/kicking_right.gif', format='GIF', save_all=True, disposal=2, append_images=reverse_frames[1:])
+    generate_kicking_right_animation(animations_outdir)
+
 
 # Main entry point of the script
 if __name__ == '__main__':
@@ -332,6 +347,10 @@ if __name__ == '__main__':
         out_dir = sys.argv[2]
     else:
         out_dir = uuid.uuid1()
-    # Execute the processing
-    my_exec(url, out_dir, "./custom_avatars")
+    if len(sys.argv) > 3:
+        motion_cfg_fn = sys.argv[3]
+    else:
+        motion_cfg_fn=None
 
+    # Execute the processing
+    my_exec(url, out_dir, "./custom_avatars", motion_cfg_fn)
