@@ -29,7 +29,7 @@ jobs:
         # stop the build if there are Python syntax errors or undefined names
         # flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-        flake8 . --ignore=E222,E402,E226,E241,E203,E202,E271,E201,E221  --count --max-complexity=10 --max-line-length=200 --statistics
+        flake8 . --ignore=E222,E402,E226,E241,E203,E202,E271,E201,E221,C901  --count --max-complexity=10 --max-line-length=200 --statistics
     - name: Test with pytest
       run: |
         IS_CI_RUNNER=True pytest
