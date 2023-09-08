@@ -55,7 +55,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     detection_results = json.loads(resp.content)
 
     # error check detection_results
-    if type(detection_results) == dict and 'code' in detection_results.keys() and detection_results['code'] == 404:
+    if isinstance(detection_results, dict) and 'code' in detection_results.keys() and detection_results['code'] == 404:
         assert False, f'Error performing detection. Check that drawn_humanoid_detector.mar was properly downloaded. Response: {detection_results}'
 
     # order results by score, descending
@@ -99,7 +99,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     pose_results = json.loads(resp.content)
 
     # error check pose_results
-    if type(pose_results) == dict and 'code' in pose_results.keys() and pose_results['code'] == 404:
+    if isinstance(pose_results, dict) and 'code' in pose_results.keys() and pose_results['code'] == 404:
         assert False, f'Error performing pose estimation. Check that drawn_humanoid_pose_estimator.mar was properly downloaded. Response: {pose_results}'
 
     # if more than one skeleton detected, abort
