@@ -31,7 +31,8 @@ class WindowView(View):
         self.camera: Camera = Camera(cfg.camera_pos, cfg.camera_fwd)
 
         self.win: glfw._GLFWwindow
-        self._create_window(*cfg.window_dimensions)  # pyright: ignore[reportGeneralTypeIssues]
+        # pyright: ignore[reportGeneralTypeIssues]
+        self._create_window(*cfg.window_dimensions)
 
         self.shaders: Dict[str, Shader] = {}
         self.shader_ids: Dict[str, int] = {}
@@ -40,7 +41,8 @@ class WindowView(View):
         self.fboId: GL.GLint
         self._prep_background_image()
 
-        self._set_shader_projections(get_projection_matrix(*self.get_framebuffer_size()))
+        self._set_shader_projections(
+            get_projection_matrix(*self.get_framebuffer_size()))
 
     def _prep_background_image(self) -> None:
         """ Initialize framebuffer object for background image, if specified. """
@@ -50,7 +52,8 @@ class WindowView(View):
             return
 
         # load background image
-        _txtr: npt.NDArray[np.uint8] = read_background_image(self.cfg.background_image)
+        _txtr: npt.NDArray[np.uint8] = read_background_image(
+            self.cfg.background_image)
 
         # create the opengl texture and send it data
         self.txtr_h, self.txtr_w, _ = _txtr.shape
@@ -59,12 +62,14 @@ class WindowView(View):
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.txtr_id)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_BASE_LEVEL, 0)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_LEVEL, 0)
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, self.txtr_w, self.txtr_h, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, _txtr)
+        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, self.txtr_w,
+                        self.txtr_h, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, _txtr)
 
         # make framebuffer object
         self.fboId: GL.GLint = GL.glGenFramebuffers(1)
         GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
-        GL.glFramebufferTexture2D(GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
+        GL.glFramebufferTexture2D(
+            GL.GL_READ_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, self.txtr_id, 0)
 
     def _prep_shaders(self) -> None:
         BVH_VERT = Path(resource_filename(__name__, "shaders/bvh.vert"))
@@ -73,15 +78,20 @@ class WindowView(View):
 
         COLOR_VERT = Path(resource_filename(__name__, "shaders/color.vert"))
         COLOR_FRAG = Path(resource_filename(__name__, "shaders/color.frag"))
-        self._initiatize_shader('color_shader', str(COLOR_VERT), str(COLOR_FRAG))
+        self._initiatize_shader(
+            'color_shader', str(COLOR_VERT), str(COLOR_FRAG))
 
-        TEXTURE_VERT = Path(resource_filename(__name__, "shaders/texture.vert"))
-        TEXTURE_FRAG = Path(resource_filename(__name__, "shaders/texture.frag"))
-        self._initiatize_shader('texture_shader', str(TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
+        TEXTURE_VERT = Path(resource_filename(
+            __name__, "shaders/texture.vert"))
+        TEXTURE_FRAG = Path(resource_filename(
+            __name__, "shaders/texture.frag"))
+        self._initiatize_shader('texture_shader', str(
+            TEXTURE_VERT), str(TEXTURE_FRAG), texture=True)
 
     def _update_shaders_view_transform(self, camera: Camera) -> None:
         try:
-            view_transform: npt.NDArray[np.float32] = np.linalg.inv(camera.get_world_transform())
+            view_transform: npt.NDArray[np.float32] = np.linalg.inv(
+                camera.get_world_transform())
         except Exception as e:
             msg = f'Error inverting camera world transform: {e}'
             logging.critical(msg)
@@ -89,7 +99,8 @@ class WindowView(View):
 
         for shader_name in self.shaders:
             GL.glUseProgram(self.shader_ids[shader_name])
-            view_loc = GL.glGetUniformLocation(self.shader_ids[shader_name], "view")
+            view_loc = GL.glGetUniformLocation(
+                self.shader_ids[shader_name], "view")
             GL.glUniformMatrix4fv(view_loc, 1, GL.GL_FALSE, view_transform.T)
 
     def _set_shader_projections(self, proj_m: npt.NDArray[np.float32]) -> None:
@@ -100,7 +111,8 @@ class WindowView(View):
 
     def _initiatize_shader(self, shader_name: str, vert_path: str, frag_path: str, **kwargs) -> None:
         self.shaders[shader_name] = Shader(vert_path, frag_path)
-        self.shader_ids[shader_name] = self.shaders[shader_name].glid  # pyright: ignore[reportGeneralTypeIssues]
+        # pyright: ignore[reportGeneralTypeIssues]
+        self.shader_ids[shader_name] = self.shaders[shader_name].glid
 
         if 'texture' in kwargs and kwargs['texture'] is True:
             GL.glUseProgram(self.shader_ids[shader_name])
@@ -123,9 +135,14 @@ class WindowView(View):
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glClearColor(*self.cfg.clear_color)
 
-        logging.info(f'OpenGL Version: {GL.glGetString(GL.GL_VERSION).decode()}')  # pyright: ignore[reportGeneralTypeIssues]
-        logging.info(f'GLSL: { GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode()}')  # pyright: ignore[reportGeneralTypeIssues]
-        logging.info(f'Renderer: {GL.glGetString(GL.GL_RENDERER).decode()}')  # pyright: ignore[reportGeneralTypeIssues]
+        # pyright: ignore[reportGeneralTypeIssues]
+        logging.info(
+            f'OpenGL Version: {GL.glGetString(GL.GL_VERSION).decode()}')
+        # pyright: ignore[reportGeneralTypeIssues]
+        logging.info(
+            f'GLSL: { GL.glGetString(GL.GL_SHADING_LANGUAGE_VERSION).decode()}')
+        # pyright: ignore[reportGeneralTypeIssues]
+        logging.info(f'Renderer: {GL.glGetString(GL.GL_RENDERER).decode()}')
 
     def set_scene(self, scene: Scene) -> None:
         self.scene = scene
@@ -138,7 +155,8 @@ class WindowView(View):
             GL.glBindFramebuffer(GL.GL_DRAW_FRAMEBUFFER, 0)
             GL.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, self.fboId)
             win_w, win_h = self.get_framebuffer_size()
-            GL.glBlitFramebuffer(0, 0, self.txtr_w, self.txtr_h, 0, 0, win_w, win_h, GL.GL_COLOR_BUFFER_BIT, GL.GL_LINEAR)
+            GL.glBlitFramebuffer(0, 0, self.txtr_w, self.txtr_h, 0,
+                                 0, win_w, win_h, GL.GL_COLOR_BUFFER_BIT, GL.GL_LINEAR)
 
         self._update_shaders_view_transform(self.camera)
 
@@ -146,13 +164,14 @@ class WindowView(View):
 
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of view's window. """
-        return glfw.get_framebuffer_size(self.win)
+        return glfw.get_window_size(self.win)
 
     def swap_buffers(self) -> None:
         glfw.swap_buffers(self.win)
 
     def clear_window(self) -> None:
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT |
+                   GL.GL_DEPTH_BUFFER_BIT)  # type: ignore
 
     def cleanup(self) -> None:
         """ Destroy the window when it's no longer being used. """
