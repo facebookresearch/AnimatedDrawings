@@ -268,6 +268,12 @@ If you'd like to animate a drawing of your own, but don't want to deal with down
 
 [www.sketch.metademolab.com](https://sketch.metademolab.com/)
 
+## iOS Demo
+
+you can take photo of your drawings or draw a character in demo application  :
+
+[AppStore](https://apps.apple.com/us/app/animated-drawings-ai-motions/id6461773689/)
+
 ## Paper & Citation
  If you find the resources in this repo helpful, please consider citing the accompanying paper, [A Method for Animating Children's Drawings of The Human Figure](https://dl.acm.org/doi/10.1145/3592788)).
 
