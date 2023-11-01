@@ -105,7 +105,7 @@ To understand what we mean by *annotations* here, look at one of the 'pre-rigged
 You can use whatever process you'd like to create those annotations files and, as long as they are valid, AnimatedDrawings will give you an animation.
 
 So you'd like to animate your own drawn character.
-I wouldn't want to you to create those annotation files manually. That would be tedious.
+I wouldn't want you to create those annotation files manually. That would be tedious.
 To make it fast and easy, we've trained a drawn humanoid figure detector and pose estimator and provided scripts to automatically generate annotation files from the model predictions.
 
 To get it working, you'll need to set up a Docker container that runs TorchServe.
