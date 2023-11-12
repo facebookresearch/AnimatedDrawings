@@ -21,7 +21,7 @@ See the [example mvc config files](mvc) for examples.
     - <b>ADD_AD_RETARGET_BVH</b> <em>(bool)</em>: If `True`, a visualization of the original BVH motion driving the Animated Drawing characters will be added to the scene.
 
     - <b>ANIMATED_CHARACTERS</b> <em>List[dict[str:str, str:str, str:str]]</em>:
- A list of dictionaries containing the filepaths of config files necessary to create and animated an Animated Drawing character. 
+ A list of dictionaries containing the filepaths of config files necessary to create and animate an Animated Drawing character. 
  Add more dictionaries to add more characters into a scene.
 Contains the following key-value pairs:
 
@@ -47,7 +47,7 @@ Contains the following key-value pairs:
 
     - <b>CAMERA_POS</b> <em>(List[float, float, float])</em>: The xyz position of the camera used to render the scene.
 
-    - <b>CAMERA_FWD</b> <em>(List[float, float, float])</em>: The vector used to define the 'foward' orientation of the camera.
+    - <b>CAMERA_FWD</b> <em>(List[float, float, float])</em>: The vector used to define the 'forward' orientation of the camera.
 
     - <b>USE_MESA</b> <em>(bool)</em>: If `True`, will attempt to use osmesa to to render the scene directly to a file without requiring a window.
 Necessary for headless video rendering.  
@@ -120,7 +120,7 @@ The name of a joint that exists within the BVH's skeleton.
 When visualizing the BVH's motion, the skeleton will have it's worldspace y offset adjusted so this joint is within the y=0 plane at `start_frame_idx`.
 
 - <b>forward_perp_joint_vectors</b> <em>(list[List[str, str]])</em>:
-During retargeting, it is necessary to compute the 'foward' vector for the skeleton at each frame.
+During retargeting, it is necessary to compute the 'forward' vector for the skeleton at each frame.
 To compute this, we define a series of joint name pairs. 
 Each joint name specifies a joint within the BVH skeleton.
 For each pair, we compute the normalized vector from the first joint to the second joint.
@@ -178,7 +178,7 @@ We attempt to automatically choose the best plane (`frontal` or `sagittal`) usin
 
 - <b>char_bodypart_groups</b> <em>(list[dict])</em>:
 If there is overlap between the character's torso and its arm, for example, one should be rendered in front of the other. 
-But how do we know the order in which to render character bodyparts.
+But how do we know the order in which to render character bodyparts?
 The dictionaries within this list contain information specifying which joints should be rendered together (i.e. during the same pass) and how their 'depth' should be determined. Each dictionary contains the following key-value pairs:
 
     - <b>char_joints</b> <em>(list[str])</em>:
@@ -186,7 +186,7 @@ A list of names of <em>distal</em> joints of bones within the character rig.
 All mesh triangles close to these bones will be rendered on the same pass.
 
     - <b>bvh_depth_drivers</b> <em>(list[str])</em>:
-But how do we the order in which to render the character bodypart groups?
+But how do we determine the order in which to render the character bodypart groups?
 We do this by computing the distance from one or more skeleton joints (i.e. depth drivers) to their projection planes.
 This contains a list of one or more skeleton joints used for this purpose:
 the average depth is calculated, then character bodypart groups are rendered from smallest average depth to largest average depth.
