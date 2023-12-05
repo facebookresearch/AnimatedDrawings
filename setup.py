@@ -20,7 +20,7 @@ setup(
         'Pillow==10.1.0',
         'glfw==2.5.5',
         'PyOpenGL==3.1.6',
-        'PyYAML==6.0',
+        'PyYAML==6.0.1',
         'requests==2.31.0',
         'torchserve==0.7.0',
         'tqdm==4.64.1',
