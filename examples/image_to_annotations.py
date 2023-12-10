@@ -102,7 +102,7 @@ def image_to_annotations(img_fn: str, out_dir: str) -> None:
     if isinstance(pose_results, dict) and 'code' in pose_results.keys() and pose_results['code'] == 404:
         assert False, f'Error performing pose estimation. Check that drawn_humanoid_pose_estimator.mar was properly downloaded. Response: {pose_results}'
 
-    # if more than one skeleton detected, abort
+    # if no skeleton detected, abort
     if len(pose_results) == 0:
         msg = 'Could not detect any skeletons within the character bounding box. Expected exactly 1. Aborting.'
         logging.critical(msg)
