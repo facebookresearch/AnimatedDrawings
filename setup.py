@@ -11,7 +11,7 @@ setup(
     author_email='jesse.smith@meta.com',
     python_requires='>=3.8.13',
     install_requires=[
-        'numpy== 1.23.3',
+        'numpy==1.24.4',
         'scipy==1.10.0',
         'scikit-image==0.19.3',
         'scikit-learn==1.1.2',
