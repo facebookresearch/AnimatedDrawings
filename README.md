@@ -1,3 +1,8 @@
+# *Update March 8th, 2024*
+
+Would you like to get paid to work Animated Drawings-related research? Are you a Ph.D. student in CS, ML, HCI or a related field? If so, please consider applying for a [summer internship](https://www.metacareers.com/v2/jobs/170100726129599/)!
+[Send me a message](https://twitter.com/hjessmith) if you do apply :)
+
 # Animated Drawings
 
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
