@@ -27,7 +27,7 @@ RUN pip install torchserve
 # bugfix for xtcocoapi, an mmpose dependency
 RUN git clone https://github.com/jin-s13/xtcocoapi.git
 WORKDIR xtcocoapi
-RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install -r requirements.txt
 RUN python setup.py install
 WORKDIR /
 RUN pip install mmpose==0.29.0
