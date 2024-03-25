@@ -8,7 +8,7 @@ Would you like to get paid to work Animated Drawings-related research? Are you a
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
 
 
-This repo contains an implementation of the algorithm described in the paper, `A Method for Animating Children's Drawings of the Human Figure'. 
+This repo contains an implementation of the algorithm described in the paper, `A Method for Animating Children's Drawings of the Human Figure' (to appear in Transactions on Graphics and to be presented at SIGGRAPH 2023).
 
 In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
 
@@ -20,7 +20,7 @@ Video overview of [Animated Drawings OS Project](https://www.youtube.com/watch?v
 ## Installation
 *This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating system, you may encounter issues.*
 
-We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. 
+We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings.
 Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/projects/conda/en/stable/user-guide/install/index.html) to download and install it. Then run the following commands:
 
 ````bash
@@ -41,7 +41,7 @@ Mac M1/M2 users: if you get architecture errors, make sure your `~/.condarc` doe
 ### Quick Start
 Now that everything's set up, let's animate some drawings! To get started, follow these steps:
 1. Open a terminal and activate the animated_drawings conda environment:
-````bash 
+````bash
 ~ % conda activate animated_drawings
 ````
 
@@ -60,8 +60,8 @@ Now that everything's set up, let's animate some drawings! To get started, follo
 from animated_drawings import render
 render.start('./examples/config/mvc/interactive_window_example.yaml')
 ````
-    
-If everything is installed correctly, an interactive window should appear on your screen. 
+
+If everything is installed correctly, an interactive window should appear on your screen.
 (Use spacebar to pause/unpause the scene, arrow keys to move back and forth in time, and q to close the screen.)
 
 <img src='./media/interactive_window_example.gif' width="256" height="256" /> </br></br></br>
@@ -159,6 +159,41 @@ The resulting animation was saved as `./garlic_out/video.gif`.
 
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
 
+#### Alternative: Running locally on macOS
+
+Here's an example of running natively on macOS rather than via Docker.
+
+First install dependencies:
+
+```bash
+# if you already have java installed, skip this step:
+brew install java
+sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+
+# install packages
+pip install -U openmim torch==1.13.0 torchserve mmdet==2.27.0 mmpose==0.29.0 mmtrack numpy==1.23.3 requests==2.31.0 scipy==1.10.0 tqdm==4.64.1
+mim install mmcv-full==1.7.0
+
+# download models
+cd torchserve
+mkdir -p ./model-store
+wget https://github.com/facebookresearch/AnimatedDrawings/releases/download/v0.0.1/drawn_humanoid_detector.mar -P ./model-store/
+wget https://github.com/facebookresearch/AnimatedDrawings/releases/download/v0.0.1/drawn_humanoid_pose_estimator.mar -P ./model-store/
+```
+
+Now in a new shell activate the animated_drawings env and run
+
+```bash
+torchserve --start --ts-config config.local.properties --foreground
+```
+
+Now you can `cd examples` and run the examples as described above:
+
+```bash
+cd examples
+python image_to_animation.py drawings/garlic.png garlic_out
+```
+
 ### Fixing bad predictions
 You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were additional non-video files within `garlic_out`.
 `mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
@@ -192,7 +227,7 @@ render.start('./examples/config/mvc/multiple_characters_example.yaml')
 <img src='./examples/characters/char1/texture.png' height="256" /> <img src='./examples/characters/char2/texture.png' height="256" /> <img src='./media/multiple_characters_example.gif' height="256" />
 
 ### Adding a background image
-Suppose you'd like to add a background to the animation. You can do so by specifying the image path within the config. 
+Suppose you'd like to add a background to the animation. You can do so by specifying the image path within the config.
 Run the following commands from a Python interpreter within the AnimatedDrawings root directory:
 
 ````python
@@ -218,10 +253,10 @@ render.start('./examples/config/mvc/different_bvh_skeleton_example.yaml')
 <img src='./media/different_bvh_skeleton_example.gif' height="256" />
 
 ### Creating Your Own BVH Files
-You may be wondering how you can create BVH files of your own. 
-You used to need a motion capture studio. 
-But now, thankfully, there are simple and accessible options for getting 3D motion data from a single RGB video. 
-For example, I created this Readme's banner animation by: 
+You may be wondering how you can create BVH files of your own.
+You used to need a motion capture studio.
+But now, thankfully, there are simple and accessible options for getting 3D motion data from a single RGB video.
+For example, I created this Readme's banner animation by:
 1. Recording myself doing a silly dance with my phone's camera.
 2. Using [Rokoko](https://www.rokoko.com/) to export a BVH from my video.
 3. Creating a new [motion config file](examples/config/README.md#motion) and [retarget config file](examples/config/README.md#retarget) to fit the skeleton exported by Rokoko.
@@ -245,7 +280,7 @@ It will show this in a new window:
 
 ### Adding Addition Character Skeletons
 All of the example animations above depict "human-like" characters; they have two arms and two legs.
-Our method is primarily designed with these human-like characters in mind, and the provided pose estimation model assumes a human-like skeleton is present. 
+Our method is primarily designed with these human-like characters in mind, and the provided pose estimation model assumes a human-like skeleton is present.
 But you can manually specify a different skeletons within the `character config` and modify the specified `retarget config` to support it.
 If you're interested, look at the configuration files specified in the two examples below.
 
