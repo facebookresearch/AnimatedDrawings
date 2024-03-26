@@ -1,14 +1,9 @@
-# *Update March 8th, 2024*
-
-Would you like to get paid to work Animated Drawings-related research? Are you a Ph.D. student in CS, ML, HCI or a related field? If so, please consider applying for a [summer internship](https://www.metacareers.com/v2/jobs/170100726129599/)!
-[Send me a message](https://twitter.com/hjessmith) if you do apply :)
-
 # Animated Drawings
 
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
 
 
-This repo contains an implementation of the algorithm described in the paper, `A Method for Animating Children's Drawings of the Human Figure' (to appear in Transactions on Graphics and to be presented at SIGGRAPH 2023).
+This repo contains an implementation of the algorithm described in the paper, [A Method for Animating Children's Drawings of the Human Figure](https://dl.acm.org/doi/10.1145/3592788).
 
 In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
 
@@ -112,7 +107,9 @@ You can use whatever process you'd like to create those annotations files and, a
 So you'd like to animate your own drawn character.
 I wouldn't want you to create those annotation files manually. That would be tedious.
 To make it fast and easy, we've trained a drawn humanoid figure detector and pose estimator and provided scripts to automatically generate annotation files from the model predictions.
+There are currently two options for setting this up.
 
+#### Option 1: Docker
 To get it working, you'll need to set up a Docker container that runs TorchServe.
 This allows us to quickly show your image to our machine learning models and receive their predictions.
 
@@ -159,7 +156,7 @@ The resulting animation was saved as `./garlic_out/video.gif`.
 
 <img src='./examples/drawings/garlic.png' height="256" /><img src='./media/garlic.gif' width="256" height="256" /></br></br></br>
 
-#### Alternative: Running locally on macOS
+#### Option 2: Running locally on macOS
 
 Getting Docker working can be complicated, and it's unnecessary if you just want to play around with this locally.
 Contributer @Gravityrail kindly submitted a script that sets up Torchserve locally on MacOS, no Docker required.
