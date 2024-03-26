@@ -161,39 +161,20 @@ The resulting animation was saved as `./garlic_out/video.gif`.
 
 #### Alternative: Running locally on macOS
 
-Here's an example of running natively on macOS rather than via Docker.
-
-First install dependencies:
+Getting Docker working can be complicated, and it's unnecessary if you just want to play around with this locally.
+Contributer @Gravityrail kindly submitted a script that sets up Torchserve locally on MacOS, no Docker required.
 
 ```bash
-# if you already have java installed, skip this step:
-brew install java
-sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-
-# install packages
-pip install -U openmim torch==1.13.0 torchserve mmdet==2.27.0 mmpose==0.29.0 mmtrack numpy==1.23.3 requests==2.31.0 scipy==1.10.0 tqdm==4.64.1
-mim install mmcv-full==1.7.0
-
-# download models
 cd torchserve
-mkdir -p ./model-store
-wget https://github.com/facebookresearch/AnimatedDrawings/releases/download/v0.0.1/drawn_humanoid_detector.mar -P ./model-store/
-wget https://github.com/facebookresearch/AnimatedDrawings/releases/download/v0.0.1/drawn_humanoid_pose_estimator.mar -P ./model-store/
-```
-
-Now in a new shell activate the animated_drawings env and run
-
-```bash
+./setup_macos.sh
 torchserve --start --ts-config config.local.properties --foreground
 ```
 
-Now you can `cd examples` and run the examples as described above:
+With torchserve running locally like this, you can use the same command as before to make the garlic dance:
 
-```bash
-cd examples
+```bash 
 python image_to_animation.py drawings/garlic.png garlic_out
 ```
-
 ### Fixing bad predictions
 You may notice that, when you ran `python image_to_animation.py drawings/garlic.png garlic_out`, there were additional non-video files within `garlic_out`.
 `mask.png`, `texture.png`, and `char_cfg.yaml` contain annotation results of the image character analysis step. These annotations were created from our model predictions.
