@@ -146,7 +146,7 @@ class WindowView(View):
 
     def get_framebuffer_size(self) -> Tuple[int, int]:
         """ Return (width, height) of view's window. """
-        return glfw.get_framebuffer_size(self.win)
+        return glfw.get_window_size(self.win)
 
     def swap_buffers(self) -> None:
         glfw.swap_buffers(self.win)
