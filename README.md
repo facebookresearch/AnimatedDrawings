@@ -302,8 +302,6 @@ It will show this in a new window:
 
 ### Crate Animation from Monocular Video(Experimental)
 
-*This module is only tested on Windows platform currently.*
-
 Now, to simplify process, all you need to do is provide a drawing and a single person video to generate an animation in
 the offline mode and virutal conda environment locally!!
 
@@ -331,7 +329,7 @@ python offline_demo.py \
 --out_vid <output_video_path>
 ```
 
-**Attention: Currently, the projection way proposed in thesis is static, if you want to get more interesting projection
+**Attention: Currently, the projection way proposed in the thesis is static, if you want to get more interesting projection
 way, please modify [certain retarget config file](examples/offline_lib/retarget/h36m_retarget_base.yaml).**
 
 The final result may get this:
