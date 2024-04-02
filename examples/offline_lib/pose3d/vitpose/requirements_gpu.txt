@@ -1,0 +1,3 @@
+onnxruntime-gpu>=1.13.0
+pycuda>=2022.2.2
+nvidia-tensorrt==8.4.3.1

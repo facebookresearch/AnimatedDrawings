@@ -1,0 +1,1 @@
+Please put the VitPose model weight and yolov8 model weight here.
