@@ -2,13 +2,9 @@
 
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
 
-This repo contains an implementation of the algorithm described in the
-paper, [A Method for Animating Children's Drawings of the Human Figure](https://dl.acm.org/doi/10.1145/3592788).
+This repo contains an implementation of the algorithm described in the paper, [A Method for Animating Children's Drawings of the Human Figure](https://dl.acm.org/doi/10.1145/3592788).
 
-In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations
-starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **
-
-# FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
+In addition, this repo aims to be a useful creative tool in its own right, allowing you to flexibly create animations starring your own drawn characters. If you do create something fun with this, let us know! Use hashtag **#FAIRAnimatedDrawings**, or tag me on twitter: [@hjessmith](https://twitter.com/hjessmith/).
 
 Project website: [http://www.fairanimateddrawings.com](http://www.fairanimateddrawings.com)
 
