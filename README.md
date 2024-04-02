@@ -307,7 +307,7 @@ Here are tips:
    the [provided link](https://drive.google.com/drive/folders/17rBGjufhzAhM_qNjnsenBFTngk_YgXYR?usp=drive_link), and
    then put them under corresponding directories respectively:
 
-| resource name              |                     target directory                 |
+| resource name              |                     target directory                |
 | -------------------------- | ---------------------------------------------------- |
 | sketch_detector.onnx       | [examples/offline_res/checkpoint](examples/offline_res/checkpoint)  |
 | sketch_estimator.onnx      | [examples/offline_res/checkpoint](examples/offline_res/checkpoint)  |
