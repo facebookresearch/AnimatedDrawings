@@ -14,7 +14,7 @@ Conda's Miniconda is a great choice. Follow [these steps](https://conda.io/proje
     conda activate animated_drawings
 
     # clone AnimatedDrawings and use pip to install
-    git clone git@github.com:fairinternal/AnimatedDrawings.git
+    git clone git@github.com:facebookresearch/AnimatedDrawings.git
     cd AnimatedDrawings
     pip install -e .
 
@@ -162,4 +162,4 @@ If you want to create your own config files, see the [configuration file documen
 ## As-Rigid-As-Possible Shape Manipulation
 
 These characters are deformed using [As-Rigid-As-Possible (ARAP) shape manipulation](https://www-ui.is.s.u-tokyo.ac.jp/~takeo/papers/takeo_jgt09_arapFlattening.pdf).
-We have a Python implementation of the algorithm, located [here](https://github.com/fairinternal/AnimatedDrawings/blob/main/animated_drawings/model/arap.py), that might be of use to other developers.
+We have a Python implementation of the algorithm, located [here](https://github.com/facebookresearch/AnimatedDrawings/blob/main/animated_drawings/model/arap.py), that might be of use to other developers.
