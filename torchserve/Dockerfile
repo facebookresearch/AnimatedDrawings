@@ -8,7 +8,6 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
     curl \
-    python3-pip \
     vim \
     sudo \
     default-jre \
@@ -16,6 +15,9 @@ RUN apt-get update && \
     gcc \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
+
+RUN conda install python=3.8.13 -y
+
 
 # install python dependencies
 RUN pip install openmim
