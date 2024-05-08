@@ -4,7 +4,7 @@ This is the simplified version of [facebookresearch/AnimatedDrawings: Code to ac
 
 
 
-**If you want to see more details in initial README.md, [clik here](OFFICIAL_README.md) **
+**If you want to see more details in initial README.md, [clik here](OFFICIAL_README.md)**
 
 
 
