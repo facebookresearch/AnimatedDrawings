@@ -23,7 +23,7 @@ download and install it. Then run the following commands:
     conda activate animated_drawings
 
     # clone AnimatedDrawings and use pip to install
-    git clone https://github.com/facebookresearch/AnimatedDrawings.git
+    git clone https://github.com/Brian417-cup/AnimatedDrawings
     cd AnimatedDrawings
     pip install -e .
 ````
