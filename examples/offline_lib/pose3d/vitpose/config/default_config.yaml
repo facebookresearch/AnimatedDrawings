@@ -1,0 +1,70 @@
+pose_model_name: vit_pose
+detector_model_name: yolov8
+use_mps: False
+cuda: True
+
+#parser.add_argument('--input', type=str, default='examples/sample.jpg',
+#                        help='path to image / video or webcam ID (=cv2)')
+input: example/test1.jpeg
+
+output:
+  #parser.add_argument('--output-path', type=str, default='',
+  #                        help='output path, if the path provided is a directory '
+  #                        'output files are "input_name +_result{extension}".')
+  dir: example
+  #  parser.add_argument('--show', default=False, action='store_true',
+  #  help='preview result during inference')
+  show: False
+  #  parser.add_argument('--save-img', default=False, action='store_true',
+  #  help='save image results')
+  #  parser.add_argument('--show-yolo', default=False, action='store_true',
+  #  help='draw yolo results')
+  yolo_show: False
+  #  parser.add_argument('--show-raw-yolo', default=False, action='store_true',
+  #  help='draw yolo result before that SORT is applied for tracking'
+  #  ' (only valid during video inference)')
+  yolo_show_raw: False
+  save_img: False
+  #  parser.add_argument('--save-json', default=False, action='store_true',
+  #  help='save json results')
+  save_json: False
+  save_npz: False
+
+vit_pose:
+  #parser.add_argument('--model', type=str, required=True,
+  #                        help='checkpoint path of the model')
+  path: ./checkpoints/vitpose-b-coco.onnx
+  #  The parameter size of model, should be in ['s', 'b', 'l', 'h']
+  model_type: b
+  #parser.add_argument('--dataset', type=str, required=False, default=None,
+  #                        help='Name of the dataset. If None it"s extracted from the file name. \
+  #                              ["coco", "coco_25", "wholebody", "mpii", "ap10k", "apt36k", "aic"]')
+  dataset: coco
+  #  parser.add_argument('--conf-threshold', type=float, required=False, default=0.5,
+  #  help='Minimum confidence for keypoints to be drawn. [0, 1] range')
+  conf_threshold: 0
+  #  parser.add_argument('--rotate', type=int, choices=[0, 90, 180, 270],
+  #  required=False, default=0,
+  #  help='Rotate the image of [90, 180, 270] degress counterclockwise')
+  rotate: 0
+  #  parser.add_argument('--single-pose', default=False, action='store_true',
+  #  help='Do not use SORT tracker because single pose is expected in the video')
+  single_pose: False
+  # tracker_id (starts from 1 for different objects)
+  tracker_id: 1
+
+yolo:
+  path: ./checkpoints/yolov8s.pt
+  #parser.add_argument('--det-class', type=str, required=False, default=None,
+  #                        help='["human", "cat", "dog", "horse", "sheep", \
+  #                               "cow", "elephant", "bear", "zebra", "giraffe", "animals"]')
+  det_class: human
+  #  parser.add_argument('--yolo-size', type=int, required=False, default=320,
+  #  help='YOLOv8 image size during inference')
+  size: 320
+  #  parser.add_argument('--yolo-step', type=int,
+  #  required=False, default=1,
+  #  help='The tracker can be used to predict the bboxes instead of yolo for performance, '
+  #  'this flag specifies how often yolo is applied (e.g. 1 applies yolo every frame). '
+  #  'This does not have any effect when is_video is False')
+  step: 1

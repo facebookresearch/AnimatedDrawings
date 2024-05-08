@@ -1,0 +1,14 @@
+# Train config ---------------------------------------
+log_level: logging.INFO
+seed: 0
+deterministic: True
+cudnn_benchmark: True # Use cudnn 
+resume_from: "ckpts/og-vitpose-s.pth" # CKPT path
+# resume_from: False
+gpu_ids: [0]
+launcher: 'none' # When distributed training ['none', 'pytorch', 'slurm', 'mpi']
+use_amp: True
+validate: True
+autoscale_lr: False
+dist_params:
+  ...

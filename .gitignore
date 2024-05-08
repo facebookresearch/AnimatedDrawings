@@ -24,3 +24,6 @@ examples/garlic_out
 !media/*.gif
 
 torchserve/logs/
+
+__pycache__/
+.idea

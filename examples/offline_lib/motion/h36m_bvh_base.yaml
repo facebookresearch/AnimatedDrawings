@@ -1,0 +1,11 @@
+filepath: examples/bvh/fair1/zombie.bvh # this need retarget for certain bvh
+start_frame_idx: 0
+end_frame_idx: 779 # this need rewrite for certain bvh
+groundplane_joint: LeftFoot
+forward_perp_joint_vectors:
+  - - LeftArm
+    - RightArm
+  - - LeftUpLeg
+    - RightUpLeg
+scale: 0.1
+up: +y # for our exported bvh format, the up is +y

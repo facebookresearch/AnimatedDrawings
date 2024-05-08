@@ -24,7 +24,18 @@ setup(
         'requests==2.31.0',
         'torchserve==0.7.0',
         'tqdm==4.64.1',
-        'Flask==2.3.2'
+        'Flask==2.3.2',
+        'easydict==1.13',
+        'onnxruntime==1.14.1',
+        'onnx==1.14.1',
+        'torch==1.8.1',
+        'torchvision==0.9.1',
+        'py-cpuinfo==9.0.0',
+        'ffmpeg==1.4',
+        'imageio-ffmpeg==0.4.9',
+        'matplotlib==3.7.2',
+        'filterpy==1.4.5',
+        'pandas==2.0.3'
     ],
     packages=find_packages(),
 )

@@ -1,0 +1,69 @@
+# The root path of this config file is in ../
+
+# video source file
+video_path: video/dance.mp4
+
+# 2D Pose Estimator Setting
+detector_2d:
+  # If 2d results we don't have, this value is null, else we will from *.npz file
+  input_npz: '' #'outputvideo.npz'
+  #  2dd kyepoints detector name
+  selected_name: vit_pose
+
+  #  vit_pose config
+  vit_pose:
+    name: vit_pose
+    detector_model: vitpose/checkpoints/yolov8/yolov8l.onnx #vitpose/checkpoints/yolov8/yolov8m.onnx #vitpose/checkpoints/yolov8s.pt
+    detector_config: vitpose/config/default_config.yaml
+    pose_config: vitpose/config/default_config.yaml
+    pose_model: vitpose/checkpoints/vitpose-b-coco.onnx
+    output_dir: outputvideo
+
+  estimation_result:
+    save_npz: True
+
+# is save image for intermidate results?
+save_img: False
+
+#3D pose model setting
+detector_3d:
+  #  if use [vid_w,vid_h] to normalize, then it will True, else it will use [max_x,max_y] to normalize
+  use_pixel_normalize: True
+  #  whether use [vid_w,vid_h] to restore initial pixel coordinate
+  # If yes, the corresponding range is [0,vid_w] and [0,vid_h] respectively.
+  use_pixel_restore: False
+  # If use .bin file, it need config *.yaml file, else we don't use currently
+  model_config_path: cfg/pose3d/normal_model.yaml
+  # For checkpoint file, we only support .bin or .onnx currently
+  checkpoint_path: checkpoint/pose3d.onnx
+  # input frame
+  clip_len: 243
+  # If no conf the input channel number is 2 else 3
+  no_conf: False
+  # Flip for data augumentation
+  flip_augument: True
+  # For root joint's postiion in all sequence.
+  # If true,the root joint is all around 0
+  # Else the z axith is only 0 at 1st frame
+  rootrel: False
+  gt_2d: False
+
+  estimation_result:
+    # For visualize 3DHPE in *.mp4 file if not null
+    export_mp4: False
+    # If *.mp4 exits, we can also generate corresponding *.gif file
+    export_gif: False
+
+#3D Pose Estimator Output Setting
+write_camera_3d_point: False
+
+bvh:
+  # transfer from camera space -> world space
+  camera:
+    extrinsics:
+      # Rotation in quaternions format
+      R: [ 0.14070565, -0.15007018, -0.7552408, 0.62232804 ]
+      # translation in matrix
+      T: [ 0,0,0 ] #[ 1841.1070556640625, 4955.28466796875, 1563.4454345703125 ]
+
+  scale_factor: 100
