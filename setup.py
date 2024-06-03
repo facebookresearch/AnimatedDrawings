@@ -23,7 +23,7 @@ setup(
         'PyYAML==6.0.1',
         'requests==2.31.0',
         'torchserve==0.7.0',
-        'tqdm==4.64.1',
+        'tqdm==4.66.3',
         'Flask==2.3.2'
     ],
     packages=find_packages(),
