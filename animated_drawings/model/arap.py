@@ -30,7 +30,7 @@ class ARAP():
     Then, given new positions for the pins, find new vertex locations (v' in V')
     such that the edges (e' in E') are as similar as possible, in a least squares sense, to the original edges (e in E).
     Translation and rotation aren't penalized, but edge scaling is.
-    Not allowing rotation makes this tricky, as edges are directed vectors.
+    Not penalizing rotation makes this tricky, as edges are directed vectors.
 
     Solution involves finding vertex locations twice. First, you do so while allowing both rotation and scaling to be free.
     Then you collect the per-edge rotation transforms found by this solution.
