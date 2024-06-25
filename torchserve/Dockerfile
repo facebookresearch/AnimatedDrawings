@@ -32,7 +32,7 @@ RUN python setup.py install
 WORKDIR /
 RUN pip install mmpose==0.29.0
 RUN pip install torchvision==0.15.1  # solve torch version problem
-
+RUN pip install numpy==1.24.4  #solve numpy version problem
 
 # prep torchserve
 RUN mkdir -p /home/torchserve/model-store
