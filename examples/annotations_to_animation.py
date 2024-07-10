@@ -25,6 +25,7 @@ def annotations_to_animation(char_anno_dir: str, motion_cfg_fn: str, retarget_cf
 
     # create mvc config
     mvc_cfg = {
+        'view': {'USE_MESA':True},  # use MESA for headless server
         'scene': {'ANIMATED_CHARACTERS': [animated_drawing_dict]},  # add the character to the scene
         'controller': {
             'MODE': 'video_render',  # 'video_render' or 'interactive'
