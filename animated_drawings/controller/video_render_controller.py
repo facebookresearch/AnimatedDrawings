@@ -141,7 +141,7 @@ class VideoWriter():
         output_p = Path(controller.cfg.output_video_path)
         output_p.parent.mkdir(exist_ok=True, parents=True)
 
-        msg = f' Writing video to: {output_p.resolve()}'
+        msg = f' Writing video to: {"blob" if cfg.mode == "blob_render" else output_p.resolve()}'
         logging.info(msg)
         print(msg)
 
@@ -179,8 +179,9 @@ class GIFWriter(VideoWriter):
     def cleanup(self) -> None:
         """ Write all frames to output path specified."""
         from PIL import Image
-        self.output_p.parent.mkdir(exist_ok=True, parents=True)
-        logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
+        if not self.mode == "blob_render":
+            self.output_p.parent.mkdir(exist_ok=True, parents=True)
+        logging.info(f'VideoWriter will write to {"blob" if self.mode == "blob_render" else self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
         ims[0].save(blob := BytesIO() if self.mode == "blob_render" else self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0, format="gif")
         
