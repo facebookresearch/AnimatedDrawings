@@ -47,7 +47,7 @@ class VideoRenderController(Controller):
         self.video_height: int
         self.video_width, self.video_height = self.view.get_framebuffer_size()
 
-        self.video_writer: VideoWriter = VideoWriter.create_video_writer(self)
+        self.video_writer: VideoWriter = VideoWriter.create_video_writer(self, cfg)
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
 
@@ -134,7 +134,7 @@ class VideoWriter():
         pass
 
     @staticmethod
-    def create_video_writer(controller: VideoRenderController) -> VideoWriter:
+    def create_video_writer(controller: VideoRenderController, cfg: ControllerConfig) -> VideoWriter:
 
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
 
@@ -146,9 +146,9 @@ class VideoWriter():
         print(msg)
 
         if output_p.suffix == '.gif':
-            return GIFWriter(controller)
+            return GIFWriter(controller, cfg)
         elif output_p.suffix == '.mp4':
-            return MP4Writer(controller)
+            return MP4Writer(controller, cfg)
         else:
             msg = f'Unsupported output video file extension ({output_p.suffix}). Only .gif and .mp4 are supported.'
             logging.critical(msg)
@@ -182,9 +182,12 @@ class GIFWriter(VideoWriter):
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
-        ims[0].save(self.output_p if self.mode == "bool" else blob := BytesIO(), save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
+        ims[0].save(blob := BytesIO() if self.mode == "blob_render" else self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0, format="gif")
         
-        return blob if blob is not None else None
+        try:
+            return blob
+        except NameError:
+            return None
 
 
 class MP4Writer(VideoWriter):

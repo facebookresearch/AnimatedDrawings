@@ -209,7 +209,7 @@ class ControllerConfig():
         try:
             self.mode: str = controller_cfg["MODE"]
             assert isinstance(self.mode, str), 'is not str'
-            assert self.mode in ('interactive', 'video_render'), 'mode not interactive or video_render'
+            assert self.mode in ('interactive', 'blob_render', 'video_render'), 'mode not interactive, blob_render or video_render'
         except (AssertionError, ValueError) as e:
             msg = f'Error in MODE config parameter: {e}'
             logging.critical(msg)
