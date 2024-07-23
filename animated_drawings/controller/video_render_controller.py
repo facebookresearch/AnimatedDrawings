@@ -145,7 +145,7 @@ class VideoWriter():
         logging.info(msg)
         print(msg)
 
-        if output_p.suffix == '.gif':
+        if output_p.suffix == '.gif' or cfg.mode == "blob_render":
             return GIFWriter(controller, cfg)
         elif output_p.suffix == '.mp4':
             return MP4Writer(controller, cfg)
@@ -176,7 +176,7 @@ class GIFWriter(VideoWriter):
         """ Reorder channels and save frames as they arrive"""
         self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
 
-    def cleanup(self) -> None:
+    def cleanup(self) -> None | BytesIO:
         """ Write all frames to output path specified."""
         from PIL import Image
         if not self.mode == "blob_render":
