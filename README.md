@@ -89,6 +89,17 @@ Instead of an interactive window, the animation was saved to a file, video.gif, 
 
 <img src='./media/gif_export_video.gif' width="256" height="256" /> </br></br></br>
 
+### Export blob
+
+This could be used when you want to use the API, for example.
+
+````python
+from animated_drawings import render
+blob = render.start('./examples/config/mvc/export_blob_example.yaml')
+````
+
+This function returns a GIF in `io.BytesIO` object.
+
 ### Headless Rendering
 
 If you'd like to generate a video headlessly (e.g. on a remote server accessed via ssh), you'll need to specify `USE_MESA: True` within the `view` section of the config file.
