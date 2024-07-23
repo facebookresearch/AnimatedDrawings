@@ -96,6 +96,10 @@ This could be used when you want to use the API, for example.
 ````python
 from animated_drawings import render
 blob = render.start('./examples/config/mvc/export_blob_example.yaml')
+
+# Convert into gif
+with open('blob.gif', 'wb') as f:
+    f.write(blob.getvalue())
 ````
 
 This function returns a GIF in `io.BytesIO` object.
