@@ -7,8 +7,9 @@
 from __future__ import annotations
 import time
 import logging
-from typing import List
+from typing import List, Union
 from pathlib import Path
+from io import BytesIO
 from abc import abstractmethod
 import numpy as np
 import numpy.typing as npt
@@ -106,13 +107,14 @@ class VideoRenderController(Controller):
         self.frames_rendered += 1
         self.progress_bar.update(1)
 
-    def _cleanup_after_run_loop(self) -> None:
+    def _cleanup_after_run_loop(self) -> Union[BytesIO, None]:
         logging.info(f'Rendered {self.frames_rendered} frames in {time.time()-self.run_loop_start_time} seconds.')
         self.view.cleanup()
 
         _time = time.time()
-        self.video_writer.cleanup()
+        blob = self.video_writer.cleanup()
         logging.info(f'Wrote video to file in in {time.time()-_time} seconds.')
+        return blob
 
 
 class VideoWriter():
@@ -156,7 +158,7 @@ class VideoWriter():
 class GIFWriter(VideoWriter):
     """ Video writer for creating transparent, animated GIFs with Pillow """
 
-    def __init__(self, controller: VideoRenderController) -> None:
+    def __init__(self, controller: VideoRenderController, cfg: ControllerConfig) -> None:
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
         self.output_p = Path(controller.cfg.output_video_path)
 
@@ -168,6 +170,8 @@ class GIFWriter(VideoWriter):
 
         self.frames: List[npt.NDArray[np.uint8]] = []
 
+        self.mode = cfg.mode
+
     def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
         """ Reorder channels and save frames as they arrive"""
         self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
@@ -178,12 +182,14 @@ class GIFWriter(VideoWriter):
         self.output_p.parent.mkdir(exist_ok=True, parents=True)
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
-        ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
+        ims[0].save(self.output_p if self.mode == "bool" else blob := BytesIO(), save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
+        
+        return blob if blob is not None else None
 
 
 class MP4Writer(VideoWriter):
     """ Video writer for creating mp4 videos with cv2.VideoWriter """
-    def __init__(self, controller: VideoRenderController) -> None:
+    def __init__(self, controller: VideoRenderController, cfg: ControllerConfig) -> None:
 
         # validate and prep output path
         if isinstance(controller.cfg.output_video_path, NoneType):
