@@ -5,7 +5,8 @@
 """ Controller Abstract Base Class Module """
 
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Union
+from io import BytesIO
 from abc import abstractmethod
 import logging
 
@@ -70,10 +71,10 @@ class Controller():
         """Subclass and add anything necessary to do immediately prior to run loop. """
 
     @abstractmethod
-    def _cleanup_after_run_loop(self) -> None:
+    def _cleanup_after_run_loop(self) -> Union[BytesIO, None]:
         """Subclass and add anything necessary to do after run loop has finished. """
 
-    def run(self) -> None:
+    def run(self) -> Union[BytesIO, None]:
         """ The run loop. Subclassed controllers should overload and define functionality for each step in this function."""
 
         self._prep_for_run_loop()
@@ -85,12 +86,12 @@ class Controller():
             self._handle_user_input()
             self._finish_run_loop_iteration()
 
-        self._cleanup_after_run_loop()
+        return self._cleanup_after_run_loop()
 
     @staticmethod
     def create_controller(controller_cfg: ControllerConfig, scene: Scene, view: View) -> Controller:
         """ Takes in a controller dictionary from mvc config file, scene, and view. Constructs and return appropriate controller."""
-        if controller_cfg.mode == 'video_render':
+        if controller_cfg.mode == 'video_render' or 'blob_render':
             from animated_drawings.controller.video_render_controller import VideoRenderController
             return VideoRenderController(controller_cfg, scene, view,)
         elif controller_cfg.mode == 'interactive':

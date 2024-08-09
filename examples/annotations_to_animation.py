@@ -27,7 +27,7 @@ def annotations_to_animation(char_anno_dir: str, motion_cfg_fn: str, retarget_cf
     mvc_cfg = {
         'scene': {'ANIMATED_CHARACTERS': [animated_drawing_dict]},  # add the character to the scene
         'controller': {
-            'MODE': 'video_render',  # 'video_render' or 'interactive'
+            'MODE': 'video_render',  # 'video_render', 'blob_render', or 'interactive'
             'OUTPUT_VIDEO_PATH': str(Path(char_anno_dir, 'video.gif').resolve())}  # set the output location
     }
 

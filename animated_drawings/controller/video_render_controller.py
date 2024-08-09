@@ -7,8 +7,9 @@
 from __future__ import annotations
 import time
 import logging
-from typing import List
+from typing import List, Union
 from pathlib import Path
+from io import BytesIO
 from abc import abstractmethod
 import numpy as np
 import numpy.typing as npt
@@ -46,7 +47,7 @@ class VideoRenderController(Controller):
         self.video_height: int
         self.video_width, self.video_height = self.view.get_framebuffer_size()
 
-        self.video_writer: VideoWriter = VideoWriter.create_video_writer(self)
+        self.video_writer: VideoWriter = VideoWriter.create_video_writer(self, cfg)
 
         self.frame_data = np.empty([self.video_height, self.video_width, 4], dtype='uint8')  # 4 for RGBA
 
@@ -106,13 +107,14 @@ class VideoRenderController(Controller):
         self.frames_rendered += 1
         self.progress_bar.update(1)
 
-    def _cleanup_after_run_loop(self) -> None:
+    def _cleanup_after_run_loop(self) -> Union[BytesIO, None]:
         logging.info(f'Rendered {self.frames_rendered} frames in {time.time()-self.run_loop_start_time} seconds.')
         self.view.cleanup()
 
         _time = time.time()
-        self.video_writer.cleanup()
+        blob = self.video_writer.cleanup()
         logging.info(f'Wrote video to file in in {time.time()-_time} seconds.')
+        return blob
 
 
 class VideoWriter():
@@ -132,21 +134,21 @@ class VideoWriter():
         pass
 
     @staticmethod
-    def create_video_writer(controller: VideoRenderController) -> VideoWriter:
+    def create_video_writer(controller: VideoRenderController, cfg: ControllerConfig) -> VideoWriter:
 
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
 
         output_p = Path(controller.cfg.output_video_path)
         output_p.parent.mkdir(exist_ok=True, parents=True)
 
-        msg = f' Writing video to: {output_p.resolve()}'
+        msg = f' Writing video to: {"blob" if cfg.mode == "blob_render" else output_p.resolve()}'
         logging.info(msg)
         print(msg)
 
-        if output_p.suffix == '.gif':
-            return GIFWriter(controller)
+        if output_p.suffix == '.gif' or cfg.mode == "blob_render":
+            return GIFWriter(controller, cfg)
         elif output_p.suffix == '.mp4':
-            return MP4Writer(controller)
+            return MP4Writer(controller, cfg)
         else:
             msg = f'Unsupported output video file extension ({output_p.suffix}). Only .gif and .mp4 are supported.'
             logging.critical(msg)
@@ -156,7 +158,7 @@ class VideoWriter():
 class GIFWriter(VideoWriter):
     """ Video writer for creating transparent, animated GIFs with Pillow """
 
-    def __init__(self, controller: VideoRenderController) -> None:
+    def __init__(self, controller: VideoRenderController, cfg: ControllerConfig) -> None:
         assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
         self.output_p = Path(controller.cfg.output_video_path)
 
@@ -168,22 +170,30 @@ class GIFWriter(VideoWriter):
 
         self.frames: List[npt.NDArray[np.uint8]] = []
 
+        self.mode = cfg.mode
+
     def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
         """ Reorder channels and save frames as they arrive"""
         self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
 
-    def cleanup(self) -> None:
+    def cleanup(self) -> None | BytesIO:
         """ Write all frames to output path specified."""
         from PIL import Image
-        self.output_p.parent.mkdir(exist_ok=True, parents=True)
-        logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
+        if not self.mode == "blob_render":
+            self.output_p.parent.mkdir(exist_ok=True, parents=True)
+        logging.info(f'VideoWriter will write to {"blob" if self.mode == "blob_render" else self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
-        ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
+        ims[0].save(blob := BytesIO() if self.mode == "blob_render" else self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0, format="gif")
+        
+        try:
+            return blob
+        except NameError:
+            return None
 
 
 class MP4Writer(VideoWriter):
     """ Video writer for creating mp4 videos with cv2.VideoWriter """
-    def __init__(self, controller: VideoRenderController) -> None:
+    def __init__(self, controller: VideoRenderController, cfg: ControllerConfig) -> None:
 
         # validate and prep output path
         if isinstance(controller.cfg.output_video_path, NoneType):

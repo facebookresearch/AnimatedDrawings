@@ -25,7 +25,7 @@ def start(user_mvc_cfg_fn: str):
     controller = Controller.create_controller(cfg.controller, scene, view)
 
     # start the run loop
-    controller.run()
+    return controller.run()
 
 
 if __name__ == '__main__':
