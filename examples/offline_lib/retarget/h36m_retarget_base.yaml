@@ -7,7 +7,7 @@ bvh_projection_bodypart_groups:
       - LeftArm
       - LeftForeArm
       - LeftHand
-    method: pca #sagittal
+    method: pca #frontal #pca #sagittal
     name: Upper Limbs
   - bvh_joint_names:
       - RightUpLeg
@@ -16,14 +16,14 @@ bvh_projection_bodypart_groups:
       - LeftUpLeg
       - LeftLeg
       - LeftFoot
-    method: pca
+    method: pca #frontal #pca
     name: Lower Limbs
   - bvh_joint_names:
       - Hips
       - Spine
       - Spine3
       - Neck
-    method: frontal
+    method: frontal #pca #frontal
     name: Trunk
 char_bodypart_groups:
   - bvh_depth_drivers:

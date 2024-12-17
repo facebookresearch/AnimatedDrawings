@@ -182,4 +182,4 @@ if __name__ == '__main__':
     main_cfg = combine_cfg_and_args()
     main_cfg_path = reload_config_files(main_cfg)
     render.start(main_cfg_path)
-    shutil.rmtree(tmp_dir)
+    # shutil.rmtree(tmp_dir)
