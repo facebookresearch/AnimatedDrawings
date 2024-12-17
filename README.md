@@ -1,12 +1,17 @@
 # Simplified Animated Drawings
 
-This is the simplified version of [facebookresearch/AnimatedDrawings: Code to accompany "A Method for Animating Children's Drawings of the Human Figure" (github.com)](https://github.com/facebookresearch/AnimatedDrawings). here we can **custom your monocular video and drawing as input**, framework will automatically generate corresponding animation. All processes are in **end-to-end way**.
+This is the simplified version
+of [facebookresearch/AnimatedDrawings: Code to accompany "A Method for Animating Children's Drawings of the Human Figure" (github.com)](https://github.com/facebookresearch/AnimatedDrawings)
+. here we can **custom your monocular video and drawing as input**, framework will automatically generate corresponding
+animation. All processes are in **end-to-end way**.
 
+**If you want to see more details in initial README.md, [clik here.](OFFICIAL_README.md)**
 
+Here are some generated 2D animation:
 
-**If you want to see more details in initial README.md, [clik here](OFFICIAL_README.md)**
-
-
+|  demo1             |         demo2        |      demo3     |  
+| -------------------| -------------------- |----------------|
+|  ![demo1](media/offline_combine_demo_1.gif)    |   ![demo2](media/offline_combine_demo_2.gif)                |  ![demo3](media/offline_combine_demo_3.gif) |  
 
 ## Installation
 
@@ -62,8 +67,8 @@ python offline_demo.py \
 --out_vid <output_video_path>
 ```
 
-**Attention: Currently, the projection way proposed in the thesis is static, if you want to get more interesting projection
-way, please modify [certain retarget config file](examples/offline_lib/retarget/h36m_retarget_base.yaml).**
+**Attention: Currently, the projection way proposed in the thesis is static, if you want to get more interesting
+projection way, please modify [certain retarget config file](examples/offline_lib/retarget/h36m_retarget_base.yaml).**
 
 The final result may get this:
 ![offline_demo](media/offline_demo.gif)
