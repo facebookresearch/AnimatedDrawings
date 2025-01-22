@@ -74,5 +74,3 @@ projection way, please modify [certain retarget config file](examples/offline_li
 
 The final result may get this:
 ![offline_demo](media/offline_demo.gif)
-
-3. If you want to see 
