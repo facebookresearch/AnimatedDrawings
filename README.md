@@ -13,9 +13,16 @@ Here are some generated 2D animation:
 | -------------------| -------------------- |----------------|
 |  ![demo1](media/offline_combine_demo_1.gif)    |   ![demo2](media/offline_combine_demo_2.gif)                |  ![demo3](media/offline_combine_demo_3.gif) |  
 
+**Tips:**
+We also provide an interactive frontend-backend separation system. For more details, please see [fronted-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/client_pr) and [backend-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/server_pr).
+
+|  Step1             |         Step2        |      Step3     |        Step4     |  
+| -------------------| -------------------- |----------------|----------------|
+|  ![step1](media/system/1.png)    |   ![step2](media/system/2.png)                |  ![step3](media/system/3.png) |  ![step4](media/system/4.gif)  |
+
 ## Installation
 
-*This project has been tested with macOS Ventura 13.2.1 and Ubuntu 18.04. If you're installing on another operating
+*This project has been tested with Windows 11. If you're installing on another operating
 system, you may encounter issues.*
 
 We *strongly* recommend activating a Python virtual environment prior to installing Animated Drawings. Conda's Miniconda
@@ -33,12 +40,7 @@ download and install it. Then run the following commands:
     pip install -e .
 ````
 
-Mac M1/M2 users: if you get architecture errors, make sure your `~/.condarc` does not have `osx-64`, but
-only `osx-arm64` and `noarch` in its subdirs listing. You can see that it's going to go sideways as early
-as `conda create` because it will show `osx-64` instead of `osx-arm64` versions of libraries under "The following NEW
-packages will be INSTALLED".
-
-### Crate Animation from Monocular Video(Experimental)
+### Crate Animation from Monocular Video
 
 Now, to simplify process, all you need to do is provide a drawing and a single person video to generate an animation in
 the offline mode and virutal conda environment locally!!
@@ -72,3 +74,5 @@ projection way, please modify [certain retarget config file](examples/offline_li
 
 The final result may get this:
 ![offline_demo](media/offline_demo.gif)
+
+3. If you want to see 
