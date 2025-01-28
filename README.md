@@ -9,12 +9,12 @@ animation. All processes are in **end-to-end way**.
 
 Here are some generated 2D animation:
 
-|  demo1             |         demo2        |      demo3     |  
-| -------------------| -------------------- |----------------|
-|  ![demo1](media/offline_combine_demo_1.gif)    |   ![demo2](media/offline_combine_demo_2.gif)                |  ![demo3](media/offline_combine_demo_3.gif) |  
+| Demo1                                      | Demo2                                      | Demo3                                      |
+| ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
+| ![demo1](media/offline_combine_demo_1.gif) | ![demo2](media/offline_combine_demo_2.gif) | ![demo3](media/offline_combine_demo_3.gif) |
 
 **Tips:**
-We also provide an interactive frontend-backend separation system. For more details, please see [fronted-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/client_pr) and [backend-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/server_pr).
+We also provide an interactive frontend-backend separation system. For more details, please see [fronted-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/client_pr) and [backend-branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/server_pr). **You need to start the backend first, and then the frontend.**
 
 |  Step1             |         Step2        |      Step3     |        Step4     |  
 | -------------------| -------------------- |----------------|----------------|
@@ -74,3 +74,26 @@ projection way, please modify [certain retarget config file](examples/offline_li
 
 The final result may get this:
 ![offline_demo](media/offline_demo.gif)
+
+
+
+# Some Important Details
+
+## Model Weight Deployment
+
+Here, we are using the model weights provided by xx. Since they used the [mmpose](https://github.com/open-mmlab/mmpose) and [mmdetection](https://github.com/open-mmlab/mmdetection) frameworks, in order to avoid these complex dependencies, we exported the weights as *.onnx using the export framework in these frameworks. This way, we no longer need these complicated files for subsequent steps. If you want to learn steps about how to transfer them, see details in [deployment branch](https://github.com/Brian417-cup/AnimatedDrawings/tree/model_weight_deployment).
+
+
+
+## Custom BVH
+
+Currently, the method we use to obtain BVH from the 3D pose estimation points is based on the approach provided in [VideoTo3dPoseAndBvh](https://github.com/HW140701/VideoTo3dPoseAndBvh). For more alternative solutions, please refer to [following instructions](https://github.com/Brian417-cup/EHGFormer/blob/main/doc/inference.md) **(Application for Motion Capture Section)**.
+
+# Acknowledgement
+
+Our code is extended from the following repositories. We thank the authors for releasing the codes.
+
+- [EHGFormer](https://github.com/Brian417-cup/EHGFormer)
+- [AnimatedDrawings](https://github.com/facebookresearch/AnimatedDrawings)
+- [LiveCharacter](https://github.com/Keneyr/LiveCharacter)
+- [VideoTo3dPoseAndBvh](https://github.com/HW140701/VideoTo3dPoseAndBvh)
