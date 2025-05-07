@@ -448,8 +448,11 @@ class SketchDetectorAndEstimator():
         else:
             self.detector = None
 
-        assert osp.exists(estimator_path), 'Path for estimator should exist!!'
-        self.estimator = SketchPoseEstimator(model_path=estimator_path)
+        if estimator_path is not None:
+            assert osp.exists(estimator_path), 'Path for estimator should exist!!'
+            self.estimator = SketchPoseEstimator(model_path=estimator_path)
+        else:
+            self.estimator = None
 
     def inference(self, img_path: str, show_res: bool = False,
                   need_mask: bool = False, morphops_iteration: int = 15,
@@ -466,18 +469,45 @@ class SketchDetectorAndEstimator():
         Returns:
 
         '''
-        if self.detector is not None:
-            detector_res: List[Dict[str, npt.NDArray[np.float32]]] = self.detector.inference(img_path=img_path,
-                                                                                             show_res=show_res)
-            # [x1,y1,x2,y2]
-            bbox = detector_res[0]['bbox']
+        if self.estimator is not None:
+            if self.detector is not None:
+                detector_res: List[Dict[str, npt.NDArray[np.float32]]] = self.detector.inference(img_path=img_path,
+                                                                                                 show_res=show_res)
+                # [x1,y1,x2,y2]
+                bbox = detector_res[0]['bbox']
 
-        # [V,C=2], Dict { joint_name: (x,y) }
-        keypoints_res, joint_name_to_xy_dict = self.estimator.inference(img_path=img_path, bounding_bbox=bbox,
-                                                                        show_res=show_res)
-        # write result
-        self._write_result(img_path, out_dir, bbox=bbox, joint_name_to_xy_dict=joint_name_to_xy_dict,
-                           need_mask=need_mask, show_mask=show_res, morphops_iteration=morphops_iteration)
+            # [V,C=2], Dict { joint_name: (x,y) }
+            keypoints_res, joint_name_to_xy_dict = self.estimator.inference(img_path=img_path, bounding_bbox=bbox,
+                                                                            show_res=show_res)
+            # write result
+            self._write_result(img_path, out_dir, bbox=bbox, joint_name_to_xy_dict=joint_name_to_xy_dict,
+                               need_mask=need_mask, show_mask=show_res, morphops_iteration=morphops_iteration)
+        else:
+            self._write_result_common(img_path, out_dir,
+                                      need_mask=need_mask, show_mask=show_res, morphops_iteration=morphops_iteration)
+
+    def _write_result_common(self, img_path: str, out_dir: str, need_mask: bool = True,
+                             morphops_iteration: int = 15, show_mask: bool = False):
+        if need_mask:
+            img_data = cv2.imread(img_path)
+            img_h, img_w = img_data.shape[:2]
+
+            img_name, img_suffix = osp.basename(img_path).split('.')[0], osp.basename(img_path).split('.')[-1]
+            output_base_dir = osp.join(out_dir)
+            os.makedirs(output_base_dir, exist_ok=True)
+            cropped_img_path = osp.join(output_base_dir, 'cropped_image.' + img_suffix)
+
+            cv2.imwrite(cropped_img_path, img_data)
+            img_mask = self._get_mask(img_data=img_data, show_res=show_mask, morphops_iteration=morphops_iteration)
+            img_name, img_suffix = osp.basename(img_path).split('.')[0], osp.basename(img_path).split('.')[-1]
+            output_base_dir = osp.join(out_dir)
+            os.makedirs(output_base_dir, exist_ok=True)
+            mask_img_path = osp.join(output_base_dir, 'mask_image.' + img_suffix)
+
+            cv2.imwrite(mask_img_path, img_mask)
+            print('>> Successfully save segmented image file for character in', mask_img_path, '!!')
+            print('>> Successfully save cropped image file for character in', cropped_img_path, '!!')
+            self.mask_img_path = mask_img_path
 
     def _write_result(self, img_path: str, out_dir: str, bbox: List[int] = None,
                       joint_name_to_xy_dict: Dict[str, npt.NDArray[np.int32]] = Dict,

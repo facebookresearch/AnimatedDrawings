@@ -7,6 +7,10 @@ animation. All processes are in **end-to-end way**.
 
 **If you want to see more details in initial README.md, [clik here.](OFFICIAL_README.md)**
 
+![framework](media/total_framework.png)
+
+
+
 Here are some generated 2D animation:
 
 | Demo1                                      | Demo2                                      | Demo3                                      |
@@ -88,6 +92,45 @@ Here, we are using the model weights provided by xx. Since they used the [mmpose
 ## Custom BVH
 
 Currently, the method we use to obtain BVH from the 3D pose estimation points is based on the approach provided in [VideoTo3dPoseAndBvh](https://github.com/HW140701/VideoTo3dPoseAndBvh). For more alternative solutions, please refer to [following instructions](https://github.com/Brian417-cup/EHGFormer/blob/main/doc/inference.md) **(Application for Motion Capture Section)**.
+
+
+
+## Addition Character Skeletons
+
+| Demo1                        | Demo2                            | Demo3                        |
+| ---------------------------- | -------------------------------- | ---------------------------- |
+| ![demo1](media/pig_walk.gif) | ![demo2](media/pig_sit_down.gif) | ![demo3](media/pig_jump.gif) |
+
+
+
+Here, we refer initial version in [AnimatedDrawings](https://github.com/facebookresearch/AnimatedDrawings) to specify a different skeletons within the `character_cfg` and modify the specified `retarget config` when execute in console, just like following command:
+
+```sh
+cd examples
+python offline_demo_common.py \
+--src_sketch <your_custom_drawing_path> \
+--src_src_character_config <your custom character config file includes image width, height and custom keypoints> \
+--src_retarget_config <your custom retarget config file> \
+--src_motion_config <if the motion type is video or bvh estimated with h36, format, this parameter can be ignored> \
+--src_motion <your_source_video_path_or_bvh_file_path> \
+--out_vid <output_video_path>
+```
+
+
+
+**Tips:**As for the parameter of `src_motion_config` , here is an example,:
+
+```sh
+cd examples
+python offline_demo_common.py \
+--src_sketch characters/char6/texture.png \
+--src_character_config characters/char6/char_cfg.yaml \
+--src_retarget_config config/retarget/four_legs.yaml \
+--src_motion_config config/motion/zombie.yaml \
+--src_motion bvh\fair1\zombie.bvh
+```
+
+
 
 # Acknowledgement
 
