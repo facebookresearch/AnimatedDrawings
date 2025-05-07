@@ -118,7 +118,7 @@ python offline_demo_common.py \
 
 
 
-**Tips:**As for the parameter of `src_motion_config` , here is an example,:
+**Tips:** As for the parameter of `src_motion_config` , here is an example,:
 
 ```sh
 cd examples
