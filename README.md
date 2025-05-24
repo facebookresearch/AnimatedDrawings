@@ -1,11 +1,17 @@
 # Simplified Animated Drawings
 
 This is the simplified version
-of [facebookresearch/AnimatedDrawings: Code to accompany "A Method for Animating Children's Drawings of the Human Figure" (github.com)](https://github.com/facebookresearch/AnimatedDrawings)
+of [Code to accompany "A Method for Animating Children's Drawings of the Human Figure"](https://github.com/facebookresearch/AnimatedDrawings)
 . here we can **custom your monocular video and drawing as input**, framework will automatically generate corresponding
 animation. All processes are in **end-to-end way**.
 
 **If you want to see more details in initial README.md, [clik here.](OFFICIAL_README.md)**
+
+
+
+**Tips: Currently, I have opened issues for this repository. If you have any question, feel free to come up your issue.**
+
+
 
 ![framework](media/total_framework.png)
 
@@ -111,7 +117,7 @@ python offline_demo_common.py \
 --src_sketch <your_custom_drawing_path> \
 --src_src_character_config <your custom character config file includes image width, height and custom keypoints> \
 --src_retarget_config <your custom retarget config file> \
---src_motion_config <if the motion type is video or bvh estimated with h36, format, this parameter can be ignored> \
+--src_motion_config <if the motion type is video or bvh estimated with classic Human3.6M\'s format, this parameter can be ignored> \
 --src_motion <your_source_video_path_or_bvh_file_path> \
 --out_vid <output_video_path>
 ```
