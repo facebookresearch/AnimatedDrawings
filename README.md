@@ -1,3 +1,25 @@
+# Gradio UI for Animated Drawings
+I really love the Animated Drawings tool, but it was quite hard to explain how to use it to friends. This is why i decided to create this more convinient way using a Gradio Interface.
+
+To utilize this tool, follow these simple steps:
+
+### Setup and Starting the Gradio UI
+0. Run the shell script "start_gradio.sh" in the terminal. It will install gradio and run the "gradio_script.py" script. open the localhost on your browser and start using it!
+
+### Inside of the GUI
+1. Input the directory path to your AnimatedDrawings folder.
+2. Specify your desired output directory for the generated .yaml file.
+3. Click the "Refresh" button to populate the drop-down menus for Character, Motion, and Target. This action will populate these fields based on the folder names in the .../AnimatedDrawings/examples/characters directory for Characters, filenames in the .../AnimatedDrawings/config/motion directory for Motion, and filenames in the .../AnimatedDrawings/config/retarget directory for Target.
+4. Next, select your preferred export option - file only, video, or GIF. Choosing MP4 will present a preview directly in the Gradio interface.
+5. Finally, click "Export" to generate and export your MVC .yaml files.
+
+I hope you all find this tool beneficial and enjoyable to use. My next step will involve the Docker part of AnimatedDrawings, though I'm still familiarizing myself with it, so stay tuned for more developments!
+
+
+### Demo Video
+https://github.com/vensu-art/AnimatedDrawingsGradio/assets/116193678/107204cc-b4c4-42d0-8abf-510c5df4c46a
+
+
 # Animated Drawings
 
 ![Sequence 02](https://user-images.githubusercontent.com/6675724/219223438-2c93f9cb-d4b5-45e9-a433-149ed76affa6.gif)
