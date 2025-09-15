@@ -6,6 +6,77 @@ import os
 os.environ['PYOPENGL_PLATFORM'] = "osmesa"
 os.environ['MESA_GL_VERSION_OVERRIDE'] = "3.3"
 from OpenGL import GL, osmesa
+import subprocess
+from pathlib import Path
+
+# Configure OSMesa library path for macOS
+if platform.system() == "Darwin":
+
+    def _find_osmesa_library():
+        """Find OSMesa library on macOS, checking multiple possible locations."""
+        # Possible library paths in order of preference
+        possible_paths = []
+
+        # Try to detect Homebrew prefix dynamically
+        try:
+            result = subprocess.run(
+                ["brew", "--prefix"], capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                brew_prefix = result.stdout.strip()
+                possible_paths.append(f"{brew_prefix}/lib")
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.CalledProcessError,
+            FileNotFoundError,
+        ):
+            # Homebrew not available, continue with fallbacks
+            pass
+
+        # Fallback to common Homebrew locations
+        possible_paths.extend(
+            [
+                "/opt/homebrew/lib",  # Apple Silicon default
+                "/usr/local/lib",  # Intel Mac default
+            ]
+        )
+
+        # System locations
+        possible_paths.extend(
+            [
+                "/usr/lib",
+                "/System/Library/Frameworks/OpenGL.framework/Libraries",
+            ]
+        )
+
+        # Look for OSMesa library in each path
+        for lib_path in possible_paths:
+            if not os.path.exists(lib_path):
+                continue
+
+            # Check for different possible library names
+            for lib_name in ["libOSMesa.dylib", "libOSMesa.8.dylib", "OSMesa"]:
+                full_path = os.path.join(lib_path, lib_name)
+                if os.path.exists(full_path):
+                    return lib_path, full_path
+
+        return None, None
+
+    # Find OSMesa library
+    lib_dir, osmesa_lib_path = _find_osmesa_library()
+
+    if lib_dir:
+        # Add library directory to DYLD_LIBRARY_PATH
+        current_dyld_path = os.environ.get("DYLD_LIBRARY_PATH", "")
+        if lib_dir not in current_dyld_path:
+            if current_dyld_path:
+                os.environ["DYLD_LIBRARY_PATH"] = f"{lib_dir}:{current_dyld_path}"
+            else:
+                os.environ["DYLD_LIBRARY_PATH"] = lib_dir
+
+    if osmesa_lib_path:
+        # Set the specific OSMesa library path for PyOpenGL
+        os.environ["OSMESA_LIBRARY"] = osmesa_lib_path
 
 from animated_drawings.model.camera import Camera
 from animated_drawings.model.scene import Scene
